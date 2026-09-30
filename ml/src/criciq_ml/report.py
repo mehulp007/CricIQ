@@ -14,7 +14,7 @@ from typing import Any
 import duckdb
 
 from criciq_core import paths
-from criciq_ml import registry
+from criciq_ml import projection_report, registry
 
 FEATURE_LABELS: dict[str, str] = {
     "legal_balls": "Legal balls bowled",
@@ -394,7 +394,12 @@ def model_card(data: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def write_all(version: str, serving: Path) -> list[Path]:
+def write_all(serving: Path) -> list[Path]:
+    """Model cards and Model Insights data for every current model."""
+    written = projection_report.write_all()
+    version = registry.current_version()
+    if version is None:
+        return written
     data = insights(version, serving)
     INSIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     INSIGHTS_PATH.write_text(
@@ -402,4 +407,4 @@ def write_all(version: str, serving: Path) -> list[Path]:
     )
     MODEL_CARD_PATH.parent.mkdir(parents=True, exist_ok=True)
     MODEL_CARD_PATH.write_text(model_card(data), encoding="utf-8", newline="\n")
-    return [INSIGHTS_PATH, MODEL_CARD_PATH]
+    return [INSIGHTS_PATH, MODEL_CARD_PATH, *written]

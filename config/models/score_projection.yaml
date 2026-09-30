@@ -1,0 +1,37 @@
+# Score projection: training configuration.
+#
+# Seasons never do two jobs: hyperparameters are tuned on one pair of seasons,
+# the conformal calibration uses the next pair, and the test seasons are
+# touched once, for the report.
+
+name: score_projection
+version: 1.0.0
+
+splits:
+  tune_train_through: 2020   # grid candidates are fit on 2008-2020 ...
+  tune_valid: [2021, 2022]   # ... with early stopping and selection here
+  calibrate: [2023, 2024]    # conformal shifts for the headline model
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit < s-2, calibrate s-2 and s-1, test s
+
+lightgbm:
+  base:
+    learning_rate: 0.05
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    max_rounds: 1500
+    early_stopping_rounds: 100
+    seed: 7
+  grid:
+    num_leaves: [7, 15]
+    # Rows are balls, but a total is shared by a whole innings (~120 rows):
+    # leaves must span many innings or the trees memorise individual games.
+    min_data_in_leaf: [1000, 3000]
+
+# Totals used to evaluate "P(total >= X)".
+thresholds: [160, 180, 200, 220]
+
+gate:
+  coverage_band: [0.75, 0.85]   # 80% range must cover 75-85% of test totals

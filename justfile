@@ -52,7 +52,7 @@ dev-web:
 data *args:
     uv run criciq-data {{args}}
 
-# Models CLI, e.g. `just ml train`, `just ml score` or `just ml report`
+# Models CLI, e.g. `just ml train score_projection`, `just ml score` or `just ml report`
 ml *args:
     uv run criciq-ml {{args}}
 

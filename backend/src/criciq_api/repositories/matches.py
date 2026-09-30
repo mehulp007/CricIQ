@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Literal
 
@@ -222,11 +223,25 @@ def get_substitutions(db: Database, match_id: int) -> list[Row]:
     )
 
 
-def get_win_probability_model(db: Database) -> Row | None:
-    """The model behind the stored win probabilities (None if the data was never scored)."""
+def get_model(db: Database, name: str) -> Row | None:
+    """A model behind stored predictions, with its `info` decoded (None if never scored)."""
     if not db.has_table("models"):
         return None
-    return db.row("SELECT * FROM models WHERE name = 'win_probability'")
+    row = db.row("SELECT * FROM models WHERE name = ?", [name])
+    if row is None:
+        return None
+    info = row.pop("info")
+    return {**row, **(json.loads(info) if isinstance(info, str) else info)}
+
+
+def get_score_projections(db: Database, match_id: int) -> list[Row]:
+    """First-innings total quantiles after every ball; seq_no 0 = before the first ball."""
+    if not db.has_table("score_projections"):
+        return []
+    return db.rows(
+        "SELECT seq_no, quantiles FROM score_projections WHERE match_id = ? ORDER BY seq_no",
+        [match_id],
+    )
 
 
 def get_win_probabilities(db: Database, match_id: int) -> list[Row]:

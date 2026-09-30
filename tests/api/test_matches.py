@@ -205,3 +205,19 @@ def test_timeline_without_model_scores_still_replays(unscored_client: TestClient
     assert timeline["win_probability"] is None
     assert all(d["wp"] is None for d in timeline["deliveries"])
     assert all(i["wp_start"] is None for i in timeline["innings"])
+
+
+def test_first_innings_carries_score_projections(client: TestClient) -> None:
+    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    model = timeline["score_projection"]
+    assert model["levels"] == [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+    first = [d for d in timeline["deliveries"] if d["innings_no"] == 1]
+    chase = [d for d in timeline["deliveries"] if d["innings_no"] == 2]
+    assert len(timeline["innings"][0]["projection_start"]) == 7
+    assert timeline["innings"][1]["projection_start"] is None
+    for d in first[:-1]:
+        q = d["projection"]
+        assert q == sorted(q)
+        assert q[0] >= d["team_runs"]
+    assert first[-1]["projection"] is None  # the innings is over: the total is known
+    assert all(d["projection"] is None for d in chase)

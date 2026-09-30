@@ -324,6 +324,23 @@ export interface components {
             /** Player Id */
             player_id: string;
         };
+        /**
+         * ScoreProjectionModel
+         * @description The model behind a timeline's first-innings score projections.
+         */
+        ScoreProjectionModel: {
+            /**
+             * Levels
+             * @description Quantile level of each value in `projection`.
+             */
+            levels: number[];
+            /** Trained From */
+            trained_from: number;
+            /** Trained Through */
+            trained_through: number;
+            /** Version */
+            version: string;
+        };
         /** SeasonInfo */
         SeasonInfo: {
             /** Impact Player Rule */
@@ -377,6 +394,8 @@ export interface components {
             players: {
                 [key: string]: components["schemas"]["TimelinePlayer"];
             };
+            /** @description Present when the first innings has score projections. */
+            score_projection?: components["schemas"]["ScoreProjectionModel"] | null;
             /** Substitutions */
             substitutions: components["schemas"]["TimelineSubstitution"][];
             summary: components["schemas"]["MatchSummary"];
@@ -428,6 +447,11 @@ export interface components {
             over_no: number;
             /** Penalty */
             penalty: number;
+            /**
+             * Projection
+             * @description First innings only: quantiles of the final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).
+             */
+            projection?: number[] | null;
             /** Runs Batter */
             runs_batter: number;
             /** Runs Extras */
@@ -472,6 +496,11 @@ export interface components {
              * @description Legal balls available to the batting side.
              */
             max_balls: number;
+            /**
+             * Projection Start
+             * @description First innings only: quantiles of the final total before the first ball.
+             */
+            projection_start?: number[] | null;
             /** Target Balls */
             target_balls: number | null;
             /** Target Runs */

@@ -635,6 +635,39 @@
         "title": "PlayerRef",
         "type": "object"
       },
+      "ScoreProjectionModel": {
+        "description": "The model behind a timeline's first-innings score projections.",
+        "properties": {
+          "levels": {
+            "description": "Quantile level of each value in `projection`.",
+            "items": {
+              "type": "number"
+            },
+            "title": "Levels",
+            "type": "array"
+          },
+          "trained_from": {
+            "title": "Trained From",
+            "type": "integer"
+          },
+          "trained_through": {
+            "title": "Trained Through",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "trained_from",
+          "trained_through",
+          "levels"
+        ],
+        "title": "ScoreProjectionModel",
+        "type": "object"
+      },
       "SeasonInfo": {
         "properties": {
           "impact_player_rule": {
@@ -775,6 +808,17 @@
             "title": "Players",
             "type": "object"
           },
+          "score_projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreProjectionModel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present when the first innings has score projections."
+          },
           "substitutions": {
             "items": {
               "$ref": "#/components/schemas/TimelineSubstitution"
@@ -897,6 +941,21 @@
             "title": "Penalty",
             "type": "integer"
           },
+          "projection": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "First innings only: quantiles of the final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).",
+            "title": "Projection"
+          },
           "runs_batter": {
             "title": "Runs Batter",
             "type": "integer"
@@ -1013,6 +1072,21 @@
             "description": "Legal balls available to the batting side.",
             "title": "Max Balls",
             "type": "integer"
+          },
+          "projection_start": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "First innings only: quantiles of the final total before the first ball.",
+            "title": "Projection Start"
           },
           "target_balls": {
             "anyOf": [

@@ -18,3 +18,4 @@ export type TimelineInnings = Schemas["TimelineInnings"];
 export type TimelinePlayer = Schemas["TimelinePlayer"];
 export type TimelineSubstitution = Schemas["TimelineSubstitution"];
 export type WinProbabilityModel = Schemas["WinProbabilityModel"];
+export type ScoreProjectionModel = Schemas["ScoreProjectionModel"];

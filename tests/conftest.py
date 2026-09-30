@@ -95,4 +95,8 @@ def fixture_scored_serving_db(
     shutil.copyfile(fixture_serving_db, target)
     model = registry.load_current()
     scoring.publish(target, scoring.score_states(model, fixture_states), model)
+    projection = registry.load_current_projection()
+    scoring.publish_projections(
+        target, scoring.score_projections(projection, fixture_states), projection
+    )
     return target

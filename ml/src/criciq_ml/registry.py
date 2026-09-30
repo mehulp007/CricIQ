@@ -12,8 +12,10 @@ from typing import Any
 
 from criciq_core import paths
 from criciq_ml.model import WinProbabilityModel
+from criciq_ml.projection import ScoreProjectionModel
 
 NAME = "win_probability"
+PROJECTION = "score_projection"
 
 
 def root(name: str = NAME) -> Path:
@@ -36,6 +38,13 @@ def load_current(name: str = NAME) -> WinProbabilityModel:
     return WinProbabilityModel.load(version_dir(version, name))
 
 
+def load_current_projection() -> ScoreProjectionModel:
+    version = current_version(PROJECTION)
+    if version is None:
+        raise FileNotFoundError("no current score projection model; run `criciq-ml train`")
+    return ScoreProjectionModel.load(version_dir(version, PROJECTION))
+
+
 def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
     data: dict[str, Any] = json.loads(
         (version_dir(version, name) / "evaluation.json").read_text(encoding="utf-8")
@@ -43,7 +52,9 @@ def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
     return data
 
 
-def save(model: WinProbabilityModel, evaluation: dict[str, Any], name: str = NAME) -> Path:
+def save(
+    model: WinProbabilityModel | ScoreProjectionModel, evaluation: dict[str, Any], name: str = NAME
+) -> Path:
     target = version_dir(model.version, name)
     model.save(target)
     (target / "evaluation.json").write_text(
@@ -70,4 +81,20 @@ def gate(new: dict[str, Any], current: dict[str, Any] | None, tolerance: float) 
                 f"test log loss is {regression:.4f} worse than the current version "
                 f"(tolerance {tolerance})"
             )
+    return problems
+
+
+def projection_gate(evaluation: dict[str, Any], band: list[float]) -> list[str]:
+    """Reasons a score projection version must not be promoted (empty = promote)."""
+    test = evaluation["test"]
+    problems = []
+    low, high = band
+    if not low <= test["model"]["coverage80"] <= high:
+        problems.append(
+            f"80% range covers {test['model']['coverage80']:.1%} of test totals "
+            f"(must be {low:.0%}-{high:.0%})"
+        )
+    for metric in ("mae", "pinball"):
+        if test["model"][metric] >= test["par_baseline"][metric]:
+            problems.append(f"does not beat the par baseline on test {metric}")
     return problems

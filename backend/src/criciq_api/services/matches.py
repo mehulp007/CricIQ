@@ -17,6 +17,7 @@ from criciq_api.schemas.matches import (
     MatchPage,
     MatchSummary,
     PlayerRef,
+    ScoreProjectionModel,
     TeamRef,
     TeamScore,
     Timeline,
@@ -226,7 +227,14 @@ def get_detail(db: Database, match_id: int) -> MatchDetail:
 def get_timeline(db: Database, match_id: int) -> Timeline:
     summary = _summary(db, match_id)
     wp = {(r["innings_no"], r["seq_no"]): r for r in repo.get_win_probabilities(db, match_id)}
-    model_row = repo.get_win_probability_model(db) if wp else None
+    model_row = repo.get_model(db, "win_probability") if wp else None
+    projections = {
+        r["seq_no"]: list(r["quantiles"]) for r in repo.get_score_projections(db, match_id)
+    }
+    projection_row = repo.get_model(db, "score_projection") if projections else None
+
+    def projection(innings_no: int, seq_no: int) -> list[int] | None:
+        return projections.get(seq_no) if innings_no == 1 else None
 
     def probability(row: Row | None) -> float | None:
         return None if row is None else float(row["wp_team_a"])
@@ -271,6 +279,7 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 wicket=wicket,
                 wp=probability(p := wp.get((r["innings_no"], r["seq_no"]))),
                 factors=factors(p),
+                projection=projection(r["innings_no"], r["seq_no"]),
             )
         )
     return Timeline(
@@ -291,10 +300,12 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 max_balls=r["max_balls"],
                 wp_start=probability(s := wp.get((r["innings_no"], 0))),
                 factors_start=factors(s),
+                projection_start=projection(r["innings_no"], 0),
             )
             for r in repo.get_innings(db, match_id)
         ],
         deliveries=deliveries,
         substitutions=[TimelineSubstitution(**r) for r in repo.get_substitutions(db, match_id)],
         win_probability=WinProbabilityModel(**model_row) if model_row else None,
+        score_projection=ScoreProjectionModel(**projection_row) if projection_row else None,
     )

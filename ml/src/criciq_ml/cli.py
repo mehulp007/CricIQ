@@ -2,9 +2,10 @@
 
 Typical use::
 
-    criciq-ml train     # tune, evaluate, backtest; register and (if the gate passes) promote
-    criciq-ml score     # score every ball with the current model into the serving database
-    criciq-ml report    # model card + the Model Insights data bundled with the web app
+    criciq-ml train win_probability    # tune, evaluate, backtest; register and promote if gated
+    criciq-ml train score_projection
+    criciq-ml score     # score every ball with the current models into the serving database
+    criciq-ml report    # model cards + the Model Insights data bundled with the web app
 
 Deployments only run ``score``: training is an explicit, reviewed step whose
 artifacts are committed under ``models/``.
@@ -14,6 +15,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
+from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
 
@@ -25,6 +27,7 @@ from criciq_ml import registry, report, scoring
 from criciq_ml.config import load_config
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
+from criciq_ml.projection_training import load_projection_config, train_projection
 from criciq_ml.training import train_model
 
 app = typer.Typer(help="CricIQ models.", no_args_is_help=True, add_completion=False)
@@ -63,12 +66,12 @@ def features(
     typer.echo(f"  {len(states):,} match states for data version {version}")
 
 
-@app.command()
-def train(
-    promote: Annotated[bool, typer.Option(help="Make it current if the gate passes.")] = True,
-    force: Annotated[bool, typer.Option(help="Overwrite an existing version.")] = False,
-) -> None:
-    """Tune, evaluate and backtest a new model version, then register it."""
+class ModelName(StrEnum):
+    win_probability = "win_probability"
+    score_projection = "score_projection"
+
+
+def _train_win_probability(force: bool, promote: bool) -> None:
     cfg = load_config()
     target = registry.version_dir(cfg.version)
     if target.exists() and not force:
@@ -90,13 +93,52 @@ def train(
     current = registry.current_version()
     previous = registry.load_evaluation(current) if current and current != cfg.version else None
     problems = registry.gate(result.evaluation, previous, cfg.gate.max_log_loss_regression)
+    _finish(problems, promote, cfg.version, registry.NAME)
+
+
+def _train_score_projection(force: bool, promote: bool) -> None:
+    cfg = load_projection_config()
+    target = registry.version_dir(cfg.version, registry.PROJECTION)
+    if target.exists() and not force:
+        typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
+        raise typer.Exit(code=1)
+    states, data_version = _timed("building features", lambda: _states(paths.warehouse_path()))
+    model, evaluation = _timed(
+        "training",
+        lambda: train_projection(states, cfg, data_version=data_version, log=typer.echo),
+    )
+    registry.save(model, evaluation, registry.PROJECTION)
+    test = evaluation["test"]
+    typer.echo(
+        f"  test 80% coverage {test['model']['coverage80']:.1%}, MAE {test['model']['mae']:.2f} "
+        f"(par {test['par_baseline']['mae']:.2f}), pinball {test['model']['pinball']:.3f}"
+    )
+    typer.echo(f"  wrote {target}")
+    problems = registry.projection_gate(evaluation, cfg.gate["coverage_band"])
+    _finish(problems, promote, cfg.version, registry.PROJECTION)
+
+
+def _finish(problems: list[str], promote: bool, version: str, name: str) -> None:
     for problem in problems:
         typer.echo(f"  [gate] {problem}")
     if problems:
         raise typer.Exit(code=1)
     if promote:
-        registry.promote(cfg.version)
-        typer.echo(f"  promoted {cfg.version} to current")
+        registry.promote(version, name)
+        typer.echo(f"  promoted {name} {version} to current")
+
+
+@app.command()
+def train(
+    model: Annotated[ModelName, typer.Argument(help="Which model to train.")],
+    promote: Annotated[bool, typer.Option(help="Make it current if the gate passes.")] = True,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing version.")] = False,
+) -> None:
+    """Tune, evaluate and backtest a new model version, then register it."""
+    if model is ModelName.win_probability:
+        _train_win_probability(force, promote)
+    else:
+        _train_score_projection(force, promote)
 
 
 @app.command()
@@ -104,23 +146,30 @@ def score(
     serving: Annotated[Path | None, typer.Option(help="Serving database to update.")] = None,
     warehouse: Annotated[Path | None, typer.Option(help="Warehouse to read.")] = None,
 ) -> None:
-    """Score every historical ball with the current model into the serving database."""
-    model = registry.load_current()
+    """Score every historical ball with the current models into the serving database."""
+    wp_model = registry.load_current()
+    projection_model = registry.load_current_projection()
     states, _ = _timed("building features", lambda: _states(warehouse or paths.warehouse_path()))
-    predictions = _timed("scoring", lambda: scoring.score_states(model, states))
     target = serving or _serving_path()
-    count = _timed("publishing", lambda: scoring.publish(target, predictions, model))
-    typer.echo(f"  {count:,} win probabilities from model {model.version} -> {target}")
+
+    predictions = _timed("win probability", lambda: scoring.score_states(wp_model, states))
+    count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model))
+    typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
+
+    projections = _timed(
+        "score projection", lambda: scoring.score_projections(projection_model, states)
+    )
+    count = _timed(
+        "publishing",
+        lambda: scoring.publish_projections(target, projections, projection_model),
+    )
+    typer.echo(f"  {count:,} score projections from model {projection_model.version} -> {target}")
 
 
 @app.command("report")
 def report_cmd() -> None:
-    """Write the model card and the Model Insights data for the web app."""
-    version = registry.current_version()
-    if version is None:
-        raise typer.BadParameter("no current model; run `criciq-ml train` first")
-    written = report.write_all(version, _serving_path())
-    for path in written:
+    """Write the model cards and the Model Insights data for the web app."""
+    for path in report.write_all(_serving_path()):
         typer.echo(f"wrote {path}")
 
 

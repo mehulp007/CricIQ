@@ -7,9 +7,12 @@ card.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import numpy as np
@@ -17,6 +20,7 @@ import pandas as pd
 
 from criciq_ml.features import GROUP_KEYS, LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
+from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
 
 
 def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFrame:
@@ -62,12 +66,72 @@ def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFra
     return out
 
 
-def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel) -> int:
-    """Add the predictions and model metadata to the serving database, atomically."""
+def score_projections(model: ScoreProjectionModel, states: pd.DataFrame) -> pd.DataFrame:
+    """Quantiles of the final first-innings total after every ball still in play.
+
+    Innings cut short by rain are not projected: the model assumes the full
+    allocation of overs, which such an innings never had.
+    """
+    frame = projection_frame(states)
+    frame = frame[frame["projectable"] & frame["complete"]]
+    quantiles = np.rint(model.predict(frame)).astype(int)
+    return pd.DataFrame(
+        {
+            "match_id": frame["match_id"].to_numpy(),
+            "seq_no": frame["seq_no"].to_numpy(),
+            "quantiles": [list(map(int, q)) for q in quantiles],
+        }
+    )
+
+
+def _publish(serving: Path, write: Callable[[duckdb.DuckDBPyConnection], int]) -> int:
+    """Apply ``write`` to a copy of the serving database, then swap it in atomically."""
     staging = serving.with_name(serving.name + ".scoring")
     shutil.copyfile(serving, staging)
     con = duckdb.connect(str(staging))
     try:
+        count = write(con)
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+    os.replace(staging, serving)
+    return count
+
+
+def _register_model(
+    con: duckdb.DuckDBPyConnection,
+    name: str,
+    version: str,
+    seasons: list[int],
+    info: dict[str, Any],
+) -> None:
+    columns = {
+        name
+        for (name,) in con.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'models'"
+        ).fetchall()
+    }
+    if columns and "info" not in columns:
+        con.execute("DROP TABLE models")  # pre-M4 layout with one model's columns
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS models (
+            name VARCHAR PRIMARY KEY, version VARCHAR NOT NULL,
+            trained_from INTEGER NOT NULL, trained_through INTEGER NOT NULL, info JSON NOT NULL
+        )
+        """
+    )
+    con.execute("DELETE FROM models WHERE name = ?", [name])
+    con.execute(
+        "INSERT INTO models VALUES (?, ?, ?, ?, ?)",
+        [name, version, seasons[0], seasons[1], json.dumps(info)],
+    )
+
+
+def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel) -> int:
+    """Add win probabilities and model metadata to the serving database."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
         con.register("predictions", predictions)
         con.execute("DROP TABLE IF EXISTS wp_predictions")
         con.execute(
@@ -79,33 +143,46 @@ def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel
             FROM predictions ORDER BY match_id, innings_no, seq_no
             """
         )
-        con.execute("DROP TABLE IF EXISTS models")
-        con.execute(
-            """
-            CREATE TABLE models (
-                name VARCHAR PRIMARY KEY, version VARCHAR NOT NULL,
-                trained_from INTEGER NOT NULL, trained_through INTEGER NOT NULL,
-                factor_keys VARCHAR[] NOT NULL, base_innings1 DOUBLE NOT NULL,
-                base_innings2 DOUBLE NOT NULL
-            )
-            """
-        )
         manifest = model.manifest
-        con.execute(
-            "INSERT INTO models VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [
-                manifest["name"],
-                model.version,
-                manifest["trained_on"]["seasons"][0],
-                manifest["trained_on"]["seasons"][1],
-                GROUP_KEYS,
-                manifest["base_probability"]["1"],
-                manifest["base_probability"]["2"],
-            ],
+        _register_model(
+            con,
+            manifest["name"],
+            model.version,
+            manifest["trained_on"]["seasons"],
+            {
+                "factor_keys": GROUP_KEYS,
+                "base_innings1": manifest["base_probability"]["1"],
+                "base_innings2": manifest["base_probability"]["2"],
+            },
         )
-        count = int(con.execute("SELECT count(*) FROM wp_predictions").fetchone()[0])  # type: ignore[index]
-        con.execute("CHECKPOINT")
-    finally:
-        con.close()
-    os.replace(staging, serving)
-    return count
+        return int(con.execute("SELECT count(*) FROM wp_predictions").fetchone()[0])  # type: ignore[index]
+
+    return _publish(serving, write)
+
+
+def publish_projections(
+    serving: Path, projections: pd.DataFrame, model: ScoreProjectionModel
+) -> int:
+    """Add first-innings score projections and model metadata to the serving database."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        con.register("projections", projections)
+        con.execute("DROP TABLE IF EXISTS score_projections")
+        con.execute(
+            """
+            CREATE TABLE score_projections AS
+            SELECT match_id::BIGINT AS match_id, seq_no::INTEGER AS seq_no,
+                   quantiles::SMALLINT[] AS quantiles
+            FROM projections ORDER BY match_id, seq_no
+            """
+        )
+        _register_model(
+            con,
+            model.manifest["name"],
+            model.version,
+            model.manifest["trained_on"]["seasons"],
+            {"levels": list(LEVELS)},
+        )
+        return int(con.execute("SELECT count(*) FROM score_projections").fetchone()[0])  # type: ignore[index]
+
+    return _publish(serving, write)

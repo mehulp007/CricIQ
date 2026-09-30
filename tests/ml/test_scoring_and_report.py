@@ -16,7 +16,11 @@ def test_every_state_is_scored_and_published(
     try:
         count = con.execute("SELECT count(*) FROM wp_predictions").fetchone()
         starts = con.execute("SELECT count(*) FROM wp_predictions WHERE seq_no = 0").fetchone()
-        model = con.execute("SELECT version, factor_keys FROM models").fetchone()
+        models = dict(con.execute("SELECT name, version FROM models").fetchall())
+        info = con.execute("SELECT info FROM models WHERE name = 'win_probability'").fetchone()
+        projections = con.execute(
+            "SELECT count(*), min(len(quantiles)), max(len(quantiles)) FROM score_projections"
+        ).fetchone()
         ends = con.execute(
             """
             SELECT m.outcome_type, m.winner_id = i.batting_team_id AS chaser_won, p.wp_team_a
@@ -32,7 +36,15 @@ def test_every_state_is_scored_and_published(
         con.close()
     assert count == (len(fixture_states),)
     assert starts == (fixture_states.groupby(["match_id", "innings_no"]).ngroups,)
-    assert model == (registry.current_version(), ["situation", "wickets", "recent"])
+    assert models == {
+        "win_probability": registry.current_version(),
+        "score_projection": registry.current_version(registry.PROJECTION),
+    }
+    assert info is not None
+    assert '"factor_keys": ["situation", "wickets", "recent"]' in info[0]
+    assert projections is not None
+    assert projections[0] > 0
+    assert projections[1:] == (7, 7)
     for outcome, chaser_won, wp_team_a in ends:
         if outcome == "tie":
             assert wp_team_a == 0.5

@@ -156,6 +156,10 @@ class TimelineInnings(BaseModel):
     factors_start: list[float] | None = Field(
         default=None, description="Explanation of wp_start (see Timeline.win_probability)."
     )
+    projection_start: list[int] | None = Field(
+        default=None,
+        description="First innings only: quantiles of the final total before the first ball.",
+    )
 
 
 class TimelineWicket(BaseModel):
@@ -199,6 +203,11 @@ class TimelineDelivery(BaseModel):
         "to the model's average, in the order of Timeline.win_probability.factor_keys. "
         "Absent once the result is certain.",
     )
+    projection: list[int] | None = Field(
+        default=None,
+        description="First innings only: quantiles of the final total after this ball, at the "
+        "levels in Timeline.score_projection.levels (model estimate).",
+    )
 
 
 class TimelineSubstitution(BaseModel):
@@ -225,6 +234,15 @@ class WinProbabilityModel(BaseModel):
     )
 
 
+class ScoreProjectionModel(BaseModel):
+    """The model behind a timeline's first-innings score projections."""
+
+    version: str
+    trained_from: int
+    trained_through: int
+    levels: list[float] = Field(description="Quantile level of each value in `projection`.")
+
+
 class Timeline(BaseModel):
     """Everything the client needs to replay a match ball by ball, in one payload."""
 
@@ -236,4 +254,7 @@ class Timeline(BaseModel):
     substitutions: list[TimelineSubstitution]
     win_probability: WinProbabilityModel | None = Field(
         default=None, description="Present when the match has model win probabilities."
+    )
+    score_projection: ScoreProjectionModel | None = Field(
+        default=None, description="Present when the first innings has score projections."
     )

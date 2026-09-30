@@ -5,6 +5,19 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M2 Match Explorer & Replay (first public deployment)**
+  - Live at https://criciq-eight.vercel.app (web on Vercel, API on Render).
+  - API: `GET /api/v1/matches` (filters, pagination), `/matches/{id}` (full scorecards) and
+    `/matches/{id}/timeline` (one payload per replay), all cacheable and gzip-compressed.
+  - `criciq-data export`: slim read-only serving database with match summaries. Extraction now streams
+    (peak memory 375 MB to 50 MB).
+  - Match Explorer with season, team and playoff filters.
+  - Match Center: live scoreboard, crease panel, commentary with Impact Player events, worm and
+    Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts.
+  - Featured replays bundled with the web app; honest "engine warming up" state for API cold starts.
+  - Typed API client generated from the OpenAPI spec, with a drift test.
+  - Playwright end-to-end tests (desktop and mobile), plus CI jobs for e2e and the API Docker image.
+  - Docs: deployment guide, ADR-0003 (hosting), README demo GIF and screenshots.
 - **M1 Data warehouse**
   - Content-addressed raw snapshots of Cricsheet's IPL archive and people register (`criciq-data download`).
   - Extraction of every match into typed Parquet tables, resolving people by registry id and counting legal balls.

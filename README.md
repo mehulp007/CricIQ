@@ -11,22 +11,26 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
+**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)**
+
+<img src="docs/images/replay.gif" alt="Replaying the last over of the 2019 IPL final ball by ball in CricIQ" width="880">
+
 </div>
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. It offers ball-by-ball historical match replays, calibrated and explainable win probability, probabilistic score projection, player and matchup intelligence, and Monte Carlo match simulation, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics: ball-by-ball historical match replays today, and next calibrated and explainable win probability, probabilistic score projection, player and matchup intelligence, and Monte Carlo match simulation, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** early development. Milestones **M0 (Foundations)** and **M1 (Data warehouse)** are complete. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** milestones **M0–M2** are complete and deployed. You can browse and replay every IPL match since 2008. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
-## Planned features
+## Features
 
-| Feature | What it does | Milestone |
+| Feature | What it does | Status |
 |---|---|---|
-| Match Explorer & Replay | Browse any IPL match and replay it ball by ball with full playback controls | M2 |
-| Win Probability Engine | Calibrated probability after every ball, with plain-language SHAP explanations | M3 |
+| Match Explorer & Replay | Browse any IPL match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
+| Win Probability Engine | Calibrated probability after every ball, with plain-language SHAP explanations | M3 · next |
 | Score Projection | Median projected total, 80% interval, and P(150+ / 170+ / 190+ / 200+) | M4 |
 | Player Lab | Batting and bowling profiles with phase, venue, situation and opposition splits | M5 |
 | Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 |
@@ -56,6 +60,14 @@ What the exploration found, and how it shapes the models ([notebook](notebooks/0
 
 Details: [data pipeline](docs/data-pipeline.md) · [data dictionary](docs/data-dictionary.md)
 
+## Screenshots
+
+| Overview | Match Explorer |
+|---|---|
+| ![Overview page with featured replays](docs/images/overview.png) | ![Match Explorer with filters](docs/images/explorer.png) |
+| **Match Center** | **Live scorecard** |
+| ![Match Center at the end of the 2019 final](docs/images/replay.png) | ![Scorecard as it stood at the current ball](docs/images/scorecard.png) |
+
 ## Architecture
 
 ```
@@ -64,7 +76,11 @@ Cricsheet JSON → pipelines (ingest · normalize · validate) → DuckDB wareho
   → serving.duckdb + model registry → FastAPI (/api/v1) → Next.js frontend
 ```
 
-Read more in [docs/architecture.md](docs/architecture.md) and the [architecture decision records](docs/adr/).
+The replay runs entirely in the browser from a single timeline payload per match (about 5 KB gzipped).
+There are no per-ball API calls, and the live scorecard, commentary and charts are all derived client-side.
+
+Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md)
+and the [architecture decision records](docs/adr/).
 
 ## Tech stack
 
@@ -75,7 +91,7 @@ Read more in [docs/architecture.md](docs/architecture.md) and the [architecture 
 | Backend | FastAPI, Pydantic v2, uvicorn |
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts, visx, Framer Motion |
 | Quality | uv workspace, ruff, mypy (strict), pytest, Vitest, Testing Library, Playwright, GitHub Actions |
-| Hosting | Vercel (web), Hugging Face Spaces (API), GitHub Releases (data and model artifacts) |
+| Hosting | Vercel (web, Mumbai), Render (API in Docker, Singapore), free tiers |
 
 ## Local development
 
@@ -86,7 +102,8 @@ just setup      # install Python + frontend deps and git hooks
 just dev-api    # API on http://localhost:8000 (OpenAPI docs at /docs)
 just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
-just data run   # download Cricsheet data and rebuild + validate the warehouse
+just data run   # download Cricsheet data, rebuild, validate and export the serving database
+just e2e        # Playwright end-to-end tests (desktop + mobile) against the running app
 ```
 
 ## Project structure
@@ -108,7 +125,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 
 - [x] **M0** Foundations: monorepo, tooling, CI, design system, app shell
 - [x] **M1** Data warehouse: Cricsheet ingestion, normalization, validation
-- [ ] **M2** Match Explorer & Replay: first public deployment
+- [x] **M2** Match Explorer & Replay: first public deployment
 - [ ] **M3** Win Probability
 - [ ] **M4** Score Projection
 - [ ] **M5** Player Lab

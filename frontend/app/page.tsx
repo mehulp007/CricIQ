@@ -70,9 +70,9 @@ export default function OverviewPage() {
           <span className="block text-muted-foreground">Predict the next move.</span>
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          CricIQ turns every IPL delivery into interactive analytics: historical match replays,
-          calibrated win probability, probabilistic score projection, and player and matchup
-          intelligence. Every number comes from a tested model you can inspect.
+          CricIQ turns every IPL delivery since 2008 into interactive analytics. Replay any match
+          ball by ball today. Calibrated win probability, score projection and player intelligence
+          are being built next, each backed by a tested model you can inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link

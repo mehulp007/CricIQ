@@ -21,6 +21,7 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
             what-if, next-ball and simulation requests
                         ▼
   [frontend] Next.js on Vercel: server components + client-side replay engine
+             (featured replays bundled; see deployment.md)
 ```
 
 ## Packages and dependency direction
@@ -51,6 +52,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 
 - [ADR-0001](adr/0001-duckdb-over-postgres.md): DuckDB + Parquet instead of PostgreSQL
 - [ADR-0002](adr/0002-uv-workspace-python-312.md): uv workspace pinned to Python 3.12
+- [ADR-0003](adr/0003-hosting-vercel-and-render.md): Vercel for the web app, Render for the API
 
 ## Precompute vs live
 

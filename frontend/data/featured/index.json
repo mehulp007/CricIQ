@@ -1,0 +1,495 @@
+{
+  "data_version": "2026-05-31.713dafe9",
+  "matches": [
+    {
+      "match_id": 1535465,
+      "headline": "IPL 2026 final",
+      "summary": {
+        "match_id": 1535465,
+        "season": 2026,
+        "date": "2026-05-31",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "narendra-modi",
+          "name": "Narendra Modi Stadium",
+          "city": "Ahmedabad"
+        },
+        "team_a": {
+          "team_season_id": "GT-2026",
+          "franchise_id": "GT",
+          "name": "Gujarat Titans",
+          "color": "#1B2133",
+          "runs": 155,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "RCB-2026",
+          "franchise_id": "RCB",
+          "name": "Royal Challengers Bengaluru",
+          "color": "#EC1C24",
+          "runs": 161,
+          "wickets": 5,
+          "overs": "18.0"
+        },
+        "target_runs": 156,
+        "outcome_type": "win",
+        "winner_id": "RCB-2026",
+        "result_text": "Royal Challengers Bengaluru won by 5 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "RCB-2026",
+          "winner_name": "Royal Challengers Bengaluru",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Virat Kohli"
+        ]
+      }
+    },
+    {
+      "match_id": 1473511,
+      "headline": "IPL 2025 final: Royal Challengers' first title",
+      "summary": {
+        "match_id": 1473511,
+        "season": 2025,
+        "date": "2025-06-03",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "narendra-modi",
+          "name": "Narendra Modi Stadium",
+          "city": "Ahmedabad"
+        },
+        "team_a": {
+          "team_season_id": "RCB-2025",
+          "franchise_id": "RCB",
+          "name": "Royal Challengers Bengaluru",
+          "color": "#EC1C24",
+          "runs": 190,
+          "wickets": 9,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "PBKS-2025",
+          "franchise_id": "PBKS",
+          "name": "Punjab Kings",
+          "color": "#DD1F2D",
+          "runs": 184,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "target_runs": 191,
+        "outcome_type": "win",
+        "winner_id": "RCB-2025",
+        "result_text": "Royal Challengers Bengaluru won by 6 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "PBKS-2025",
+          "winner_name": "Punjab Kings",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Krunal Pandya"
+        ]
+      }
+    },
+    {
+      "match_id": 1426312,
+      "headline": "IPL 2024 final",
+      "summary": {
+        "match_id": 1426312,
+        "season": 2024,
+        "date": "2024-05-26",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "chepauk",
+          "name": "MA Chidambaram Stadium",
+          "city": "Chennai"
+        },
+        "team_a": {
+          "team_season_id": "SRH-2024",
+          "franchise_id": "SRH",
+          "name": "Sunrisers Hyderabad",
+          "color": "#F26522",
+          "runs": 113,
+          "wickets": 10,
+          "overs": "18.3"
+        },
+        "team_b": {
+          "team_season_id": "KKR-2024",
+          "franchise_id": "KKR",
+          "name": "Kolkata Knight Riders",
+          "color": "#3A225D",
+          "runs": 114,
+          "wickets": 2,
+          "overs": "10.3"
+        },
+        "target_runs": 114,
+        "outcome_type": "win",
+        "winner_id": "KKR-2024",
+        "result_text": "Kolkata Knight Riders won by 8 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SRH-2024",
+          "winner_name": "Sunrisers Hyderabad",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Mitchell Starc"
+        ]
+      }
+    },
+    {
+      "match_id": 1426268,
+      "headline": "The 287 vs 262 run-fest, the highest total in IPL history",
+      "summary": {
+        "match_id": 1426268,
+        "season": 2024,
+        "date": "2024-04-15",
+        "match_number": 30,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "chinnaswamy",
+          "name": "M Chinnaswamy Stadium",
+          "city": "Bengaluru"
+        },
+        "team_a": {
+          "team_season_id": "SRH-2024",
+          "franchise_id": "SRH",
+          "name": "Sunrisers Hyderabad",
+          "color": "#F26522",
+          "runs": 287,
+          "wickets": 3,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "RCB-2024",
+          "franchise_id": "RCB",
+          "name": "Royal Challengers Bengaluru",
+          "color": "#EC1C24",
+          "runs": 262,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "target_runs": 288,
+        "outcome_type": "win",
+        "winner_id": "SRH-2024",
+        "result_text": "Sunrisers Hyderabad won by 25 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "RCB-2024",
+          "winner_name": "Royal Challengers Bengaluru",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Travis Head"
+        ]
+      }
+    },
+    {
+      "match_id": 1370353,
+      "headline": "IPL 2023 final: a rain-reduced chase won off the last ball",
+      "summary": {
+        "match_id": 1370353,
+        "season": 2023,
+        "date": "2023-05-29",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "narendra-modi",
+          "name": "Narendra Modi Stadium",
+          "city": "Ahmedabad"
+        },
+        "team_a": {
+          "team_season_id": "GT-2023",
+          "franchise_id": "GT",
+          "name": "Gujarat Titans",
+          "color": "#1B2133",
+          "runs": 214,
+          "wickets": 4,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "CSK-2023",
+          "franchise_id": "CSK",
+          "name": "Chennai Super Kings",
+          "color": "#F9CD05",
+          "runs": 171,
+          "wickets": 5,
+          "overs": "15.0"
+        },
+        "target_runs": 171,
+        "outcome_type": "win",
+        "winner_id": "CSK-2023",
+        "result_text": "Chennai Super Kings won by 5 wickets (D/L)",
+        "win_method": "D/L",
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "CSK-2023",
+          "winner_name": "Chennai Super Kings",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Devon Conway"
+        ]
+      }
+    },
+    {
+      "match_id": 1216517,
+      "headline": "A tie that needed two super overs",
+      "summary": {
+        "match_id": 1216517,
+        "season": 2020,
+        "date": "2020-10-18",
+        "match_number": 36,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "dubai",
+          "name": "Dubai International Cricket Stadium",
+          "city": "Dubai"
+        },
+        "team_a": {
+          "team_season_id": "MI-2020",
+          "franchise_id": "MI",
+          "name": "Mumbai Indians",
+          "color": "#004BA0",
+          "runs": 176,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "PBKS-2020",
+          "franchise_id": "PBKS",
+          "name": "Kings XI Punjab",
+          "color": "#DD1F2D",
+          "runs": 176,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "target_runs": 177,
+        "outcome_type": "tie",
+        "winner_id": "PBKS-2020",
+        "result_text": "Match tied (Kings XI Punjab won the super over)",
+        "win_method": null,
+        "decided_by_super_over": true,
+        "toss": {
+          "winner_id": "MI-2020",
+          "winner_name": "Mumbai Indians",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "KL Rahul"
+        ]
+      }
+    },
+    {
+      "match_id": 1181768,
+      "headline": "IPL 2019 final: Mumbai win by one run",
+      "summary": {
+        "match_id": 1181768,
+        "season": 2019,
+        "date": "2019-05-12",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "rajiv-gandhi",
+          "name": "Rajiv Gandhi International Stadium",
+          "city": "Hyderabad"
+        },
+        "team_a": {
+          "team_season_id": "MI-2019",
+          "franchise_id": "MI",
+          "name": "Mumbai Indians",
+          "color": "#004BA0",
+          "runs": 149,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "CSK-2019",
+          "franchise_id": "CSK",
+          "name": "Chennai Super Kings",
+          "color": "#F9CD05",
+          "runs": 148,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "target_runs": 150,
+        "outcome_type": "win",
+        "winner_id": "MI-2019",
+        "result_text": "Mumbai Indians won by 1 run",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "MI-2019",
+          "winner_name": "Mumbai Indians",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Jasprit Bumrah"
+        ]
+      }
+    },
+    {
+      "match_id": 1082625,
+      "headline": "Gujarat Lions vs Mumbai Indians: decided by a super over",
+      "summary": {
+        "match_id": 1082625,
+        "season": 2017,
+        "date": "2017-04-29",
+        "match_number": 35,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "sca-rajkot",
+          "name": "Saurashtra Cricket Association Stadium",
+          "city": "Rajkot"
+        },
+        "team_a": {
+          "team_season_id": "GL-2017",
+          "franchise_id": "GL",
+          "name": "Gujarat Lions",
+          "color": "#E04F16",
+          "runs": 153,
+          "wickets": 9,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "MI-2017",
+          "franchise_id": "MI",
+          "name": "Mumbai Indians",
+          "color": "#004BA0",
+          "runs": 153,
+          "wickets": 10,
+          "overs": "20.0"
+        },
+        "target_runs": 154,
+        "outcome_type": "tie",
+        "winner_id": "MI-2017",
+        "result_text": "Match tied (Mumbai Indians won the super over)",
+        "win_method": null,
+        "decided_by_super_over": true,
+        "toss": {
+          "winner_id": "GL-2017",
+          "winner_name": "Gujarat Lions",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Krunal Pandya"
+        ]
+      }
+    },
+    {
+      "match_id": 981019,
+      "headline": "IPL 2016 final: Sunrisers edge Royal Challengers",
+      "summary": {
+        "match_id": 981019,
+        "season": 2016,
+        "date": "2016-05-29",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "chinnaswamy",
+          "name": "M Chinnaswamy Stadium",
+          "city": "Bengaluru"
+        },
+        "team_a": {
+          "team_season_id": "SRH-2016",
+          "franchise_id": "SRH",
+          "name": "Sunrisers Hyderabad",
+          "color": "#F26522",
+          "runs": 208,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "RCB-2016",
+          "franchise_id": "RCB",
+          "name": "Royal Challengers Bangalore",
+          "color": "#EC1C24",
+          "runs": 200,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "target_runs": 209,
+        "outcome_type": "win",
+        "winner_id": "SRH-2016",
+        "result_text": "Sunrisers Hyderabad won by 8 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SRH-2016",
+          "winner_name": "Sunrisers Hyderabad",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Ben Cutting"
+        ]
+      }
+    },
+    {
+      "match_id": 335982,
+      "headline": "The first IPL match: McCullum's 158*",
+      "summary": {
+        "match_id": 335982,
+        "season": 2008,
+        "date": "2008-04-18",
+        "match_number": 1,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "chinnaswamy",
+          "name": "M Chinnaswamy Stadium",
+          "city": "Bengaluru"
+        },
+        "team_a": {
+          "team_season_id": "KKR-2008",
+          "franchise_id": "KKR",
+          "name": "Kolkata Knight Riders",
+          "color": "#3A225D",
+          "runs": 222,
+          "wickets": 3,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "RCB-2008",
+          "franchise_id": "RCB",
+          "name": "Royal Challengers Bangalore",
+          "color": "#EC1C24",
+          "runs": 82,
+          "wickets": 10,
+          "overs": "15.1"
+        },
+        "target_runs": 223,
+        "outcome_type": "win",
+        "winner_id": "KKR-2008",
+        "result_text": "Kolkata Knight Riders won by 140 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "RCB-2008",
+          "winner_name": "Royal Challengers Bangalore",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Brendon McCullum"
+        ]
+      }
+    }
+  ]
+}

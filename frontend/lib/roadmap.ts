@@ -25,13 +25,13 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M2",
     title: "Match explorer & replay",
     summary: "Browse any IPL match and replay it ball by ball as if it were live.",
-    status: "active",
+    status: "done",
   },
   {
     id: "M3",
     title: "Win probability",
     summary: "Calibrated, explainable win probability updated after every delivery.",
-    status: "planned",
+    status: "active",
   },
   {
     id: "M4",

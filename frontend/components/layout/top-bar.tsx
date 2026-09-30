@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Badge } from "@/components/ui/badge";
+import { seasonRange } from "@/lib/featured";
 
 export function TopBar() {
   return (
@@ -13,7 +14,7 @@ export function TopBar() {
       </Link>
       <div className="ml-auto flex items-center gap-2">
         <Badge variant="outline" className="font-mono text-[11px] text-muted-foreground">
-          IPL · data not loaded
+          IPL · {seasonRange()}
         </Badge>
       </div>
     </header>

@@ -5,14 +5,17 @@ import {
   CircleCheck,
   CircleDashed,
   Loader,
+  Play,
   Swords,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 
+import { MatchCard } from "@/components/match/match-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FEATURED } from "@/lib/featured";
 import { ROADMAP, type MilestoneStatus } from "@/lib/roadmap";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +23,8 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: 
   {
     icon: Activity,
     title: "Ball-by-ball replay",
-    body: "Relive any IPL match delivery by delivery, with the scoreboard, momentum and probability moving as it happened.",
-    milestone: "M2",
+    body: "Relive any IPL match delivery by delivery, with a live scoreboard, scorecard, commentary and worm and Manhattan charts.",
+    milestone: "Live",
   },
   {
     icon: BrainCircuit,
@@ -73,13 +76,43 @@ export default function OverviewPage() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/about"
+            href="/matches/1181768"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85"
           >
-            How CricIQ works
-            <ArrowRight className="size-4" />
+            <Play className="size-4" aria-hidden="true" />
+            Replay the 2019 final
+          </Link>
+          <Link
+            href="/matches"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            Explore all matches
+            <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
+      </section>
+
+      <section aria-labelledby="featured-heading" className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="featured-heading" className="text-xl font-semibold tracking-tight">
+              Featured replays
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Iconic IPL matches, ready to replay ball by ball.
+            </p>
+          </div>
+          <Link href="/matches" className="text-sm text-primary underline-offset-4 hover:underline">
+            All matches
+          </Link>
+        </div>
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {FEATURED.slice(0, 6).map((m) => (
+            <li key={m.match_id} className="flex">
+              <MatchCard match={m.summary} headline={m.headline} />
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section aria-labelledby="capabilities-heading" className="flex flex-col gap-6">

@@ -22,7 +22,8 @@ describe("NavList", () => {
 
   it("does not link to pages that have not shipped", () => {
     renderNav();
-    expect(screen.queryByRole("link", { name: /Matches/ })).not.toBeInTheDocument();
-    expect(screen.getByText("Matches").closest("[aria-disabled]")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Matches" })).toHaveAttribute("href", "/matches");
+    expect(screen.queryByRole("link", { name: /Players/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Players").closest("[aria-disabled]")).toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@ import math
 import pytest
 
 from criciq_core.cricket import (
+    is_legal_delivery,
     legal_balls_from_overs,
     overs_notation,
     required_run_rate,
@@ -48,3 +49,11 @@ def test_required_run_rate() -> None:
     assert required_run_rate(0, 18) is None
     assert required_run_rate(-4, 18) is None
     assert math.isinf(required_run_rate(5, 0) or 0.0)
+
+
+@pytest.mark.parametrize(
+    ("wides", "noballs", "legal"),
+    [(0, 0, True), (1, 0, False), (5, 0, False), (0, 1, False), (1, 1, False)],
+)
+def test_is_legal_delivery(wides: int, noballs: int, legal: bool) -> None:
+    assert is_legal_delivery(wides, noballs) is legal

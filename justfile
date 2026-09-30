@@ -48,6 +48,10 @@ dev-api:
 dev-web:
     pnpm --dir frontend dev
 
-# Data pipeline CLI, e.g. `just data paths`
+# Data pipeline CLI, e.g. `just data run` or `just data validate`
 data *args:
     uv run criciq-data {{args}}
+
+# Re-execute notebooks in place so their outputs are stored (needs a built warehouse)
+notebooks *args:
+    uv run --group notebooks python scripts/run_notebooks.py {{args}}

@@ -22,6 +22,11 @@ def config_dir() -> Path:
     return repo_root() / "config"
 
 
+def reference_dir() -> Path:
+    """Curated, version-controlled reference data (e.g. player attributes)."""
+    return repo_root() / "reference"
+
+
 def data_dir() -> Path:
     override = os.environ.get("CRICIQ_DATA_DIR")
     return Path(override).resolve() if override else repo_root() / "data"

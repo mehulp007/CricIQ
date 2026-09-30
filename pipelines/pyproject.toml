@@ -5,6 +5,8 @@ description = "CricIQ data pipelines: ingestion, normalization, validation and e
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "criciq-core",
+    "duckdb>=1.2",
+    "pyarrow>=19",
     "typer>=0.15",
 ]
 

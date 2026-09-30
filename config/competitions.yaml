@@ -1,0 +1,16 @@
+# Competitions CricIQ ingests. Only the IPL is in scope for MVP/V1; the
+# structure is format-agnostic so other leagues can be added as new entries.
+
+competitions:
+  - id: IPL
+    name: Indian Premier League
+    short_name: IPL
+    format: T20
+    gender: male
+    team_type: club
+    cricsheet:
+      archive: ipl_json.zip
+      event_name: Indian Premier League
+    rules:
+      # Season from which the Impact Player substitution rule applied.
+      impact_player_from: 2023

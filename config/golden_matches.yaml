@@ -1,0 +1,52 @@
+# Golden matches: independently known scorecards the warehouse must reproduce
+# exactly. They cover a normal match, finals, a rain-reduced (DLS) chase, a
+# super-over tie and an Impact Player era match. Validation fails on any mismatch.
+#
+# Totals are innings runs/wickets; wickets count dismissals only
+# (retired hurt is not a wicket).
+
+matches:
+  - match_id: 335982
+    description: IPL 2008 opener — McCullum's 158*
+    date: 2008-04-18
+    innings:
+      - { team: KKR, runs: 222, wickets: 3 }
+      - { team: RCB, runs: 82, wickets: 10 }
+    result: { winner: KKR, by_runs: 140 }
+
+  - match_id: 981019
+    description: IPL 2016 final — Sunrisers edge Royal Challengers
+    date: 2016-05-29
+    innings:
+      - { team: SRH, runs: 208, wickets: 7 }
+      - { team: RCB, runs: 200, wickets: 7 }
+    result: { winner: SRH, by_runs: 8 }
+
+  - match_id: 1181768
+    description: IPL 2019 final — Mumbai win by one run
+    date: 2019-05-12
+    innings:
+      - { team: MI, runs: 149, wickets: 8 }
+      - { team: CSK, runs: 148, wickets: 7 }
+    result: { winner: MI, by_runs: 1 }
+
+  - match_id: 1370353
+    description: IPL 2023 final — rain-reduced DLS chase, 171 off 15 overs
+    date: 2023-05-29
+    innings:
+      - { team: GT, runs: 214, wickets: 4 }
+      - { team: CSK, runs: 171, wickets: 5, target_runs: 171, target_overs: 15 }
+    result: { winner: CSK, by_wickets: 5, method: D/L }
+
+  - match_id: 1473511
+    description: IPL 2025 final — Impact Player era, Royal Challengers' first title
+    date: 2025-06-03
+    innings:
+      - { team: RCB, runs: 190, wickets: 9 }
+      - { team: PBKS, runs: 184, wickets: 7 }
+    result: { winner: RCB, by_runs: 6 }
+
+  - match_id: 1082625
+    description: IPL 2017 tie between Gujarat Lions and Mumbai Indians, decided by super over
+    date: 2017-04-29
+    result: { tie: true, super_over_winner: MI }

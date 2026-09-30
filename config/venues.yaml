@@ -1,0 +1,268 @@
+# Canonical venues and the raw Cricsheet venue strings that map to them.
+#
+# A venue is a physical ground. Renames of the same ground are merged
+# (Feroz Shah Kotla -> Arun Jaitley Stadium, Subrata Roy Sahara Stadium ->
+# MCA Stadium Pune, Sheikh Zayed -> Zayed Cricket Stadium). Grounds that were
+# rebuilt or are genuinely different stadiums stay separate (Motera vs
+# Narendra Modi Stadium; PCA Mohali vs Mullanpur).
+#
+# The pipeline fails if a raw venue string is not listed here.
+
+venues:
+  # ---------------- India ----------------
+  - id: arun-jaitley
+    name: Arun Jaitley Stadium
+    city: Delhi
+    country: India
+    notes: Known as Feroz Shah Kotla until 2019.
+    aliases:
+      - Feroz Shah Kotla
+      - Arun Jaitley Stadium
+      - Arun Jaitley Stadium, Delhi
+
+  - id: barabati
+    name: Barabati Stadium
+    city: Cuttack
+    country: India
+    aliases: [Barabati Stadium]
+
+  - id: barsapara
+    name: Barsapara Cricket Stadium
+    city: Guwahati
+    country: India
+    aliases: ["Barsapara Cricket Stadium, Guwahati"]
+
+  - id: ekana
+    name: BRSABV Ekana Cricket Stadium
+    city: Lucknow
+    country: India
+    aliases: ["Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium, Lucknow"]
+
+  - id: brabourne
+    name: Brabourne Stadium
+    city: Mumbai
+    country: India
+    aliases: [Brabourne Stadium, "Brabourne Stadium, Mumbai"]
+
+  - id: dy-patil
+    name: Dr DY Patil Sports Academy
+    city: Navi Mumbai
+    country: India
+    aliases: [Dr DY Patil Sports Academy, "Dr DY Patil Sports Academy, Mumbai"]
+
+  - id: aca-vdca
+    name: Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium
+    city: Visakhapatnam
+    country: India
+    aliases:
+      - Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium
+      - Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium, Visakhapatnam
+
+  - id: eden-gardens
+    name: Eden Gardens
+    city: Kolkata
+    country: India
+    aliases: [Eden Gardens, "Eden Gardens, Kolkata"]
+
+  - id: green-park
+    name: Green Park
+    city: Kanpur
+    country: India
+    aliases: [Green Park]
+
+  - id: hpca-dharamsala
+    name: HPCA Stadium
+    city: Dharamsala
+    country: India
+    aliases:
+      - Himachal Pradesh Cricket Association Stadium
+      - Himachal Pradesh Cricket Association Stadium, Dharamsala
+
+  - id: holkar
+    name: Holkar Cricket Stadium
+    city: Indore
+    country: India
+    aliases: [Holkar Cricket Stadium]
+
+  - id: jsca-ranchi
+    name: JSCA International Stadium Complex
+    city: Ranchi
+    country: India
+    aliases: [JSCA International Stadium Complex]
+
+  - id: chinnaswamy
+    name: M Chinnaswamy Stadium
+    city: Bengaluru
+    country: India
+    aliases:
+      - M Chinnaswamy Stadium
+      - M.Chinnaswamy Stadium
+      - M Chinnaswamy Stadium, Bengaluru
+
+  - id: chepauk
+    name: MA Chidambaram Stadium
+    city: Chennai
+    country: India
+    aliases:
+      - MA Chidambaram Stadium
+      - MA Chidambaram Stadium, Chepauk
+      - MA Chidambaram Stadium, Chepauk, Chennai
+
+  - id: mullanpur
+    name: Maharaja Yadavindra Singh International Cricket Stadium
+    city: New Chandigarh
+    country: India
+    notes: New ground at Mullanpur (opened 2024); distinct from PCA Stadium, Mohali.
+    aliases:
+      - Maharaja Yadavindra Singh International Cricket Stadium, Mullanpur
+      - Maharaja Yadavindra Singh International Cricket Stadium, New Chandigarh
+
+  - id: mca-pune
+    name: Maharashtra Cricket Association Stadium
+    city: Pune
+    country: India
+    notes: Known as Subrata Roy Sahara Stadium in 2012-2013.
+    aliases:
+      - Subrata Roy Sahara Stadium
+      - Maharashtra Cricket Association Stadium
+      - Maharashtra Cricket Association Stadium, Pune
+
+  - id: narendra-modi
+    name: Narendra Modi Stadium
+    city: Ahmedabad
+    country: India
+    notes: Rebuilt on the site of Sardar Patel Stadium (Motera); treated as a new ground.
+    aliases: ["Narendra Modi Stadium, Ahmedabad"]
+
+  - id: motera
+    name: Sardar Patel Stadium
+    city: Ahmedabad
+    country: India
+    notes: Original Motera ground, demolished 2015 and replaced by Narendra Modi Stadium.
+    aliases: ["Sardar Patel Stadium, Motera"]
+
+  - id: nehru-kochi
+    name: Nehru Stadium
+    city: Kochi
+    country: India
+    aliases: [Nehru Stadium]
+
+  - id: pca-mohali
+    name: PCA IS Bindra Stadium
+    city: Mohali
+    country: India
+    aliases:
+      - Punjab Cricket Association Stadium, Mohali
+      - Punjab Cricket Association IS Bindra Stadium
+      - Punjab Cricket Association IS Bindra Stadium, Mohali
+      - Punjab Cricket Association IS Bindra Stadium, Mohali, Chandigarh
+
+  - id: rajiv-gandhi
+    name: Rajiv Gandhi International Stadium
+    city: Hyderabad
+    country: India
+    aliases:
+      - Rajiv Gandhi International Stadium
+      - Rajiv Gandhi International Stadium, Uppal
+      - Rajiv Gandhi International Stadium, Uppal, Hyderabad
+
+  - id: sca-rajkot
+    name: Saurashtra Cricket Association Stadium
+    city: Rajkot
+    country: India
+    aliases: [Saurashtra Cricket Association Stadium]
+
+  - id: sawai-mansingh
+    name: Sawai Mansingh Stadium
+    city: Jaipur
+    country: India
+    aliases: [Sawai Mansingh Stadium, "Sawai Mansingh Stadium, Jaipur"]
+
+  - id: raipur
+    name: Shaheed Veer Narayan Singh International Stadium
+    city: Raipur
+    country: India
+    aliases:
+      - Shaheed Veer Narayan Singh International Stadium
+      - Shaheed Veer Narayan Singh International Stadium, Raipur
+
+  - id: vca-nagpur
+    name: Vidarbha Cricket Association Stadium
+    city: Nagpur
+    country: India
+    aliases: ["Vidarbha Cricket Association Stadium, Jamtha"]
+
+  - id: wankhede
+    name: Wankhede Stadium
+    city: Mumbai
+    country: India
+    aliases: [Wankhede Stadium, "Wankhede Stadium, Mumbai"]
+
+  # ---------------- South Africa (IPL 2009) ----------------
+  - id: buffalo-park
+    name: Buffalo Park
+    city: East London
+    country: South Africa
+    aliases: [Buffalo Park]
+
+  - id: kimberley
+    name: De Beers Diamond Oval
+    city: Kimberley
+    country: South Africa
+    aliases: [De Beers Diamond Oval]
+
+  - id: kingsmead
+    name: Kingsmead
+    city: Durban
+    country: South Africa
+    aliases: [Kingsmead]
+
+  - id: wanderers
+    name: New Wanderers Stadium
+    city: Johannesburg
+    country: South Africa
+    aliases: [New Wanderers Stadium]
+
+  - id: newlands
+    name: Newlands
+    city: Cape Town
+    country: South Africa
+    aliases: [Newlands]
+
+  - id: bloemfontein
+    name: OUTsurance Oval
+    city: Bloemfontein
+    country: South Africa
+    aliases: [OUTsurance Oval]
+
+  - id: st-georges
+    name: St George's Park
+    city: Gqeberha
+    country: South Africa
+    aliases: [St George's Park]
+
+  - id: centurion
+    name: SuperSport Park
+    city: Centurion
+    country: South Africa
+    aliases: [SuperSport Park]
+
+  # ---------------- United Arab Emirates (2014, 2020, 2021) ----------------
+  - id: dubai
+    name: Dubai International Cricket Stadium
+    city: Dubai
+    country: United Arab Emirates
+    aliases: [Dubai International Cricket Stadium]
+
+  - id: sharjah
+    name: Sharjah Cricket Stadium
+    city: Sharjah
+    country: United Arab Emirates
+    aliases: [Sharjah Cricket Stadium]
+
+  - id: abu-dhabi
+    name: Zayed Cricket Stadium
+    city: Abu Dhabi
+    country: United Arab Emirates
+    notes: Known as Sheikh Zayed Stadium until 2021.
+    aliases: [Sheikh Zayed Stadium, "Zayed Cricket Stadium, Abu Dhabi"]

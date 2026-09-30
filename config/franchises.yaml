@@ -1,0 +1,108 @@
+# IPL franchises and every name each franchise has played under.
+#
+# A franchise is the stable identity (e.g. Delhi Daredevils and Delhi Capitals
+# are one franchise); the season-specific display name lives on team_seasons.
+# Deccan Chargers and Sunrisers Hyderabad are separate franchises: SRH was a
+# new franchise in 2013, not a rename.
+#
+# `names[].from` / `to` are inclusive season years; the pipeline fails if a
+# match uses a team name outside its declared seasons.
+# Colours are used only as data accents in the UI (no logos, no trademarks).
+
+competition: IPL
+
+franchises:
+  - id: CSK
+    name: Chennai Super Kings
+    colors: { primary: "#F9CD05", secondary: "#0081E9" }
+    names:
+      - { name: Chennai Super Kings, from: 2008 }
+
+  - id: DC
+    name: Delhi Capitals
+    colors: { primary: "#17479E", secondary: "#EF1C25" }
+    names:
+      - { name: Delhi Daredevils, from: 2008, to: 2018 }
+      - { name: Delhi Capitals, from: 2019 }
+
+  - id: GT
+    name: Gujarat Titans
+    colors: { primary: "#1B2133", secondary: "#B8A06A" }
+    names:
+      - { name: Gujarat Titans, from: 2022 }
+
+  - id: KKR
+    name: Kolkata Knight Riders
+    colors: { primary: "#3A225D", secondary: "#B3A123" }
+    names:
+      - { name: Kolkata Knight Riders, from: 2008 }
+
+  - id: LSG
+    name: Lucknow Super Giants
+    colors: { primary: "#0057E2", secondary: "#F28B00" }
+    names:
+      - { name: Lucknow Super Giants, from: 2022 }
+
+  - id: MI
+    name: Mumbai Indians
+    colors: { primary: "#004BA0", secondary: "#D1AB3E" }
+    names:
+      - { name: Mumbai Indians, from: 2008 }
+
+  - id: PBKS
+    name: Punjab Kings
+    colors: { primary: "#DD1F2D", secondary: "#A7A9AC" }
+    names:
+      - { name: Kings XI Punjab, from: 2008, to: 2020 }
+      - { name: Punjab Kings, from: 2021 }
+
+  - id: RCB
+    name: Royal Challengers Bengaluru
+    colors: { primary: "#EC1C24", secondary: "#2B2A29" }
+    names:
+      - { name: Royal Challengers Bangalore, from: 2008, to: 2023 }
+      - { name: Royal Challengers Bengaluru, from: 2024 }
+
+  - id: RR
+    name: Rajasthan Royals
+    colors: { primary: "#EA1A85", secondary: "#254AA5" }
+    names:
+      - { name: Rajasthan Royals, from: 2008 }
+
+  - id: SRH
+    name: Sunrisers Hyderabad
+    colors: { primary: "#F26522", secondary: "#000000" }
+    names:
+      - { name: Sunrisers Hyderabad, from: 2013 }
+
+  # ---- defunct franchises ----
+  - id: DCH
+    name: Deccan Chargers
+    colors: { primary: "#5F7C9B", secondary: "#D1D3D4" }
+    names:
+      - { name: Deccan Chargers, from: 2008, to: 2012 }
+
+  - id: GL
+    name: Gujarat Lions
+    colors: { primary: "#E04F16", secondary: "#1C1C1C" }
+    names:
+      - { name: Gujarat Lions, from: 2016, to: 2017 }
+
+  - id: KTK
+    name: Kochi Tuskers Kerala
+    colors: { primary: "#F15A22", secondary: "#5C2D91" }
+    names:
+      - { name: Kochi Tuskers Kerala, from: 2011, to: 2011 }
+
+  - id: PWI
+    name: Pune Warriors
+    colors: { primary: "#2F9BE3", secondary: "#1C1C1C" }
+    names:
+      - { name: Pune Warriors, from: 2011, to: 2013 }
+
+  - id: RPS
+    name: Rising Pune Supergiant
+    colors: { primary: "#6F61AC", secondary: "#D71920" }
+    names:
+      - { name: Rising Pune Supergiants, from: 2016, to: 2016 }
+      - { name: Rising Pune Supergiant, from: 2017, to: 2017 }

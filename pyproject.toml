@@ -34,6 +34,13 @@ dev = [
     "ruff>=0.11",
     "types-pyyaml>=6.0",
 ]
+notebooks = [
+    "ipykernel>=6.29",
+    "matplotlib>=3.10",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
+    "pandas>=2.2",
+]
 
 # ---------------------------------------------------------------- ruff
 [tool.ruff]
@@ -63,6 +70,11 @@ strict = true
 files = ["core/src", "pipelines/src", "ml/src", "backend/src", "tests"]
 mypy_path = ["core/src", "pipelines/src", "ml/src", "backend/src"]
 explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+# pyarrow ships no type information
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]

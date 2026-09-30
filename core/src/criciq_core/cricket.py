@@ -10,6 +10,14 @@ from __future__ import annotations
 import math
 
 
+def is_legal_delivery(wides: int, noballs: int) -> bool:
+    """A delivery counts toward the over unless it is a wide or a no-ball.
+
+    Byes, leg-byes and penalty runs do not affect legality.
+    """
+    return wides == 0 and noballs == 0
+
+
 def overs_notation(legal_balls: int, balls_per_over: int = 6) -> str:
     """Legal balls -> scoreboard overs, e.g. 99 -> "16.3"."""
     if legal_balls < 0:

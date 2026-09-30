@@ -55,6 +55,7 @@ for (let i = 0; i < 16; i++) {
   await page.getByRole("button", { name: "Next ball" }).click();
   await page.waitForTimeout(150);
 }
+await page.waitForTimeout(800); // let the win probability bar settle
 await page.screenshot({ path: path.join(images, "replay.png") });
 
 await page.getByRole("tab", { name: "Scorecard" }).click();

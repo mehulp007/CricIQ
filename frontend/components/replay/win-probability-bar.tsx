@@ -3,6 +3,7 @@ import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Timeline } from "@/lib/api/types";
 import { formatPercent } from "@/lib/replay/win-probability";
+import { cn } from "@/lib/utils";
 
 /** Chart roles, as in the worm: side batting first = team A, chasing side = team B. */
 export const SIDE_COLORS = { a: "var(--team-a)", b: "var(--team-b)" } as const;
@@ -63,12 +64,19 @@ export function WinProbabilityBar({ timeline, wp }: { timeline: Timeline; wp: nu
           />
         </span>
       </div>
-      <div role="img" aria-label={label} className="flex h-2 gap-0.5 overflow-hidden rounded-full">
+      <div
+        role="img"
+        aria-label={label}
+        className={cn("flex h-2 overflow-hidden rounded-full", a > 0 && a < 100 && "gap-0.5")}
+      >
         <span
-          className="h-full rounded-l-full transition-[width] duration-500 ease-out"
+          className="h-full shrink-0 transition-[width] duration-500 ease-out"
           style={{ width: `${a}%`, background: SIDE_COLORS.a }}
         />
-        <span className="h-full flex-1 rounded-r-full" style={{ background: SIDE_COLORS.b }} />
+        <span
+          className="h-full min-w-0 flex-1 transition-[width] duration-500 ease-out"
+          style={{ background: SIDE_COLORS.b }}
+        />
       </div>
     </div>
   );

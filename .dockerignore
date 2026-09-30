@@ -1,0 +1,19 @@
+# Only the Python workspace, config and reference data go into the API image.
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data
+models
+frontend
+notebooks
+tests
+docs
+scripts
+*.md
+!backend/**/*.md
+!README.md

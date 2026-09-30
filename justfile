@@ -55,3 +55,16 @@ data *args:
 # Re-execute notebooks in place so their outputs are stored (needs a built warehouse)
 notebooks *args:
     uv run --group notebooks python scripts/run_notebooks.py {{args}}
+
+# Regenerate the OpenAPI spec and the frontend's TypeScript types from the API
+api-types:
+    uv run python -m criciq_api.openapi
+    pnpm --dir frontend gen:api
+
+# Re-export the featured replays bundled with the web app (needs the serving database)
+featured:
+    uv run python -m criciq_api.featured
+
+# End-to-end tests against running servers (E2E_BASE_URL overrides the target)
+e2e:
+    pnpm --dir frontend e2e

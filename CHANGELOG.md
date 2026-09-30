@@ -5,6 +5,22 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M3 Win probability**
+  - `criciq_ml`: leak-free, as-of match-state features (tested by deleting and rewriting later
+    matches), a WASP-style chase dynamic programme, and two monotonic LightGBM models.
+  - Evaluation protocol: tuning on 2023-2024, calibration and feature selection by rolling origin on
+    pre-test seasons, one-shot test on 2025-2026, a season-by-season backtest and a match-level
+    bootstrap against a logistic baseline and a state-only model. Test log loss 0.510 vs 0.549.
+  - TreeSHAP explanations grouped into cricket concepts and converted to percentage points.
+  - Versioned model registry committed under `models/`, with a promotion gate and a generated model
+    card (`docs/model-cards/win-probability.md`). ADR-0004.
+  - `criciq-ml` CLI (`train`, `score`, `report`). The API image scores every ball at build time, and
+    the API serves precomputed probabilities with no ML libraries.
+  - Replay: win probability bar, win probability chart with turning points, "Why this estimate"
+    panel, per-ball swings in the commentary, and deep links to any ball (`?ball=innings.seq`).
+  - Model Insights page: calibration, backtest, comparisons, rejected features, calibration choice
+    and the biggest swings in IPL history.
+  - Notebook `02_wp_experiments`: LightGBM vs XGBoost vs CatBoost, the chase feature, the 2019 final.
 - **M2 Match Explorer & Replay (first public deployment)**
   - Live at https://criciq-eight.vercel.app (web on Vercel, API on Render).
   - API: `GET /api/v1/matches` (filters, pagination), `/matches/{id}` (full scorecards) and

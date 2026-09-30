@@ -29,8 +29,8 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: 
   {
     icon: BrainCircuit,
     title: "Explainable win probability",
-    body: "Calibrated models that say who is ahead, by how much, and why, in the language of cricket.",
-    milestone: "M3",
+    body: "Each side's chance after every ball, with the reasons in cricket terms and a model you can inspect.",
+    milestone: "Live",
   },
   {
     icon: Users,
@@ -71,8 +71,9 @@ export default function OverviewPage() {
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           CricIQ turns every IPL delivery since 2008 into interactive analytics. Replay any match
-          ball by ball today. Calibrated win probability, score projection and player intelligence
-          are being built next, each backed by a tested model you can inspect.
+          ball by ball and watch each side&apos;s chance of winning change after every delivery,
+          with the reasons in plain cricket terms. Score projection and player intelligence are
+          next, each backed by a tested model you can inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -88,6 +89,13 @@ export default function OverviewPage() {
           >
             Explore all matches
             <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+          <Link
+            href="/models"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <BrainCircuit className="size-4" aria-hidden="true" />
+            How the model works
           </Link>
         </div>
       </section>

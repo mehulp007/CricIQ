@@ -24,8 +24,10 @@ The image build **is** the data pipeline:
 1. The `data` stage downloads the latest Cricsheet archive, then builds, validates and exports the
    serving database (`criciq-data run`). If any validation check or golden scorecard fails, the image
    build fails, so invalid data can never go live.
-2. The `runtime` stage installs only the API package and copies in the 8 MB serving database. It runs
-   as a non-root user with a container health check.
+2. The same stage scores every ball with the committed win probability model (`criciq-ml score`),
+   adding win probabilities and explanations to the serving database. It never retrains (ADR-0004).
+3. The `runtime` stage installs only the API package (no ML libraries) and copies in the 12 MB serving
+   database. It runs as a non-root user with a container health check.
 
 | Setting | Value |
 |---|---|
@@ -67,6 +69,21 @@ E2E_BASE_URL=https://criciq-eight.vercel.app just e2e
 
 This runs the Playwright suite (desktop and mobile) against production, including a replay served
 live by the API.
+
+## Releasing a new model version
+
+Training is an explicit, reviewed step, never part of a deploy:
+
+```bash
+just data run      # latest data locally
+just ml train      # tune, evaluate, backtest; register and promote if the gate passes
+just ml score      # score the local serving database
+just ml report     # regenerate the model card and the Model Insights data
+just featured      # re-export featured replays with the new probabilities
+```
+
+Bump `version` in `config/models/win_probability.yaml` first. Review the model card diff, commit
+`models/`, then trigger a Render deploy.
 
 ## Refreshing featured replays
 

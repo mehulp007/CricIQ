@@ -1,9 +1,32 @@
 import { ArrowLeftRight } from "lucide-react";
 
 import { BallChip } from "@/components/replay/ball-chip";
+import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { type Frame, playerName } from "@/lib/replay/engine";
+import { swingAt } from "@/lib/replay/win-probability";
 import { cn } from "@/lib/utils";
+
+function Swing({ timeline, index }: { timeline: Timeline; index: number }) {
+  const swing = swingAt(timeline, index);
+  if (swing === null || Math.abs(swing) < 0.005) return null;
+  const side = swing > 0 ? "a" : "b";
+  const team = side === "a" ? timeline.summary.team_a : timeline.summary.team_b;
+  const points = Math.round(Math.abs(swing) * 100);
+  return (
+    <span
+      className="ml-auto flex shrink-0 items-center gap-1 pt-1 font-mono text-[11px] text-muted-foreground tabular-nums"
+      title={`${team.name} win probability up ${points} points`}
+    >
+      <span
+        aria-hidden="true"
+        className="size-1.5 rounded-full"
+        style={{ background: SIDE_COLORS[side] }}
+      />
+      {team.franchise_id} +{points}%
+    </span>
+  );
+}
 
 const FEED_LENGTH = 14;
 
@@ -81,6 +104,7 @@ export function BallFeed({
                 >
                   {item.frame.commentary}
                 </span>
+                <Swing timeline={timeline} index={item.frame.index} />
               </li>
             ),
           )}

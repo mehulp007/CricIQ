@@ -10,15 +10,14 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
   [pipelines] download → raw (immutable, versioned by data_version)
               extract/normalize → warehouse.duckdb (core tables)
               validate (schemas + invariants + golden matches)
-              features → as-of feature tables (leak-safe)
+              export → serving.duckdb (slim, read-only)
                         ▼
-  [ml] train → evaluate → calibrate → register (models/<name>/<version>/ + model card)
-       batch-score every historical ball → ball_predictions
+  [ml] features: as-of, leak-free match states
+       train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
+       score every historical ball with the current model → serving.duckdb (wp_predictions)
                         ▼
-  [export] serving.duckdb (slim, read-only) + model artifacts → GitHub Release
-                        ▼
-  [backend] FastAPI /api/v1: reads serving.duckdb; live inference only for
-            what-if, next-ball and simulation requests
+  [backend] FastAPI /api/v1: reads serving.duckdb only, no model at request time
+            (live inference arrives with the V1 what-if sandbox and simulator)
                         ▼
   [frontend] Next.js on Vercel: server components + client-side replay engine
              (featured replays bundled; see deployment.md)
@@ -37,10 +36,28 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
 ```
 core ◄── pipelines
 core ◄── ml
-core ◄── backend ──► ml (inference only)
+core ◄── backend
 ```
 
-The backend never imports `pipelines`. Production code never imports notebooks.
+The backend imports neither `pipelines` nor `ml`: the ML package writes its outputs into the serving
+database, which the API reads. Production code never imports notebooks.
+
+## ML layer
+
+`criciq_ml` owns everything model-related (`criciq-ml` CLI):
+
+| Module | Responsibility |
+|---|---|
+| `data.py` | Load warehouse tables into an `Inputs` bundle (truncatable, for leakage tests) |
+| `features.py` | One row per match state; as-of player, venue and era history updated only after each match |
+| `chase.py` | WASP-style dynamic programme for the chase, from earlier seasons' death-over rates |
+| `training.py` | Tuning, calibration choice, test scoring, feature selection, backtest, served fit |
+| `model.py` | The served model: prediction, TreeSHAP explanations grouped into concepts, rule layer |
+| `registry.py` | Versioned models on disk, `CURRENT` pointer, promotion gate |
+| `scoring.py` | Score every ball and publish into `serving.duckdb` atomically |
+| `report.py` | Model card (`docs/model-cards/`) and the Model Insights data bundled with the web app |
+
+The full protocol and results are in the [win probability model card](model-cards/win-probability.md).
 
 ## Data layer
 
@@ -53,9 +70,10 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0001](adr/0001-duckdb-over-postgres.md): DuckDB + Parquet instead of PostgreSQL
 - [ADR-0002](adr/0002-uv-workspace-python-312.md): uv workspace pinned to Python 3.12
 - [ADR-0003](adr/0003-hosting-vercel-and-render.md): Vercel for the web app, Render for the API
+- [ADR-0004](adr/0004-committed-models-precomputed-predictions.md): committed model versions, precomputed predictions
 
 ## Precompute vs live
 
-Everything historical is precomputed by the pipeline: match timelines (with win probability, projections and explanations for every ball), player and matchup aggregates, and evaluation artifacts. The API computes live only what depends on user input: what-if states, next-ball distributions and simulations.
+Everything historical is precomputed. Since M3 that covers every ball's win probability and explanation; later milestones add projections and player and matchup aggregates. Evaluation artifacts are generated with each model version. Live computation is reserved for what depends on user input (what-if states, next-ball distributions, simulations), which arrives in later milestones.
 
 A match replay is driven **entirely client-side** from one timeline payload per match. There are no per-ball API calls.

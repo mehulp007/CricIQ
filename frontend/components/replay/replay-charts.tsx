@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { WinProbabilityChart } from "@/components/replay/win-probability-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import { oversUpTo, wormUpTo } from "@/lib/replay/engine";
@@ -132,7 +133,16 @@ function WicketMarks(props: {
   );
 }
 
-export function ReplayCharts({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
+export function ReplayCharts({
+  timeline,
+  cursor,
+  onSeek,
+}: {
+  timeline: Timeline;
+  cursor: number;
+  onSeek: (index: number) => void;
+}) {
+  const hasModel = Boolean(timeline.win_probability);
   const sides = sidesOf(timeline);
   const maxOvers = 20;
 
@@ -159,14 +169,21 @@ export function ReplayCharts({ timeline, cursor }: { timeline: Timeline; cursor:
 
   return (
     <section aria-label="Charts" className="rounded-2xl border border-border bg-card/70 p-5">
-      <Tabs defaultValue="worm">
+      <Tabs defaultValue={hasModel ? "wp" : "worm"}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TabsList>
+            {hasModel && <TabsTrigger value="wp">Win probability</TabsTrigger>}
             <TabsTrigger value="worm">Worm</TabsTrigger>
             <TabsTrigger value="manhattan">Manhattan</TabsTrigger>
           </TabsList>
           <Legend sides={sides} />
         </div>
+
+        {hasModel && (
+          <TabsContent value="wp" className="mt-4">
+            <WinProbabilityChart timeline={timeline} cursor={cursor} onSeek={onSeek} />
+          </TabsContent>
+        )}
 
         <TabsContent value="worm" className="mt-4">
           <p className="sr-only">Cumulative runs by over for each innings.</p>

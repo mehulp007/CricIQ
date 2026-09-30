@@ -5,6 +5,7 @@ import { useEffect, useMemo, useReducer, useRef } from "react";
 
 import { BallFeed } from "@/components/replay/ball-feed";
 import { CreasePanel } from "@/components/replay/crease-panel";
+import { ExplainPanel } from "@/components/replay/explain-panel";
 import { LiveScorecard } from "@/components/replay/live-scorecard";
 import { ReplayCharts } from "@/components/replay/replay-charts";
 import { type OverOption, ReplayControls } from "@/components/replay/replay-controls";
@@ -14,8 +15,19 @@ import type { Timeline } from "@/lib/api/types";
 import { inningsLabel } from "@/lib/format";
 import { buildFrames, overStarts, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
+import { wpAt } from "@/lib/replay/win-probability";
 
 const SPEED_KEYS: Record<string, Speed> = { "1": 1, "2": 2, "4": 4 };
+
+/** `?ball=2.118` (innings.sequence) opens the replay at that delivery. */
+function linkedBall(timeline: Timeline): number | null {
+  const param = new URLSearchParams(window.location.search).get("ball");
+  const match = param?.match(/^(\d+)\.(\d+)$/);
+  if (!match) return null;
+  const [innings, seq] = [Number(match[1]), Number(match[2])];
+  const index = timeline.deliveries.findIndex((d) => d.innings_no === innings && d.seq_no === seq);
+  return index >= 0 ? index : null;
+}
 
 const INTERACTIVE_ROLES = new Set([
   "button",
@@ -79,6 +91,13 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Deep links from turning points elsewhere in the app. The URL is only
+  // readable after hydration, so this syncs once from outside React.
+  useEffect(() => {
+    const index = linkedBall(timeline);
+    if (index !== null) dispatch({ type: "seek", cursor: index });
+  }, [timeline]);
+
   const overs: OverOption[] = useMemo(() => {
     const innings = new Map(timeline.innings.map((i) => [i.innings_no, i]));
     return overStarts(timeline).map((o) => {
@@ -96,6 +115,8 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
   const frame = cursor >= 0 ? frames[cursor] : null;
   const atEnd = cursor === frames.length - 1;
   const cards = useMemo(() => scorecardAt(timeline, cursor), [timeline, cursor]);
+  const wp = wpAt(timeline, cursor);
+  const seek = (index: number) => dispatch({ type: "seek", cursor: index });
 
   return (
     <div ref={rootRef} className="flex flex-col gap-4">
@@ -114,11 +135,12 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
         <TabsContent value="live" className="mt-4">
           <div className="grid gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
-              <Scoreboard timeline={timeline} frame={frame} atEnd={atEnd} />
+              <Scoreboard timeline={timeline} frame={frame} atEnd={atEnd} wp={wp} />
               {frame && <CreasePanel timeline={timeline} frame={frame} />}
-              <ReplayCharts timeline={timeline} cursor={cursor} />
+              <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
             </div>
-            <div className="lg:col-span-5">
+            <div className="flex flex-col gap-4 lg:col-span-5">
+              <ExplainPanel timeline={timeline} cursor={cursor} />
               <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
             </div>
           </div>

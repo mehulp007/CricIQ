@@ -1,4 +1,5 @@
 import { TeamSwatch } from "@/components/match/team-badge";
+import { WinProbabilityBar } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { formatRate } from "@/lib/cricket";
 import { formatScore, inningsLabel } from "@/lib/format";
@@ -17,10 +18,12 @@ export function Scoreboard({
   timeline,
   frame,
   atEnd,
+  wp,
 }: {
   timeline: Timeline;
   frame: Frame | null;
   atEnd: boolean;
+  wp: number | null;
 }) {
   const { summary, teams } = timeline;
 
@@ -44,6 +47,7 @@ export function Scoreboard({
           Press <kbd className="rounded border border-border px-1.5 font-mono text-xs">Space</kbd>{" "}
           or the play button to start the replay.
         </p>
+        <WinProbabilityBar timeline={timeline} wp={wp} />
       </section>
     );
   }
@@ -108,6 +112,8 @@ export function Scoreboard({
           {summary.result_text}
         </p>
       )}
+
+      <WinProbabilityBar timeline={timeline} wp={wp} />
     </section>
   );
 }

@@ -31,13 +31,13 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M3",
     title: "Win probability",
     summary: "Calibrated, explainable win probability updated after every delivery.",
-    status: "active",
+    status: "done",
   },
   {
     id: "M4",
     title: "Score projection",
     summary: "Projected totals with honest uncertainty ranges and threshold odds.",
-    status: "planned",
+    status: "active",
   },
   {
     id: "M5",

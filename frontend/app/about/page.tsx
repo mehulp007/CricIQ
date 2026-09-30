@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import Link from "next/link";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
@@ -52,6 +54,18 @@ export default function AboutPage() {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-xl font-semibold tracking-tight">Models</h2>
+        <p className="leading-relaxed text-muted-foreground">
+          The win probability in every replay comes from two gradient-boosted tree models, tested on
+          the two most recent seasons and backtested season by season.{" "}
+          <Link href="/models" className="text-primary underline-offset-4 hover:underline">
+            Model Insights
+          </Link>{" "}
+          shows the evaluation, the features that were tried and rejected, and the limitations.
+        </p>
       </section>
 
       <section className="flex flex-col gap-3">

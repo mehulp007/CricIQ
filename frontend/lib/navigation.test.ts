@@ -5,6 +5,7 @@ import { PRIMARY_NAV, SECONDARY_NAV, isActive, isAvailable } from "@/lib/navigat
 const overview = PRIMARY_NAV.find((i) => i.href === "/")!;
 const matches = PRIMARY_NAV.find((i) => i.href === "/matches")!;
 const players = PRIMARY_NAV.find((i) => i.href === "/players")!;
+const models = PRIMARY_NAV.find((i) => i.href === "/models")!;
 
 describe("navigation", () => {
   it("has unique routes", () => {
@@ -15,6 +16,7 @@ describe("navigation", () => {
   it("only exposes pages from shipped milestones", () => {
     expect(isAvailable(overview)).toBe(true);
     expect(isAvailable(matches)).toBe(true);
+    expect(isAvailable(models)).toBe(true);
     expect(isAvailable(players)).toBe(false);
   });
 

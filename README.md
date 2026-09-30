@@ -19,19 +19,20 @@
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics: ball-by-ball historical match replays today, and next calibrated and explainable win probability, probabilistic score projection, player and matchup intelligence, and Monte Carlo match simulation, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability after every delivery. Probabilistic score projection, player and matchup intelligence, and Monte Carlo match simulation come next, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** milestones **M0–M2** are complete and deployed. You can browse and replay every IPL match since 2008. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** milestones **M0–M3** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## Features
 
 | Feature | What it does | Status |
 |---|---|---|
 | Match Explorer & Replay | Browse any IPL match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
-| Win Probability Engine | Calibrated probability after every ball, with plain-language SHAP explanations | M3 · next |
-| Score Projection | Median projected total, 80% interval, and P(150+ / 170+ / 190+ / 200+) | M4 |
+| Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
+| Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
+| Score Projection | Median projected total, 80% interval, and P(150+ / 170+ / 190+ / 200+) | M4 · next |
 | Player Lab | Batting and bowling profiles with phase, venue, situation and opposition splits | M5 |
 | Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 |
 | Compare, Ratings, Momentum, Pressure, Teams, Simulator | Transparent derived metrics and Monte Carlo simulation | V1 |
@@ -60,13 +61,40 @@ What the exploration found, and how it shapes the models ([notebook](notebooks/0
 
 Details: [data pipeline](docs/data-pipeline.md) · [data dictionary](docs/data-dictionary.md)
 
+## The win probability model
+
+Two monotonic LightGBM models (first innings and chase), tested once on the 144 matches of 2025–2026
+that they never saw ([model card](docs/model-cards/win-probability.md)):
+
+| Test seasons 2025–2026 | Log loss | Brier | ECE | AUC |
+|---|---|---|---|---|
+| **CricIQ win probability** | **0.510** | **0.168** | 0.039 | 0.832 |
+| Boosted trees on the match state only | 0.543 | 0.182 | 0.020 | 0.795 |
+| Logistic regression on the match state | 0.549 | 0.184 | 0.034 | 0.791 |
+
+- **Better than the baseline, with uncertainty measured honestly:** +0.039 log loss (95% CI +0.012 to
+  +0.067), resampling whole matches because balls within a match are correlated. A season-by-season
+  backtest (2016–2026) is published too: the model wins 7 of 11 seasons.
+- **Leak-free by construction:** every feature uses only that ball or earlier matches. A test deletes
+  and rewrites all later matches and checks that no earlier feature changes.
+- **Honest negative results:** player, venue and squad strength were built as-of and tested season by
+  season. None improved on the match state plus the scoring era, so none is used.
+- **Sharp at the finish:** a WASP-style dynamic programme computes the exact chance of a chase from
+  runs, balls and wickets, where data is thinnest.
+- **Every choice made on validation data:** hyperparameters, calibration (none vs Platt, decided by a
+  rolling origin) and features. Model versions are committed and gated; deploys only score
+  ([ADR-0004](docs/adr/0004-committed-models-precomputed-predictions.md)).
+
+Experiments: [notebook 02](notebooks/02_wp_experiments.ipynb) (LightGBM vs XGBoost vs CatBoost, the
+chase feature, the 2019 final explained).
+
 ## Screenshots
 
 | Overview | Match Explorer |
 |---|---|
 | ![Overview page with featured replays](docs/images/overview.png) | ![Match Explorer with filters](docs/images/explorer.png) |
-| **Match Center** | **Live scorecard** |
-| ![Match Center at the end of the 2019 final](docs/images/replay.png) | ![Scorecard as it stood at the current ball](docs/images/scorecard.png) |
+| **Match Center** | **Model Insights** |
+| ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Model Insights: calibration and backtest](docs/images/models.png) |
 
 ## Architecture
 
@@ -76,8 +104,10 @@ Cricsheet JSON → pipelines (ingest · normalize · validate) → DuckDB wareho
   → serving.duckdb + model registry → FastAPI (/api/v1) → Next.js frontend
 ```
 
-The replay runs entirely in the browser from a single timeline payload per match (about 5 KB gzipped).
-There are no per-ball API calls, and the live scorecard, commentary and charts are all derived client-side.
+The replay runs entirely in the browser from a single timeline payload per match, including every
+ball's win probability and explanation. There are no per-ball API calls, and the live scorecard,
+commentary and charts are all derived client-side. The API runs no model at request time: every
+probability is precomputed by the image build from the committed model.
 
 Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md)
 and the [architecture decision records](docs/adr/).
@@ -87,9 +117,9 @@ and the [architecture decision records](docs/adr/).
 | Layer | Tools |
 |---|---|
 | Data | Python 3.12, DuckDB, Parquet (pyarrow), SQL validation checks, Typer |
-| ML | scikit-learn, LightGBM (+ XGBoost/CatBoost comparisons), SHAP, NumPy Monte Carlo |
+| ML | LightGBM (monotonic constraints, exact TreeSHAP), scikit-learn, SciPy; XGBoost and CatBoost for comparison |
 | Backend | FastAPI, Pydantic v2, uvicorn |
-| Frontend | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts, visx, Framer Motion |
+| Frontend | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts |
 | Quality | uv workspace, ruff, mypy (strict), pytest, Vitest, Testing Library, Playwright, GitHub Actions |
 | Hosting | Vercel (web, Mumbai), Render (API in Docker, Singapore), free tiers |
 
@@ -103,6 +133,8 @@ just dev-api    # API on http://localhost:8000 (OpenAPI docs at /docs)
 just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
 just data run   # download Cricsheet data, rebuild, validate and export the serving database
+just ml score   # add every ball's win probability from the committed model
+just ml train   # retrain, evaluate and backtest (writes a new model version)
 just e2e        # Playwright end-to-end tests (desktop + mobile) against the running app
 ```
 
@@ -126,7 +158,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M0** Foundations: monorepo, tooling, CI, design system, app shell
 - [x] **M1** Data warehouse: Cricsheet ingestion, normalization, validation
 - [x] **M2** Match Explorer & Replay: first public deployment
-- [ ] **M3** Win Probability
+- [x] **M3** Win Probability: calibrated, explainable, backtested
 - [ ] **M4** Score Projection
 - [ ] **M5** Player Lab
 - [ ] **M6** Matchup Lab + ball-outcome model → **MVP v0.1**

@@ -27,5 +27,7 @@ test.describe("match explorer", () => {
     await expect(page.getByRole("region", { name: "Scoreboard" })).toContainText(
       /won|tied|No result/,
     );
+    // Win probability comes from the API for matches that are not bundled.
+    await expect(page.getByTestId("win-probability")).toBeVisible();
   });
 });

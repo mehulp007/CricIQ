@@ -17,3 +17,4 @@ export type TimelineDelivery = Schemas["TimelineDelivery"];
 export type TimelineInnings = Schemas["TimelineInnings"];
 export type TimelinePlayer = Schemas["TimelinePlayer"];
 export type TimelineSubstitution = Schemas["TimelineSubstitution"];
+export type WinProbabilityModel = Schemas["WinProbabilityModel"];

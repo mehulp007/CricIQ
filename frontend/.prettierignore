@@ -6,3 +6,4 @@ components/ui
 lib/api/schema.d.ts
 lib/api/openapi.json
 data/featured
+data/models

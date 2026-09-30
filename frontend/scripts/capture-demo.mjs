@@ -30,6 +30,9 @@ await page.screenshot({ path: path.join(images, "overview.png") });
 await page.goto(`${baseUrl}/matches`, { waitUntil: "networkidle" });
 await page.screenshot({ path: path.join(images, "explorer.png") });
 
+await page.goto(`${baseUrl}/models`, { waitUntil: "networkidle" });
+await page.screenshot({ path: path.join(images, "models.png") });
+
 // The 2019 final, from the start of the last over of the chase.
 await page.goto(`${baseUrl}/matches/1181768`, { waitUntil: "networkidle" });
 await page.locator("[data-replay-ready]").waitFor();

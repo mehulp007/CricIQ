@@ -6,7 +6,7 @@
 
 **Decode the game. Predict the next move.**
 
-[![CI](https://github.com/OWNER/criciq/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/criciq/actions/workflows/ci.yml)
+[![CI](https://github.com/mehulp007/CricIQ/actions/workflows/ci.yml/badge.svg)](https://github.com/mehulp007/CricIQ/actions/workflows/ci.yml)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)

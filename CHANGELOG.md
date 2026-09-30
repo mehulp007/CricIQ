@@ -5,6 +5,16 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M1 Data warehouse**
+  - Content-addressed raw snapshots of Cricsheet's IPL archive and people register (`criciq-data download`).
+  - Extraction of every match into typed Parquet tables, resolving people by registry id and counting legal balls.
+  - Normalized DuckDB warehouse with enforced keys, references and domains: competitions, seasons, franchises, team seasons, venues, players, matches, innings, deliveries, wickets, squads and substitutions.
+  - Reference config for franchise renames, venue aliases and competition rules.
+  - 17 SQL invariant checks and 6 golden scorecards, with a generated data-quality report.
+  - Player attributes (full name, date of birth, country, batting hand, bowling style) from Wikidata and Wikipedia, with documented overrides.
+  - `criciq-data run`: one-command rebuild from download to validated warehouse and report.
+  - 14 real-match test fixtures covering every data edge case; negative tests prove the checks catch corruption.
+  - EDA notebook linking data findings to modelling decisions; docs for the pipeline and data dictionary.
 - **M0 Foundations**
   - uv workspace (Python 3.12) with `core`, `pipelines`, `ml` and `backend` packages.
   - `criciq_core`: overs/run-rate arithmetic on legal balls and configurable innings phases (`config/phases.yaml`).

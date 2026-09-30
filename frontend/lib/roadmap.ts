@@ -19,13 +19,13 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M1",
     title: "Data warehouse",
     summary: "Every IPL ball since 2008 from Cricsheet, normalized, validated and versioned.",
-    status: "active",
+    status: "done",
   },
   {
     id: "M2",
     title: "Match explorer & replay",
     summary: "Browse any IPL match and replay it ball by ball as if it were live.",
-    status: "planned",
+    status: "active",
   },
   {
     id: "M3",

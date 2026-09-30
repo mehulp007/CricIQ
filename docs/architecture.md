@@ -41,6 +41,12 @@ core ◄── backend ──► ml (inference only)
 
 The backend never imports `pipelines`. Production code never imports notebooks.
 
+## Data layer
+
+See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and validation steps,
+[data-dictionary.md](data-dictionary.md) for every warehouse table, and
+[data-quality-report.md](data-quality-report.md) for the current validation results.
+
 ## Key decisions
 
 - [ADR-0001](adr/0001-duckdb-over-postgres.md): DuckDB + Parquet instead of PostgreSQL

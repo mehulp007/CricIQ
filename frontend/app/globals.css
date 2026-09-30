@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * CricIQ design tokens — "floodlit night match".
+ * Dark is the primary theme (the <html> element carries `.dark`); the light
+ * values in :root exist so a light theme can be added later without touching
+ * components. Team colours are a colour-blind-safe blue/amber pair and are
+ * used only as data accents, never as surfaces.
+ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* cricket semantics */
+  --color-team-a: var(--team-a);
+  --color-team-b: var(--team-b);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-dot: var(--dot);
+  --color-boundary: var(--boundary);
+  --color-six: var(--six);
+  --color-wicket: var(--wicket);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.985 0.003 250);
+  --foreground: oklch(0.2 0.02 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.02 255);
+  --primary: oklch(0.52 0.12 158);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.955 0.006 250);
+  --secondary-foreground: oklch(0.25 0.02 255);
+  --muted: oklch(0.955 0.006 250);
+  --muted-foreground: oklch(0.5 0.02 255);
+  --accent: oklch(0.94 0.02 158);
+  --accent-foreground: oklch(0.25 0.04 158);
+  --destructive: oklch(0.577 0.21 27);
+  --border: oklch(0.91 0.008 250);
+  --input: oklch(0.91 0.008 250);
+  --ring: oklch(0.52 0.12 158);
+
+  --team-a: oklch(0.55 0.15 250);
+  --team-b: oklch(0.66 0.15 65);
+  --positive: oklch(0.55 0.13 158);
+  --negative: oklch(0.58 0.19 25);
+  --dot: oklch(0.7 0.01 255);
+  --boundary: oklch(0.55 0.15 250);
+  --six: oklch(0.55 0.17 300);
+  --wicket: oklch(0.58 0.19 25);
+
+  --chart-1: var(--team-a);
+  --chart-2: var(--team-b);
+  --chart-3: oklch(0.55 0.13 158);
+  --chart-4: oklch(0.55 0.17 300);
+  --chart-5: oklch(0.6 0.02 255);
+
+  --sidebar: oklch(0.97 0.004 250);
+  --sidebar-foreground: oklch(0.25 0.02 255);
+  --sidebar-primary: oklch(0.52 0.12 158);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.93 0.01 250);
+  --sidebar-accent-foreground: oklch(0.2 0.02 255);
+  --sidebar-border: oklch(0.91 0.008 250);
+  --sidebar-ring: oklch(0.52 0.12 158);
+}
+
+.dark {
+  /* night sky -> stand shadows -> floodlit turf */
+  --background: oklch(0.155 0.018 255);
+  --foreground: oklch(0.955 0.005 250);
+  --card: oklch(0.195 0.02 255);
+  --card-foreground: oklch(0.955 0.005 250);
+  --popover: oklch(0.2 0.02 255);
+  --popover-foreground: oklch(0.955 0.005 250);
+  --primary: oklch(0.78 0.14 158);
+  --primary-foreground: oklch(0.18 0.03 160);
+  --secondary: oklch(0.25 0.02 255);
+  --secondary-foreground: oklch(0.93 0.005 250);
+  --muted: oklch(0.24 0.018 255);
+  --muted-foreground: oklch(0.7 0.018 255);
+  --accent: oklch(0.27 0.03 200);
+  --accent-foreground: oklch(0.95 0.01 158);
+  --destructive: oklch(0.68 0.18 25);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.78 0.14 158 / 60%);
+
+  --team-a: oklch(0.72 0.13 245);
+  --team-b: oklch(0.8 0.14 75);
+  --positive: oklch(0.78 0.14 158);
+  --negative: oklch(0.7 0.17 25);
+  --dot: oklch(0.55 0.015 255);
+  --boundary: oklch(0.72 0.13 245);
+  --six: oklch(0.72 0.15 300);
+  --wicket: oklch(0.7 0.17 25);
+
+  --chart-1: var(--team-a);
+  --chart-2: var(--team-b);
+  --chart-3: oklch(0.78 0.14 158);
+  --chart-4: oklch(0.72 0.15 300);
+  --chart-5: oklch(0.6 0.02 255);
+
+  --sidebar: oklch(0.135 0.018 255);
+  --sidebar-foreground: oklch(0.88 0.008 250);
+  --sidebar-primary: oklch(0.78 0.14 158);
+  --sidebar-primary-foreground: oklch(0.18 0.03 160);
+  --sidebar-accent: oklch(0.22 0.02 255);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(1 0 0 / 7%);
+  --sidebar-ring: oklch(0.78 0.14 158 / 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  /* Soft floodlight glow behind page content; purely decorative. */
+  .floodlight {
+    background-image:
+      radial-gradient(60rem 28rem at 15% -10%, oklch(0.78 0.14 158 / 9%), transparent 70%),
+      radial-gradient(50rem 24rem at 95% -5%, oklch(0.72 0.13 245 / 8%), transparent 70%);
+  }
+
+  /* Glass surface for hero cards only — not for dense data panels. */
+  .glass {
+    @apply border border-white/8 bg-card/60 backdrop-blur-md;
+  }
+}

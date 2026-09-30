@@ -1,0 +1,26 @@
+# Innings phase definitions per format.
+#
+# Overs are 1-indexed here (as a commentator would say them: "over 1" is the
+# first over). Cricsheet stores 0-indexed overs; the conversion happens in
+# criciq_core.phases, never in feature or UI code.
+#
+# Every over from 1..overs must belong to exactly one phase — this is enforced
+# when the file is loaded.
+
+formats:
+  T20:
+    overs: 20
+    balls_per_over: 6
+    phases:
+      - key: powerplay
+        label: Powerplay
+        first_over: 1
+        last_over: 6
+      - key: middle
+        label: Middle overs
+        first_over: 7
+        last_over: 15
+      - key: death
+        label: Death overs
+        first_over: 16
+        last_over: 20

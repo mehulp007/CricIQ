@@ -1,0 +1,19 @@
+[project]
+name = "criciq-pipelines"
+version = "0.1.0"
+description = "CricIQ data pipelines: ingestion, normalization, validation and export"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "criciq-core",
+    "typer>=0.15",
+]
+
+[project.scripts]
+criciq-data = "criciq_pipelines.cli:app"
+
+[tool.uv.sources]
+criciq-core = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.8,<1"]
+build-backend = "uv_build"

@@ -1,0 +1,81 @@
+[project]
+name = "criciq"
+version = "0.1.0"
+description = "CricIQ — AI-powered cricket intelligence & simulation platform (workspace root)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "criciq-core",
+    "criciq-pipelines",
+    "criciq-ml",
+    "criciq-api",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["core", "pipelines", "ml", "backend"]
+
+[tool.uv.sources]
+criciq-core = { workspace = true }
+criciq-pipelines = { workspace = true }
+criciq-ml = { workspace = true }
+criciq-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "mypy>=1.15",
+    "pre-commit>=4.2",
+    "pytest>=8.3",
+    "pytest-cov>=6.1",
+    "ruff>=0.11",
+    "types-pyyaml>=6.0",
+]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["frontend", "notebooks"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",   # pycodestyle / pyflakes
+    "I",             # isort
+    "B",             # bugbear
+    "UP",            # pyupgrade
+    "SIM",           # simplify
+    "N",             # naming
+    "RUF",           # ruff-specific
+    "PT",            # pytest style
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["criciq_core", "criciq_pipelines", "criciq_ml", "criciq_api"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["core/src", "pipelines/src", "ml/src", "backend/src", "tests"]
+mypy_path = ["core/src", "pipelines/src", "ml/src", "backend/src"]
+explicit_package_bases = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests that need the full dataset (skipped in CI by default)",
+]
+
+[tool.coverage.run]
+source = ["criciq_core", "criciq_pipelines", "criciq_ml", "criciq_api"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

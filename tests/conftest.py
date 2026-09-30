@@ -4,13 +4,18 @@ database built from the committed edge-case matches in tests/fixtures/cricsheet.
 from __future__ import annotations
 
 import json
+import shutil
 import zipfile
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 import pytest
 
 from criciq_core import paths
+from criciq_ml import registry, scoring
+from criciq_ml.data import load_inputs
+from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
@@ -72,4 +77,22 @@ def fixture_warehouse(
 def fixture_serving_db(fixture_warehouse: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
     target = tmp_path_factory.mktemp("exports") / "serving.duckdb"
     export_serving(fixture_warehouse, target)
+    return target
+
+
+@pytest.fixture(scope="session")
+def fixture_states(fixture_warehouse: Path) -> pd.DataFrame:
+    """Win probability features for every state of the fixture matches."""
+    return build_states(load_inputs(fixture_warehouse))
+
+
+@pytest.fixture(scope="session")
+def fixture_scored_serving_db(
+    fixture_serving_db: Path, fixture_states: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """The fixture serving database scored with the committed (current) model."""
+    target = tmp_path_factory.mktemp("scored") / "serving.duckdb"
+    shutil.copyfile(fixture_serving_db, target)
+    model = registry.load_current()
+    scoring.publish(target, scoring.score_states(model, fixture_states), model)
     return target

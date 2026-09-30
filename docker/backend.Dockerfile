@@ -1,10 +1,12 @@
 # CricIQ API image.
 #
 # Stage 1 builds the data: it downloads the latest Cricsheet IPL archive, builds
-# and validates the warehouse, and exports the read-only serving database. A
+# and validates the warehouse, exports the read-only serving database, and
+# scores every ball with the committed win probability model (models/). A
 # failed validation fails the image build, so invalid data can never ship.
 #
-# Stage 2 is the runtime: the API package and the serving database only.
+# Stage 2 is the runtime: the API package and the serving database only. The
+# API never runs a model, so no ML libraries ship in the runtime image.
 #
 # Build from the repository root:
 #   docker build -f docker/backend.Dockerfile -t criciq-api .
@@ -17,6 +19,8 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 # ---------------------------------------------------------------- data build
 FROM python:${PYTHON_VERSION}-slim AS data
 COPY --from=uv /uv /bin/uv
+# LightGBM needs the OpenMP runtime.
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1     && rm -rf /var/lib/apt/lists/*
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never CRICIQ_ROOT=/app
 WORKDIR /app
 
@@ -25,11 +29,12 @@ COPY core core
 COPY pipelines pipelines
 COPY ml ml
 COPY backend backend
-RUN uv sync --frozen --no-dev --package criciq-pipelines
+RUN uv sync --frozen --no-dev --all-packages
 
 COPY config config
 COPY reference reference
-RUN uv run --frozen --no-sync criciq-data run --report /tmp/data-quality-report.md
+COPY models models
+RUN uv run --frozen --no-sync criciq-data run --report /tmp/data-quality-report.md     && uv run --frozen --no-sync criciq-ml score
 
 # ---------------------------------------------------------------- runtime
 FROM python:${PYTHON_VERSION}-slim AS runtime

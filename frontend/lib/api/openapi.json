@@ -791,6 +791,17 @@
             },
             "title": "Teams",
             "type": "object"
+          },
+          "win_probability": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WinProbabilityModel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present when the match has model win probabilities."
           }
         },
         "required": [
@@ -828,6 +839,21 @@
           "byes": {
             "title": "Byes",
             "type": "integer"
+          },
+          "factors": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Percentage points each factor adds to the batting side's chance, relative to the model's average, in the order of Timeline.win_probability.factor_keys. Absent once the result is certain.",
+            "title": "Factors"
           },
           "innings_no": {
             "title": "Innings No",
@@ -909,6 +935,18 @@
           "wides": {
             "title": "Wides",
             "type": "integer"
+          },
+          "wp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Win probability of the side batting first after this ball (model estimate).",
+            "title": "Wp"
           }
         },
         "required": [
@@ -948,6 +986,21 @@
             "title": "Bowling Team Id",
             "type": "string"
           },
+          "factors_start": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explanation of wp_start (see Timeline.win_probability).",
+            "title": "Factors Start"
+          },
           "innings_no": {
             "title": "Innings No",
             "type": "integer"
@@ -982,6 +1035,18 @@
               }
             ],
             "title": "Target Runs"
+          },
+          "wp_start": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Win probability of the side batting first before this innings' first ball.",
+            "title": "Wp Start"
           }
         },
         "required": [
@@ -1258,6 +1323,51 @@
           "city"
         ],
         "title": "VenueRef",
+        "type": "object"
+      },
+      "WinProbabilityModel": {
+        "description": "The model behind a timeline's win probabilities.",
+        "properties": {
+          "base_innings1": {
+            "description": "Average first-innings estimate: the reference point for its factors.",
+            "title": "Base Innings1",
+            "type": "number"
+          },
+          "base_innings2": {
+            "description": "Average chase estimate: the reference point for its factors.",
+            "title": "Base Innings2",
+            "type": "number"
+          },
+          "factor_keys": {
+            "description": "Order of the values in each `factors` list.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Factor Keys",
+            "type": "array"
+          },
+          "trained_from": {
+            "title": "Trained From",
+            "type": "integer"
+          },
+          "trained_through": {
+            "title": "Trained Through",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "trained_from",
+          "trained_through",
+          "factor_keys",
+          "base_innings1",
+          "base_innings2"
+        ],
+        "title": "WinProbabilityModel",
         "type": "object"
       }
     }

@@ -384,6 +384,8 @@ export interface components {
             teams: {
                 [key: string]: components["schemas"]["TeamRef"];
             };
+            /** @description Present when the match has model win probabilities. */
+            win_probability?: components["schemas"]["WinProbabilityModel"] | null;
         };
         /** TimelineDelivery */
         TimelineDelivery: {
@@ -395,6 +397,11 @@ export interface components {
             bowler_id: string;
             /** Byes */
             byes: number;
+            /**
+             * Factors
+             * @description Percentage points each factor adds to the batting side's chance, relative to the model's average, in the order of Timeline.win_probability.factor_keys. Absent once the result is certain.
+             */
+            factors?: number[] | null;
             /** Innings No */
             innings_no: number;
             /** Is Four */
@@ -439,6 +446,11 @@ export interface components {
             wicket: components["schemas"]["TimelineWicket"] | null;
             /** Wides */
             wides: number;
+            /**
+             * Wp
+             * @description Win probability of the side batting first after this ball (model estimate).
+             */
+            wp?: number | null;
         };
         /** TimelineInnings */
         TimelineInnings: {
@@ -446,6 +458,11 @@ export interface components {
             batting_team_id: string;
             /** Bowling Team Id */
             bowling_team_id: string;
+            /**
+             * Factors Start
+             * @description Explanation of wp_start (see Timeline.win_probability).
+             */
+            factors_start?: number[] | null;
             /** Innings No */
             innings_no: number;
             /** Is Super Over */
@@ -459,6 +476,11 @@ export interface components {
             target_balls: number | null;
             /** Target Runs */
             target_runs: number | null;
+            /**
+             * Wp Start
+             * @description Win probability of the side batting first before this innings' first ball.
+             */
+            wp_start?: number | null;
         };
         /** TimelinePlayer */
         TimelinePlayer: {
@@ -538,6 +560,33 @@ export interface components {
             name: string;
             /** Venue Id */
             venue_id: string;
+        };
+        /**
+         * WinProbabilityModel
+         * @description The model behind a timeline's win probabilities.
+         */
+        WinProbabilityModel: {
+            /**
+             * Base Innings1
+             * @description Average first-innings estimate: the reference point for its factors.
+             */
+            base_innings1: number;
+            /**
+             * Base Innings2
+             * @description Average chase estimate: the reference point for its factors.
+             */
+            base_innings2: number;
+            /**
+             * Factor Keys
+             * @description Order of the values in each `factors` list.
+             */
+            factor_keys: string[];
+            /** Trained From */
+            trained_from: number;
+            /** Trained Through */
+            trained_through: number;
+            /** Version */
+            version: string;
         };
     };
     responses: never;

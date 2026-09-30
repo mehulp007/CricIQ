@@ -168,3 +168,40 @@ def test_responses_are_cacheable_and_compressed(client: TestClient) -> None:
     response = client.get("/api/v1/matches/1181768/timeline", headers={"Accept-Encoding": "gzip"})
     assert "s-maxage" in response.headers["Cache-Control"]
     assert response.headers["Content-Encoding"] == "gzip"
+
+
+# --------------------------------------------------------------------------- win probability
+
+
+def test_timeline_carries_win_probability(client: TestClient) -> None:
+    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    model = timeline["win_probability"]
+    assert model["factor_keys"] == ["situation", "wickets", "recent"]
+    assert model["trained_from"] == 2008
+
+    innings = timeline["innings"]
+    assert all(0 < i["wp_start"] < 1 for i in innings)
+    assert all(len(i["factors_start"]) == 3 for i in innings)
+
+    deliveries = timeline["deliveries"]
+    assert all(0 <= d["wp"] <= 1 for d in deliveries)
+    # Mumbai batted first and won by a run off the last ball: the rules say 100%.
+    assert deliveries[-1]["wp"] == 1.0
+    assert deliveries[-1]["factors"] is None
+    assert all(len(d["factors"]) == 3 for d in deliveries[:-1])
+
+
+def test_ties_end_level_and_super_overs_are_not_modelled(client: TestClient) -> None:
+    timeline = get(client, "/api/v1/matches/1216517/timeline")
+    regulation = [d for d in timeline["deliveries"] if d["innings_no"] <= 2]
+    super_overs = [d for d in timeline["deliveries"] if d["innings_no"] > 2]
+    assert regulation[-1]["wp"] == 0.5
+    assert super_overs
+    assert all(d["wp"] is None for d in super_overs)
+
+
+def test_timeline_without_model_scores_still_replays(unscored_client: TestClient) -> None:
+    timeline = get(unscored_client, "/api/v1/matches/1181768/timeline")
+    assert timeline["win_probability"] is None
+    assert all(d["wp"] is None for d in timeline["deliveries"])
+    assert all(i["wp_start"] is None for i in timeline["innings"])

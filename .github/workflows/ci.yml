@@ -69,6 +69,7 @@ jobs:
           (cd tests/fixtures/cricsheet/matches && zip -q "$RUNNER_TEMP/cricsheet/ipl_json.zip" *.json)
           uv run criciq-data snapshot "$RUNNER_TEMP/cricsheet/ipl_json.zip" tests/fixtures/cricsheet/people.csv
           uv run criciq-data run --no-download --report "$RUNNER_TEMP/report.md"
+          uv run criciq-ml score
       - name: Start the API
         run: |
           # Run the venv binary directly: a long-lived `uv run` holds uv's cache lock
@@ -124,6 +125,5 @@ jobs:
         run: |
           docker run -d --name api -p 10000:10000 criciq-api:ci
           timeout 90 sh -c 'until curl -sf http://127.0.0.1:10000/healthz; do sleep 2; done'
-          curl -sf "http://127.0.0.1:10000/api/v1/matches/1181768/timeline" | head -c 200
-          echo
+          curl -sf "http://127.0.0.1:10000/api/v1/matches/1181768/timeline"             | python3 -c "import json,sys; t=json.load(sys.stdin); print(t['win_probability']['version'], t['deliveries'][-1]['wp'])"
           curl -sf http://127.0.0.1:10000/api/v1/meta | python3 -c "import json,sys; m=json.load(sys.stdin); print(m['data_version'], len(m['seasons']), 'seasons')"

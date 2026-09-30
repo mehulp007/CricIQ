@@ -52,6 +52,10 @@ dev-web:
 data *args:
     uv run criciq-data {{args}}
 
+# Models CLI, e.g. `just ml train`, `just ml score` or `just ml report`
+ml *args:
+    uv run criciq-ml {{args}}
+
 # Re-execute notebooks in place so their outputs are stored (needs a built warehouse)
 notebooks *args:
     uv run --group notebooks python scripts/run_notebooks.py {{args}}

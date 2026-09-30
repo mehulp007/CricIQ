@@ -5,7 +5,17 @@ description = "CricIQ machine learning: features, training, evaluation, inferenc
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "criciq-core",
+    "duckdb>=1.2",
+    "lightgbm>=4.6",
+    "numpy>=2.1",
+    "pandas>=2.2",
+    "pyarrow>=19",
+    "scikit-learn>=1.6",
+    "typer>=0.15",
 ]
+
+[project.scripts]
+criciq-ml = "criciq_ml.cli:app"
 
 [tool.uv.sources]
 criciq-core = { workspace = true }

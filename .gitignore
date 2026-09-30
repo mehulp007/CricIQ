@@ -1,6 +1,5 @@
-# --- data & model artifacts (rebuilt by the pipeline, published as releases) ---
+# --- data (rebuilt by the pipeline); model artifacts in /models are committed ---
 /data/
-/models/
 *.duckdb
 *.duckdb.wal
 *.parquet

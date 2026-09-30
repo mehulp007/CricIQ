@@ -1,0 +1,97 @@
+{
+  "base_probability": {
+    "1": 0.4492261391828413,
+    "2": 0.5354970890996285
+  },
+  "calibration": {
+    "1": {
+      "a": 1.0,
+      "b": 0.0
+    },
+    "2": {
+      "a": 1.0,
+      "b": 0.0
+    }
+  },
+  "calibration_method": "none",
+  "features": {
+    "1": [
+      "legal_balls",
+      "runs",
+      "wickets",
+      "runs_vs_par",
+      "runs_last_12",
+      "wickets_last_12"
+    ],
+    "2": [
+      "legal_balls",
+      "balls_remaining",
+      "runs_needed",
+      "wickets",
+      "required_rate",
+      "chase_ratio",
+      "required_rate_rel",
+      "chase_dp",
+      "runs_last_12",
+      "wickets_last_12"
+    ]
+  },
+  "groups": [
+    "situation",
+    "wickets",
+    "recent"
+  ],
+  "headline": {
+    "test_brier": 0.16760537434823647,
+    "test_log_loss": 0.5095250628308501,
+    "test_seasons": [
+      2025,
+      2026
+    ]
+  },
+  "lightgbm": "4.7.0",
+  "monotone": {
+    "1": {
+      "legal_balls": -1,
+      "runs": 1,
+      "runs_vs_par": 1,
+      "wickets": -1
+    },
+    "2": {
+      "balls_remaining": 1,
+      "chase_dp": 1,
+      "chase_ratio": -1,
+      "legal_balls": -1,
+      "required_rate": -1,
+      "required_rate_rel": -1,
+      "runs_needed": -1,
+      "wickets": -1
+    }
+  },
+  "name": "win_probability",
+  "params": {
+    "1": {
+      "min_data_in_leaf": 2000,
+      "num_leaves": 7,
+      "recency_half_life": 0
+    },
+    "2": {
+      "min_data_in_leaf": 2000,
+      "num_leaves": 15,
+      "recency_half_life": 0
+    }
+  },
+  "rounds": {
+    "1": 288,
+    "2": 150
+  },
+  "trained_on": {
+    "matches": 1234,
+    "rows": 297197,
+    "seasons": [
+      2008,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

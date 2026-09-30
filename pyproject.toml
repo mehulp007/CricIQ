@@ -1,7 +1,7 @@
 [project]
 name = "criciq"
 version = "0.1.0"
-description = "CricIQ — AI-powered cricket intelligence & simulation platform (workspace root)"
+description = "CricIQ â€” AI-powered cricket intelligence & simulation platform (workspace root)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12,<3.13"
@@ -35,11 +35,13 @@ dev = [
     "types-pyyaml>=6.0",
 ]
 notebooks = [
+    "catboost>=1.2",
     "ipykernel>=6.29",
     "matplotlib>=3.10",
     "nbclient>=0.10",
     "nbformat>=5.10",
     "pandas>=2.2",
+    "xgboost>=3.0",
 ]
 
 # ---------------------------------------------------------------- ruff
@@ -72,8 +74,8 @@ mypy_path = ["core/src", "pipelines/src", "ml/src", "backend/src"]
 explicit_package_bases = true
 
 [[tool.mypy.overrides]]
-# pyarrow ships no type information
-module = ["pyarrow", "pyarrow.*"]
+# These ship no (or incomplete) type information.
+module = ["pyarrow", "pyarrow.*", "lightgbm", "lightgbm.*", "sklearn", "sklearn.*", "scipy", "scipy.*", "pandas", "pandas.*"]
 ignore_missing_imports = true
 
 # ---------------------------------------------------------------- pytest

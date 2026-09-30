@@ -27,6 +27,7 @@ from criciq_api.schemas.matches import (
     TimelineWicket,
     Toss,
     VenueRef,
+    WinProbabilityModel,
 )
 from criciq_core.cricket import overs_notation
 
@@ -224,6 +225,15 @@ def get_detail(db: Database, match_id: int) -> MatchDetail:
 
 def get_timeline(db: Database, match_id: int) -> Timeline:
     summary = _summary(db, match_id)
+    wp = {(r["innings_no"], r["seq_no"]): r for r in repo.get_win_probabilities(db, match_id)}
+    model_row = repo.get_win_probability_model(db) if wp else None
+
+    def probability(row: Row | None) -> float | None:
+        return None if row is None else float(row["wp_team_a"])
+
+    def factors(row: Row | None) -> list[float] | None:
+        return None if row is None or row["factors"] is None else list(row["factors"])
+
     deliveries = []
     for r in repo.get_deliveries(db, match_id):
         wicket: Any = None
@@ -259,6 +269,8 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 team_runs=r["team_runs"],
                 team_wickets=r["team_wickets"],
                 wicket=wicket,
+                wp=probability(p := wp.get((r["innings_no"], r["seq_no"]))),
+                factors=factors(p),
             )
         )
     return Timeline(
@@ -277,9 +289,12 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 target_runs=r["target_runs"],
                 target_balls=r["target_balls"],
                 max_balls=r["max_balls"],
+                wp_start=probability(s := wp.get((r["innings_no"], 0))),
+                factors_start=factors(s),
             )
             for r in repo.get_innings(db, match_id)
         ],
         deliveries=deliveries,
         substitutions=[TimelineSubstitution(**r) for r in repo.get_substitutions(db, match_id)],
+        win_probability=WinProbabilityModel(**model_row) if model_row else None,
     )

@@ -222,6 +222,26 @@ def get_substitutions(db: Database, match_id: int) -> list[Row]:
     )
 
 
+def get_win_probability_model(db: Database) -> Row | None:
+    """The model behind the stored win probabilities (None if the data was never scored)."""
+    if not db.has_table("models"):
+        return None
+    return db.row("SELECT * FROM models WHERE name = 'win_probability'")
+
+
+def get_win_probabilities(db: Database, match_id: int) -> list[Row]:
+    """Side-batting-first win probability after every ball; seq_no 0 = before the innings."""
+    if not db.has_table("wp_predictions"):
+        return []
+    return db.rows(
+        """
+        SELECT innings_no, seq_no, wp_team_a, factors
+        FROM wp_predictions WHERE match_id = ? ORDER BY innings_no, seq_no
+        """,
+        [match_id],
+    )
+
+
 def get_match_people(db: Database, match_id: int) -> list[Row]:
     """Everyone referenced by a match: squads, substitute fielders, replacements."""
     return db.rows(

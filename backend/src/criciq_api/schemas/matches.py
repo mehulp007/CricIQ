@@ -149,6 +149,13 @@ class TimelineInnings(BaseModel):
     target_runs: int | None
     target_balls: int | None
     max_balls: int = Field(description="Legal balls available to the batting side.")
+    wp_start: float | None = Field(
+        default=None,
+        description="Win probability of the side batting first before this innings' first ball.",
+    )
+    factors_start: list[float] | None = Field(
+        default=None, description="Explanation of wp_start (see Timeline.win_probability)."
+    )
 
 
 class TimelineWicket(BaseModel):
@@ -182,6 +189,16 @@ class TimelineDelivery(BaseModel):
     team_runs: int = Field(description="Innings score after this delivery.")
     team_wickets: int
     wicket: TimelineWicket | None
+    wp: float | None = Field(
+        default=None,
+        description="Win probability of the side batting first after this ball (model estimate).",
+    )
+    factors: list[float] | None = Field(
+        default=None,
+        description="Percentage points each factor adds to the batting side's chance, relative "
+        "to the model's average, in the order of Timeline.win_probability.factor_keys. "
+        "Absent once the result is certain.",
+    )
 
 
 class TimelineSubstitution(BaseModel):
@@ -193,6 +210,21 @@ class TimelineSubstitution(BaseModel):
     reason: str | None
 
 
+class WinProbabilityModel(BaseModel):
+    """The model behind a timeline's win probabilities."""
+
+    version: str
+    trained_from: int
+    trained_through: int
+    factor_keys: list[str] = Field(description="Order of the values in each `factors` list.")
+    base_innings1: float = Field(
+        description="Average first-innings estimate: the reference point for its factors."
+    )
+    base_innings2: float = Field(
+        description="Average chase estimate: the reference point for its factors."
+    )
+
+
 class Timeline(BaseModel):
     """Everything the client needs to replay a match ball by ball, in one payload."""
 
@@ -202,3 +234,6 @@ class Timeline(BaseModel):
     innings: list[TimelineInnings]
     deliveries: list[TimelineDelivery]
     substitutions: list[TimelineSubstitution]
+    win_probability: WinProbabilityModel | None = Field(
+        default=None, description="Present when the match has model win probabilities."
+    )

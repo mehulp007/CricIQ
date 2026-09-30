@@ -9,7 +9,15 @@ from criciq_api.main import create_app
 
 
 @pytest.fixture(scope="session")
-def client(fixture_serving_db: Path) -> Iterator[TestClient]:
+def client(fixture_scored_serving_db: Path) -> Iterator[TestClient]:
+    settings = Settings(environment="test", serving_db=fixture_scored_serving_db)
+    with TestClient(create_app(settings)) as test_client:
+        yield test_client
+
+
+@pytest.fixture(scope="session")
+def unscored_client(fixture_serving_db: Path) -> Iterator[TestClient]:
+    """An API over data that was never scored by a model."""
     settings = Settings(environment="test", serving_db=fixture_serving_db)
     with TestClient(create_app(settings)) as test_client:
         yield test_client

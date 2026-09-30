@@ -1,0 +1,966 @@
+{
+  "name": "win_probability",
+  "version": "1.0.0",
+  "data_version": "2026-05-31.713dafe9",
+  "trained_on": {
+    "matches": 1234,
+    "rows": 297197,
+    "seasons": [
+      2008,
+      2026
+    ]
+  },
+  "splits": {
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "train": [
+      2008,
+      2022
+    ],
+    "validation": [
+      2023,
+      2024
+    ]
+  },
+  "features": {
+    "1": [
+      {
+        "key": "legal_balls",
+        "label": "Legal balls bowled"
+      },
+      {
+        "key": "runs",
+        "label": "Runs scored"
+      },
+      {
+        "key": "wickets",
+        "label": "Wickets lost"
+      },
+      {
+        "key": "runs_vs_par",
+        "label": "Runs above the era's par for this stage"
+      },
+      {
+        "key": "runs_last_12",
+        "label": "Runs in the last 12 legal balls"
+      },
+      {
+        "key": "wickets_last_12",
+        "label": "Wickets in the last 12 legal balls"
+      }
+    ],
+    "2": [
+      {
+        "key": "legal_balls",
+        "label": "Legal balls bowled"
+      },
+      {
+        "key": "balls_remaining",
+        "label": "Balls remaining"
+      },
+      {
+        "key": "runs_needed",
+        "label": "Runs needed"
+      },
+      {
+        "key": "wickets",
+        "label": "Wickets lost"
+      },
+      {
+        "key": "required_rate",
+        "label": "Required run rate"
+      },
+      {
+        "key": "chase_ratio",
+        "label": "Runs needed vs balls left (log ratio)"
+      },
+      {
+        "key": "required_rate_rel",
+        "label": "Required rate relative to the era's scoring rate"
+      },
+      {
+        "key": "chase_dp",
+        "label": "Chance of the chase from a ball-by-ball dynamic programme"
+      },
+      {
+        "key": "runs_last_12",
+        "label": "Runs in the last 12 legal balls"
+      },
+      {
+        "key": "wickets_last_12",
+        "label": "Wickets in the last 12 legal balls"
+      }
+    ]
+  },
+  "calibration": {
+    "method": "none",
+    "selection": [
+      {
+        "brier": 0.18629532232426946,
+        "log_loss": 0.5512830475330046,
+        "method": "none"
+      },
+      {
+        "brier": 0.18757673853801,
+        "log_loss": 0.5551690355958424,
+        "method": "platt"
+      }
+    ],
+    "served": {
+      "1": {
+        "a": 1.0,
+        "b": 0.0
+      },
+      "2": {
+        "a": 1.0,
+        "b": 0.0
+      }
+    }
+  },
+  "test": {
+    "alternatives": [
+      {
+        "auc": 0.830976068958804,
+        "brier": 0.16966758455282943,
+        "ece": 0.049629793396447804,
+        "key": "platt",
+        "log_loss": 0.5143888415558264,
+        "rows": 34604
+      },
+      {
+        "auc": 0.8278526312180758,
+        "brier": 0.17144072313864483,
+        "ece": 0.051258202468991695,
+        "key": "isotonic",
+        "log_loss": 0.5211095798621711,
+        "rows": 34604
+      }
+    ],
+    "baseline": {
+      "auc": 0.7913301761268127,
+      "brier": 0.18423338697167577,
+      "ece": 0.03363880336552539,
+      "log_loss": 0.5489085485625085,
+      "rows": 34604
+    },
+    "baseline_reliability": [
+      {
+        "count": 3496,
+        "lower": 0.0,
+        "observed": 0.043764302059496565,
+        "predicted": 0.039771962923424165,
+        "upper": 0.1
+      },
+      {
+        "count": 2265,
+        "lower": 0.1,
+        "observed": 0.1629139072847682,
+        "predicted": 0.14990122749840454,
+        "upper": 0.2
+      },
+      {
+        "count": 2526,
+        "lower": 0.2,
+        "observed": 0.32106096595407757,
+        "predicted": 0.2506091089901587,
+        "upper": 0.30000000000000004
+      },
+      {
+        "count": 3165,
+        "lower": 0.30000000000000004,
+        "observed": 0.32669826224328596,
+        "predicted": 0.3537131255825528,
+        "upper": 0.4
+      },
+      {
+        "count": 4620,
+        "lower": 0.4,
+        "observed": 0.41764069264069265,
+        "predicted": 0.4545122651264572,
+        "upper": 0.5
+      },
+      {
+        "count": 4925,
+        "lower": 0.5,
+        "observed": 0.49807106598984774,
+        "predicted": 0.5478882516824979,
+        "upper": 0.6000000000000001
+      },
+      {
+        "count": 4337,
+        "lower": 0.6000000000000001,
+        "observed": 0.6450311275074937,
+        "predicted": 0.650551066390564,
+        "upper": 0.7000000000000001
+      },
+      {
+        "count": 3680,
+        "lower": 0.7000000000000001,
+        "observed": 0.7130434782608696,
+        "predicted": 0.7481168437067813,
+        "upper": 0.8
+      },
+      {
+        "count": 2812,
+        "lower": 0.8,
+        "observed": 0.7549786628733998,
+        "predicted": 0.8486227813434111,
+        "upper": 0.9
+      },
+      {
+        "count": 2778,
+        "lower": 0.9,
+        "observed": 0.9463642908567315,
+        "predicted": 0.9554028998668617,
+        "upper": 1.0
+      }
+    ],
+    "by_innings": [
+      {
+        "baseline": {
+          "auc": 0.7164042939037609,
+          "brier": 0.23029139048418523,
+          "ece": 0.14546522081775598,
+          "log_loss": 0.6655251927061107,
+          "rows": 18049
+        },
+        "innings_no": 1,
+        "model": {
+          "auc": 0.7179649335733347,
+          "brier": 0.21632312516044744,
+          "ece": 0.07691273221450902,
+          "log_loss": 0.6316635165151557,
+          "rows": 18049
+        },
+        "state_only": {
+          "auc": 0.707877794595244,
+          "brier": 0.2263177015151519,
+          "ece": 0.1220556007307805,
+          "log_loss": 0.6528495124050016,
+          "rows": 18049
+        }
+      },
+      {
+        "baseline": {
+          "auc": 0.9211847673509886,
+          "brier": 0.13401889555534938,
+          "ece": 0.11502562820491699,
+          "log_loss": 0.4217678774572304,
+          "rows": 16555
+        },
+        "innings_no": 2,
+        "model": {
+          "auc": 0.9251058881893006,
+          "brier": 0.11449110769709807,
+          "ece": 0.06258790717721958,
+          "log_loss": 0.3763642684757893,
+          "rows": 16555
+        },
+        "state_only": {
+          "auc": 0.9230327923790852,
+          "brier": 0.13341842964810585,
+          "ece": 0.12239319784779952,
+          "log_loss": 0.42418763206881815,
+          "rows": 16555
+        }
+      }
+    ],
+    "by_phase": [
+      {
+        "baseline_brier": 0.23516579734125254,
+        "baseline_log_loss": 0.6702728843626532,
+        "innings_no": 1,
+        "model_brier": 0.23323814464904286,
+        "model_log_loss": 0.6667268665653885,
+        "phase": "powerplay",
+        "rows": 5417
+      },
+      {
+        "baseline_brier": 0.22947348491766942,
+        "baseline_log_loss": 0.6617883517350672,
+        "innings_no": 1,
+        "model_brier": 0.21982271228676503,
+        "model_log_loss": 0.6407425913092196,
+        "phase": "middle",
+        "rows": 8070
+      },
+      {
+        "baseline_brier": 0.2259502760556559,
+        "baseline_log_loss": 0.6664980250017769,
+        "innings_no": 1,
+        "model_brier": 0.19004729686603616,
+        "model_log_loss": 0.5739681415019583,
+        "phase": "death",
+        "rows": 4562
+      },
+      {
+        "baseline_brier": 0.19092094812346935,
+        "baseline_log_loss": 0.5681586533145243,
+        "innings_no": 2,
+        "model_brier": 0.15545281757799578,
+        "model_log_loss": 0.48999514378020315,
+        "phase": "powerplay",
+        "rows": 5427
+      },
+      {
+        "baseline_brier": 0.12196497971402702,
+        "baseline_log_loss": 0.39732897087853725,
+        "innings_no": 2,
+        "model_brier": 0.10739972859517763,
+        "model_log_loss": 0.3616293916757434,
+        "phase": "middle",
+        "rows": 7901
+      },
+      {
+        "baseline_brier": 0.06783685334124984,
+        "baseline_log_loss": 0.23541183788509532,
+        "innings_no": 2,
+        "model_brier": 0.06296640573262377,
+        "model_log_loss": 0.22134273185357323,
+        "phase": "death",
+        "rows": 3227
+      }
+    ],
+    "matches": 144,
+    "model": {
+      "auc": 0.8320115400835371,
+      "brier": 0.16760537434823647,
+      "ece": 0.03861555584858408,
+      "log_loss": 0.5095250628308501,
+      "rows": 34604
+    },
+    "reliability": [
+      {
+        "count": 2664,
+        "lower": 0.0,
+        "observed": 0.00487987987987988,
+        "predicted": 0.03709100753909683,
+        "upper": 0.1
+      },
+      {
+        "count": 2611,
+        "lower": 0.1,
+        "observed": 0.11298353121409421,
+        "predicted": 0.14979256514671552,
+        "upper": 0.2
+      },
+      {
+        "count": 2104,
+        "lower": 0.2,
+        "observed": 0.1627851711026616,
+        "predicted": 0.25174077164651315,
+        "upper": 0.30000000000000004
+      },
+      {
+        "count": 3502,
+        "lower": 0.30000000000000004,
+        "observed": 0.2671330668189606,
+        "predicted": 0.3531760345020673,
+        "upper": 0.4
+      },
+      {
+        "count": 6362,
+        "lower": 0.4,
+        "observed": 0.4186576548255266,
+        "predicted": 0.45578872368790196,
+        "upper": 0.5
+      },
+      {
+        "count": 5504,
+        "lower": 0.5,
+        "observed": 0.5575036337209303,
+        "predicted": 0.5438118973738598,
+        "upper": 0.6000000000000001
+      },
+      {
+        "count": 2599,
+        "lower": 0.6000000000000001,
+        "observed": 0.705078876490958,
+        "predicted": 0.6500820038757656,
+        "upper": 0.7000000000000001
+      },
+      {
+        "count": 3759,
+        "lower": 0.7000000000000001,
+        "observed": 0.7688214950784783,
+        "predicted": 0.7487101090830761,
+        "upper": 0.8
+      },
+      {
+        "count": 2649,
+        "lower": 0.8,
+        "observed": 0.8053982634956587,
+        "predicted": 0.8517207134060697,
+        "upper": 0.9
+      },
+      {
+        "count": 2850,
+        "lower": 0.9,
+        "observed": 0.964561403508772,
+        "predicted": 0.9599937235513392,
+        "upper": 1.0
+      }
+    ],
+    "state_only": {
+      "auc": 0.7945572659624605,
+      "brier": 0.181873491430799,
+      "ece": 0.019567781037856804,
+      "log_loss": 0.5434547190584081,
+      "rows": 34604
+    },
+    "vs_baseline": {
+      "ci_high": 0.06643961385744658,
+      "ci_low": 0.012368193600698237,
+      "improvement": 0.039383485731658285,
+      "matches": 144
+    },
+    "vs_state_only": {
+      "ci_high": 0.05462637058539402,
+      "ci_low": 0.012180520252397317,
+      "improvement": 0.03392965622755813,
+      "matches": 144
+    }
+  },
+  "importance": [
+    {
+      "group": "situation",
+      "label": "Score for the stage / chase equation",
+      "share": 0.7724962521944111
+    },
+    {
+      "group": "wickets",
+      "label": "Wickets in hand",
+      "share": 0.16104014704145128
+    },
+    {
+      "group": "recent",
+      "label": "Last two overs",
+      "share": 0.0664636007641377
+    }
+  ],
+  "feature_selection": [
+    {
+      "brier": 0.221936525883709,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.640040396316571,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served",
+      "label": "Served features"
+    },
+    {
+      "brier": 0.2272027097233479,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6522790824065908,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+crease",
+      "label": "+ Batters at the crease (career strike rate, average, balls faced)"
+    },
+    {
+      "brier": 0.22202975422307894,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "depth_avg_sum"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6406372447726164,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth",
+      "label": "+ Batting still to come (career averages)"
+    },
+    {
+      "brier": 0.22436866007540265,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "bowl_left_econ_idx"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.645443018351129,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling",
+      "label": "+ Bowling still to come (career economy, 4-over quotas)"
+    },
+    {
+      "brier": 0.22412756269565762,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "opp_bat_strength",
+        "own_bowl_strength"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6470866409658651,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+squads",
+      "label": "+ Squad strength (opposition batting, own bowling)"
+    },
+    {
+      "brier": 0.2274769531707505,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "venue_idx"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6527845311425364,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue",
+      "label": "+ Venue scoring index"
+    },
+    {
+      "brier": 0.14777160234676334,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4553473632965963,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served",
+      "label": "Served features"
+    },
+    {
+      "brier": 0.14911137214926518,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.45899495394236844,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+crease",
+      "label": "+ Batters at the crease (career strike rate, average, balls faced)"
+    },
+    {
+      "brier": 0.1485166352440038,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "depth_avg_sum"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.457379025166098,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth",
+      "label": "+ Batting still to come (career averages)"
+    },
+    {
+      "brier": 0.14953258637590813,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "bowl_left_econ_idx"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.46009870969331984,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling",
+      "label": "+ Bowling still to come (career economy, 4-over quotas)"
+    },
+    {
+      "brier": 0.1505862503677453,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "venue_idx"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4622156394029984,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue",
+      "label": "+ Venue scoring index"
+    },
+    {
+      "brier": 0.15002196029969014,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "target_vs_par"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4598454028180704,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+target_size",
+      "label": "+ Target relative to the era's par"
+    }
+  ],
+  "backtest": [
+    {
+      "baseline_brier": 0.17707396930687866,
+      "baseline_log_loss": 0.5188977090237596,
+      "matches": 60,
+      "model_brier": 0.1725910907667728,
+      "model_ece": 0.059160898389641656,
+      "model_log_loss": 0.5074875294601243,
+      "season": 2016
+    },
+    {
+      "baseline_brier": 0.21044019440094872,
+      "baseline_log_loss": 0.6045170254887194,
+      "matches": 59,
+      "model_brier": 0.21306241475722812,
+      "model_ece": 0.0733799993842203,
+      "model_log_loss": 0.613233000307394,
+      "season": 2017
+    },
+    {
+      "baseline_brier": 0.21801642722933498,
+      "baseline_log_loss": 0.616900865688067,
+      "matches": 60,
+      "model_brier": 0.21514396930780297,
+      "model_ece": 0.04269095778237616,
+      "model_log_loss": 0.612008412236612,
+      "season": 2018
+    },
+    {
+      "baseline_brier": 0.19309741920241733,
+      "baseline_log_loss": 0.5729385585594344,
+      "matches": 59,
+      "model_brier": 0.1869256523330977,
+      "model_ece": 0.04787466083464112,
+      "model_log_loss": 0.5585783541288329,
+      "season": 2019
+    },
+    {
+      "baseline_brier": 0.16719856994872523,
+      "baseline_log_loss": 0.5391211084153591,
+      "matches": 60,
+      "model_brier": 0.16759616068066163,
+      "model_ece": 0.032989242024729845,
+      "model_log_loss": 0.542381889786871,
+      "season": 2020
+    },
+    {
+      "baseline_brier": 0.1772388474377424,
+      "baseline_log_loss": 0.5340151428196267,
+      "matches": 60,
+      "model_brier": 0.17825845425091932,
+      "model_ece": 0.04552577949599479,
+      "model_log_loss": 0.5374777696402492,
+      "season": 2021
+    },
+    {
+      "baseline_brier": 0.1750582627428514,
+      "baseline_log_loss": 0.5176128726145625,
+      "matches": 74,
+      "model_brier": 0.17745063442573017,
+      "model_ece": 0.049935956242988494,
+      "model_log_loss": 0.5219052621703574,
+      "season": 2022
+    },
+    {
+      "baseline_brier": 0.20449567567127125,
+      "baseline_log_loss": 0.5891106460886205,
+      "matches": 73,
+      "model_brier": 0.20399412244408976,
+      "model_ece": 0.04631302560812532,
+      "model_log_loss": 0.5884652121630571,
+      "season": 2023
+    },
+    {
+      "baseline_brier": 0.1688309774405574,
+      "baseline_log_loss": 0.5017276033796519,
+      "matches": 71,
+      "model_brier": 0.16482863163307573,
+      "model_ece": 0.03874019915008956,
+      "model_log_loss": 0.49178868643168416,
+      "season": 2024
+    },
+    {
+      "baseline_brier": 0.1727864901549487,
+      "baseline_log_loss": 0.524925035575121,
+      "matches": 71,
+      "model_brier": 0.16745099788650225,
+      "model_ece": 0.043833920464417295,
+      "model_log_loss": 0.5125836410274865,
+      "season": 2025
+    },
+    {
+      "baseline_brier": 0.19194264957664428,
+      "baseline_log_loss": 0.5636097659723778,
+      "matches": 73,
+      "model_brier": 0.16614850614543042,
+      "model_ece": 0.04340148722326453,
+      "model_log_loss": 0.5011874746077407,
+      "season": 2026
+    }
+  ],
+  "swings": [
+    {
+      "match_id": 1254116,
+      "innings_no": 2,
+      "seq_no": 124,
+      "ball_label": "19.5",
+      "season": 2021,
+      "date": "2021-10-13",
+      "stage": "Qualifier 2",
+      "teams": "DC vs KKR",
+      "result": "Kolkata Knight Riders won by 3 wickets",
+      "description": "R Ashwin to RA Tripathi: SIX",
+      "team": "KKR",
+      "swing": 76.3,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 548345,
+      "innings_no": 2,
+      "seq_no": 124,
+      "ball_label": "19.6",
+      "season": 2012,
+      "date": "2012-04-29",
+      "stage": "League",
+      "teams": "DC vs RR",
+      "result": "Delhi Daredevils won by 1 run",
+      "description": "UT Yadav to AM Rahane: OUT, OA Shah run out",
+      "team": "DC",
+      "swing": 75.2,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 981005,
+      "innings_no": 2,
+      "seq_no": 127,
+      "ball_label": "19.6",
+      "season": 2016,
+      "date": "2016-05-21",
+      "stage": "League",
+      "teams": "PBKS vs RPS",
+      "result": "Rising Pune Supergiants won by 4 wickets",
+      "description": "AR Patel to MS Dhoni: SIX",
+      "team": "RPS",
+      "swing": 74.1,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 548355,
+      "innings_no": 2,
+      "seq_no": 123,
+      "ball_label": "19.6",
+      "season": 2012,
+      "date": "2012-05-06",
+      "stage": "League",
+      "teams": "CSK vs MI",
+      "result": "Mumbai Indians won by 2 wickets",
+      "description": "BW Hilfenhaus to DR Smith: FOUR",
+      "team": "MI",
+      "swing": 72.2,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 829715,
+      "innings_no": 2,
+      "seq_no": 125,
+      "ball_label": "19.6",
+      "season": 2015,
+      "date": "2015-04-12",
+      "stage": "League",
+      "teams": "DC vs RR",
+      "result": "Rajasthan Royals won by 3 wickets",
+      "description": "AD Mathews to TG Southee: FOUR",
+      "team": "RR",
+      "swing": 67.5,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 1304079,
+      "innings_no": 2,
+      "seq_no": 127,
+      "ball_label": "19.6",
+      "season": 2022,
+      "date": "2022-04-21",
+      "stage": "League",
+      "teams": "MI vs CSK",
+      "result": "Chennai Super Kings won by 3 wickets",
+      "description": "JD Unadkat to MS Dhoni: FOUR",
+      "team": "CSK",
+      "swing": 65.2,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 1082608,
+      "innings_no": 2,
+      "seq_no": 122,
+      "ball_label": "19.4",
+      "season": 2017,
+      "date": "2017-04-17",
+      "stage": "League",
+      "teams": "DC vs KKR",
+      "result": "Kolkata Knight Riders won by 4 wickets",
+      "description": "A Mishra to MK Pandey: SIX",
+      "team": "KKR",
+      "swing": 65.1,
+      "wp_after": 91.8
+    },
+    {
+      "match_id": 1359487,
+      "innings_no": 2,
+      "seq_no": 123,
+      "ball_label": "19.6",
+      "season": 2023,
+      "date": "2023-04-09",
+      "stage": "League",
+      "teams": "GT vs KKR",
+      "result": "Kolkata Knight Riders won by 3 wickets",
+      "description": "Yash Dayal to RK Singh: SIX",
+      "team": "KKR",
+      "swing": 64.5,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 548368,
+      "innings_no": 2,
+      "seq_no": 121,
+      "ball_label": "19.6",
+      "season": 2012,
+      "date": "2012-05-14",
+      "stage": "League",
+      "teams": "KKR vs CSK",
+      "result": "Chennai Super Kings won by 5 wickets",
+      "description": "R Bhatia to DJ Bravo: SIX",
+      "team": "CSK",
+      "swing": 62.9,
+      "wp_after": 100.0
+    },
+    {
+      "match_id": 1473468,
+      "innings_no": 2,
+      "seq_no": 92,
+      "ball_label": "15.1",
+      "season": 2025,
+      "date": "2025-04-15",
+      "stage": "League",
+      "teams": "PBKS vs KKR",
+      "result": "Punjab Kings won by 16 runs",
+      "description": "M Jansen to AD Russell: OUT, AD Russell bowled",
+      "team": "PBKS",
+      "swing": 61.4,
+      "wp_after": 100.0
+    }
+  ]
+}

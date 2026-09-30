@@ -29,6 +29,12 @@ class Database:
         self._con = duckdb.connect(str(path), read_only=True)
         meta = dict(self._con.execute("SELECT key, value FROM meta").fetchall())
         self.data_version: str = meta["data_version"]
+        self.tables: frozenset[str] = frozenset(
+            name for (name,) in self._con.execute("SHOW TABLES").fetchall()
+        )
+
+    def has_table(self, name: str) -> bool:
+        return name in self.tables
 
     def rows(self, sql: str, params: Sequence[Any] = ()) -> list[Row]:
         cursor = self._con.cursor()

@@ -40,6 +40,10 @@ The image build **is** the data pipeline:
 manual deploy from the Render dashboard or the Render API. The new image picks up the latest Cricsheet
 data automatically.
 
+The web app caches API responses for 24 hours, and that cache survives web deployments. Once the new
+API is live, **invalidate the `criciq-api` cache tag** on the Vercel project (dashboard, CLI or API)
+so pages pick up the new responses immediately.
+
 **Cold starts.** Free Render services sleep after 15 minutes idle and take about 30 seconds to wake. The
 web app is designed around this:
 

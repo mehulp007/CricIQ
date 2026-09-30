@@ -11,6 +11,9 @@ const API_URL = process.env.CRICIQ_API_URL ?? "http://localhost:8000";
 // The free-tier API sleeps when idle and can take ~30-50s to wake.
 const TIMEOUT_MS = 55_000;
 const REVALIDATE_SECONDS = 86_400;
+// Every API response carries this cache tag, so an API redeploy can be followed
+// by one invalidation instead of waiting a day (see docs/deployment.md).
+export const API_CACHE_TAG = "criciq-api";
 
 export class ApiError extends Error {
   constructor(
@@ -26,7 +29,7 @@ async function apiGet<T>(path: string): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      next: { revalidate: REVALIDATE_SECONDS },
+      next: { revalidate: REVALIDATE_SECONDS, tags: [API_CACHE_TAG] },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (cause) {

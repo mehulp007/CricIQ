@@ -71,7 +71,9 @@ jobs:
           uv run criciq-data run --no-download --report "$RUNNER_TEMP/report.md"
       - name: Start the API
         run: |
-          uv run uvicorn criciq_api.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
+          # Run the venv binary directly: a long-lived `uv run` holds uv's cache lock
+          # and would block the cache-save step at the end of the job.
+          .venv/bin/uvicorn criciq_api.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
           timeout 60 sh -c 'until curl -sf http://127.0.0.1:8000/healthz; do sleep 1; done'
       - uses: pnpm/action-setup@v4
         with:

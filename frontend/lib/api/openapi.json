@@ -1,0 +1,1547 @@
+{
+  "components": {
+    "schemas": {
+      "BattingEntry": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "dismissal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How out, e.g. 'c Dhoni b Bravo'; None if not out.",
+            "title": "Dismissal"
+          },
+          "fours": {
+            "title": "Fours",
+            "type": "integer"
+          },
+          "is_out": {
+            "title": "Is Out",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "sixes": {
+            "title": "Sixes",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "runs",
+          "balls",
+          "fours",
+          "sixes",
+          "strike_rate",
+          "dismissal",
+          "is_out"
+        ],
+        "title": "BattingEntry",
+        "type": "object"
+      },
+      "BowlingEntry": {
+        "properties": {
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "maidens": {
+            "title": "Maidens",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "noballs": {
+            "title": "Noballs",
+            "type": "integer"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          },
+          "wides": {
+            "title": "Wides",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "overs",
+          "maidens",
+          "runs",
+          "wickets",
+          "economy",
+          "wides",
+          "noballs"
+        ],
+        "title": "BowlingEntry",
+        "type": "object"
+      },
+      "Extras": {
+        "properties": {
+          "byes": {
+            "title": "Byes",
+            "type": "integer"
+          },
+          "legbyes": {
+            "title": "Legbyes",
+            "type": "integer"
+          },
+          "noballs": {
+            "title": "Noballs",
+            "type": "integer"
+          },
+          "penalty": {
+            "title": "Penalty",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "wides": {
+            "title": "Wides",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "byes",
+          "legbyes",
+          "wides",
+          "noballs",
+          "penalty",
+          "total"
+        ],
+        "title": "Extras",
+        "type": "object"
+      },
+      "FallOfWicket": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wicket": {
+            "title": "Wicket",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "wicket",
+          "runs",
+          "overs",
+          "player_id",
+          "name"
+        ],
+        "title": "FallOfWicket",
+        "type": "object"
+      },
+      "FranchiseInfo": {
+        "properties": {
+          "first_season": {
+            "title": "First Season",
+            "type": "integer"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "last_season": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Season"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "primary_color": {
+            "title": "Primary Color",
+            "type": "string"
+          },
+          "secondary_color": {
+            "title": "Secondary Color",
+            "type": "string"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "primary_color",
+          "secondary_color",
+          "first_season",
+          "last_season",
+          "is_active"
+        ],
+        "title": "FranchiseInfo",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "InningsScorecard": {
+        "properties": {
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/BattingEntry"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "batting_team": {
+            "$ref": "#/components/schemas/TeamRef"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/BowlingEntry"
+            },
+            "title": "Bowling",
+            "type": "array"
+          },
+          "bowling_team": {
+            "$ref": "#/components/schemas/TeamRef"
+          },
+          "did_not_bat": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerRef"
+            },
+            "title": "Did Not Bat",
+            "type": "array"
+          },
+          "extras": {
+            "$ref": "#/components/schemas/Extras"
+          },
+          "fall_of_wickets": {
+            "items": {
+              "$ref": "#/components/schemas/FallOfWicket"
+            },
+            "title": "Fall Of Wickets",
+            "type": "array"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "is_super_over": {
+            "title": "Is Super Over",
+            "type": "boolean"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "target_overs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Overs"
+          },
+          "target_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Runs"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "innings_no",
+          "is_super_over",
+          "batting_team",
+          "bowling_team",
+          "runs",
+          "wickets",
+          "overs",
+          "target_runs",
+          "target_overs",
+          "extras",
+          "batting",
+          "did_not_bat",
+          "bowling",
+          "fall_of_wickets"
+        ],
+        "title": "InningsScorecard",
+        "type": "object"
+      },
+      "MatchDetail": {
+        "properties": {
+          "innings": {
+            "items": {
+              "$ref": "#/components/schemas/InningsScorecard"
+            },
+            "title": "Innings",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          }
+        },
+        "required": [
+          "summary",
+          "innings"
+        ],
+        "title": "MatchDetail",
+        "type": "object"
+      },
+      "MatchPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MatchSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "MatchPage",
+        "type": "object"
+      },
+      "MatchSummary": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "decided_by_super_over": {
+            "title": "Decided By Super Over",
+            "type": "boolean"
+          },
+          "is_playoff": {
+            "title": "Is Playoff",
+            "type": "boolean"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "match_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Number"
+          },
+          "outcome_type": {
+            "enum": [
+              "win",
+              "tie",
+              "no_result"
+            ],
+            "title": "Outcome Type",
+            "type": "string"
+          },
+          "player_of_match": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Player Of Match",
+            "type": "array"
+          },
+          "result_text": {
+            "title": "Result Text",
+            "type": "string"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "target_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Runs"
+          },
+          "team_a": {
+            "$ref": "#/components/schemas/TeamScore",
+            "description": "The side that batted first."
+          },
+          "team_b": {
+            "$ref": "#/components/schemas/TeamScore"
+          },
+          "toss": {
+            "$ref": "#/components/schemas/Toss"
+          },
+          "venue": {
+            "$ref": "#/components/schemas/VenueRef"
+          },
+          "win_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Win Method"
+          },
+          "winner_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Id"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "match_number",
+          "stage",
+          "is_playoff",
+          "venue",
+          "team_a",
+          "team_b",
+          "target_runs",
+          "outcome_type",
+          "winner_id",
+          "result_text",
+          "win_method",
+          "decided_by_super_over",
+          "toss",
+          "player_of_match"
+        ],
+        "title": "MatchSummary",
+        "type": "object"
+      },
+      "Meta": {
+        "properties": {
+          "api_version": {
+            "const": "v1",
+            "title": "Api Version",
+            "type": "string"
+          },
+          "app_version": {
+            "title": "App Version",
+            "type": "string"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "franchises": {
+            "items": {
+              "$ref": "#/components/schemas/FranchiseInfo"
+            },
+            "title": "Franchises",
+            "type": "array"
+          },
+          "model_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Model Versions",
+            "type": "object"
+          },
+          "seasons": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonInfo"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "venues": {
+            "items": {
+              "$ref": "#/components/schemas/VenueInfo"
+            },
+            "title": "Venues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "api_version",
+          "app_version",
+          "data_version",
+          "model_versions",
+          "seasons",
+          "franchises",
+          "venues"
+        ],
+        "title": "Meta",
+        "type": "object"
+      },
+      "PlayerRef": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "name"
+        ],
+        "title": "PlayerRef",
+        "type": "object"
+      },
+      "SeasonInfo": {
+        "properties": {
+          "impact_player_rule": {
+            "title": "Impact Player Rule",
+            "type": "boolean"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "matches",
+          "impact_player_rule"
+        ],
+        "title": "SeasonInfo",
+        "type": "object"
+      },
+      "TeamRef": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "team_season_id": {
+            "title": "Team Season Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "team_season_id",
+          "franchise_id",
+          "name",
+          "color"
+        ],
+        "title": "TeamRef",
+        "type": "object"
+      },
+      "TeamScore": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "overs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Scoreboard overs, e.g. '19.4'.",
+            "title": "Overs"
+          },
+          "runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runs"
+          },
+          "team_season_id": {
+            "title": "Team Season Id",
+            "type": "string"
+          },
+          "wickets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wickets"
+          }
+        },
+        "required": [
+          "team_season_id",
+          "franchise_id",
+          "name",
+          "color",
+          "runs",
+          "wickets",
+          "overs"
+        ],
+        "title": "TeamScore",
+        "type": "object"
+      },
+      "Timeline": {
+        "description": "Everything the client needs to replay a match ball by ball, in one payload.",
+        "properties": {
+          "deliveries": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineDelivery"
+            },
+            "title": "Deliveries",
+            "type": "array"
+          },
+          "innings": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineInnings"
+            },
+            "title": "Innings",
+            "type": "array"
+          },
+          "players": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TimelinePlayer"
+            },
+            "title": "Players",
+            "type": "object"
+          },
+          "substitutions": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineSubstitution"
+            },
+            "title": "Substitutions",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          },
+          "teams": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TeamRef"
+            },
+            "title": "Teams",
+            "type": "object"
+          }
+        },
+        "required": [
+          "summary",
+          "teams",
+          "players",
+          "innings",
+          "deliveries",
+          "substitutions"
+        ],
+        "title": "Timeline",
+        "type": "object"
+      },
+      "TimelineDelivery": {
+        "properties": {
+          "ball_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ball Label"
+          },
+          "batter_id": {
+            "title": "Batter Id",
+            "type": "string"
+          },
+          "bowler_id": {
+            "title": "Bowler Id",
+            "type": "string"
+          },
+          "byes": {
+            "title": "Byes",
+            "type": "integer"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "is_four": {
+            "title": "Is Four",
+            "type": "boolean"
+          },
+          "is_legal": {
+            "title": "Is Legal",
+            "type": "boolean"
+          },
+          "is_six": {
+            "title": "Is Six",
+            "type": "boolean"
+          },
+          "legal_ball_no": {
+            "description": "Legal balls bowled in the innings after this delivery.",
+            "title": "Legal Ball No",
+            "type": "integer"
+          },
+          "legbyes": {
+            "title": "Legbyes",
+            "type": "integer"
+          },
+          "noballs": {
+            "title": "Noballs",
+            "type": "integer"
+          },
+          "non_striker_id": {
+            "title": "Non Striker Id",
+            "type": "string"
+          },
+          "over_no": {
+            "description": "0-based over number.",
+            "title": "Over No",
+            "type": "integer"
+          },
+          "penalty": {
+            "title": "Penalty",
+            "type": "integer"
+          },
+          "runs_batter": {
+            "title": "Runs Batter",
+            "type": "integer"
+          },
+          "runs_extras": {
+            "title": "Runs Extras",
+            "type": "integer"
+          },
+          "runs_total": {
+            "title": "Runs Total",
+            "type": "integer"
+          },
+          "seq_no": {
+            "title": "Seq No",
+            "type": "integer"
+          },
+          "team_runs": {
+            "description": "Innings score after this delivery.",
+            "title": "Team Runs",
+            "type": "integer"
+          },
+          "team_wickets": {
+            "title": "Team Wickets",
+            "type": "integer"
+          },
+          "wicket": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimelineWicket"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wides": {
+            "title": "Wides",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "innings_no",
+          "seq_no",
+          "over_no",
+          "ball_label",
+          "legal_ball_no",
+          "is_legal",
+          "batter_id",
+          "non_striker_id",
+          "bowler_id",
+          "runs_batter",
+          "runs_extras",
+          "runs_total",
+          "wides",
+          "noballs",
+          "byes",
+          "legbyes",
+          "penalty",
+          "is_four",
+          "is_six",
+          "team_runs",
+          "team_wickets",
+          "wicket"
+        ],
+        "title": "TimelineDelivery",
+        "type": "object"
+      },
+      "TimelineInnings": {
+        "properties": {
+          "batting_team_id": {
+            "title": "Batting Team Id",
+            "type": "string"
+          },
+          "bowling_team_id": {
+            "title": "Bowling Team Id",
+            "type": "string"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "is_super_over": {
+            "title": "Is Super Over",
+            "type": "boolean"
+          },
+          "max_balls": {
+            "description": "Legal balls available to the batting side.",
+            "title": "Max Balls",
+            "type": "integer"
+          },
+          "target_balls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Balls"
+          },
+          "target_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Runs"
+          }
+        },
+        "required": [
+          "innings_no",
+          "batting_team_id",
+          "bowling_team_id",
+          "is_super_over",
+          "target_runs",
+          "target_balls",
+          "max_balls"
+        ],
+        "title": "TimelineInnings",
+        "type": "object"
+      },
+      "TimelinePlayer": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "full_name"
+        ],
+        "title": "TimelinePlayer",
+        "type": "object"
+      },
+      "TimelineSubstitution": {
+        "properties": {
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "player_in_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player In Id"
+          },
+          "player_out_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Out Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "seq_no": {
+            "title": "Seq No",
+            "type": "integer"
+          },
+          "team_season_id": {
+            "title": "Team Season Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "innings_no",
+          "seq_no",
+          "team_season_id",
+          "player_in_id",
+          "player_out_id",
+          "reason"
+        ],
+        "title": "TimelineSubstitution",
+        "type": "object"
+      },
+      "TimelineWicket": {
+        "properties": {
+          "bowler_credited": {
+            "title": "Bowler Credited",
+            "type": "boolean"
+          },
+          "fielder_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fielder Ids",
+            "type": "array"
+          },
+          "is_dismissal": {
+            "title": "Is Dismissal",
+            "type": "boolean"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "player_out_id": {
+            "title": "Player Out Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_out_id",
+          "kind",
+          "bowler_credited",
+          "is_dismissal",
+          "fielder_ids"
+        ],
+        "title": "TimelineWicket",
+        "type": "object"
+      },
+      "Toss": {
+        "properties": {
+          "decision": {
+            "anyOf": [
+              {
+                "enum": [
+                  "bat",
+                  "field"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "winner_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Id"
+          },
+          "winner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Name"
+          }
+        },
+        "required": [
+          "winner_id",
+          "winner_name",
+          "decision"
+        ],
+        "title": "Toss",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VenueInfo": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "venue_id": {
+            "title": "Venue Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "venue_id",
+          "name",
+          "city",
+          "country",
+          "matches"
+        ],
+        "title": "VenueInfo",
+        "type": "object"
+      },
+      "VenueRef": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "venue_id": {
+            "title": "Venue Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "venue_id",
+          "name",
+          "city"
+        ],
+        "title": "VenueRef",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Cricket intelligence, ball by ball. Model outputs are estimates, not guarantees of real outcomes.",
+    "title": "CricIQ API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/matches": {
+      "get": {
+        "description": "Paginated match summaries, newest first by default.",
+        "operationId": "list_matches_api_v1_matches_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "season",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Season"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "team",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Franchise id, e.g. MI",
+              "title": "Team"
+            }
+          },
+          {
+            "description": "Venue id",
+            "in": "query",
+            "name": "venue",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Venue id",
+              "title": "Venue"
+            }
+          },
+          {
+            "description": "Only playoffs (true) or league",
+            "in": "query",
+            "name": "playoffs",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only playoffs (true) or league",
+              "title": "Playoffs"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "latest",
+              "enum": [
+                "latest",
+                "oldest"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 24,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Matches",
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/api/v1/matches/{match_id}": {
+      "get": {
+        "description": "Match summary with full scorecards for every innings.",
+        "operationId": "read_match_api_v1_matches__match_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "match_id",
+            "required": true,
+            "schema": {
+              "title": "Match Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Match",
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/api/v1/matches/{match_id}/timeline": {
+      "get": {
+        "description": "Every delivery with running state: one payload drives a full client-side replay.",
+        "operationId": "read_timeline_api_v1_matches__match_id__timeline_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "match_id",
+            "required": true,
+            "schema": {
+              "title": "Match Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Timeline"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Timeline",
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/api/v1/meta": {
+      "get": {
+        "description": "Dataset version and the seasons, franchises and venues available for filtering.",
+        "operationId": "read_meta_api_v1_meta_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Meta",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Healthz",
+        "tags": [
+          "meta"
+        ]
+      }
+    }
+  }
+}

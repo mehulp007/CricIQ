@@ -4,7 +4,7 @@ from itertools import pairwise
 import pytest
 
 from criciq_pipelines.extract import ExtractError, parse_match
-from tests.pipelines.conftest import load_match
+from tests.conftest import load_match
 
 
 def _innings(rows: dict[str, list[dict[str, object]]], number: int) -> list[dict[str, object]]:

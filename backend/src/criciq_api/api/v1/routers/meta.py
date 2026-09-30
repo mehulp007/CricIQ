@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Annotated
 
-from criciq_api import __version__
+from fastapi import APIRouter, Depends
+
+from criciq_api.db import Database, get_db
 from criciq_api.schemas.meta import Meta
+from criciq_api.services.meta import get_meta
 
 router = APIRouter(tags=["meta"])
 
 
 @router.get("/meta")
-def get_meta() -> Meta:
-    return Meta(api_version="v1", app_version=__version__, data_version=None, model_versions={})
+def read_meta(db: Annotated[Database, Depends(get_db)]) -> Meta:
+    """Dataset version and the seasons, franchises and venues available for filtering."""
+    return get_meta(db)

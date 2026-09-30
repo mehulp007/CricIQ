@@ -1,5 +1,5 @@
-"""Shared fixtures: a Cricsheet archive, raw snapshot and warehouse built from
-the committed edge-case matches in tests/fixtures/cricsheet."""
+"""Shared fixtures: a Cricsheet archive, raw snapshot, warehouse and serving
+database built from the committed edge-case matches in tests/fixtures/cricsheet."""
 
 from __future__ import annotations
 
@@ -11,11 +11,12 @@ from typing import Any
 import pytest
 
 from criciq_core import paths
+from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
 from criciq_pipelines.warehouse import BuildInputs, build_warehouse
 
-FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "cricsheet"
+FIXTURES = Path(__file__).resolve().parent / "fixtures" / "cricsheet"
 MATCHES_DIR = FIXTURES / "matches"
 PEOPLE_CSV = FIXTURES / "people.csv"
 
@@ -64,4 +65,11 @@ def fixture_warehouse(
         ),
         target,
     )
+    return target
+
+
+@pytest.fixture(scope="session")
+def fixture_serving_db(fixture_warehouse: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    target = tmp_path_factory.mktemp("exports") / "serving.duckdb"
+    export_serving(fixture_warehouse, target)
     return target

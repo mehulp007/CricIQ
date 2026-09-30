@@ -5,29 +5,70 @@ Run locally with ``just dev-api`` (uvicorn with reload).
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from criciq_api import __version__
 from criciq_api.api.v1.router import api_router
 from criciq_api.core.config import Settings, get_settings
+from criciq_api.db import Database
 from criciq_api.schemas.meta import Health
+from criciq_api.services import matches as matches_service
+
+
+def _warm_up(db: Database) -> None:
+    """Run each query shape once so the first real request is not slow."""
+    latest = db.scalar("SELECT match_id FROM match_summaries ORDER BY match_order DESC LIMIT 1")
+    if latest is not None:
+        matches_service.get_detail(db, latest)
+        matches_service.get_timeline(db, latest)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        app.state.db = Database(settings.serving_db)
+        _warm_up(app.state.db)
+        try:
+            yield
+        finally:
+            app.state.db.close()
+
     app = FastAPI(
         title="CricIQ API",
         version=__version__,
         description="Cricket intelligence, ball by ball. Model outputs are estimates, "
         "not guarantees of real outcomes.",
+        lifespan=lifespan,
     )
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
+        allow_origin_regex=settings.cors_origin_regex,
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def cache_headers(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        response = await call_next(request)
+        if request.url.path.startswith("/api/") and request.method == "GET":
+            response.headers["X-Data-Version"] = request.app.state.db.data_version
+            if response.status_code == 200:
+                response.headers["Cache-Control"] = (
+                    f"public, max-age={settings.cache_max_age}, "
+                    f"s-maxage={settings.cache_s_maxage}, stale-while-revalidate=604800"
+                )
+        return response
 
     @app.get("/healthz", tags=["meta"])
     def healthz() -> Health:

@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "criciq-core",
     "criciq-ml",
+    "duckdb>=1.2",
     "fastapi>=0.115",
     "pydantic-settings>=2.8",
     "uvicorn[standard]>=0.34",

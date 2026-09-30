@@ -11,7 +11,7 @@ from criciq_pipelines.raw import (
     latest_snapshot,
     store_snapshot,
 )
-from tests.pipelines.conftest import PEOPLE_CSV
+from tests.conftest import PEOPLE_CSV
 
 
 def test_latest_match_date_scans_json_without_readme(fixture_archive: Path) -> None:

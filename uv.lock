@@ -285,6 +285,7 @@ source = { editable = "backend" }
 dependencies = [
     { name = "criciq-core" },
     { name = "criciq-ml" },
+    { name = "duckdb" },
     { name = "fastapi" },
     { name = "pydantic-settings" },
     { name = "uvicorn", extra = ["standard"] },
@@ -294,6 +295,7 @@ dependencies = [
 requires-dist = [
     { name = "criciq-core", editable = "core" },
     { name = "criciq-ml", editable = "ml" },
+    { name = "duckdb", specifier = ">=1.2" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pydantic-settings", specifier = ">=2.8" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34" },

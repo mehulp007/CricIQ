@@ -12,10 +12,37 @@ class Health(BaseModel):
     version: str
 
 
+class SeasonInfo(BaseModel):
+    year: int
+    matches: int
+    impact_player_rule: bool
+
+
+class FranchiseInfo(BaseModel):
+    franchise_id: str
+    name: str
+    primary_color: str
+    secondary_color: str
+    first_season: int
+    last_season: int | None
+    is_active: bool
+
+
+class VenueInfo(BaseModel):
+    venue_id: str
+    name: str
+    city: str
+    country: str
+    matches: int
+
+
 class Meta(BaseModel):
     api_version: Literal["v1"]
     app_version: str
-    data_version: str | None
-    """Version of the loaded serving dataset; ``None`` until a dataset is loaded (M2)."""
+    data_version: str
+    """Version of the loaded serving dataset (latest match date + content hash)."""
     model_versions: dict[str, str]
     """Loaded model name -> semantic version; empty until models ship (M3+)."""
+    seasons: list[SeasonInfo]
+    franchises: list[FranchiseInfo]
+    venues: list[VenueInfo]

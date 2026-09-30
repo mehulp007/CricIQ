@@ -4,7 +4,7 @@ import pytest
 from typer.testing import CliRunner
 
 from criciq_pipelines.cli import app
-from tests.pipelines.conftest import PEOPLE_CSV
+from tests.conftest import PEOPLE_CSV
 
 runner = CliRunner()
 

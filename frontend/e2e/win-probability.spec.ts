@@ -48,4 +48,25 @@ test.describe("win probability", () => {
       "Need 9 from 6 balls",
     );
   });
+
+  test("projects the first-innings total and hands over to the chase", async ({ page }) => {
+    await page.goto("/matches/1181768?ball=1.60");
+    const projection = page.getByRole("region", { name: "Projected total" });
+    await expect(projection).toBeVisible();
+    await expect(projection).toContainText("80% range");
+    await expect(projection.getByRole("img").first()).toHaveAttribute(
+      "aria-label",
+      /chance of \d+ or more/,
+    );
+
+    await page.getByRole("button", { name: "Jump to end" }).click();
+    await expect(projection).toHaveCount(0);
+  });
+
+  test("model insights explain the score projection", async ({ page }) => {
+    await page.goto("/models");
+    await page.getByRole("tab", { name: "Score projection" }).click();
+    await expect(page.getByRole("heading", { name: "Does the 90% line mean 90%?" })).toBeVisible();
+    await expect(page.getByText("80% range covers", { exact: true })).toBeVisible();
+  });
 });

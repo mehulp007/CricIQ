@@ -53,11 +53,13 @@ database, which the API reads. Production code never imports notebooks.
 | `chase.py` | WASP-style dynamic programme for the chase, from earlier seasons' death-over rates |
 | `training.py` | Tuning, calibration choice, test scoring, feature selection, backtest, served fit |
 | `model.py` | The served model: prediction, TreeSHAP explanations grouped into concepts, rule layer |
+| `projection.py` | Score projection: era-relative target, quantile models, conformal shifts, CDF |
+| `projection_training.py` | Its protocol: tuning, calibration, test, feature selection, backtest |
 | `registry.py` | Versioned models on disk, `CURRENT` pointer, promotion gate |
 | `scoring.py` | Score every ball and publish into `serving.duckdb` atomically |
-| `report.py` | Model card (`docs/model-cards/`) and the Model Insights data bundled with the web app |
+| `report.py`, `projection_report.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app |
 
-The full protocol and results are in the [win probability model card](model-cards/win-probability.md).
+The full protocols and results are in the model cards for [win probability](model-cards/win-probability.md) and [score projection](model-cards/score-projection.md).
 
 ## Data layer
 

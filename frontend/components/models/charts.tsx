@@ -14,11 +14,17 @@ import {
   ZAxis,
 } from "recharts";
 
-import { type BacktestRow, type ReliabilityBin, SERIES } from "@/lib/models";
+import {
+  type BacktestRow,
+  type ProjectionBacktestRow,
+  type ReliabilityBin,
+  SERIES,
+} from "@/lib/models";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
-export function SeriesLegend() {
+export function SeriesLegend({ baseline = SERIES.baseline.label }: { baseline?: string }) {
+  const labels = { model: SERIES.model.label, baseline };
   return (
     <ul className="flex flex-wrap gap-4 text-xs text-muted-foreground" aria-label="Legend">
       {Object.entries(SERIES).map(([key, s]) => (
@@ -31,7 +37,7 @@ export function SeriesLegend() {
               ...(key === "baseline" ? { opacity: 0.9 } : {}),
             }}
           />
-          {s.label}
+          {labels[key as keyof typeof labels]}
         </li>
       ))}
     </ul>
@@ -213,6 +219,140 @@ export function BacktestChart({ rows }: { rows: BacktestRow[] }) {
           <Line
             dataKey="model_log_loss"
             name={SERIES.model.label}
+            stroke={SERIES.model.color}
+            strokeWidth={2}
+            dot={{ r: 4, fill: SERIES.model.color, stroke: "var(--card)", strokeWidth: 2 }}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+interface LevelPoint {
+  level: number;
+  observed: number;
+}
+
+function LevelTip({ active, payload }: TipProps<LevelPoint>) {
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
+  return (
+    <Box
+      title={`${row.level}% line`}
+      rows={[{ label: "Totals at or below it", value: `${row.observed.toFixed(1)}%` }]}
+    />
+  );
+}
+
+/** Each quantile's stated level against the share of real totals that fell below it. */
+export function LevelCalibrationChart({ rows }: { rows: { level: number; observed: number }[] }) {
+  const data: LevelPoint[] = rows.map((r) => ({
+    level: r.level * 100,
+    observed: r.observed * 100,
+  }));
+  return (
+    <div className="h-72">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: -8 }}>
+          <CartesianGrid stroke="var(--border)" />
+          <XAxis
+            type="number"
+            dataKey="level"
+            domain={[0, 100]}
+            ticks={[0, 25, 50, 75, 100]}
+            tickFormatter={(v: number) => `${v}%`}
+            label={{
+              value: "Quantile level",
+              position: "insideBottom",
+              offset: -8,
+              fill: "var(--muted-foreground)",
+              fontSize: 11,
+            }}
+            {...AXIS}
+          />
+          <YAxis
+            type="number"
+            dataKey="observed"
+            domain={[0, 100]}
+            ticks={[0, 25, 50, 75, 100]}
+            tickFormatter={(v: number) => `${v}%`}
+            width={52}
+            {...AXIS}
+          />
+          <ReferenceLine
+            segment={[
+              { x: 0, y: 0 },
+              { x: 100, y: 100 },
+            ]}
+            stroke="var(--muted-foreground)"
+            strokeDasharray="4 3"
+          />
+          <Tooltip cursor={{ strokeDasharray: "3 3" }} content={<LevelTip />} />
+          <Scatter
+            data={data}
+            fill={SERIES.model.color}
+            line={{ stroke: SERIES.model.color, strokeWidth: 2 }}
+            isAnimationActive={false}
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function ErrorTip({ active, payload }: TipProps<ProjectionBacktestRow>) {
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
+  return (
+    <Box
+      title={`${row.season} · average total ${row.mean_total.toFixed(0)}`}
+      rows={[
+        {
+          label: SERIES.model.label,
+          value: `${row.mae.toFixed(1)} runs`,
+          color: SERIES.model.color,
+        },
+        {
+          label: "Par + spread",
+          value: `${row.par_mae.toFixed(1)} runs`,
+          color: SERIES.baseline.color,
+        },
+        { label: "80% range covered", value: `${(row.coverage80 * 100).toFixed(0)}%` },
+      ]}
+    />
+  );
+}
+
+/** Median error of the projection by season, against par for the era. */
+export function ProjectionBacktestChart({ rows }: { rows: ProjectionBacktestRow[] }) {
+  return (
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
+          <CartesianGrid stroke="var(--border)" vertical={false} />
+          <XAxis dataKey="season" {...AXIS} />
+          <YAxis
+            domain={["dataMin - 1", "dataMax + 1"]}
+            tickFormatter={(v: number) => v.toFixed(0)}
+            width={52}
+            {...AXIS}
+          />
+          <Tooltip
+            cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }}
+            content={<ErrorTip />}
+          />
+          <Line
+            dataKey="par_mae"
+            stroke={SERIES.baseline.color}
+            strokeWidth={2}
+            strokeDasharray="5 4"
+            dot={{ r: 3, fill: SERIES.baseline.color, strokeWidth: 0 }}
+            isAnimationActive={false}
+          />
+          <Line
+            dataKey="mae"
             stroke={SERIES.model.color}
             strokeWidth={2}
             dot={{ r: 4, fill: SERIES.model.color, stroke: "var(--card)", strokeWidth: 2 }}

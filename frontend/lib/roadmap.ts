@@ -37,13 +37,13 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M4",
     title: "Score projection",
     summary: "Projected totals with honest uncertainty ranges and threshold odds.",
-    status: "active",
+    status: "done",
   },
   {
     id: "M5",
     title: "Player lab",
     summary: "Contextual batting and bowling profiles with phase and situation splits.",
-    status: "planned",
+    status: "active",
   },
   {
     id: "M6",

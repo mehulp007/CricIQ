@@ -7,6 +7,7 @@ import {
   Loader,
   Play,
   Swords,
+  TrendingUp,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +31,12 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: 
     icon: BrainCircuit,
     title: "Explainable win probability",
     body: "Each side's chance after every ball, with the reasons in cricket terms and a model you can inspect.",
+    milestone: "Live",
+  },
+  {
+    icon: TrendingUp,
+    title: "Score projection",
+    body: "The projected first-innings total after every ball, with an 80% range that holds up and the odds of passing any score.",
     milestone: "Live",
   },
   {
@@ -72,8 +79,9 @@ export default function OverviewPage() {
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           CricIQ turns every IPL delivery since 2008 into interactive analytics. Replay any match
           ball by ball and watch each side&apos;s chance of winning change after every delivery,
-          with the reasons in plain cricket terms. Score projection and player intelligence are
-          next, each backed by a tested model you can inspect.
+          with the reasons in plain cricket terms, and a projected total with an honest range during
+          the first innings. Player and matchup intelligence are next, each backed by a tested model
+          you can inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link

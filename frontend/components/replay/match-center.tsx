@@ -6,6 +6,7 @@ import { useEffect, useMemo, useReducer, useRef } from "react";
 import { BallFeed } from "@/components/replay/ball-feed";
 import { CreasePanel } from "@/components/replay/crease-panel";
 import { ExplainPanel } from "@/components/replay/explain-panel";
+import { ProjectionPanel } from "@/components/replay/projection-panel";
 import { LiveScorecard } from "@/components/replay/live-scorecard";
 import { ReplayCharts } from "@/components/replay/replay-charts";
 import { type OverOption, ReplayControls } from "@/components/replay/replay-controls";
@@ -136,6 +137,7 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
           <div className="grid gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
               <Scoreboard timeline={timeline} frame={frame} atEnd={atEnd} wp={wp} />
+              <ProjectionPanel timeline={timeline} cursor={cursor} />
               {frame && <CreasePanel timeline={timeline} frame={frame} />}
               <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
             </div>

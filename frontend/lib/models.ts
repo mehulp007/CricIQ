@@ -3,6 +3,7 @@
  * `criciq-ml report` from the model registry (the same numbers as the model
  * card), and bundled so the page never depends on the API being awake.
  */
+import projectionData from "@/data/models/score-projection.json";
 import data from "@/data/models/win-probability.json";
 
 export interface Metrics {
@@ -114,3 +115,69 @@ export function seasonSpan(seasons: number[]): string {
   const sorted = [...seasons].sort((a, b) => a - b);
   return sorted.length > 1 ? `${sorted[0]}–${sorted[sorted.length - 1]}` : String(sorted[0]);
 }
+
+// ---------------------------------------------------------------- score projection
+
+export interface ProjectionMetrics {
+  rows: number;
+  innings: number;
+  coverage80: number;
+  width80: number;
+  mae: number;
+  bias: number;
+  pinball: number;
+  threshold_brier: number;
+  level_calibration: { level: number; observed: number }[];
+}
+
+export interface ProjectionBacktestRow {
+  season: number;
+  innings: number;
+  coverage80: number;
+  mae: number;
+  bias: number;
+  par_mae: number;
+  mean_total: number;
+}
+
+export interface ScoreProjectionInsights {
+  name: string;
+  version: string;
+  trained_on: { seasons: number[]; innings: number; rows: number };
+  calibrated_on: number[];
+  levels: number[];
+  splits: {
+    tune_train_through: number;
+    tune_valid: number[];
+    calibrate: number[];
+    test: number[];
+    served_through: number;
+  };
+  features: { key: string; label: string }[];
+  test: {
+    model: ProjectionMetrics;
+    uncalibrated: ProjectionMetrics;
+    par_baseline: ProjectionMetrics;
+    run_rate: { rows: number; mae: number; bias: number };
+    by_phase: {
+      phase: "powerplay" | "middle" | "death";
+      rows: number;
+      model_mae: number;
+      par_mae: number;
+      run_rate_mae: number;
+      model_coverage80: number;
+      model_width80: number;
+    }[];
+    thresholds: number[];
+  };
+  feature_selection: {
+    variant: string;
+    label: string;
+    pinball: number;
+    mae: number;
+    seasons: number[];
+  }[];
+  backtest: ProjectionBacktestRow[];
+}
+
+export const SCORE_PROJECTION = projectionData as unknown as ScoreProjectionInsights;

@@ -5,6 +5,19 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M4 Score projection**
+  - `criciq_ml.projection`: LightGBM quantile models (5–95%) of the first-innings total, predicted
+    as a ratio to the scoring era's par so one model spans 2008–2026, with per-level conformal
+    calibration and a piecewise-linear CDF for P(total ≥ X).
+  - Protocol: tune on 2021–2022, calibrate on 2023–2024, test on 2025–2026 (no season does two
+    jobs), rolling-origin feature selection and a season-by-season backtest that doubles as the
+    season-bias check. Test: 80% range covers 80.3%, median error 16.9 runs vs
+    18.4 for par and 27.9 for the run-rate projection.
+  - `criciq-ml train score_projection`, a promotion gate on coverage and error, a generated model
+    card, and projections scored into the serving database with the win probabilities.
+  - API: first-innings timelines carry projection quantiles. The `models` table is now generic.
+  - Replay: projected-total panel with the odds of passing round totals, and a projection fan on
+    the worm chart. Model Insights gains a Score projection tab.
 - **M3 Win probability**
   - `criciq_ml`: leak-free, as-of match-state features (tested by deleting and rewriting later
     matches), a WASP-style chase dynamic programme, and two monotonic LightGBM models.

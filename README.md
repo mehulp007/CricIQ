@@ -23,7 +23,7 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** milestones **M0–M3** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** milestones **M0–M4** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## Features
 
@@ -32,8 +32,8 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Match Explorer & Replay | Browse any IPL match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
 | Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
 | Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
-| Score Projection | Median projected total, 80% interval, and P(150+ / 170+ / 190+ / 200+) | M4 · next |
-| Player Lab | Batting and bowling profiles with phase, venue, situation and opposition splits | M5 |
+| Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
+| Player Lab | Batting and bowling profiles with phase, venue, situation and opposition splits | M5 · next |
 | Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 |
 | Compare, Ratings, Momentum, Pressure, Teams, Simulator | Transparent derived metrics and Monte Carlo simulation | V1 |
 
@@ -88,6 +88,21 @@ that they never saw ([model card](docs/model-cards/win-probability.md)):
 Experiments: [notebook 02](notebooks/02_wp_experiments.ipynb) (LightGBM vs XGBoost vs CatBoost, the
 chase feature, the 2019 final explained).
 
+## The score projection model
+
+Quantiles of the final first-innings total after every ball, predicted relative to the scoring era
+and conformally calibrated ([model card](docs/model-cards/score-projection.md)). Tested once on the
+143 first innings of 2025–2026:
+
+| Test seasons 2025–2026 | 80% range covers | Median error (runs) | Pinball |
+|---|---|---|---|
+| **CricIQ projection** | **80.3%** | **16.9** | **4.87** |
+| Par for the era + historical spread | 79.7% | 18.4 | 5.46 |
+| TV-style run-rate projection | — | 27.9 | — |
+
+The median error beats par in 11 of 11 backtest seasons. Season bias stays within a few
+runs either way, with no drift as totals rose by 30 runs across eras.
+
 ## Screenshots
 
 | Overview | Match Explorer |
@@ -134,7 +149,7 @@ just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
 just data run   # download Cricsheet data, rebuild, validate and export the serving database
 just ml score   # add every ball's win probability from the committed model
-just ml train   # retrain, evaluate and backtest (writes a new model version)
+just ml train win_probability   # retrain, evaluate and backtest (new model version)
 just e2e        # Playwright end-to-end tests (desktop + mobile) against the running app
 ```
 
@@ -159,7 +174,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M1** Data warehouse: Cricsheet ingestion, normalization, validation
 - [x] **M2** Match Explorer & Replay: first public deployment
 - [x] **M3** Win Probability: calibrated, explainable, backtested
-- [ ] **M4** Score Projection
+- [x] **M4** Score Projection: conformal quantiles, honest ranges
 - [ ] **M5** Player Lab
 - [ ] **M6** Matchup Lab + ball-outcome model → **MVP v0.1**
 - [ ] **V1** Compare, ratings, momentum & pressure, teams, simulator

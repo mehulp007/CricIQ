@@ -1,12 +1,13 @@
 "use client";
 
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
   LabelList,
   Line,
-  LineChart,
+  ComposedChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -18,6 +19,7 @@ import { WinProbabilityChart } from "@/components/replay/win-probability-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import { oversUpTo, wormUpTo } from "@/lib/replay/engine";
+import { projectionCone } from "@/lib/replay/projection";
 
 // Chart roles map to design tokens: side batting first = team A, chasing side = team B.
 const COLORS = { a: "var(--team-a)", b: "var(--team-b)" };
@@ -154,6 +156,8 @@ export function ReplayCharts({
   );
   const target = timeline.innings.find((i) => i.innings_no === 2)?.target_runs;
   const chaseStarted = worm[1].length > 1;
+  // The worm's x axis reads `over`.
+  const cone = projectionCone(timeline, cursor).map(({ x, ...rest }) => ({ over: x, ...rest }));
 
   const manhattan = Array.from(
     { length: maxOvers },
@@ -186,10 +190,13 @@ export function ReplayCharts({
         )}
 
         <TabsContent value="worm" className="mt-4">
-          <p className="sr-only">Cumulative runs by over for each innings.</p>
+          <p className="sr-only">
+            Cumulative runs by over for each innings. During the first innings a shaded fan shows
+            the projected 80% range of the final total.
+          </p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart margin={{ top: 8, right: 12, bottom: 0, left: -12 }}>
+              <ComposedChart margin={{ top: 8, right: 12, bottom: 0, left: -12 }}>
                 <CartesianGrid stroke="var(--border)" vertical={false} />
                 <XAxis
                   dataKey="over"
@@ -230,9 +237,42 @@ export function ReplayCharts({
                     name={side.name}
                   />
                 ))}
-              </LineChart>
+                {cone.length > 0 && (
+                  <>
+                    <Area
+                      data={cone}
+                      dataKey="band"
+                      type="linear"
+                      stroke="none"
+                      fill={COLORS.a}
+                      fillOpacity={0.15}
+                      isAnimationActive={false}
+                      activeDot={false}
+                      name="Projected 80% range"
+                    />
+                    <Line
+                      data={cone}
+                      dataKey="median"
+                      type="linear"
+                      stroke={COLORS.a}
+                      strokeDasharray="4 4"
+                      strokeWidth={1.5}
+                      dot={false}
+                      activeDot={false}
+                      isAnimationActive={false}
+                      name="Projected total"
+                    />
+                  </>
+                )}
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
+          {cone.length > 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Dashed line and fan: projected total and 80% range for {sides[0].name} (model
+              estimate).
+            </p>
+          )}
         </TabsContent>
 
         <TabsContent value="manhattan" className="mt-4">

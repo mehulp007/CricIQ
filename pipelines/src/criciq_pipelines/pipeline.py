@@ -14,6 +14,7 @@ import duckdb
 
 from criciq_core import paths
 from criciq_pipelines import enrich
+from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.raw import RawSnapshot, latest_snapshot
 from criciq_pipelines.validation import ValidationReport, validate
@@ -48,6 +49,14 @@ def run_build(
         ),
         warehouse or paths.warehouse_path(),
     )
+
+
+def serving_path() -> Path:
+    return paths.exports_dir() / "serving.duckdb"
+
+
+def run_export(*, warehouse: Path | None = None, target: Path | None = None) -> dict[str, int]:
+    return export_serving(warehouse or paths.warehouse_path(), target or serving_path())
 
 
 def run_validate(

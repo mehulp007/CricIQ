@@ -10,6 +10,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -297,26 +298,45 @@ def _parse_deliveries(
                     )
 
 
-def iter_archive(archive: Path) -> list[tuple[int, dict[str, Any]]]:
-    """All matches in a Cricsheet zip as (match_id, document), sorted by id."""
-    matches: list[tuple[int, dict[str, Any]]] = []
+def iter_archive(archive: Path) -> Iterator[tuple[int, dict[str, Any]]]:
+    """Matches in a Cricsheet zip as (match_id, document), in id order, one at a time."""
     with zipfile.ZipFile(archive) as zf:
-        for name in zf.namelist():
-            if name.endswith(".json"):
-                matches.append((int(Path(name).stem), json.loads(zf.read(name))))
-    return sorted(matches, key=lambda m: m[0])
+        names = sorted(
+            (n for n in zf.namelist() if n.endswith(".json")), key=lambda n: int(Path(n).stem)
+        )
+        for name in names:
+            yield int(Path(name).stem), json.loads(zf.read(name))
 
 
-def extract_archive(archive: Path, out_dir: Path) -> dict[str, int]:
-    """Flatten every match in the archive and write one Parquet file per table."""
-    tables: dict[str, list[Row]] = {name: [] for name in SCHEMAS}
-    for match_id, doc in iter_archive(archive):
-        for name, rows in parse_match(match_id, doc).items():
-            tables[name].extend(rows)
+def extract_archive(archive: Path, out_dir: Path, batch_size: int = 100) -> dict[str, int]:
+    """Flatten every match and write one Parquet file per table.
+
+    Rows are flushed every ``batch_size`` matches so memory stays flat no matter
+    how large the archive grows (the build also runs on small cloud builders).
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
-    counts: dict[str, int] = {}
-    for name, rows in tables.items():
-        table = pa.Table.from_pylist(rows, schema=SCHEMAS[name])
-        pq.write_table(table, out_dir / f"{name}.parquet", compression="zstd")
-        counts[name] = table.num_rows
+    counts = dict.fromkeys(SCHEMAS, 0)
+    buffers: dict[str, list[Row]] = {name: [] for name in SCHEMAS}
+    writers = {
+        name: pq.ParquetWriter(out_dir / f"{name}.parquet", schema, compression="zstd")
+        for name, schema in SCHEMAS.items()
+    }
+
+    def flush() -> None:
+        for name, rows in buffers.items():
+            if rows:
+                writers[name].write_table(pa.Table.from_pylist(rows, schema=SCHEMAS[name]))
+                counts[name] += len(rows)
+                rows.clear()
+
+    try:
+        for index, (match_id, doc) in enumerate(iter_archive(archive), start=1):
+            for name, rows in parse_match(match_id, doc).items():
+                buffers[name].extend(rows)
+            if index % batch_size == 0:
+                flush()
+        flush()
+    finally:
+        for writer in writers.values():
+            writer.close()
     return counts

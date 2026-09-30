@@ -98,6 +98,13 @@ def build() -> None:
     _print_counts(_timed("building warehouse", pipeline.run_build))
 
 
+@app.command()
+def export() -> None:
+    """Export the read-only serving database the API ships with."""
+    _print_counts(_timed("exporting serving database", pipeline.run_export))
+    typer.echo(f"  wrote {pipeline.serving_path()}")
+
+
 @app.command("validate")
 def validate_cmd(
     allow_missing_golden: Annotated[
@@ -141,7 +148,7 @@ def run(
         Path | None, typer.Option("--report", help="Where to write the data-quality report.")
     ] = None,
 ) -> None:
-    """Full rebuild: download, extract, build, validate and write the report."""
+    """Full rebuild: download, extract, build, validate, report and export."""
     if fetch:
         snapshot = _timed("downloading from cricsheet.org", raw.download)
     else:
@@ -156,6 +163,7 @@ def run(
     typer.echo(f"> wrote {target}")
     if not validation.passed:
         raise typer.Exit(code=1)
+    _print_counts(_timed("exporting serving database", pipeline.run_export))
 
 
 @app.callback()

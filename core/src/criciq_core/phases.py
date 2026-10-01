@@ -50,6 +50,15 @@ class FormatPhases(BaseModel):
                 return phase
         raise ValueError(f"over index {over_index} is outside a {self.overs}-over innings")
 
+    def sql_case(self, over_index_column: str) -> str:
+        """SQL ``CASE`` expression giving the phase key of a 0-indexed over column."""
+        ordered = sorted(self.phases, key=lambda p: p.first_over)
+        whens = " ".join(
+            f"WHEN {over_index_column} + 1 <= {p.last_over} THEN '{p.key}'" for p in ordered
+        )
+        # Overs beyond the format's length (miscounted innings) belong to the last phase.
+        return f"CASE {whens} ELSE '{ordered[-1].key}' END"
+
 
 class PhaseConfig(BaseModel):
     formats: dict[str, FormatPhases]

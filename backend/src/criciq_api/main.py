@@ -18,6 +18,7 @@ from criciq_api.core.config import Settings, get_settings
 from criciq_api.db import Database
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
+from criciq_api.services import players as players_service
 
 
 def _warm_up(db: Database) -> None:
@@ -26,6 +27,11 @@ def _warm_up(db: Database) -> None:
     if latest is not None:
         matches_service.get_detail(db, latest)
         matches_service.get_timeline(db, latest)
+    if db.has_table("player_index"):
+        busiest = db.scalar("SELECT player_id FROM player_index ORDER BY matches DESC LIMIT 1")
+        if busiest is not None:
+            players_service.get_profile(db, busiest)
+            players_service.get_splits(db, busiest)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

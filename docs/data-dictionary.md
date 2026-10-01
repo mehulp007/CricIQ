@@ -143,6 +143,25 @@ One row per delivery, including wides and no-balls.
 | `reason` | `impact_player`, `concussion_substitute`, `injury`, … |
 | `team_season_id`, `player_in_id`, `player_out_id`, `role` | Details |
 
+## Player Lab (serving database only)
+
+Built by `criciq_pipelines.players` during export. Super-over innings are excluded throughout.
+**Par** columns hold what an average IPL player would have produced from the same balls: the sum,
+over the player's balls, of the league rate for that ball's season and phase. Summed over all
+players they equal the league's actual totals.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `league_phase_rates` | season × phase | Per-ball rates: runs, dismissals, boundaries and dots for batters; runs conceded, wickets, boundaries and dots for bowlers |
+| `player_batting_innings` | player × innings | Runs, balls (excluding wides), 4s, 6s, dots, dismissal, position (order of arrival), season, venue, team, opposition, result, playoff flag, par columns |
+| `player_bowling_innings` | player × innings | Legal balls, runs conceded (bat + wides + no-balls), wickets credited, maidens, dots, boundaries, wides, no-balls, context and par columns |
+| `player_batting_cells` | player × season × phase × bowler type | Ball-level totals for phase and pace/spin splits; a non-striker run out counts in the cell of that ball |
+| `player_bowling_cells` | player × season × phase × batter hand | Ball-level totals for phase and handedness splits |
+| `player_fielding` | player × match | Catches (incl. caught and bowled), stumpings, run-out involvements; substitutes not credited |
+| `player_seasons` | player × season × franchise | Appearances (playing XI and substitutes) |
+| `player_index` | player | Directory: bio, career span, latest team, derived role (`batter`, `bowler`, `all_rounder` from balls per match), `is_keeper` (2+ stumpings), accent-free `search_key` |
+| `player_wpa` | player × innings × role | Win probability added, written by `criciq-ml score`: each ball's change in the batting side's win probability goes to the batter and, negated, to the bowler |
+
 ## `meta`
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,
 `player_attributes`.

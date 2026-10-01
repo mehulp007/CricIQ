@@ -12,6 +12,8 @@ from pathlib import Path
 
 import duckdb
 
+from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
+
 # Warehouse tables copied as-is.
 COPIED_TABLES = (
     "meta",
@@ -137,16 +139,17 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
         con.execute(
             """
             CREATE TABLE players AS
-            SELECT player_id, name, full_name, country, batting_hand, bowling_arm,
-                   bowling_type, bowling_style
+            SELECT player_id, name, full_name, country, date_of_birth, batting_hand,
+                   bowling_arm, bowling_type, bowling_style
             FROM wh.players
             """
         )
         con.execute(MATCH_SUMMARIES_SQL)
         con.execute("DETACH wh")
+        build_player_tables(con)
         counts = {
             table: int(con.execute(f"SELECT count(*) FROM {table}").fetchone()[0])  # type: ignore[index]
-            for table in (*COPIED_TABLES, "players", "match_summaries")
+            for table in (*COPIED_TABLES, "players", "match_summaries", *PLAYER_TABLES)
         }
         con.execute("CHECKPOINT")
     finally:

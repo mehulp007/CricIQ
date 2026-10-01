@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import duckdb
 import pytest
 from pydantic import ValidationError
 
@@ -54,3 +55,13 @@ formats:
     )
     with pytest.raises(ValidationError, match="cover every over"):
         load_phase_config(bad)
+
+
+def test_sql_case_agrees_with_python() -> None:
+    t20 = default_phase_config().for_format("T20")
+    case = t20.sql_case("o")
+    con = duckdb.connect()
+    rows = con.execute(f"SELECT o, {case} FROM range(0, 20) t(o) ORDER BY o").fetchall()
+    assert all(t20.phase_for_over_index(o).key == key for o, key in rows)
+    # Overs beyond the format (umpire miscounts) fall in the last phase.
+    assert con.execute(f"SELECT {case} FROM (SELECT 21 AS o)").fetchone() == ("death",)

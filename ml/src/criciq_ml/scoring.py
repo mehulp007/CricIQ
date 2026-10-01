@@ -128,8 +128,37 @@ def _register_model(
     )
 
 
+# Win probability added: every ball's change in the batting side's win
+# probability is credited to the batter on strike and, with the opposite sign,
+# to the bowler. Changes between innings belong to nobody.
+PLAYER_WPA_SQL = """
+CREATE TABLE player_wpa AS
+WITH batting_side AS (
+    SELECT match_id, innings_no, seq_no,
+           CASE WHEN innings_no = 1 THEN wp_team_a ELSE 1 - wp_team_a END AS wp
+    FROM wp_predictions
+),
+deltas AS (
+    SELECT match_id, innings_no, seq_no,
+           wp - lag(wp) OVER (PARTITION BY match_id, innings_no ORDER BY seq_no) AS delta
+    FROM batting_side
+),
+credited AS (
+    SELECT d.match_id, d.innings_no, x.batter_id, x.bowler_id, d.delta
+    FROM deltas d JOIN deliveries x USING (match_id, innings_no, seq_no)
+    WHERE d.delta IS NOT NULL
+)
+SELECT batter_id AS player_id, match_id, innings_no, 'batting' AS role, sum(delta) AS wpa
+FROM credited GROUP BY ALL
+UNION ALL
+SELECT bowler_id, match_id, innings_no, 'bowling', -sum(delta)
+FROM credited GROUP BY ALL
+ORDER BY player_id, match_id, innings_no, role
+"""
+
+
 def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel) -> int:
-    """Add win probabilities and model metadata to the serving database."""
+    """Add win probabilities, player WPA and model metadata to the serving database."""
 
     def write(con: duckdb.DuckDBPyConnection) -> int:
         con.register("predictions", predictions)
@@ -143,6 +172,8 @@ def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel
             FROM predictions ORDER BY match_id, innings_no, seq_no
             """
         )
+        con.execute("DROP TABLE IF EXISTS player_wpa")
+        con.execute(PLAYER_WPA_SQL)
         manifest = model.manifest
         _register_model(
             con,

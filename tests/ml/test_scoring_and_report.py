@@ -5,6 +5,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+import pytest
 
 from criciq_ml import registry, report
 
@@ -51,6 +52,41 @@ def test_every_state_is_scored_and_published(
         elif outcome == "win":
             assert wp_team_a == (0.0 if chaser_won else 1.0)
     assert not list(fixture_scored_serving_db.parent.glob("*.scoring"))
+
+
+def test_player_wpa_conserves_each_innings_swing(fixture_scored_serving_db: Path) -> None:
+    """Batters' WPA in an innings adds up to the batting side's total swing,
+    and the bowlers' WPA is exactly its negative."""
+    con = duckdb.connect(str(fixture_scored_serving_db), read_only=True)
+    try:
+        rows = con.execute(
+            """
+            WITH swing AS (
+                SELECT match_id, innings_no,
+                       arg_max(wp_team_a, seq_no) - arg_min(wp_team_a, seq_no) AS team_a
+                FROM wp_predictions GROUP BY ALL
+            ),
+            credited AS (
+                SELECT match_id, innings_no,
+                       sum(wpa) FILTER (WHERE role = 'batting') AS batting,
+                       sum(wpa) FILTER (WHERE role = 'bowling') AS bowling
+                FROM player_wpa GROUP BY ALL
+            )
+            SELECT s.innings_no, s.team_a, c.batting, c.bowling
+            FROM swing s JOIN credited c USING (match_id, innings_no)
+            """
+        ).fetchall()
+        innings = con.execute(
+            "SELECT count(*) FROM (SELECT DISTINCT match_id, innings_no FROM wp_predictions)"
+        ).fetchone()
+    finally:
+        con.close()
+    assert innings is not None
+    assert len(rows) == innings[0]
+    for innings_no, team_a, batting, bowling in rows:
+        side = team_a if innings_no == 1 else -team_a
+        assert batting == pytest.approx(side, abs=1e-9)
+        assert bowling == pytest.approx(-batting, abs=1e-9)
 
 
 def test_model_card_renders_from_the_registry(fixture_scored_serving_db: Path) -> None:

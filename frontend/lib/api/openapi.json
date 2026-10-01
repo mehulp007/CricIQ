@@ -69,6 +69,498 @@
         "title": "BattingEntry",
         "type": "object"
       },
+      "BattingInnings": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "dismissal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissal"
+          },
+          "fours": {
+            "title": "Fours",
+            "type": "integer"
+          },
+          "is_out": {
+            "title": "Is Out",
+            "type": "boolean"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opposition": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "result": {
+            "enum": [
+              "won",
+              "lost",
+              "no_result"
+            ],
+            "title": "Result",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "sixes": {
+            "title": "Sixes",
+            "type": "integer"
+          },
+          "venue": {
+            "title": "Venue",
+            "type": "string"
+          },
+          "wpa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wpa"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "opposition",
+          "venue",
+          "position",
+          "runs",
+          "balls",
+          "fours",
+          "sixes",
+          "is_out",
+          "dismissal",
+          "result",
+          "wpa"
+        ],
+        "title": "BattingInnings",
+        "type": "object"
+      },
+      "BattingSplitGroup": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/BattingSplitRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "rows"
+        ],
+        "title": "BattingSplitGroup",
+        "type": "object"
+      },
+      "BattingSplitRow": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "fifties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fifties"
+          },
+          "highest": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highest"
+          },
+          "innings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None for ball-level splits (phase, bowler type).",
+            "title": "Innings"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Strike Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "innings",
+          "balls",
+          "runs",
+          "outs",
+          "average",
+          "strike_rate",
+          "par_strike_rate",
+          "dot_pct",
+          "boundary_pct",
+          "fifties",
+          "highest"
+        ],
+        "title": "BattingSplitRow",
+        "type": "object"
+      },
+      "BattingSummary": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "ducks": {
+            "title": "Ducks",
+            "type": "integer"
+          },
+          "fifties": {
+            "title": "Fifties",
+            "type": "integer"
+          },
+          "fours": {
+            "title": "Fours",
+            "type": "integer"
+          },
+          "highest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HighScore"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hundreds": {
+            "title": "Hundreds",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "not_outs": {
+            "title": "Not Outs",
+            "type": "integer"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "par_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Average"
+          },
+          "par_boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Boundary Pct"
+          },
+          "par_dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Dot Pct"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Strike Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "runs_above_par": {
+            "description": "Runs scored minus par runs for the same balls.",
+            "title": "Runs Above Par",
+            "type": "number"
+          },
+          "sixes": {
+            "title": "Sixes",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wpa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Win probability added, in probability units.",
+            "title": "Wpa"
+          },
+          "wpa_innings": {
+            "description": "Innings with win probabilities behind ``wpa``.",
+            "title": "Wpa Innings",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matches",
+          "innings",
+          "not_outs",
+          "runs",
+          "balls",
+          "outs",
+          "average",
+          "strike_rate",
+          "highest",
+          "fifties",
+          "hundreds",
+          "ducks",
+          "fours",
+          "sixes",
+          "dot_pct",
+          "boundary_pct",
+          "par_strike_rate",
+          "par_average",
+          "par_dot_pct",
+          "par_boundary_pct",
+          "runs_above_par",
+          "wpa",
+          "wpa_innings"
+        ],
+        "title": "BattingSummary",
+        "type": "object"
+      },
+      "BestFigures": {
+        "properties": {
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opposition_id": {
+            "title": "Opposition Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "wickets",
+          "runs",
+          "match_id",
+          "season",
+          "opposition_id"
+        ],
+        "title": "BestFigures",
+        "type": "object"
+      },
       "BowlingEntry": {
         "properties": {
           "economy": {
@@ -127,6 +619,474 @@
           "noballs"
         ],
         "title": "BowlingEntry",
+        "type": "object"
+      },
+      "BowlingInnings": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opposition": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "won",
+              "lost",
+              "no_result"
+            ],
+            "title": "Result",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "venue": {
+            "title": "Venue",
+            "type": "string"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          },
+          "wpa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wpa"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "opposition",
+          "venue",
+          "balls",
+          "overs",
+          "runs",
+          "wickets",
+          "economy",
+          "result",
+          "wpa"
+        ],
+        "title": "BowlingInnings",
+        "type": "object"
+      },
+      "BowlingSplitGroup": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/BowlingSplitRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "rows"
+        ],
+        "title": "BowlingSplitGroup",
+        "type": "object"
+      },
+      "BowlingSplitRow": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "innings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Innings"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "par_economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Economy"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "innings",
+          "balls",
+          "runs",
+          "wickets",
+          "economy",
+          "average",
+          "strike_rate",
+          "par_economy",
+          "dot_pct"
+        ],
+        "title": "BowlingSplitRow",
+        "type": "object"
+      },
+      "BowlingSummary": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "best": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BestFigures"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "five_wickets": {
+            "description": "Innings with five or more wickets.",
+            "title": "Five Wickets",
+            "type": "integer"
+          },
+          "four_wickets": {
+            "description": "Innings with exactly four wickets.",
+            "title": "Four Wickets",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "maidens": {
+            "title": "Maidens",
+            "type": "integer"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "noballs": {
+            "title": "Noballs",
+            "type": "integer"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "par_dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Dot Pct"
+          },
+          "par_economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Economy"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Strike Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "runs_saved": {
+            "description": "Par runs minus runs conceded for the same balls.",
+            "title": "Runs Saved",
+            "type": "number"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          },
+          "wides": {
+            "title": "Wides",
+            "type": "integer"
+          },
+          "wpa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wpa"
+          },
+          "wpa_innings": {
+            "title": "Wpa Innings",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matches",
+          "innings",
+          "balls",
+          "overs",
+          "runs",
+          "wickets",
+          "average",
+          "economy",
+          "strike_rate",
+          "best",
+          "four_wickets",
+          "five_wickets",
+          "maidens",
+          "dot_pct",
+          "boundary_pct",
+          "wides",
+          "noballs",
+          "par_economy",
+          "par_strike_rate",
+          "par_dot_pct",
+          "runs_saved",
+          "wpa",
+          "wpa_innings"
+        ],
+        "title": "BowlingSummary",
+        "type": "object"
+      },
+      "DismissalCount": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "count"
+        ],
+        "title": "DismissalCount",
+        "type": "object"
+      },
+      "Dismissals": {
+        "properties": {
+          "batting": {
+            "description": "How the player got out.",
+            "items": {
+              "$ref": "#/components/schemas/DismissalCount"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "bowling": {
+            "description": "How the player took wickets.",
+            "items": {
+              "$ref": "#/components/schemas/DismissalCount"
+            },
+            "title": "Bowling",
+            "type": "array"
+          }
+        },
+        "required": [
+          "batting",
+          "bowling"
+        ],
+        "title": "Dismissals",
         "type": "object"
       },
       "Extras": {
@@ -198,6 +1158,29 @@
           "name"
         ],
         "title": "FallOfWicket",
+        "type": "object"
+      },
+      "FieldingSummary": {
+        "properties": {
+          "catches": {
+            "title": "Catches",
+            "type": "integer"
+          },
+          "run_outs": {
+            "title": "Run Outs",
+            "type": "integer"
+          },
+          "stumpings": {
+            "title": "Stumpings",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "catches",
+          "stumpings",
+          "run_outs"
+        ],
+        "title": "FieldingSummary",
         "type": "object"
       },
       "FranchiseInfo": {
@@ -280,6 +1263,39 @@
           "version"
         ],
         "title": "Health",
+        "type": "object"
+      },
+      "HighScore": {
+        "properties": {
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "not_out": {
+            "title": "Not Out",
+            "type": "boolean"
+          },
+          "opposition_id": {
+            "title": "Opposition Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "runs",
+          "not_out",
+          "match_id",
+          "season",
+          "opposition_id"
+        ],
+        "title": "HighScore",
         "type": "object"
       },
       "InningsScorecard": {
@@ -617,6 +1633,794 @@
         "title": "Meta",
         "type": "object"
       },
+      "Percentile": {
+        "properties": {
+          "balls": {
+            "description": "The player's balls behind this metric.",
+            "title": "Balls",
+            "type": "integer"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "higher_is_better": {
+            "title": "Higher Is Better",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "min_balls": {
+            "title": "Min Balls",
+            "type": "integer"
+          },
+          "percentile": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0-100 among qualified players; None if unqualified.",
+            "title": "Percentile"
+          },
+          "population": {
+            "description": "Qualified players compared against.",
+            "title": "Population",
+            "type": "integer"
+          },
+          "unit": {
+            "enum": [
+              "runs_per_100",
+              "percent",
+              "runs_per_over",
+              "points"
+            ],
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "description",
+          "value",
+          "unit",
+          "higher_is_better",
+          "percentile",
+          "balls",
+          "min_balls",
+          "population"
+        ],
+        "title": "Percentile",
+        "type": "object"
+      },
+      "PercentileGroup": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Percentile"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "min_balls": {
+            "title": "Min Balls",
+            "type": "integer"
+          },
+          "population": {
+            "title": "Population",
+            "type": "integer"
+          },
+          "qualified": {
+            "title": "Qualified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "qualified",
+          "balls",
+          "min_balls",
+          "population",
+          "items"
+        ],
+        "title": "PercentileGroup",
+        "type": "object"
+      },
+      "Percentiles": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PercentileGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PercentileGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "batting",
+          "bowling"
+        ],
+        "title": "Percentiles",
+        "type": "object"
+      },
+      "PhaseBatting": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "par_boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Boundary Pct"
+          },
+          "par_dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Dot Pct"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Strike Rate"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "share": {
+            "description": "Share of the player's balls in this phase (0-1).",
+            "title": "Share",
+            "type": "number"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "phase",
+          "label",
+          "balls",
+          "runs",
+          "outs",
+          "strike_rate",
+          "average",
+          "dot_pct",
+          "boundary_pct",
+          "par_strike_rate",
+          "par_dot_pct",
+          "par_boundary_pct",
+          "share"
+        ],
+        "title": "PhaseBatting",
+        "type": "object"
+      },
+      "PhaseBowling": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "par_dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Dot Pct"
+          },
+          "par_economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Economy"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "phase",
+          "label",
+          "balls",
+          "runs",
+          "wickets",
+          "economy",
+          "average",
+          "strike_rate",
+          "dot_pct",
+          "par_economy",
+          "par_dot_pct",
+          "share"
+        ],
+        "title": "PhaseBowling",
+        "type": "object"
+      },
+      "PhaseSplits": {
+        "properties": {
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/PhaseBatting"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/PhaseBowling"
+            },
+            "title": "Bowling",
+            "type": "array"
+          }
+        },
+        "required": [
+          "batting",
+          "bowling"
+        ],
+        "title": "PhaseSplits",
+        "type": "object"
+      },
+      "PlayerBio": {
+        "properties": {
+          "batting_hand": {
+            "anyOf": [
+              {
+                "enum": [
+                  "right",
+                  "left"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batting Hand"
+          },
+          "bowling_arm": {
+            "anyOf": [
+              {
+                "enum": [
+                  "right",
+                  "left"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Arm"
+          },
+          "bowling_style": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Style"
+          },
+          "bowling_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pace",
+                  "spin"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Type"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth"
+          },
+          "first_season": {
+            "title": "First Season",
+            "type": "integer"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_keeper": {
+            "title": "Is Keeper",
+            "type": "boolean"
+          },
+          "last_season": {
+            "title": "Last Season",
+            "type": "integer"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "batter",
+              "bowler",
+              "all_rounder"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "teams": {
+            "description": "Franchises played for, most recent first.",
+            "items": {
+              "$ref": "#/components/schemas/TeamStint"
+            },
+            "title": "Teams",
+            "type": "array"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "full_name",
+          "country",
+          "date_of_birth",
+          "batting_hand",
+          "bowling_arm",
+          "bowling_type",
+          "bowling_style",
+          "role",
+          "is_keeper",
+          "first_season",
+          "last_season",
+          "matches",
+          "teams"
+        ],
+        "title": "PlayerBio",
+        "type": "object"
+      },
+      "PlayerListItem": {
+        "properties": {
+          "batting_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batting Average"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "first_season": {
+            "description": "Career debut season.",
+            "title": "First Season",
+            "type": "integer"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_keeper": {
+            "title": "Is Keeper",
+            "type": "boolean"
+          },
+          "last_season": {
+            "description": "Most recent season played.",
+            "title": "Last Season",
+            "type": "integer"
+          },
+          "matches": {
+            "description": "Matches within the filters.",
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "batter",
+              "bowler",
+              "all_rounder"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Most recent team within the filters."
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "full_name",
+          "country",
+          "role",
+          "is_keeper",
+          "team",
+          "first_season",
+          "last_season",
+          "matches",
+          "runs",
+          "batting_average",
+          "strike_rate",
+          "wickets",
+          "economy"
+        ],
+        "title": "PlayerListItem",
+        "type": "object"
+      },
+      "PlayerPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "PlayerPage",
+        "type": "object"
+      },
+      "PlayerProfile": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BattingSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BowlingSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dismissals": {
+            "$ref": "#/components/schemas/Dismissals"
+          },
+          "fielding": {
+            "$ref": "#/components/schemas/FieldingSummary"
+          },
+          "percentiles": {
+            "$ref": "#/components/schemas/Percentiles"
+          },
+          "phases": {
+            "$ref": "#/components/schemas/PhaseSplits"
+          },
+          "player": {
+            "$ref": "#/components/schemas/PlayerBio"
+          },
+          "recent": {
+            "$ref": "#/components/schemas/RecentInnings"
+          },
+          "seasons": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonLine"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/SeasonWindow"
+          }
+        },
+        "required": [
+          "player",
+          "window",
+          "batting",
+          "bowling",
+          "fielding",
+          "seasons",
+          "phases",
+          "percentiles",
+          "recent",
+          "dismissals"
+        ],
+        "title": "PlayerProfile",
+        "type": "object"
+      },
       "PlayerRef": {
         "properties": {
           "name": {
@@ -633,6 +2437,58 @@
           "name"
         ],
         "title": "PlayerRef",
+        "type": "object"
+      },
+      "PlayerSplits": {
+        "properties": {
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/BattingSplitGroup"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/BowlingSplitGroup"
+            },
+            "title": "Bowling",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/SeasonWindow"
+          }
+        },
+        "required": [
+          "window",
+          "batting",
+          "bowling"
+        ],
+        "title": "PlayerSplits",
+        "type": "object"
+      },
+      "RecentInnings": {
+        "properties": {
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/BattingInnings"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/BowlingInnings"
+            },
+            "title": "Bowling",
+            "type": "array"
+          }
+        },
+        "required": [
+          "batting",
+          "bowling"
+        ],
+        "title": "RecentInnings",
         "type": "object"
       },
       "ScoreProjectionModel": {
@@ -668,6 +2524,161 @@
         "title": "ScoreProjectionModel",
         "type": "object"
       },
+      "SeasonBatting": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "fifties": {
+            "title": "Fifties",
+            "type": "integer"
+          },
+          "highest": {
+            "title": "Highest",
+            "type": "integer"
+          },
+          "hundreds": {
+            "title": "Hundreds",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Strike Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "innings",
+          "runs",
+          "balls",
+          "outs",
+          "average",
+          "strike_rate",
+          "par_strike_rate",
+          "highest",
+          "fifties",
+          "hundreds"
+        ],
+        "title": "SeasonBatting",
+        "type": "object"
+      },
+      "SeasonBowling": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "par_economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Economy"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "innings",
+          "balls",
+          "runs",
+          "wickets",
+          "average",
+          "economy",
+          "par_economy",
+          "strike_rate"
+        ],
+        "title": "SeasonBowling",
+        "type": "object"
+      },
       "SeasonInfo": {
         "properties": {
           "impact_player_rule": {
@@ -689,6 +2700,74 @@
           "impact_player_rule"
         ],
         "title": "SeasonInfo",
+        "type": "object"
+      },
+      "SeasonLine": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeasonBatting"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeasonBowling"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "teams": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Teams",
+            "type": "array"
+          }
+        },
+        "required": [
+          "season",
+          "teams",
+          "matches",
+          "batting",
+          "bowling"
+        ],
+        "title": "SeasonLine",
+        "type": "object"
+      },
+      "SeasonWindow": {
+        "properties": {
+          "first": {
+            "description": "First season included.",
+            "title": "First",
+            "type": "integer"
+          },
+          "last": {
+            "description": "Last season included.",
+            "title": "Last",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "first",
+          "last"
+        ],
+        "title": "SeasonWindow",
         "type": "object"
       },
       "TeamRef": {
@@ -782,6 +2861,65 @@
           "overs"
         ],
         "title": "TeamScore",
+        "type": "object"
+      },
+      "TeamStint": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "seasons": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Seasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "color",
+          "seasons",
+          "matches"
+        ],
+        "title": "TeamStint",
+        "type": "object"
+      },
+      "TeamTag": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "color"
+        ],
+        "title": "TeamTag",
         "type": "object"
       },
       "Timeline": {
@@ -1703,6 +3841,324 @@
         "summary": "Read Meta",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/v1/players": {
+      "get": {
+        "description": "Player directory with headline numbers; season and team filters scope the numbers.",
+        "operationId": "list_players_api_v1_players_get",
+        "parameters": [
+          {
+            "description": "Name search",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name search",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "batter",
+                    "bowler",
+                    "all_rounder",
+                    "keeper"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role"
+            }
+          },
+          {
+            "in": "query",
+            "name": "season",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Season"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "team",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Franchise id, e.g. MI",
+              "title": "Team"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "matches",
+              "enum": [
+                "matches",
+                "runs",
+                "wickets",
+                "recent",
+                "name"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Players",
+        "tags": [
+          "players"
+        ]
+      }
+    },
+    "/api/v1/players/{player_id}": {
+      "get": {
+        "description": "Profile: batting and bowling against par, seasons, phases, percentiles and recent form.",
+        "operationId": "read_player_api_v1_players__player_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Player",
+        "tags": [
+          "players"
+        ]
+      }
+    },
+    "/api/v1/players/{player_id}/splits": {
+      "get": {
+        "description": "Batting and bowling split by phase, opponent type, position, venue, opposition and more.",
+        "operationId": "read_splits_api_v1_players__player_id__splits_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSplits"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Splits",
+        "tags": [
+          "players"
         ]
       }
     },

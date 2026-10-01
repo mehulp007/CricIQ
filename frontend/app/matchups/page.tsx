@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 const PAGE_SIZE = 25;
+const RIVALRY_MIN_BALLS = [60, 12, 1];
 const SORTS: { value: MatchupSort; label: string }[] = [
   { value: "balls", label: "Most balls" },
   { value: "batter_edge", label: "Batter on top" },
@@ -42,6 +43,18 @@ async function pickedById(id: string | undefined): Promise<PickedPlayer | null> 
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+/** The longest rivalries; the bar drops if nothing reaches it (e.g. a small dataset). */
+async function rivalries(
+  sort: MatchupSort,
+  page: number,
+): Promise<{ list: MatchupList; minBalls: number }> {
+  for (const minBalls of RIVALRY_MIN_BALLS) {
+    const list = await getMatchups({ minBalls, sort, page, pageSize: PAGE_SIZE });
+    if (list.total > 0 || minBalls === RIVALRY_MIN_BALLS.at(-1)) return { list, minBalls };
+  }
+  throw new Error("unreachable");
 }
 
 async function loadMatchup(
@@ -185,11 +198,11 @@ export default async function MatchupsPage({ searchParams }: PageProps<"/matchup
       />
     );
   } else {
-    const list = await getMatchups({ minBalls: 60, sort, page, pageSize: PAGE_SIZE });
+    const { list, minBalls } = await rivalries(sort, page);
     body = (
       <ListSection
         title="The most-played rivalries"
-        lede={`Every pair with at least 60 balls. Even the longest IPL rivalry is only around 160 balls, so head-to-head records are shrunk towards what each player's overall record predicts (the prior is worth ${Math.round(list.kappa ?? 0)} balls).`}
+        lede={`Every pair with at least ${minBalls} balls. Even the longest IPL rivalry is only around 160 balls, so head-to-head records are shrunk towards what each player's overall record predicts (the prior is worth ${Math.round(list.kappa ?? 0)} balls).`}
         list={list}
         show="both"
         base={{}}

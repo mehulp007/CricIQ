@@ -49,6 +49,12 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M6",
     title: "Matchup lab",
     summary: "Batter vs bowler analysis with sample-size-aware estimates.",
+    status: "done",
+  },
+  {
+    id: "v0.1",
+    title: "MVP release",
+    summary: "Polish, methodology, performance and accessibility audit across every page.",
     status: "active",
   },
 ];

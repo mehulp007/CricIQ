@@ -48,8 +48,8 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: 
   {
     icon: Swords,
     title: "Matchup lab",
-    body: "Batter vs bowler analysis that respects sample size instead of over-reading 12 balls of history.",
-    milestone: "M6",
+    body: "Batter vs bowler analysis that respects sample size instead of over-reading 12 balls of history, with next-ball odds.",
+    milestone: "Live",
   },
 ];
 

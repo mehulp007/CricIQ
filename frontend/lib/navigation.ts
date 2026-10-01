@@ -27,7 +27,7 @@ export interface NavItem {
  * sidebar as "coming soon" so the product shape is visible from day one, but
  * are never linked to placeholder content.
  */
-export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set(["M0", "M2", "M3", "M5"]);
+export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set(["M0", "M2", "M3", "M5", "M6"]);
 
 export const PRIMARY_NAV: readonly NavItem[] = [
   { href: "/", label: "Overview", icon: LayoutDashboard, milestone: "M0" },

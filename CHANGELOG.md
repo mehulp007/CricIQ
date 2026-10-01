@@ -5,6 +5,20 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M6 Matchup Lab and ball-outcome model**
+  - `criciq_ml.ball_outcome`: multinomial logistic regression over seven outcomes per ball faced,
+    with situation terms, the scoring era and ridge-penalised batter and bowler effects. Tested on
+    2025–2026: log loss 1.4895 vs 1.5057 for phase-and-wickets
+    frequencies (1.07% better; players add 0.33% over the situation alone), better
+    than the baseline in 11 of 11 backtest seasons, per-outcome calibration reported.
+  - Head-to-head shrinkage: a Dirichlet prior centred on the model's expectation for each pair's
+    balls, with strength fitted by empirical Bayes (355 balls), validated on future balls.
+  - `criciq-ml train ball_outcome`; scoring publishes head-to-head cells and the model's terms.
+  - API: `GET /matchups`, `GET /matchups/{batter}/{bowler}` and `POST /predict/next-ball`,
+    computed from the stored terms with no ML library (ADR-0005).
+  - Web: Matchup Lab with player search, rivalry lists, the three readings of a record with 90%
+    intervals, next-ball odds by phase; most-faced opponents on player profiles; a Ball outcome
+    tab in Model Insights.
 - **M5 Player Lab**
   - `criciq_pipelines.players`: serving tables for batting and bowling innings (with match context
     and batting position), ball-level cells by season, phase and opponent type, league par rates,

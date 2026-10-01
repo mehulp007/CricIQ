@@ -41,3 +41,13 @@ export type BattingSplitGroup = Schemas["BattingSplitGroup"];
 export type BowlingSplitGroup = Schemas["BowlingSplitGroup"];
 export type BattingSplitRow = Schemas["BattingSplitRow"];
 export type BowlingSplitRow = Schemas["BowlingSplitRow"];
+
+export type MatchupDetail = Schemas["MatchupDetail"];
+export type MatchupList = Schemas["MatchupList"];
+export type MatchupListItem = Schemas["MatchupListItem"];
+export type MatchupPlayer = Schemas["MatchupPlayer"];
+export type MatchupNumbers = Schemas["MatchupNumbers"];
+export type Interval = Schemas["Interval"];
+export type NextBall = Schemas["NextBall"];
+export type OutcomeProbability = Schemas["OutcomeProbability"];
+export type MatchupPhase = NonNullable<MatchupDetail["phase"]>;

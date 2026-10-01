@@ -3,6 +3,7 @@
  * `criciq-ml report` from the model registry (the same numbers as the model
  * card), and bundled so the page never depends on the API being awake.
  */
+import ballOutcomeData from "@/data/models/ball-outcome.json";
 import projectionData from "@/data/models/score-projection.json";
 import data from "@/data/models/win-probability.json";
 
@@ -181,3 +182,70 @@ export interface ScoreProjectionInsights {
 }
 
 export const SCORE_PROJECTION = projectionData as unknown as ScoreProjectionInsights;
+
+// ---------------------------------------------------------------- ball outcome
+
+export interface BallMetrics {
+  balls: number;
+  log_loss: number;
+  brier: number;
+  expected_runs: number;
+  actual_runs: number;
+}
+
+export interface OutcomeCalibration {
+  predicted: number;
+  observed: number;
+  ece: number;
+  bins: { predicted: number; observed: number; count: number }[];
+}
+
+export interface HistoryCheck {
+  balls: number;
+  model: number;
+  shrunk: number;
+  raw: number;
+}
+
+export interface BallOutcomeInsights {
+  name: string;
+  version: string;
+  data_version: string;
+  trained_on: { seasons: number[]; balls: number };
+  kappa: number;
+  player_scale: number;
+  splits: {
+    tune_train_through: number;
+    tune_valid: number[];
+    test: number[];
+    served_through: number;
+  };
+  outcomes: { key: string; label: string }[];
+  feature_selection: { variant: string; label: string; log_loss: number }[];
+  candidate_min_gain: number;
+  phase_players: boolean;
+  test: {
+    model: BallMetrics;
+    situation_only: BallMetrics;
+    baseline: BallMetrics;
+    by_phase: {
+      phase: "powerplay" | "middle" | "death";
+      balls: number;
+      model_log_loss: number;
+      baseline_log_loss: number;
+    }[];
+    calibration: Record<string, OutcomeCalibration>;
+    runs_calibration: { predicted: number; observed: number; count: number }[];
+  };
+  matchups: {
+    kappa: number;
+    served_kappa: number;
+    pairs_in_history: number;
+    test_pairs: number;
+    all: HistoryCheck;
+    by_history: (HistoryCheck & { history: string })[];
+  };
+  backtest: { season: number; balls: number; model_log_loss: number; baseline_log_loss: number }[];
+}
+
+export const BALL_OUTCOME = ballOutcomeData as unknown as BallOutcomeInsights;

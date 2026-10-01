@@ -19,11 +19,11 @@
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, and explore every player's career measured against par. Matchup intelligence and Monte Carlo match simulation come next, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, and read any batter-vs-bowler rivalry without over-reading small samples. Ratings, momentum and Monte Carlo match simulation come next, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** milestones **M0–M5** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range, and open any player's profile from the scorecard. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** milestones **M0–M6** are complete and deployed: the MVP feature set. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range, open any player's profile from the scorecard, and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## Features
 
@@ -34,7 +34,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
 | Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
 | Player Lab | Search every player; profiles with era- and phase-adjusted numbers ("par"), percentiles, win probability added, season trends, recent form and splits by phase, bowler type, batter hand, position, innings, result, opposition and venue, for any season window | **Live** |
-| Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 · next |
+| Matchup Lab | Any batter vs any bowler: the raw record, what their overall records predict, and an empirical-Bayes estimate with 90% intervals and sample-size badges; next-ball odds by phase; rivalry lists ranked by the matchup effect beyond form | **Live** |
 | Compare, Ratings, Momentum, Pressure, Teams, Simulator | Transparent derived metrics and Monte Carlo simulation | V1 |
 
 ## The data
@@ -120,6 +120,26 @@ Splits are precomputed as innings rows and ball-level cells, so any season windo
 aggregate. They are checked against an independent recount of the raw Cricsheet JSON and known
 scorecards (Kohli's 973 runs in 2016, Gayle's 175*, Alzarri Joseph's 6/12).
 
+## Matchup Lab: small samples, honestly
+
+The longest IPL rivalry is about 160 balls; the median batter-bowler pair has met for 5. A ball-outcome
+model (multinomial logistic regression with penalised batter and bowler effects,
+[model card](docs/model-cards/ball-outcome.md)) predicts dot, 1, 2, 3, 4, 6 or wicket for every ball, and
+each head-to-head record is shrunk towards what it expects for those same balls. The prior's strength
+is fitted across all 31,000 pairs (empirical Bayes): **355 balls**, so history never carries
+more than about 31% of an estimate.
+
+| Test seasons 2025–2026 | Log loss |
+|---|---|
+| **CricIQ ball model** | **1.4895** |
+| Match situation only (no players) | 1.4945 |
+| Phase and wickets frequencies | 1.5057 |
+
+On the 15,102 test balls between pairs who had met before, raw head-to-head rates
+predicted those balls far worse than the model (1.667 vs 1.464);
+the shrunk record matched or beat it (1.464). Head-to-head records are mostly
+noise around what the players' overall records already say.
+
 ## Screenshots
 
 | Overview | Match Explorer |
@@ -166,7 +186,7 @@ just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
 just data run   # download Cricsheet data, rebuild, validate and export the serving database
 just ml score   # add every ball's win probability from the committed model
-just ml train win_probability   # retrain, evaluate and backtest (new model version)
+just ml train win_probability   # or score_projection, ball_outcome: retrain, evaluate, backtest
 just e2e        # Playwright end-to-end tests (desktop + mobile) against the running app
 ```
 
@@ -193,7 +213,8 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M3** Win Probability: calibrated, explainable, backtested
 - [x] **M4** Score Projection: conformal quantiles, honest ranges
 - [x] **M5** Player Lab: profiles against par, percentiles, splits, WPA
-- [ ] **M6** Matchup Lab + ball-outcome model → **MVP v0.1**
+- [x] **M6** Matchup Lab + ball-outcome model: empirical-Bayes head-to-head, next-ball odds
+- [ ] **MVP v0.1** polish pass, methodology, performance audit
 - [ ] **V1** Compare, ratings, momentum & pressure, teams, simulator
 
 ## Data & attribution

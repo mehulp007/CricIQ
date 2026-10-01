@@ -363,3 +363,151 @@ export function ProjectionBacktestChart({ rows }: { rows: ProjectionBacktestRow[
     </div>
   );
 }
+
+// ------------------------------------------------------------------ ball outcome
+
+export interface BallBacktestRow {
+  season: number;
+  balls: number;
+  model_log_loss: number;
+  baseline_log_loss: number;
+}
+
+function BallBacktestTip({ active, payload }: TipProps<BallBacktestRow>) {
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
+  return (
+    <Box
+      title={`${row.season} season · ${row.balls.toLocaleString("en-IN")} balls`}
+      rows={[
+        {
+          label: "CricIQ ball model",
+          value: row.model_log_loss.toFixed(4),
+          color: SERIES.model.color,
+        },
+        {
+          label: "Phase and wickets",
+          value: row.baseline_log_loss.toFixed(4),
+          color: SERIES.baseline.color,
+        },
+      ]}
+    />
+  );
+}
+
+/** Log loss per season for the ball model against the phase-and-wickets frequencies. */
+export function BallBacktestChart({ rows }: { rows: BallBacktestRow[] }) {
+  return (
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
+          <CartesianGrid stroke="var(--border)" vertical={false} />
+          <XAxis dataKey="season" {...AXIS} />
+          <YAxis
+            domain={["dataMin - 0.005", "dataMax + 0.005"]}
+            tickFormatter={(v: number) => v.toFixed(3)}
+            width={56}
+            {...AXIS}
+          />
+          <Tooltip
+            cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }}
+            content={<BallBacktestTip />}
+          />
+          <Line
+            dataKey="baseline_log_loss"
+            stroke={SERIES.baseline.color}
+            strokeWidth={2}
+            strokeDasharray="5 4"
+            dot={{ r: 3, fill: SERIES.baseline.color, strokeWidth: 0 }}
+            isAnimationActive={false}
+          />
+          <Line
+            dataKey="model_log_loss"
+            stroke={SERIES.model.color}
+            strokeWidth={2}
+            dot={{ r: 4, fill: SERIES.model.color, stroke: "var(--card)", strokeWidth: 2 }}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+interface OutcomeBin {
+  predicted: number;
+  observed: number;
+  count: number;
+}
+
+function OutcomeTip({ active, payload }: TipProps<OutcomeBin>) {
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
+  return (
+    <Box
+      title={`Predicted ${row.predicted.toFixed(1)}%`}
+      rows={[
+        { label: "Actually happened", value: `${row.observed.toFixed(1)}%` },
+        { label: "Balls", value: row.count.toLocaleString("en-IN") },
+      ]}
+    />
+  );
+}
+
+/** Predicted probability deciles for one outcome against how often it happened. */
+export function OutcomeCalibrationChart({ bins }: { bins: OutcomeBin[] }) {
+  const data = bins.map((b) => ({
+    predicted: b.predicted * 100,
+    observed: b.observed * 100,
+    count: b.count,
+  }));
+  const top = Math.max(...data.flatMap((d) => [d.predicted, d.observed])) * 1.1;
+  const domain: [number, number] = [0, Math.max(Math.ceil(top / 5) * 5, 5)];
+  return (
+    <div className="h-72">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: -8 }}>
+          <CartesianGrid stroke="var(--border)" />
+          <XAxis
+            type="number"
+            dataKey="predicted"
+            domain={domain}
+            tickFormatter={(v: number) => `${v}%`}
+            label={{
+              value: "Predicted probability",
+              position: "insideBottom",
+              offset: -8,
+              fill: "var(--muted-foreground)",
+              fontSize: 11,
+            }}
+            {...AXIS}
+          />
+          <YAxis
+            type="number"
+            dataKey="observed"
+            domain={domain}
+            tickFormatter={(v: number) => `${v}%`}
+            width={52}
+            {...AXIS}
+          />
+          <ZAxis type="number" dataKey="count" range={[40, 40]} />
+          <ReferenceLine
+            segment={[
+              { x: domain[0], y: domain[0] },
+              { x: domain[1], y: domain[1] },
+            ]}
+            stroke="var(--muted-foreground)"
+            strokeDasharray="4 3"
+          />
+          <Tooltip cursor={{ strokeDasharray: "3 3" }} content={<OutcomeTip />} />
+          <Scatter
+            data={data}
+            fill={SERIES.model.color}
+            line={{ stroke: SERIES.model.color, strokeWidth: 2 }}
+            isAnimationActive={false}
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}

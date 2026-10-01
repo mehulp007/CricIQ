@@ -1,6 +1,16 @@
 import "server-only";
 
-import type { MatchPage, Meta, PlayerPage, PlayerProfile, PlayerSplits, Timeline } from "./types";
+import type {
+  MatchPage,
+  MatchupDetail,
+  MatchupList,
+  MatchupPhase,
+  Meta,
+  PlayerPage,
+  PlayerProfile,
+  PlayerSplits,
+  Timeline,
+} from "./types";
 
 /**
  * Server-side client for the CricIQ API. Historical data only changes when the
@@ -120,5 +130,44 @@ export function getPlayerSplits(
 ): Promise<PlayerSplits> {
   return apiGet<PlayerSplits>(
     `/api/v1/players/${encodeURIComponent(playerId)}/splits${windowQuery(window)}`,
+  );
+}
+
+export type MatchupSort = "balls" | "batter_edge" | "bowler_edge";
+
+export interface MatchupQuery extends SeasonWindow {
+  batter?: string;
+  bowler?: string;
+  minBalls?: number;
+  sort?: MatchupSort;
+  page?: number;
+  pageSize?: number;
+}
+
+export function getMatchups(query: MatchupQuery = {}): Promise<MatchupList> {
+  const params = new URLSearchParams();
+  if (query.batter) params.set("batter", query.batter);
+  if (query.bowler) params.set("bowler", query.bowler);
+  if (query.from) params.set("from", String(query.from));
+  if (query.to) params.set("to", String(query.to));
+  if (query.minBalls) params.set("min_balls", String(query.minBalls));
+  if (query.sort) params.set("sort", query.sort);
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(query.pageSize ?? 25));
+  return apiGet<MatchupList>(`/api/v1/matchups?${params}`);
+}
+
+export function getMatchup(
+  batterId: string,
+  bowlerId: string,
+  options: SeasonWindow & { phase?: MatchupPhase } = {},
+): Promise<MatchupDetail> {
+  const params = new URLSearchParams();
+  if (options.from) params.set("from", String(options.from));
+  if (options.to) params.set("to", String(options.to));
+  if (options.phase) params.set("phase", options.phase);
+  const query = params.toString();
+  return apiGet<MatchupDetail>(
+    `/api/v1/matchups/${encodeURIComponent(batterId)}/${encodeURIComponent(bowlerId)}${query ? `?${query}` : ""}`,
   );
 }

@@ -64,6 +64,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/matchups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Matchups
+         * @description Batter-bowler pairs with raw, expected and shrunk strike rates.
+         *
+         *     Filter by batter (the bowlers they faced) or by bowler (the batters they
+         *     bowled to). ``batter_edge`` and ``bowler_edge`` rank by the matchup effect
+         *     beyond each player's overall record.
+         */
+        get: operations["list_matchups_api_v1_matchups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/matchups/{batter_id}/{bowler_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Matchup
+         * @description Head-to-head record, the empirical-Bayes estimate and next-ball odds for a pair.
+         */
+        get: operations["read_matchup_api_v1_matchups__batter_id___bowler_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/meta": {
         parameters: {
             query?: never;
@@ -138,6 +182,26 @@ export interface paths {
         get: operations["read_splits_api_v1_players__player_id__splits_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/predict/next-ball": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Predict Next Ball
+         * @description Outcome probabilities for the next ball in a given situation (model estimate).
+         */
+        post: operations["predict_next_ball_api_v1_predict_next_ball_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -563,6 +627,23 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HeadToHead */
+        HeadToHead: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Dismissals */
+            dismissals: number;
+            /** Dots */
+            dots: number;
+            /** Fours */
+            fours: number;
+            /** Runs */
+            runs: number;
+            /** Sixes */
+            sixes: number;
+        };
         /** Health */
         Health: {
             /**
@@ -613,6 +694,21 @@ export interface components {
             target_runs: number | null;
             /** Wickets */
             wickets: number;
+        };
+        /** Interval */
+        Interval: {
+            /**
+             * High
+             * @description Upper end; None when unbounded.
+             */
+            high: number | null;
+            /**
+             * Low
+             * @description Lower end of the 90% interval.
+             */
+            low: number | null;
+            /** Value */
+            value: number | null;
         };
         /** MatchDetail */
         MatchDetail: {
@@ -671,6 +767,124 @@ export interface components {
             /** Winner Id */
             winner_id: string | null;
         };
+        /** MatchupDetail */
+        MatchupDetail: {
+            batter: components["schemas"]["MatchupPlayer"];
+            bowler: components["schemas"]["MatchupPlayer"];
+            /** By Phase */
+            by_phase: components["schemas"]["MatchupSplitRow"][];
+            /** By Season */
+            by_season: components["schemas"]["MatchupSplitRow"][];
+            /**
+             * Context
+             * @description The situation the next-ball probabilities assume.
+             */
+            context: string;
+            /** Dismissals */
+            dismissals: components["schemas"]["MatchupDismissal"][];
+            estimate: components["schemas"]["MatchupNumbers"] | null;
+            expected: components["schemas"]["MatchupNumbers"] | null;
+            head_to_head: components["schemas"]["HeadToHead"];
+            /** Model Version */
+            model_version: string | null;
+            /** Next Ball */
+            next_ball: components["schemas"]["NextBall"][];
+            /**
+             * Phase
+             * @description Phase filter applied to the record, if any.
+             */
+            phase: ("powerplay" | "middle" | "death") | null;
+            raw: components["schemas"]["MatchupNumbers"] | null;
+            sample: components["schemas"]["SampleSize"];
+            window: components["schemas"]["SeasonWindow"];
+        };
+        /** MatchupDismissal */
+        MatchupDismissal: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Kind */
+            kind: string;
+            /** Match Id */
+            match_id: number;
+            /** Season */
+            season: number;
+        };
+        /** MatchupList */
+        MatchupList: {
+            /** Items */
+            items: components["schemas"]["MatchupListItem"][];
+            /** Kappa */
+            kappa: number | null;
+            /** Total */
+            total: number;
+        };
+        /** MatchupListItem */
+        MatchupListItem: {
+            /** Balls */
+            balls: number;
+            batter: components["schemas"]["MatchupPlayer"];
+            bowler: components["schemas"]["MatchupPlayer"];
+            /** Dismissals */
+            dismissals: number;
+            /**
+             * Edge
+             * @description Estimated minus expected strike rate: the matchup effect beyond form.
+             */
+            edge: number | null;
+            /** Estimated Strike Rate */
+            estimated_strike_rate: number | null;
+            /** Expected Strike Rate */
+            expected_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Weight */
+            weight: number;
+        };
+        /** MatchupNumbers */
+        MatchupNumbers: {
+            balls_per_dismissal: components["schemas"]["Interval"];
+            boundary_pct: components["schemas"]["Interval"];
+            dot_pct: components["schemas"]["Interval"];
+            strike_rate: components["schemas"]["Interval"];
+        };
+        /** MatchupPlayer */
+        MatchupPlayer: {
+            /** Batting Hand */
+            batting_hand: ("right" | "left") | null;
+            /** Bowling Style */
+            bowling_style: string | null;
+            /** Bowling Type */
+            bowling_type: ("pace" | "spin") | null;
+            /** Full Name */
+            full_name: string | null;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            team: components["schemas"]["TeamTag"] | null;
+        };
+        /** MatchupSplitRow */
+        MatchupSplitRow: {
+            /** Balls */
+            balls: number;
+            /** Dismissals */
+            dismissals: number;
+            /** Expected Strike Rate */
+            expected_strike_rate: number | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
         /** Meta */
         Meta: {
             /**
@@ -692,6 +906,96 @@ export interface components {
             seasons: components["schemas"]["SeasonInfo"][];
             /** Venues */
             venues: components["schemas"]["VenueInfo"][];
+        };
+        /** NextBall */
+        NextBall: {
+            /** Expected Runs */
+            expected_runs: number;
+            /** Expected Runs With History */
+            expected_runs_with_history: number;
+            /** Label */
+            label: string;
+            /**
+             * Model
+             * @description From the players' overall records.
+             */
+            model: components["schemas"]["OutcomeProbability"][];
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "powerplay" | "middle" | "death";
+            /**
+             * With History
+             * @description Adjusted by the shrunk head-to-head record.
+             */
+            with_history: components["schemas"]["OutcomeProbability"][];
+        };
+        /** NextBallRequest */
+        NextBallRequest: {
+            /**
+             * Batter Balls
+             * @description Balls the batter has faced.
+             * @default 20
+             */
+            batter_balls: number;
+            /** Batter Id */
+            batter_id: string;
+            /** Bowler Id */
+            bowler_id: string;
+            /**
+             * Innings
+             * @default 1
+             * @enum {integer}
+             */
+            innings: 1 | 2;
+            /**
+             * Phase
+             * @default middle
+             * @enum {string}
+             */
+            phase: "powerplay" | "middle" | "death";
+            /**
+             * Pressure
+             * @description Required rate against par; chases only.
+             */
+            pressure?: ("low" | "par" | "high" | "extreme") | null;
+            /**
+             * Wickets
+             * @description Wickets down before the ball.
+             * @default 2
+             */
+            wickets: number;
+        };
+        /** NextBallResponse */
+        NextBallResponse: {
+            batter: components["schemas"]["MatchupPlayer"];
+            bowler: components["schemas"]["MatchupPlayer"];
+            /** Expected Runs */
+            expected_runs: number;
+            /** Expected Runs With History */
+            expected_runs_with_history: number;
+            /** History Balls */
+            history_balls: number;
+            /** Model */
+            model: components["schemas"]["OutcomeProbability"][];
+            /** Model Version */
+            model_version: string;
+            request: components["schemas"]["NextBallRequest"];
+            /** With History */
+            with_history: components["schemas"]["OutcomeProbability"][];
+        };
+        /** OutcomeProbability */
+        OutcomeProbability: {
+            /** Label */
+            label: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "dot" | "one" | "two" | "three" | "four" | "six" | "out";
+            /** Probability */
+            probability: number;
         };
         /** Percentile */
         Percentile: {
@@ -942,6 +1246,26 @@ export interface components {
             batting: components["schemas"]["BattingInnings"][];
             /** Bowling */
             bowling: components["schemas"]["BowlingInnings"][];
+        };
+        /** SampleSize */
+        SampleSize: {
+            /** Balls */
+            balls: number;
+            /**
+             * Kappa
+             * @description Prior strength, in balls, fitted across all pairs.
+             */
+            kappa: number;
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "none" | "tiny" | "small" | "moderate" | "large";
+            /**
+             * Weight
+             * @description Share of the estimate that comes from head-to-head balls.
+             */
+            weight: number;
         };
         /**
          * ScoreProjectionModel
@@ -1435,6 +1759,84 @@ export interface operations {
             };
         };
     };
+    list_matchups_api_v1_matchups_get: {
+        parameters: {
+            query?: {
+                batter?: string | null;
+                bowler?: string | null;
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                min_balls?: number;
+                sort?: "balls" | "batter_edge" | "bowler_edge";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchupList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_matchup_api_v1_matchups__batter_id___bowler_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                phase?: ("powerplay" | "middle" | "death") | null;
+            };
+            header?: never;
+            path: {
+                batter_id: string;
+                bowler_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchupDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_meta_api_v1_meta_get: {
         parameters: {
             query?: never;
@@ -1553,6 +1955,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerSplits"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    predict_next_ball_api_v1_predict_next_ball_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NextBallRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextBallResponse"];
                 };
             };
             /** @description Validation Error */

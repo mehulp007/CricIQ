@@ -7,6 +7,7 @@ import { SeasonWindow } from "@/components/players/season-window";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ApiError,
+  getMatchups,
   getPlayer,
   getPlayerSplits,
   type SeasonWindow as Window,
@@ -55,12 +56,17 @@ export async function generateMetadata({ params }: PageProps<"/players/[id]">): 
 export default async function PlayerPage({ params, searchParams }: PageProps<"/players/[id]">) {
   const { id } = await params;
   const window = windowFrom(await searchParams);
-  const [profile, splits] = await Promise.all([
+  // Matchups are an extra: the profile still renders if they are unavailable.
+  const opponents = (side: "batter" | "bowler") =>
+    getMatchups({ [side]: id, ...window, minBalls: 12, pageSize: 6 }).catch(() => null);
+  const [profile, splits, bowlersFaced, battersFaced] = await Promise.all([
     loadProfile(id, window),
     getPlayerSplits(id, window).catch((error: unknown) => {
       if (error instanceof ApiError && error.status === 404) notFound();
       throw error;
     }),
+    opponents("batter"),
+    opponents("bowler"),
   ]);
   const { player } = profile;
   const first = Math.max(profile.window.first, player.first_season);
@@ -93,12 +99,12 @@ export default async function PlayerPage({ params, searchParams }: PageProps<"/p
           </TabsList>
           {hasBatting && (
             <TabsContent value="batting" className="mt-6">
-              <BattingView profile={profile} splits={splits} />
+              <BattingView profile={profile} splits={splits} matchups={bowlersFaced} />
             </TabsContent>
           )}
           {hasBowling && (
             <TabsContent value="bowling" className="mt-6">
-              <BowlingView profile={profile} splits={splits} />
+              <BowlingView profile={profile} splits={splits} matchups={battersFaced} />
             </TabsContent>
           )}
         </Tabs>

@@ -1,6 +1,8 @@
 import { CalendarDays, Flag, Hand } from "lucide-react";
+import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
+import { MatchupTable } from "@/components/matchups/matchup-table";
 import { FormChart, SeasonCharts } from "@/components/players/player-charts";
 import {
   BattingPhaseTable,
@@ -16,7 +18,7 @@ import {
 } from "@/components/players/profile-parts";
 import { BattingSplits, BowlingSplits } from "@/components/players/splits-table";
 import { Badge } from "@/components/ui/badge";
-import type { PlayerProfile, PlayerSplits } from "@/lib/api/types";
+import type { MatchupList, PlayerProfile, PlayerSplits } from "@/lib/api/types";
 import { formatDate } from "@/lib/format";
 import {
   figures,
@@ -89,6 +91,37 @@ export function PlayerHeader({ profile }: { profile: PlayerProfile }) {
   );
 }
 
+function OpponentsPanel({
+  profile,
+  matchups,
+  role,
+}: {
+  profile: PlayerProfile;
+  matchups: MatchupList;
+  role: "batting" | "bowling";
+}) {
+  const id = profile.player.player_id;
+  const href = `/matchups?${role === "batting" ? "batter" : "bowler"}=${id}`;
+  return (
+    <Panel
+      id={`${role}-opponents`}
+      title={role === "batting" ? "Most-faced bowlers" : "Most-faced batters"}
+      lede={
+        <>
+          Head-to-head records with at least 12 balls, next to what each player&apos;s overall
+          record predicts and a sample-size-aware estimate.{" "}
+          <Link href={href} className="text-foreground underline-offset-4 hover:underline">
+            All matchups in the Matchup Lab
+          </Link>
+          .
+        </>
+      }
+    >
+      <MatchupTable items={matchups.items} show={role === "batting" ? "bowler" : "batter"} />
+    </Panel>
+  );
+}
+
 function FieldingPanel({ profile, idPrefix }: { profile: PlayerProfile; idPrefix: string }) {
   const items = [
     ["Catches", profile.fielding.catches],
@@ -115,7 +148,15 @@ function windowLabel(profile: PlayerProfile): string {
   return first === last ? String(first) : `${first}–${last}`;
 }
 
-export function BattingView({ profile, splits }: { profile: PlayerProfile; splits: PlayerSplits }) {
+export function BattingView({
+  profile,
+  splits,
+  matchups,
+}: {
+  profile: PlayerProfile;
+  splits: PlayerSplits;
+  matchups?: MatchupList | null;
+}) {
   const b = profile.batting!;
   const window = windowLabel(profile);
   const recent = profile.recent.batting;
@@ -190,6 +231,10 @@ export function BattingView({ profile, splits }: { profile: PlayerProfile; split
         <SeasonCharts seasons={profile.seasons} role="batting" />
       </Panel>
 
+      {matchups && matchups.items.length > 0 && (
+        <OpponentsPanel profile={profile} matchups={matchups} role="batting" />
+      )}
+
       {splits.batting.length > 0 && (
         <Panel
           id="batting-splits"
@@ -242,7 +287,15 @@ export function BattingView({ profile, splits }: { profile: PlayerProfile; split
   );
 }
 
-export function BowlingView({ profile, splits }: { profile: PlayerProfile; splits: PlayerSplits }) {
+export function BowlingView({
+  profile,
+  splits,
+  matchups,
+}: {
+  profile: PlayerProfile;
+  splits: PlayerSplits;
+  matchups?: MatchupList | null;
+}) {
   const b = profile.bowling!;
   const window = windowLabel(profile);
   const recent = profile.recent.bowling.slice(0, 10);
@@ -314,6 +367,10 @@ export function BowlingView({ profile, splits }: { profile: PlayerProfile; split
       >
         <SeasonCharts seasons={profile.seasons} role="bowling" />
       </Panel>
+
+      {matchups && matchups.items.length > 0 && (
+        <OpponentsPanel profile={profile} matchups={matchups} role="bowling" />
+      )}
 
       {splits.bowling.length > 0 && (
         <Panel

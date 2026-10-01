@@ -6,6 +6,7 @@ import { Section, Stat, signed } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
 import { SERIES, seasonSpan, WIN_PROBABILITY as wp } from "@/lib/models";
+import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
 
@@ -93,7 +94,7 @@ export function WinProbabilityInsights() {
         title="Against simpler models"
         lede="The same test matches, scored by the served model, the same model with other calibration choices, boosted trees that see only the score, and a logistic regression on the match state."
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" {...scrollRegion("Model comparison")}>
           <table className="w-full min-w-lg text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr className="border-b border-border">

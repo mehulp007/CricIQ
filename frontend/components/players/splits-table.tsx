@@ -7,6 +7,7 @@ import { ParDelta } from "@/components/players/profile-parts";
 import type { BattingSplitGroup, BowlingSplitGroup } from "@/lib/api/types";
 import { SMALL_SAMPLE_BALLS, rate } from "@/lib/players";
 import { cn } from "@/lib/utils";
+import { scrollRegion } from "@/lib/a11y";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
@@ -81,7 +82,10 @@ export function BattingSplits({ groups }: { groups: BattingSplitGroup[] }) {
         onChange={setActive}
         label="Split batting by"
       />
-      <div className="overflow-x-auto">
+      <div
+        className="overflow-x-auto"
+        {...scrollRegion(`Batting split by ${group.label.toLowerCase()}`)}
+      >
         <table className="w-full min-w-[36rem] text-sm">
           <caption className="sr-only">Batting split by {group.label.toLowerCase()}</caption>
           <thead className="border-b border-border">
@@ -170,7 +174,10 @@ export function BowlingSplits({ groups }: { groups: BowlingSplitGroup[] }) {
         onChange={setActive}
         label="Split bowling by"
       />
-      <div className="overflow-x-auto">
+      <div
+        className="overflow-x-auto"
+        {...scrollRegion(`Bowling split by ${group.label.toLowerCase()}`)}
+      >
         <table className="w-full min-w-[36rem] text-sm">
           <caption className="sr-only">Bowling split by {group.label.toLowerCase()}</caption>
           <thead className="border-b border-border">

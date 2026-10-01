@@ -5,6 +5,7 @@ import { OutcomeCalibrationPicker } from "@/components/models/outcome-calibratio
 import { Section, Stat } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
 import { BALL_OUTCOME as bo, seasonSpan } from "@/lib/models";
+import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
 const HISTORY: Record<string, string> = {
@@ -99,7 +100,7 @@ export function BallOutcomeInsights() {
         title="Do head-to-head records predict the future?"
         lede={`For pairs who had met before ${bo.splits.test[0]}, three ways to predict their ${testSeasons} balls: the model alone, the model adjusted by the shrunk head-to-head record, and the raw head-to-head rates. Log loss, lower is better.`}
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" {...scrollRegion("Head-to-head check")}>
           <table className="w-full min-w-xl text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr className="border-b border-border">

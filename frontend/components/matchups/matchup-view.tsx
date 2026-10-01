@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/format";
 import { PHASE_OPTIONS, SAMPLE_LABELS, weightSentence } from "@/lib/matchups";
 import { dismissalLabel, handLabel, rate } from "@/lib/players";
 import { cn } from "@/lib/utils";
+import { scrollRegion } from "@/lib/a11y";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
@@ -61,7 +62,7 @@ function PhaseFilter({ detail }: { detail: MatchupDetail }) {
 
 function SplitTable({ rows, caption }: { rows: MatchupDetail["by_phase"]; caption: string }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" {...scrollRegion(caption)}>
       <table className="w-full min-w-[28rem] text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead className="border-b border-border">

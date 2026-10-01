@@ -33,6 +33,22 @@ await page.screenshot({ path: path.join(images, "explorer.png") });
 await page.goto(`${baseUrl}/models`, { waitUntil: "networkidle" });
 await page.screenshot({ path: path.join(images, "models.png") });
 
+// Scroll so an element sits just below the sticky top bar.
+async function scrollTo(locator, offset = 80) {
+  await locator.evaluate((el, gap) => {
+    window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - gap);
+  }, offset);
+}
+
+await page.goto(`${baseUrl}/players/ba607b88`, { waitUntil: "networkidle" });
+await page.screenshot({ path: path.join(images, "player.png") });
+
+await page.goto(`${baseUrl}/matchups?batter=ba607b88&bowler=462411b3`, {
+  waitUntil: "networkidle",
+});
+await scrollTo(page.getByRole("heading", { name: "Three ways to read the record" }));
+await page.screenshot({ path: path.join(images, "matchup.png") });
+
 // The 2019 final, from the start of the last over of the chase.
 await page.goto(`${baseUrl}/matches/1181768`, { waitUntil: "networkidle" });
 await page.locator("[data-replay-ready]").waitFor();

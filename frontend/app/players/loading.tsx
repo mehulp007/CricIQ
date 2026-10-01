@@ -1,6 +1,11 @@
 export default function PlayersLoading() {
   return (
-    <div className="flex flex-col gap-8" aria-busy="true" aria-label="Loading players">
+    <div
+      className="flex flex-col gap-8"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading players"
+    >
       <div className="flex flex-col gap-3">
         <div className="h-9 w-56 animate-pulse rounded-lg bg-muted" />
         <div className="h-5 w-[32rem] max-w-full animate-pulse rounded bg-muted/70" />

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 import "./globals.css";
 
@@ -16,13 +17,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const DESCRIPTION =
+  "IPL analytics, ball by ball: match replay with calibrated win probability and score projection, player profiles against par, and sample-size-aware batter vs bowler matchups.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "CricIQ — Cricket Intelligence, Ball by Ball",
     template: "%s · CricIQ",
   },
-  description:
-    "AI-powered IPL analytics: ball-by-ball match replay, calibrated win probability, score projection, player and matchup intelligence.",
+  description: DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: "CricIQ — Cricket Intelligence, Ball by Ball",
+    description: DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

@@ -2,7 +2,7 @@
 
 # CricIQ
 
-### AI-Powered Cricket Intelligence & Simulation Platform
+### AI-Powered Cricket Intelligence Platform
 
 **Decode the game. Predict the next move.**
 
@@ -11,7 +11,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)**
+**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v0.1.0 (MVP)
 
 <img src="docs/images/replay.gif" alt="Replaying the last over of the 2019 IPL final ball by ball in CricIQ" width="880">
 
@@ -23,7 +23,18 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** milestones **M0–M6** are complete and deployed: the MVP feature set. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range, open any player's profile from the scorecard, and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6). Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+
+## At a glance
+
+| | Result (tested once on the 2025–2026 seasons, never used for training or tuning) |
+|---|---|
+| Win probability | Log loss 0.510 vs 0.549 for a logistic baseline (95% CI of the gain excludes zero); calibration reported |
+| Score projection | 80% range covers 80.3% of first-innings totals; median error 16.9 runs vs 18.4 for par |
+| Ball outcome | 1.07% better log loss than phase-and-wickets frequencies; better in 11 of 11 backtest seasons |
+| Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
+| Quality | 200+ Python tests, 60+ frontend unit tests, 50 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
+| Performance | Lighthouse (mobile) 98–100 performance and 100 accessibility on every key page |
 
 ## Features
 
@@ -144,36 +155,63 @@ noise around what the players' overall records already say.
 
 | Overview | Match Explorer |
 |---|---|
-| ![Overview page with featured replays](docs/images/overview.png) | ![Match Explorer with filters](docs/images/explorer.png) |
+| ![Overview page with featured replays and the latest season](docs/images/overview.png) | ![Match Explorer with filters](docs/images/explorer.png) |
 | **Match Center** | **Model Insights** |
 | ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Model Insights: calibration and backtest](docs/images/models.png) |
+| **Player Lab** | **Matchup Lab** |
+| ![Virat Kohli's profile against par, with percentiles and phases](docs/images/player.png) | ![Kohli vs Bumrah read three ways, with 90% intervals](docs/images/matchup.png) |
 
 ## Architecture
 
-```
-Cricsheet JSON → pipelines (ingest · normalize · validate) → DuckDB warehouse
-  → leak-free feature tables → ML (train · calibrate · explain · batch-score)
-  → serving.duckdb + model registry → FastAPI (/api/v1) → Next.js frontend
+```mermaid
+flowchart LR
+    A[Cricsheet IPL JSON] --> B[pipelines<br/>ingest · normalize · validate]
+    R[config + reference<br/>aliases, player attributes] --> B
+    B --> C[(DuckDB warehouse)]
+    C --> D[ML<br/>leak-free features · train · calibrate<br/>explain · batch-score]
+    M[models/ registry<br/>committed, gated versions] --> D
+    C --> E[(serving.duckdb<br/>timelines · player & matchup tables<br/>predictions · model terms)]
+    D --> E
+    E --> F[FastAPI /api/v1<br/>read-only, no ML libraries]
+    F --> G[Next.js on Vercel<br/>server components + client replay]
+    H[bundled featured replays<br/>and model insights] --> G
 ```
 
-The replay runs entirely in the browser from a single timeline payload per match, including every
-ball's win probability and explanation. There are no per-ball API calls, and the live scorecard,
-commentary and charts are all derived client-side. The API runs no model at request time: every
-probability is precomputed by the image build from the committed model.
+The API image is built from the latest Cricsheet data: the build validates it, exports the serving
+database and scores every ball with the committed models, so the API never trains or loads an ML
+library. The replay runs entirely in the browser from a single timeline payload per match, with no
+per-ball API calls. Next-ball odds for any pair are computed from the ball model's stored terms with
+plain arithmetic ([ADR-0005](docs/adr/0005-ball-model-as-additive-terms.md)).
 
-Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md)
-and the [architecture decision records](docs/adr/).
+Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md),
+the [architecture decision records](docs/adr/) and the model cards for
+[win probability](docs/model-cards/win-probability.md),
+[score projection](docs/model-cards/score-projection.md) and
+[ball outcome](docs/model-cards/ball-outcome.md). The site's
+[About & Methodology](https://criciq-eight.vercel.app/about) page explains every number in plain terms.
 
 ## Tech stack
 
 | Layer | Tools |
 |---|---|
 | Data | Python 3.12, DuckDB, Parquet (pyarrow), SQL validation checks, Typer |
-| ML | LightGBM (monotonic constraints, exact TreeSHAP), scikit-learn, SciPy; XGBoost and CatBoost for comparison |
+| ML | LightGBM (monotonic constraints, quantile regression, exact TreeSHAP), scikit-learn (multinomial logistic regression), SciPy (empirical Bayes); XGBoost and CatBoost for comparison |
 | Backend | FastAPI, Pydantic v2, uvicorn |
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts |
-| Quality | uv workspace, ruff, mypy (strict), pytest, Vitest, Testing Library, Playwright, GitHub Actions |
+| Quality | uv workspace, ruff, mypy (strict), pytest, Vitest, Testing Library, Playwright, axe-core, Lighthouse, GitHub Actions |
 | Hosting | Vercel (web, Mumbai), Render (API in Docker, Singapore), free tiers |
+
+## Testing and quality
+
+Every push runs four CI jobs: Python (ruff, strict mypy, pytest), frontend (ESLint, Prettier,
+TypeScript, Vitest, production build), the API image (built from live Cricsheet data, validated,
+scored and smoke-tested) and end-to-end (Playwright on desktop and mobile against a real API).
+
+- **Data:** invariant checks and golden scorecards on every build; player tables are checked against
+  an independent recount of the raw JSON.
+- **Models:** leakage tests that rewrite later matches, monotonicity and terminal-state checks, and a
+  test that the API's next-ball arithmetic matches the fitted model to 1e-9.
+- **Web:** an axe-core scan for WCAG 2.1 A and AA on every key page, on desktop and mobile.
 
 ## Local development
 
@@ -214,8 +252,11 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M4** Score Projection: conformal quantiles, honest ranges
 - [x] **M5** Player Lab: profiles against par, percentiles, splits, WPA
 - [x] **M6** Matchup Lab + ball-outcome model: empirical-Bayes head-to-head, next-ball odds
-- [ ] **MVP v0.1** polish pass, methodology, performance audit
-- [ ] **V1** Compare, ratings, momentum & pressure, teams, simulator
+- [x] **v0.1.0 MVP release:** polish, methodology page, Lighthouse and accessibility audit
+- [ ] **V1-a** Compare page, CricIQ Ratings, similar players
+- [ ] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
+- [ ] **V1-c** Team analytics and head-to-head
+- [ ] **V1-d** Match simulator and what-if sandbox
 
 ## Data & attribution
 

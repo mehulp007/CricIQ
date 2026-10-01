@@ -1,6 +1,7 @@
 import {
   Activity,
   ArrowRight,
+  ArrowUpRight,
   BrainCircuit,
   CircleCheck,
   CircleDashed,
@@ -15,41 +16,49 @@ import Link from "next/link";
 
 import { MatchCard } from "@/components/match/match-card";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FEATURED } from "@/lib/featured";
+import { Card, CardContent } from "@/components/ui/card";
+import { FEATURED, SNAPSHOT } from "@/lib/featured";
+import { WIN_PROBABILITY } from "@/lib/models";
+import { signed } from "@/lib/players";
 import { ROADMAP, type MilestoneStatus } from "@/lib/roadmap";
 import { cn } from "@/lib/utils";
 
-const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: string }[] = [
+const CAPABILITIES: { icon: LucideIcon; title: string; body: string; href: string }[] = [
   {
     icon: Activity,
     title: "Ball-by-ball replay",
-    body: "Relive any IPL match delivery by delivery, with a live scoreboard, scorecard, commentary and worm and Manhattan charts.",
-    milestone: "Live",
+    body: "Relive any IPL match delivery by delivery: live scoreboard, scorecard, commentary, worm and Manhattan charts.",
+    href: "/matches",
   },
   {
     icon: BrainCircuit,
     title: "Explainable win probability",
     body: "Each side's chance after every ball, with the reasons in cricket terms and a model you can inspect.",
-    milestone: "Live",
+    href: "/matches/1181768",
   },
   {
     icon: TrendingUp,
     title: "Score projection",
     body: "The projected first-innings total after every ball, with an 80% range that holds up and the odds of passing any score.",
-    milestone: "Live",
+    href: "/matches/1426268",
   },
   {
     icon: Users,
-    title: "Player intelligence",
-    body: "Profiles by phase, venue, situation and opposition, measured against par so every era and role compares fairly.",
-    milestone: "Live",
+    title: "Player Lab",
+    body: "Every player's career measured against par for the same seasons and phases, with percentiles, splits and win probability added.",
+    href: "/players",
   },
   {
     icon: Swords,
-    title: "Matchup lab",
-    body: "Batter vs bowler analysis that respects sample size instead of over-reading 12 balls of history, with next-ball odds.",
-    milestone: "Live",
+    title: "Matchup Lab",
+    body: "Any batter against any bowler, read three ways so a few dozen balls of history are never over-read, plus next-ball odds.",
+    href: "/matchups",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Model Insights",
+    body: "How each model was built and tested: calibration, season-by-season backtests, rejected features and limitations.",
+    href: "/models",
   },
 ];
 
@@ -65,6 +74,137 @@ const STATUS_LABEL: Record<MilestoneStatus, string> = {
   planned: "Planned",
 };
 
+const LEADERS: { key: keyof typeof SNAPSHOT.leaders; label: string; unit: string }[] = [
+  { key: "runs", label: "Most runs", unit: "runs" },
+  { key: "wickets", label: "Most wickets", unit: "wickets" },
+  { key: "runs_above_par", label: "Most runs above par", unit: "runs" },
+  { key: "runs_saved", label: "Most runs saved vs par", unit: "runs" },
+];
+
+function SeasonSnapshot() {
+  const s = SNAPSHOT;
+  const change =
+    s.previous_first_innings_average !== null
+      ? s.first_innings_average - s.previous_first_innings_average
+      : null;
+  return (
+    <section aria-labelledby="season-heading" className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="season-heading" className="text-xl font-semibold tracking-tight">
+            IPL {s.season} at a glance
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {s.matches} matches
+            {s.champion && <> · champions {s.champion}</>}. Par adjusts for the season and phase, so
+            the last two cards reward quality, not just volume.
+          </p>
+        </div>
+        <Link
+          href={`/matches?season=${s.season}`}
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          All {s.season} matches
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <Card className="bg-card/70">
+          <CardContent className="flex flex-col gap-2">
+            <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
+              Average first-innings total
+            </p>
+            <p className="font-mono text-3xl font-semibold tracking-tight tabular-nums">
+              {s.first_innings_average.toFixed(0)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {change !== null && (
+                <>
+                  {signed(change)} on {s.season - 1} ·{" "}
+                </>
+              )}
+              {s.sixes.toLocaleString("en-IN")} sixes this season
+            </p>
+          </CardContent>
+        </Card>
+        {LEADERS.map(({ key, label, unit }) => {
+          const leader = s.leaders[key];
+          return (
+            <Card key={key} className="bg-card/70">
+              <CardContent className="flex flex-col gap-2">
+                <p className="text-[11px] tracking-wide text-muted-foreground uppercase">{label}</p>
+                <p className="font-mono text-3xl font-semibold tracking-tight tabular-nums">
+                  {leader.value.toFixed(0)}
+                  <span className="ml-1.5 font-sans text-sm font-normal text-muted-foreground">
+                    {unit}
+                  </span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  <Link
+                    href={`/players/${leader.player_id}?from=${s.season}&to=${s.season}`}
+                    className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                  >
+                    {leader.name}
+                  </Link>
+                  {leader.team && ` · ${leader.team}`} · {leader.detail}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function BiggestSwings() {
+  const swings = WIN_PROBABILITY.swings.slice(0, 3);
+  return (
+    <section aria-labelledby="swings-heading" className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="swings-heading" className="text-xl font-semibold tracking-tight">
+            The biggest swings in IPL history
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Single balls that moved the win probability the most. Open one to replay the moment.
+          </p>
+        </div>
+        <Link
+          href="/models#swings-heading"
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Top 10
+        </Link>
+      </div>
+      <ul className="grid gap-4 md:grid-cols-3">
+        {swings.map((s) => (
+          <li key={`${s.match_id}-${s.seq_no}`} className="flex">
+            <Link
+              href={`/matches/${s.match_id}?ball=${s.innings_no}.${s.seq_no}`}
+              className="group flex w-full flex-col gap-2 rounded-2xl border border-border bg-card/70 p-5 transition-colors hover:border-primary/40"
+            >
+              <span className="flex items-center justify-between gap-2">
+                <span className="font-mono text-2xl font-semibold text-positive tabular-nums">
+                  +{s.swing.toFixed(0)} pts
+                </span>
+                <ArrowUpRight
+                  className="size-4 text-muted-foreground group-hover:text-primary"
+                  aria-hidden="true"
+                />
+              </span>
+              <span className="text-sm font-medium group-hover:text-primary">{s.description}</span>
+              <span className="text-xs leading-relaxed text-muted-foreground">
+                {s.teams}, {s.season} {s.stage !== "League" ? s.stage.toLowerCase() : ""} · ball{" "}
+                {s.ball_label} · {s.result}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function OverviewPage() {
   return (
     <div className="flex flex-col gap-14">
@@ -78,10 +218,9 @@ export default function OverviewPage() {
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           CricIQ turns every IPL delivery since 2008 into interactive analytics. Replay any match
-          ball by ball and watch each side&apos;s chance of winning change after every delivery,
-          with the reasons in plain cricket terms, and a projected total with an honest range during
-          the first innings. Player and matchup intelligence are next, each backed by a tested model
-          you can inspect.
+          with each side&apos;s chance of winning after every ball, explore any player&apos;s career
+          against par, and read any batter-vs-bowler rivalry without over-reading small samples.
+          Every number comes from a tested model you can inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -92,18 +231,18 @@ export default function OverviewPage() {
             Replay the 2019 final
           </Link>
           <Link
-            href="/matches"
+            href="/players"
             className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
           >
-            Explore all matches
-            <ArrowRight className="size-4" aria-hidden="true" />
+            <Users className="size-4" aria-hidden="true" />
+            Explore players
           </Link>
           <Link
-            href="/models"
+            href="/matchups"
             className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
           >
-            <BrainCircuit className="size-4" aria-hidden="true" />
-            How the model works
+            <Swords className="size-4" aria-hidden="true" />
+            Compare a batter and a bowler
           </Link>
         </div>
       </section>
@@ -131,33 +270,41 @@ export default function OverviewPage() {
         </ul>
       </section>
 
+      <SeasonSnapshot />
+
+      <BiggestSwings />
+
       <section aria-labelledby="capabilities-heading" className="flex flex-col gap-6">
         <div>
           <h2 id="capabilities-heading" className="text-xl font-semibold tracking-tight">
-            What you&apos;ll be able to do
+            What you can do
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Each capability ships as a complete, tested slice, from data to model to interface.
+            Each capability shipped as a complete, tested slice, from data to model to interface.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {CAPABILITIES.map(({ icon: Icon, title, body, milestone }) => (
-            <Card key={title} className="bg-card/70">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {CAPABILITIES.map(({ icon: Icon, title, body, href }) => (
+            <li key={title} className="flex">
+              <Link
+                href={href}
+                className="group flex w-full flex-col gap-3 rounded-2xl border border-border bg-card/70 p-5 transition-colors hover:border-primary/40"
+              >
+                <span className="flex items-center justify-between">
                   <span className="grid size-9 place-items-center rounded-lg bg-accent text-primary">
-                    <Icon className="size-4" />
+                    <Icon className="size-4" aria-hidden="true" />
                   </span>
-                  <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
-                    {milestone}
-                  </Badge>
-                </div>
-                <CardTitle className="mt-3">{title}</CardTitle>
-                <CardDescription className="leading-relaxed">{body}</CardDescription>
-              </CardHeader>
-            </Card>
+                  <ArrowRight
+                    className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="font-medium">{title}</span>
+                <span className="text-sm leading-relaxed text-muted-foreground">{body}</span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section aria-labelledby="roadmap-heading" className="flex flex-col gap-6">

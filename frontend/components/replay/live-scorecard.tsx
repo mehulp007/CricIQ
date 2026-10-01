@@ -6,6 +6,7 @@ import { formatRate, oversNotation } from "@/lib/cricket";
 import { formatScore, inningsLabel } from "@/lib/format";
 import { type LiveInningsCard, playerName } from "@/lib/replay/engine";
 import { cn } from "@/lib/utils";
+import { scrollRegion } from "@/lib/a11y";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2 text-right font-mono tabular-nums";
@@ -44,7 +45,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
         </p>
       </header>
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 overflow-x-auto" {...scrollRegion(`${team.name} batting`)}>
         <table className="w-full min-w-[520px] text-sm">
           <thead className="border-b border-border">
             <tr>
@@ -98,7 +99,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
         </p>
       </div>
 
-      <div className="mt-5 overflow-x-auto">
+      <div className="mt-5 overflow-x-auto" {...scrollRegion(`${team.name} bowling`)}>
         <table className="w-full min-w-[520px] text-sm">
           <thead className="border-b border-border">
             <tr>

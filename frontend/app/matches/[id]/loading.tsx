@@ -1,6 +1,6 @@
 export default function MatchLoading() {
   return (
-    <div className="flex flex-col gap-6" aria-busy="true" aria-label="Loading match">
+    <div className="flex flex-col gap-6" role="status" aria-busy="true" aria-label="Loading match">
       <div className="h-4 w-40 animate-pulse rounded bg-muted/70" />
       <div className="h-9 w-3/4 max-w-xl animate-pulse rounded-lg bg-muted" />
       <div className="grid gap-4 lg:grid-cols-12">

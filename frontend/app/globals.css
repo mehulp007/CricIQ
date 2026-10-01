@@ -170,6 +170,10 @@
   html {
     @apply font-sans;
   }
+  /* Scrollable table wrappers take keyboard focus (see lib/a11y.ts). */
+  [role="region"][tabindex="0"]:focus-visible {
+    @apply rounded-lg outline-2 outline-offset-2 outline-ring;
+  }
 }
 
 @layer components {

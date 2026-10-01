@@ -4,7 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-01
+
+The MVP: milestones M0 to M6, plus a release pass.
+
 ### Added
+- **Release pass**
+  - Overview: the latest season at a glance (champion, scoring, leaders against par) and the
+    biggest win-probability swings in IPL history, both bundled so the page never waits for the API.
+  - About & Methodology rewritten to cover the data, all three models, par, win probability added,
+    matchup shrinkage, engineering and limitations, with figures read from the model registry.
+  - Accessibility: an axe-core WCAG 2.1 A/AA scan of every key page in the end-to-end suite;
+    scrollable tables are keyboard-focusable and labelled; loading skeletons announce themselves.
+  - Open Graph image and metadata, `robots.txt` and a sitemap.
+  - Lighthouse audit of the key pages (mobile and desktop) recorded in the README.
 - **M6 Matchup Lab and ball-outcome model**
   - `criciq_ml.ball_outcome`: multinomial logistic regression over seven outcomes per ball faced,
     with situation terms, the scoring era and ridge-penalised batter and bowler effects. Tested on

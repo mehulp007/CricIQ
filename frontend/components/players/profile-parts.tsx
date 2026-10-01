@@ -22,6 +22,7 @@ import {
   signed,
 } from "@/lib/players";
 import { cn } from "@/lib/utils";
+import { scrollRegion } from "@/lib/a11y";
 
 /** A difference from par, coloured by whether it helps the player (the sign carries it too). */
 export function ParDelta({
@@ -194,7 +195,7 @@ const td = "px-2 py-2.5 text-right font-mono tabular-nums";
 
 export function BattingPhaseTable({ rows }: { rows: PhaseBatting[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" {...scrollRegion("Batting by phase")}>
       <table className="w-full min-w-[30rem] text-sm">
         <thead className="border-b border-border">
           <tr>
@@ -258,7 +259,7 @@ export function BattingPhaseTable({ rows }: { rows: PhaseBatting[] }) {
 
 export function BowlingPhaseTable({ rows }: { rows: PhaseBowling[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" {...scrollRegion("Bowling by phase")}>
       <table className="w-full min-w-[30rem] text-sm">
         <thead className="border-b border-border">
           <tr>
@@ -371,7 +372,7 @@ function WpaCell({ wpa }: { wpa: number | null | undefined }) {
 
 export function RecentBattingTable({ innings }: { innings: BattingInnings[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" {...scrollRegion("Recent batting innings")}>
       <table className="w-full min-w-[28rem] text-sm">
         <thead className="border-b border-border">
           <tr>
@@ -433,7 +434,7 @@ export function RecentBattingTable({ innings }: { innings: BattingInnings[] }) {
 
 export function RecentBowlingTable({ innings }: { innings: BowlingInnings[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" {...scrollRegion("Recent bowling innings")}>
       <table className="w-full min-w-[28rem] text-sm">
         <thead className="border-b border-border">
           <tr>

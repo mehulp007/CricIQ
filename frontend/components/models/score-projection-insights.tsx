@@ -6,6 +6,7 @@ import {
 import { Section, Stat } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
 import { SCORE_PROJECTION as sp, SERIES, seasonSpan } from "@/lib/models";
+import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
 
@@ -100,7 +101,7 @@ export function ScoreProjectionInsights() {
         title="Against simpler projections"
         lede={`The same ${test.model.rows.toLocaleString("en-IN")} first-innings moments. Pinball loss scores the whole distribution. The Brier score is for P(total ≥ X) at ${test.thresholds.join(", ")}.`}
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" {...scrollRegion("Projection comparison")}>
           <table className="w-full min-w-xl text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr className="border-b border-border">

@@ -55,6 +55,30 @@ export const ROADMAP: readonly Milestone[] = [
     id: "v0.1",
     title: "MVP release",
     summary: "Polish, methodology, performance and accessibility audit across every page.",
-    status: "active",
+    status: "done",
+  },
+  {
+    id: "V1-a",
+    title: "Compare, ratings and similar players",
+    summary: "Side-by-side player comparison, transparent CricIQ Ratings and look-alike players.",
+    status: "planned",
+  },
+  {
+    id: "V1-b",
+    title: "Momentum, pressure and the Analytics Lab",
+    summary: "Leverage and momentum in every replay, each with a published validation.",
+    status: "planned",
+  },
+  {
+    id: "V1-c",
+    title: "Team analytics",
+    summary: "Team profiles and head-to-head records across seasons.",
+    status: "planned",
+  },
+  {
+    id: "V1-d",
+    title: "Match simulator",
+    summary: "Monte Carlo simulation of any fixture, plus a what-if sandbox in the replay.",
+    status: "planned",
   },
 ];

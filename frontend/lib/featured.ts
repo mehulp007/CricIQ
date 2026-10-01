@@ -1,5 +1,6 @@
 import index from "@/data/featured/index.json";
 import { featuredTimelines } from "@/data/featured/manifest";
+import snapshot from "@/data/featured/snapshot.json";
 
 import type { MatchSummary, Timeline } from "./api/types";
 
@@ -31,3 +32,24 @@ export function seasonRange(): string {
   const seasons = FEATURED.map((m) => m.summary.season);
   return `${Math.min(...seasons)}–${Math.max(...seasons)}`;
 }
+
+export interface SeasonLeader {
+  player_id: string;
+  name: string;
+  team: string | null;
+  value: number;
+  detail: string;
+}
+
+/** The latest season at a glance, exported with the featured replays. */
+export interface SeasonSnapshot {
+  season: number;
+  matches: number;
+  champion: string | null;
+  first_innings_average: number;
+  previous_first_innings_average: number | null;
+  sixes: number;
+  leaders: Record<"runs" | "wickets" | "runs_above_par" | "runs_saved", SeasonLeader>;
+}
+
+export const SNAPSHOT = snapshot as SeasonSnapshot;

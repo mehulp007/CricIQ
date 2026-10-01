@@ -20,7 +20,9 @@ test.describe("player lab", () => {
       "true",
     );
     await expect(page.getByText("Economy vs par", { exact: true })).toBeVisible();
-    await expect(page.getByRole("region", { name: "By phase" })).toContainText("Death overs");
+    await expect(page.getByRole("region", { name: "By phase", exact: true })).toContainText(
+      "Death overs",
+    );
   });
 
   test("narrows the season window and switches splits", async ({ page }) => {
@@ -38,7 +40,7 @@ test.describe("player lab", () => {
       "true",
     );
 
-    const splits = page.getByRole("region", { name: "Splits" });
+    const splits = page.getByRole("region", { name: "Splits", exact: true });
     await splits.getByRole("button", { name: "Opposition" }).click();
     await expect(splits.getByRole("table")).toContainText("vs ");
     await splits.getByRole("button", { name: "Bowler type" }).click();

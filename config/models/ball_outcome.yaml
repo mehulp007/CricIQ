@@ -1,0 +1,25 @@
+# Ball-outcome model: training configuration.
+#
+# The model is tuned on one pair of seasons and tested once on the latest
+# pair. The served version is refit on every season with the tuned settings.
+
+name: ball_outcome
+version: 1.0.0
+
+splits:
+  tune_train_through: 2022   # candidates are fit on 2008-2022 ...
+  tune_valid: [2023, 2024]   # ... and compared here
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit on every season before s, test on s
+
+model:
+  c: 1.0             # inverse L2 strength for the situation terms
+  max_iter: 3000
+  # Player one-hots are multiplied by this before fitting, so their effective
+  # penalty is 1 / (c * scale^2): the smaller the scale, the harder player
+  # effects are shrunk towards an average player.
+  player_scale_grid: [0.05, 0.1, 0.2]
+
+gate:
+  # The model must beat the phase-and-wickets baseline on test log loss.
+  must_beat_baseline: true

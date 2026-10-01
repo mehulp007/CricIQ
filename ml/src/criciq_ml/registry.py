@@ -11,11 +11,13 @@ from pathlib import Path
 from typing import Any
 
 from criciq_core import paths
+from criciq_ml.ball_outcome import BallOutcomeModel
 from criciq_ml.model import WinProbabilityModel
 from criciq_ml.projection import ScoreProjectionModel
 
 NAME = "win_probability"
 PROJECTION = "score_projection"
+BALL_OUTCOME = "ball_outcome"
 
 
 def root(name: str = NAME) -> Path:
@@ -45,6 +47,13 @@ def load_current_projection() -> ScoreProjectionModel:
     return ScoreProjectionModel.load(version_dir(version, PROJECTION))
 
 
+def load_current_ball_outcome() -> BallOutcomeModel:
+    version = current_version(BALL_OUTCOME)
+    if version is None:
+        raise FileNotFoundError("no current ball-outcome model; run `criciq-ml train`")
+    return BallOutcomeModel.load(version_dir(version, BALL_OUTCOME))
+
+
 def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
     data: dict[str, Any] = json.loads(
         (version_dir(version, name) / "evaluation.json").read_text(encoding="utf-8")
@@ -53,7 +62,9 @@ def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
 
 
 def save(
-    model: WinProbabilityModel | ScoreProjectionModel, evaluation: dict[str, Any], name: str = NAME
+    model: WinProbabilityModel | ScoreProjectionModel | BallOutcomeModel,
+    evaluation: dict[str, Any],
+    name: str = NAME,
 ) -> Path:
     target = version_dir(model.version, name)
     model.save(target)

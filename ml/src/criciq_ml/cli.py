@@ -4,6 +4,7 @@ Typical use::
 
     criciq-ml train win_probability    # tune, evaluate, backtest; register and promote if gated
     criciq-ml train score_projection
+    criciq-ml train ball_outcome
     criciq-ml score     # score every ball with the current models into the serving database
     criciq-ml report    # model cards + the Model Insights data bundled with the web app
 
@@ -23,7 +24,8 @@ import pandas as pd
 import typer
 
 from criciq_core import paths
-from criciq_ml import registry, report, scoring
+from criciq_ml import ball_outcome_training, registry, report, scoring
+from criciq_ml.ball_outcome import load_balls
 from criciq_ml.config import load_config
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
@@ -69,6 +71,7 @@ def features(
 class ModelName(StrEnum):
     win_probability = "win_probability"
     score_projection = "score_projection"
+    ball_outcome = "ball_outcome"
 
 
 def _train_win_probability(force: bool, promote: bool) -> None:
@@ -118,6 +121,32 @@ def _train_score_projection(force: bool, promote: bool) -> None:
     _finish(problems, promote, cfg.version, registry.PROJECTION)
 
 
+def _train_ball_outcome(force: bool, promote: bool) -> None:
+    cfg = ball_outcome_training.load_ball_outcome_config()
+    target = registry.version_dir(cfg.version, registry.BALL_OUTCOME)
+    if target.exists() and not force:
+        typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
+        raise typer.Exit(code=1)
+    warehouse = paths.warehouse_path()
+    balls = _timed("loading balls", lambda: load_balls(warehouse))
+    data_version = load_inputs(warehouse).data_version
+    model, evaluation = _timed(
+        "training",
+        lambda: ball_outcome_training.train_ball_outcome(
+            balls, cfg, data_version=data_version, log=typer.echo
+        ),
+    )
+    registry.save(model, evaluation, registry.BALL_OUTCOME)
+    test = evaluation["test"]
+    typer.echo(
+        f"  test log loss {test['model']['log_loss']:.4f} "
+        f"(baseline {test['baseline']['log_loss']:.4f}); "
+        f"head-to-head prior {evaluation['matchups']['served_kappa']:.0f} balls"
+    )
+    typer.echo(f"  wrote {target}")
+    _finish(ball_outcome_training.gate(evaluation), promote, cfg.version, registry.BALL_OUTCOME)
+
+
 def _finish(problems: list[str], promote: bool, version: str, name: str) -> None:
     for problem in problems:
         typer.echo(f"  [gate] {problem}")
@@ -137,8 +166,10 @@ def train(
     """Tune, evaluate and backtest a new model version, then register it."""
     if model is ModelName.win_probability:
         _train_win_probability(force, promote)
-    else:
+    elif model is ModelName.score_projection:
         _train_score_projection(force, promote)
+    else:
+        _train_ball_outcome(force, promote)
 
 
 @app.command()
@@ -164,6 +195,15 @@ def score(
         lambda: scoring.publish_projections(target, projections, projection_model),
     )
     typer.echo(f"  {count:,} score projections from model {projection_model.version} -> {target}")
+
+    ball_model = registry.load_current_ball_outcome()
+    balls = _timed("loading balls", lambda: load_balls(warehouse or paths.warehouse_path()))
+    cells = _timed("ball outcomes", lambda: scoring.score_matchups(ball_model, balls))
+    count = _timed(
+        "publishing",
+        lambda: scoring.publish_ball_model(target, cells, ball_model, scoring.current_env(balls)),
+    )
+    typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
 
 
 @app.command("report")

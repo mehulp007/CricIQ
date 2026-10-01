@@ -1,0 +1,26 @@
+{
+  "c": 1.0,
+  "classes": [
+    "dot",
+    "one",
+    "two",
+    "three",
+    "four",
+    "six",
+    "out"
+  ],
+  "data_version": "2026-05-31.713dafe9",
+  "env_mean": 0.28077123661703524,
+  "env_std": 0.07476708185811154,
+  "kappa": 354.5070745803887,
+  "name": "ball_outcome",
+  "player_scale": 0.1,
+  "trained_on": {
+    "balls": 285686,
+    "seasons": [
+      2008,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

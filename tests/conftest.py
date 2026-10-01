@@ -14,6 +14,7 @@ import pytest
 
 from criciq_core import paths
 from criciq_ml import registry, scoring
+from criciq_ml.ball_outcome import load_balls
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
@@ -98,5 +99,10 @@ def fixture_scored_serving_db(
     projection = registry.load_current_projection()
     scoring.publish_projections(
         target, scoring.score_projections(projection, fixture_states), projection
+    )
+    ball_model = registry.load_current_ball_outcome()
+    balls = load_balls(fixture_serving_db)
+    scoring.publish_ball_model(
+        target, scoring.score_matchups(ball_model, balls), ball_model, scoring.current_env(balls)
     )
     return target

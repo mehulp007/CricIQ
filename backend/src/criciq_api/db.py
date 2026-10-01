@@ -32,6 +32,8 @@ class Database:
         self.tables: frozenset[str] = frozenset(
             name for (name,) in self._con.execute("SHOW TABLES").fetchall()
         )
+        # Small derived objects built once per process (e.g. model terms).
+        self.cache: dict[str, Any] = {}
 
     def has_table(self, name: str) -> bool:
         return name in self.tables

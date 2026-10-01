@@ -18,6 +18,7 @@ import duckdb
 import numpy as np
 import pandas as pd
 
+from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, GROUPS, RUNS, BallOutcomeModel
 from criciq_ml.features import GROUP_KEYS, LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
 from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
@@ -215,5 +216,87 @@ def publish_projections(
             {"levels": list(LEVELS)},
         )
         return int(con.execute("SELECT count(*) FROM score_projections").fetchone()[0])  # type: ignore[index]
+
+    return _publish(serving, write)
+
+
+def score_matchups(model: BallOutcomeModel, balls: pd.DataFrame) -> pd.DataFrame:
+    """Observed and model-expected outcome counts per batter, bowler, season and phase.
+
+    The expected counts are what the ball-outcome model predicts for those
+    exact balls from the two players' overall records and the situations they
+    met in, without any knowledge of their head-to-head history beyond its
+    share of each player's record.
+    """
+    probs = model.predict(balls)
+    frame = pd.DataFrame(probs, columns=[f"e_{c}" for c in CLASSES])
+    onehot = np.zeros_like(probs)
+    onehot[np.arange(len(balls)), balls["outcome"].to_numpy()] = 1.0
+    for k, name in enumerate(CLASSES):
+        frame[f"n_{name}"] = onehot[:, k]
+    for column in ("batter_id", "bowler_id", "season", "phase"):
+        frame[column] = balls[column].to_numpy()
+    frame["runs"] = balls["runs_batter"].to_numpy()
+    frame["balls"] = 1
+    cells = frame.groupby(["batter_id", "bowler_id", "season", "phase"], as_index=False).sum()
+    for name in CLASSES:
+        cells[f"n_{name}"] = cells[f"n_{name}"].round().astype(int)
+    return cells
+
+
+def current_env(balls: pd.DataFrame) -> float:
+    """League runs per ball faced over the most recent matches: the era a next ball is in."""
+    per_match = balls.groupby("match_order")["runs_batter"].agg(["sum", "size"]).sort_index()
+    recent = per_match.tail(ENV_WINDOW)
+    return float(recent["sum"].sum() / recent["size"].sum())
+
+
+def publish_ball_model(
+    serving: Path, cells: pd.DataFrame, model: BallOutcomeModel, env_now: float
+) -> int:
+    """Add head-to-head cells and the ball-outcome model's terms to the serving database."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        con.register("cells", cells)
+        con.execute("DROP TABLE IF EXISTS matchup_cells")
+        counts = ", ".join(f"n_{c}::INTEGER AS n_{c}" for c in CLASSES)
+        expected = ", ".join(f"e_{c}::DOUBLE AS e_{c}" for c in CLASSES)
+        con.execute(
+            f"""
+            CREATE TABLE matchup_cells AS
+            SELECT batter_id, bowler_id, season::INTEGER AS season, phase,
+                   balls::INTEGER AS balls, runs::INTEGER AS runs, {counts}, {expected}
+            FROM cells ORDER BY batter_id, bowler_id, season, phase
+            """
+        )
+        terms = pd.DataFrame(
+            {
+                "term": list(model.terms),
+                "coefs": [list(map(float, v)) for v in model.terms.values()],
+            }
+        )
+        con.register("terms", terms)
+        con.execute("DROP TABLE IF EXISTS ball_model_terms")
+        con.execute(
+            "CREATE TABLE ball_model_terms AS "
+            "SELECT term, coefs::DOUBLE[] AS coefs FROM terms ORDER BY term"
+        )
+        manifest = model.manifest
+        _register_model(
+            con,
+            manifest["name"],
+            model.version,
+            manifest["trained_on"]["seasons"],
+            {
+                "classes": list(CLASSES),
+                "runs": [float(r) for r in RUNS],
+                "kappa": manifest["kappa"],
+                "env_mean": manifest["env_mean"],
+                "env_std": manifest["env_std"],
+                "env_now": env_now,
+                "groups": {k: list(v) for k, v in GROUPS.items()},
+            },
+        )
+        return int(con.execute("SELECT count(*) FROM matchup_cells").fetchone()[0])  # type: ignore[index]
 
     return _publish(serving, write)

@@ -127,3 +127,4 @@ jobs:
           timeout 90 sh -c 'until curl -sf http://127.0.0.1:10000/healthz; do sleep 2; done'
           curl -sf "http://127.0.0.1:10000/api/v1/matches/1181768/timeline"             | python3 -c "import json,sys; t=json.load(sys.stdin); print(t['win_probability']['version'], t['deliveries'][-1]['wp'])"
           curl -sf http://127.0.0.1:10000/api/v1/meta | python3 -c "import json,sys; m=json.load(sys.stdin); print(m['data_version'], len(m['seasons']), 'seasons')"
+          curl -sf "http://127.0.0.1:10000/api/v1/players/ba607b88" | python3 -c "import json,sys; p=json.load(sys.stdin); print(p['player']['name'], p['batting']['runs'], 'runs, WPA', p['batting']['wpa'])"

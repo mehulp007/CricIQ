@@ -6,8 +6,8 @@
 # failed validation fails the image build, so invalid data can never ship.
 #
 # Stage 2 is the runtime: the API package, the serving database and the phase
-# config only. The
-# API never runs a model, so no ML libraries ship in the runtime image.
+# config only. The API never runs a model, so no ML libraries ship in the
+# runtime image.
 #
 # Build from the repository root:
 #   docker build -f docker/backend.Dockerfile -t criciq-api .

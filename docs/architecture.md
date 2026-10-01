@@ -10,11 +10,12 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
   [pipelines] download → raw (immutable, versioned by data_version)
               extract/normalize → warehouse.duckdb (core tables)
               validate (schemas + invariants + golden matches)
-              export → serving.duckdb (slim, read-only)
+              export → serving.duckdb (slim, read-only, plus Player Lab tables with par)
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
-       score every historical ball with the current model → serving.duckdb (wp_predictions)
+       score every historical ball with the current models → serving.duckdb
+       (wp_predictions, score_projections, player_wpa)
                         ▼
   [backend] FastAPI /api/v1: reads serving.duckdb only, no model at request time
             (live inference arrives with the V1 what-if sandbox and simulator)
@@ -76,6 +77,6 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 
 ## Precompute vs live
 
-Everything historical is precomputed. Since M3 that covers every ball's win probability and explanation; later milestones add projections and player and matchup aggregates. Evaluation artifacts are generated with each model version. Live computation is reserved for what depends on user input (what-if states, next-ball distributions, simulations), which arrives in later milestones.
+Everything historical is precomputed: every ball's win probability, explanation and projection, and the Player Lab's innings rows and ball-level cells. A profile for any season window is a handful of small aggregates over those tables (tens of milliseconds); later milestones add matchup aggregates. Evaluation artifacts are generated with each model version. Live computation is reserved for what depends on user input (what-if states, next-ball distributions, simulations), which arrives in later milestones.
 
 A match replay is driven **entirely client-side** from one timeline payload per match. There are no per-ball API calls.

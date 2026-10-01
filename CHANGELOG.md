@@ -5,6 +5,19 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **M5 Player Lab**
+  - `criciq_pipelines.players`: serving tables for batting and bowling innings (with match context
+    and batting position), ball-level cells by season, phase and opponent type, league par rates,
+    fielding, player seasons and a searchable directory with derived roles.
+  - Par: every innings and cell carries the runs, dismissals, dots and boundaries an average player
+    would have produced from the same balls (league rate for the same season and phase).
+  - Win probability added per player and innings, published by `criciq-ml score`.
+  - API: `GET /players` (search, role, season, team, sort), `GET /players/{id}` (career or season
+    window: summaries against par, seasons, phases, percentiles, recent form, dismissals) and
+    `GET /players/{id}/splits`.
+  - Web: Player Lab directory with search and filters, and profile pages with batting and bowling
+    tabs, a season-window control, percentile bars, season charts, splits and recent form.
+    Scorecard names link to profiles.
 - **M4 Score projection**
   - `criciq_ml.projection`: LightGBM quantile models (5–95%) of the first-innings total, predicted
     as a ratio to the scoring era's par so one model spans 2008–2026, with per-level conformal

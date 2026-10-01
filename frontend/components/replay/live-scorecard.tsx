@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { TeamSwatch } from "@/components/match/team-badge";
 import type { Timeline } from "@/lib/api/types";
 import { formatRate, oversNotation } from "@/lib/cricket";
@@ -7,6 +9,18 @@ import { cn } from "@/lib/utils";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2 text-right font-mono tabular-nums";
+
+function PlayerLink({ timeline, id }: { timeline: Timeline; id: string }) {
+  return (
+    <Link
+      href={`/players/${id}`}
+      className="underline-offset-4 hover:text-primary hover:underline"
+      prefetch={false}
+    >
+      {playerName(timeline, id)}
+    </Link>
+  );
+}
 
 function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInningsCard }) {
   const team = timeline.teams[card.innings.batting_team_id];
@@ -58,7 +72,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
             {card.batting.map((b) => (
               <tr key={b.id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  {playerName(timeline, b.id)}
+                  <PlayerLink timeline={timeline} id={b.id} />
                   <span
                     className={cn(
                       "block text-xs",
@@ -112,7 +126,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
             {card.bowling.map((b) => (
               <tr key={b.id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  {playerName(timeline, b.id)}
+                  <PlayerLink timeline={timeline} id={b.id} />
                 </th>
                 <td className={td}>{oversNotation(b.legalBalls)}</td>
                 <td className={td}>{b.maidens}</td>

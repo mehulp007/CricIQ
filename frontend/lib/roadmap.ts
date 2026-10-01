@@ -43,12 +43,12 @@ export const ROADMAP: readonly Milestone[] = [
     id: "M5",
     title: "Player lab",
     summary: "Contextual batting and bowling profiles with phase and situation splits.",
-    status: "active",
+    status: "done",
   },
   {
     id: "M6",
     title: "Matchup lab",
     summary: "Batter vs bowler analysis with sample-size-aware estimates.",
-    status: "planned",
+    status: "active",
   },
 ];

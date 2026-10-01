@@ -84,6 +84,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/players": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Players
+         * @description Player directory with headline numbers; season and team filters scope the numbers.
+         */
+        get: operations["list_players_api_v1_players_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/players/{player_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Player
+         * @description Profile: batting and bowling against par, seasons, phases, percentiles and recent form.
+         */
+        get: operations["read_player_api_v1_players__player_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/players/{player_id}/splits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Splits
+         * @description Batting and bowling split by phase, opponent type, position, venue, opposition and more.
+         */
+        get: operations["read_splits_api_v1_players__player_id__splits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -129,6 +189,155 @@ export interface components {
             /** Strike Rate */
             strike_rate: number | null;
         };
+        /** BattingInnings */
+        BattingInnings: {
+            /** Balls */
+            balls: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Dismissal */
+            dismissal: string | null;
+            /** Fours */
+            fours: number;
+            /** Is Out */
+            is_out: boolean;
+            /** Match Id */
+            match_id: number;
+            opposition: components["schemas"]["TeamTag"];
+            /** Position */
+            position: number;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "won" | "lost" | "no_result";
+            /** Runs */
+            runs: number;
+            /** Season */
+            season: number;
+            /** Sixes */
+            sixes: number;
+            /** Venue */
+            venue: string;
+            /** Wpa */
+            wpa: number | null;
+        };
+        /** BattingSplitGroup */
+        BattingSplitGroup: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Rows */
+            rows: components["schemas"]["BattingSplitRow"][];
+        };
+        /** BattingSplitRow */
+        BattingSplitRow: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Color */
+            color?: string | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Fifties */
+            fifties: number | null;
+            /** Highest */
+            highest: number | null;
+            /**
+             * Innings
+             * @description None for ball-level splits (phase, bowler type).
+             */
+            innings: number | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Outs */
+            outs: number;
+            /** Par Strike Rate */
+            par_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
+        /** BattingSummary */
+        BattingSummary: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Ducks */
+            ducks: number;
+            /** Fifties */
+            fifties: number;
+            /** Fours */
+            fours: number;
+            highest: components["schemas"]["HighScore"] | null;
+            /** Hundreds */
+            hundreds: number;
+            /** Innings */
+            innings: number;
+            /** Matches */
+            matches: number;
+            /** Not Outs */
+            not_outs: number;
+            /** Outs */
+            outs: number;
+            /** Par Average */
+            par_average: number | null;
+            /** Par Boundary Pct */
+            par_boundary_pct: number | null;
+            /** Par Dot Pct */
+            par_dot_pct: number | null;
+            /** Par Strike Rate */
+            par_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /**
+             * Runs Above Par
+             * @description Runs scored minus par runs for the same balls.
+             */
+            runs_above_par: number;
+            /** Sixes */
+            sixes: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /**
+             * Wpa
+             * @description Win probability added, in probability units.
+             */
+            wpa: number | null;
+            /**
+             * Wpa Innings
+             * @description Innings with win probabilities behind ``wpa``.
+             */
+            wpa_innings: number;
+        };
+        /** BestFigures */
+        BestFigures: {
+            /** Match Id */
+            match_id: number;
+            /** Opposition Id */
+            opposition_id: string;
+            /** Runs */
+            runs: number;
+            /** Season */
+            season: number;
+            /** Wickets */
+            wickets: number;
+        };
         /** BowlingEntry */
         BowlingEntry: {
             /** Economy */
@@ -149,6 +358,151 @@ export interface components {
             wickets: number;
             /** Wides */
             wides: number;
+        };
+        /** BowlingInnings */
+        BowlingInnings: {
+            /** Balls */
+            balls: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Economy */
+            economy: number | null;
+            /** Match Id */
+            match_id: number;
+            opposition: components["schemas"]["TeamTag"];
+            /** Overs */
+            overs: string;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "won" | "lost" | "no_result";
+            /** Runs */
+            runs: number;
+            /** Season */
+            season: number;
+            /** Venue */
+            venue: string;
+            /** Wickets */
+            wickets: number;
+            /** Wpa */
+            wpa: number | null;
+        };
+        /** BowlingSplitGroup */
+        BowlingSplitGroup: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Rows */
+            rows: components["schemas"]["BowlingSplitRow"][];
+        };
+        /** BowlingSplitRow */
+        BowlingSplitRow: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Color */
+            color?: string | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Economy */
+            economy: number | null;
+            /** Innings */
+            innings: number | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Par Economy */
+            par_economy: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+        };
+        /** BowlingSummary */
+        BowlingSummary: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            best: components["schemas"]["BestFigures"] | null;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Economy */
+            economy: number | null;
+            /**
+             * Five Wickets
+             * @description Innings with five or more wickets.
+             */
+            five_wickets: number;
+            /**
+             * Four Wickets
+             * @description Innings with exactly four wickets.
+             */
+            four_wickets: number;
+            /** Innings */
+            innings: number;
+            /** Maidens */
+            maidens: number;
+            /** Matches */
+            matches: number;
+            /** Noballs */
+            noballs: number;
+            /** Overs */
+            overs: string;
+            /** Par Dot Pct */
+            par_dot_pct: number | null;
+            /** Par Economy */
+            par_economy: number | null;
+            /** Par Strike Rate */
+            par_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /**
+             * Runs Saved
+             * @description Par runs minus runs conceded for the same balls.
+             */
+            runs_saved: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+            /** Wides */
+            wides: number;
+            /** Wpa */
+            wpa: number | null;
+            /** Wpa Innings */
+            wpa_innings: number;
+        };
+        /** DismissalCount */
+        DismissalCount: {
+            /** Count */
+            count: number;
+            /** Kind */
+            kind: string;
+        };
+        /** Dismissals */
+        Dismissals: {
+            /**
+             * Batting
+             * @description How the player got out.
+             */
+            batting: components["schemas"]["DismissalCount"][];
+            /**
+             * Bowling
+             * @description How the player took wickets.
+             */
+            bowling: components["schemas"]["DismissalCount"][];
         };
         /** Extras */
         Extras: {
@@ -177,6 +531,15 @@ export interface components {
             runs: number;
             /** Wicket */
             wicket: number;
+        };
+        /** FieldingSummary */
+        FieldingSummary: {
+            /** Catches */
+            catches: number;
+            /** Run Outs */
+            run_outs: number;
+            /** Stumpings */
+            stumpings: number;
         };
         /** FranchiseInfo */
         FranchiseInfo: {
@@ -209,6 +572,19 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+        };
+        /** HighScore */
+        HighScore: {
+            /** Match Id */
+            match_id: number;
+            /** Not Out */
+            not_out: boolean;
+            /** Opposition Id */
+            opposition_id: string;
+            /** Runs */
+            runs: number;
+            /** Season */
+            season: number;
         };
         /** InningsScorecard */
         InningsScorecard: {
@@ -317,12 +693,255 @@ export interface components {
             /** Venues */
             venues: components["schemas"]["VenueInfo"][];
         };
+        /** Percentile */
+        Percentile: {
+            /**
+             * Balls
+             * @description The player's balls behind this metric.
+             */
+            balls: number;
+            /** Description */
+            description: string;
+            /** Higher Is Better */
+            higher_is_better: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Min Balls */
+            min_balls: number;
+            /**
+             * Percentile
+             * @description 0-100 among qualified players; None if unqualified.
+             */
+            percentile: number | null;
+            /**
+             * Population
+             * @description Qualified players compared against.
+             */
+            population: number;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "runs_per_100" | "percent" | "runs_per_over" | "points";
+            /** Value */
+            value: number | null;
+        };
+        /** PercentileGroup */
+        PercentileGroup: {
+            /** Balls */
+            balls: number;
+            /** Items */
+            items: components["schemas"]["Percentile"][];
+            /** Min Balls */
+            min_balls: number;
+            /** Population */
+            population: number;
+            /** Qualified */
+            qualified: boolean;
+        };
+        /** Percentiles */
+        Percentiles: {
+            batting: components["schemas"]["PercentileGroup"] | null;
+            bowling: components["schemas"]["PercentileGroup"] | null;
+        };
+        /** PhaseBatting */
+        PhaseBatting: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Label */
+            label: string;
+            /** Outs */
+            outs: number;
+            /** Par Boundary Pct */
+            par_boundary_pct: number | null;
+            /** Par Dot Pct */
+            par_dot_pct: number | null;
+            /** Par Strike Rate */
+            par_strike_rate: number | null;
+            /** Phase */
+            phase: string;
+            /** Runs */
+            runs: number;
+            /**
+             * Share
+             * @description Share of the player's balls in this phase (0-1).
+             */
+            share: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
+        /** PhaseBowling */
+        PhaseBowling: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Economy */
+            economy: number | null;
+            /** Label */
+            label: string;
+            /** Par Dot Pct */
+            par_dot_pct: number | null;
+            /** Par Economy */
+            par_economy: number | null;
+            /** Phase */
+            phase: string;
+            /** Runs */
+            runs: number;
+            /** Share */
+            share: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+        };
+        /** PhaseSplits */
+        PhaseSplits: {
+            /** Batting */
+            batting: components["schemas"]["PhaseBatting"][];
+            /** Bowling */
+            bowling: components["schemas"]["PhaseBowling"][];
+        };
+        /** PlayerBio */
+        PlayerBio: {
+            /** Batting Hand */
+            batting_hand: ("right" | "left") | null;
+            /** Bowling Arm */
+            bowling_arm: ("right" | "left") | null;
+            /** Bowling Style */
+            bowling_style: string | null;
+            /** Bowling Type */
+            bowling_type: ("pace" | "spin") | null;
+            /** Country */
+            country: string | null;
+            /** Date Of Birth */
+            date_of_birth: string | null;
+            /** First Season */
+            first_season: number;
+            /** Full Name */
+            full_name: string | null;
+            /** Is Keeper */
+            is_keeper: boolean;
+            /** Last Season */
+            last_season: number;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "batter" | "bowler" | "all_rounder";
+            /**
+             * Teams
+             * @description Franchises played for, most recent first.
+             */
+            teams: components["schemas"]["TeamStint"][];
+        };
+        /** PlayerListItem */
+        PlayerListItem: {
+            /** Batting Average */
+            batting_average: number | null;
+            /** Country */
+            country: string | null;
+            /** Economy */
+            economy: number | null;
+            /**
+             * First Season
+             * @description Career debut season.
+             */
+            first_season: number;
+            /** Full Name */
+            full_name: string | null;
+            /** Is Keeper */
+            is_keeper: boolean;
+            /**
+             * Last Season
+             * @description Most recent season played.
+             */
+            last_season: number;
+            /**
+             * Matches
+             * @description Matches within the filters.
+             */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "batter" | "bowler" | "all_rounder";
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** @description Most recent team within the filters. */
+            team: components["schemas"]["TeamTag"] | null;
+            /** Wickets */
+            wickets: number;
+        };
+        /** PlayerPage */
+        PlayerPage: {
+            /** Items */
+            items: components["schemas"]["PlayerListItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** PlayerProfile */
+        PlayerProfile: {
+            batting: components["schemas"]["BattingSummary"] | null;
+            bowling: components["schemas"]["BowlingSummary"] | null;
+            dismissals: components["schemas"]["Dismissals"];
+            fielding: components["schemas"]["FieldingSummary"];
+            percentiles: components["schemas"]["Percentiles"];
+            phases: components["schemas"]["PhaseSplits"];
+            player: components["schemas"]["PlayerBio"];
+            recent: components["schemas"]["RecentInnings"];
+            /** Seasons */
+            seasons: components["schemas"]["SeasonLine"][];
+            window: components["schemas"]["SeasonWindow"];
+        };
         /** PlayerRef */
         PlayerRef: {
             /** Name */
             name: string;
             /** Player Id */
             player_id: string;
+        };
+        /** PlayerSplits */
+        PlayerSplits: {
+            /** Batting */
+            batting: components["schemas"]["BattingSplitGroup"][];
+            /** Bowling */
+            bowling: components["schemas"]["BowlingSplitGroup"][];
+            window: components["schemas"]["SeasonWindow"];
+        };
+        /** RecentInnings */
+        RecentInnings: {
+            /** Batting */
+            batting: components["schemas"]["BattingInnings"][];
+            /** Bowling */
+            bowling: components["schemas"]["BowlingInnings"][];
         };
         /**
          * ScoreProjectionModel
@@ -341,6 +960,48 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** SeasonBatting */
+        SeasonBatting: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Fifties */
+            fifties: number;
+            /** Highest */
+            highest: number;
+            /** Hundreds */
+            hundreds: number;
+            /** Innings */
+            innings: number;
+            /** Outs */
+            outs: number;
+            /** Par Strike Rate */
+            par_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
+        /** SeasonBowling */
+        SeasonBowling: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Economy */
+            economy: number | null;
+            /** Innings */
+            innings: number;
+            /** Par Economy */
+            par_economy: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+        };
         /** SeasonInfo */
         SeasonInfo: {
             /** Impact Player Rule */
@@ -349,6 +1010,30 @@ export interface components {
             matches: number;
             /** Year */
             year: number;
+        };
+        /** SeasonLine */
+        SeasonLine: {
+            batting: components["schemas"]["SeasonBatting"] | null;
+            bowling: components["schemas"]["SeasonBowling"] | null;
+            /** Matches */
+            matches: number;
+            /** Season */
+            season: number;
+            /** Teams */
+            teams: string[];
+        };
+        /** SeasonWindow */
+        SeasonWindow: {
+            /**
+             * First
+             * @description First season included.
+             */
+            first: number;
+            /**
+             * Last
+             * @description Last season included.
+             */
+            last: number;
         };
         /** TeamRef */
         TeamRef: {
@@ -380,6 +1065,28 @@ export interface components {
             team_season_id: string;
             /** Wickets */
             wickets: number | null;
+        };
+        /** TeamStint */
+        TeamStint: {
+            /** Color */
+            color: string;
+            /** Franchise Id */
+            franchise_id: string;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Seasons */
+            seasons: number[];
+        };
+        /** TeamTag */
+        TeamTag: {
+            /** Color */
+            color: string;
+            /** Franchise Id */
+            franchise_id: string;
+            /** Name */
+            name: string;
         };
         /**
          * Timeline
@@ -744,6 +1451,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Meta"];
+                };
+            };
+        };
+    };
+    list_players_api_v1_players_get: {
+        parameters: {
+            query?: {
+                /** @description Name search */
+                q?: string | null;
+                role?: ("batter" | "bowler" | "all_rounder" | "keeper") | null;
+                season?: number | null;
+                /** @description Franchise id, e.g. MI */
+                team?: string | null;
+                sort?: "matches" | "runs" | "wickets" | "recent" | "name";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_player_api_v1_players__player_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_splits_api_v1_players__player_id__splits_get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerSplits"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

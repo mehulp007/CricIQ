@@ -19,11 +19,11 @@
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability after every delivery. Probabilistic score projection, player and matchup intelligence, and Monte Carlo match simulation come next, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, and explore every player's career measured against par. Matchup intelligence and Monte Carlo match simulation come next, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** milestones **M0–M4** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** milestones **M0–M5** are complete and deployed. You can replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball, plus a projected first-innings total with an honest range, and open any player's profile from the scorecard. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## Features
 
@@ -33,8 +33,8 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
 | Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
 | Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
-| Player Lab | Batting and bowling profiles with phase, venue, situation and opposition splits | M5 · next |
-| Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 |
+| Player Lab | Search every player; profiles with era- and phase-adjusted numbers ("par"), percentiles, win probability added, season trends, recent form and splits by phase, bowler type, batter hand, position, innings, result, opposition and venue, for any season window | **Live** |
+| Matchup Lab | Batter vs bowler with sample-size-aware (shrunk) estimates and next-ball distribution | M6 · next |
 | Compare, Ratings, Momentum, Pressure, Teams, Simulator | Transparent derived metrics and Monte Carlo simulation | V1 |
 
 ## The data
@@ -102,6 +102,23 @@ and conformally calibrated ([model card](docs/model-cards/score-projection.md)).
 
 The median error beats par in 11 of 11 backtest seasons. Season bias stays within a few
 runs either way, with no drift as totals rose by 30 runs across eras.
+
+## Player Lab: measured against par
+
+A strike rate of 135 meant something different in 2010 than in 2025, and in the powerplay than at the
+death. Every Player Lab number therefore comes with **par**: what an average IPL player would have
+produced from the same balls, using the league rate for each ball's season and phase. Summed over all
+players, par reproduces the league exactly (a tested invariant).
+
+- **Runs above par / runs saved:** Kohli has scored 235 runs more than par from his 6,926 balls; Bumrah
+  has conceded 948 fewer.
+- **Percentiles** rank each measure against par among players with 300+ balls in the chosen seasons.
+- **Win probability added** credits every ball's change in the win probability to the batter and,
+  negated, to the bowler. Narine (bowling), de Villiers and Warner (batting) lead the career totals.
+
+Splits are precomputed as innings rows and ball-level cells, so any season window is one small
+aggregate. They are checked against an independent recount of the raw Cricsheet JSON and known
+scorecards (Kohli's 973 runs in 2016, Gayle's 175*, Alzarri Joseph's 6/12).
 
 ## Screenshots
 
@@ -175,7 +192,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M2** Match Explorer & Replay: first public deployment
 - [x] **M3** Win Probability: calibrated, explainable, backtested
 - [x] **M4** Score Projection: conformal quantiles, honest ranges
-- [ ] **M5** Player Lab
+- [x] **M5** Player Lab: profiles against par, percentiles, splits, WPA
 - [ ] **M6** Matchup Lab + ball-outcome model → **MVP v0.1**
 - [ ] **V1** Compare, ratings, momentum & pressure, teams, simulator
 

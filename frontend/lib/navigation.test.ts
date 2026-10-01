@@ -5,6 +5,7 @@ import { PRIMARY_NAV, SECONDARY_NAV, isActive, isAvailable } from "@/lib/navigat
 const overview = PRIMARY_NAV.find((i) => i.href === "/")!;
 const matches = PRIMARY_NAV.find((i) => i.href === "/matches")!;
 const players = PRIMARY_NAV.find((i) => i.href === "/players")!;
+const matchups = PRIMARY_NAV.find((i) => i.href === "/matchups")!;
 const models = PRIMARY_NAV.find((i) => i.href === "/models")!;
 
 describe("navigation", () => {
@@ -17,7 +18,8 @@ describe("navigation", () => {
     expect(isAvailable(overview)).toBe(true);
     expect(isAvailable(matches)).toBe(true);
     expect(isAvailable(models)).toBe(true);
-    expect(isAvailable(players)).toBe(false);
+    expect(isAvailable(players)).toBe(true);
+    expect(isAvailable(matchups)).toBe(false);
   });
 
   it("matches the root route exactly", () => {

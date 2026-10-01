@@ -42,8 +42,8 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; milestone: 
   {
     icon: Users,
     title: "Player intelligence",
-    body: "Contextual profiles by phase, venue, situation and opposition, not just averages and strike rates.",
-    milestone: "M5",
+    body: "Profiles by phase, venue, situation and opposition, measured against par so every era and role compares fairly.",
+    milestone: "Live",
   },
   {
     icon: Swords,

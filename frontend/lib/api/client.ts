@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { MatchPage, Meta, Timeline } from "./types";
+import type { MatchPage, Meta, PlayerPage, PlayerProfile, PlayerSplits, Timeline } from "./types";
 
 /**
  * Server-side client for the CricIQ API. Historical data only changes when the
@@ -67,4 +67,58 @@ export function getMeta(): Promise<Meta> {
 
 export function getTimeline(matchId: number): Promise<Timeline> {
   return apiGet<Timeline>(`/api/v1/matches/${matchId}/timeline`);
+}
+
+export type PlayerRoleFilter = "batter" | "bowler" | "all_rounder" | "keeper";
+export type PlayerSort = "matches" | "runs" | "wickets" | "recent" | "name";
+
+export interface PlayerQuery {
+  q?: string;
+  role?: PlayerRoleFilter;
+  season?: number;
+  team?: string;
+  sort?: PlayerSort;
+  page?: number;
+  pageSize?: number;
+}
+
+export function getPlayers(query: PlayerQuery = {}): Promise<PlayerPage> {
+  const params = new URLSearchParams();
+  if (query.q) params.set("q", query.q);
+  if (query.role) params.set("role", query.role);
+  if (query.season) params.set("season", String(query.season));
+  if (query.team) params.set("team", query.team);
+  if (query.sort) params.set("sort", query.sort);
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(query.pageSize ?? 30));
+  return apiGet<PlayerPage>(`/api/v1/players?${params}`);
+}
+
+/** Seasons to include, inclusive; omitted ends mean the whole career. */
+export interface SeasonWindow {
+  from?: number;
+  to?: number;
+}
+
+function windowQuery(window: SeasonWindow): string {
+  const params = new URLSearchParams();
+  if (window.from) params.set("from", String(window.from));
+  if (window.to) params.set("to", String(window.to));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+export function getPlayer(playerId: string, window: SeasonWindow = {}): Promise<PlayerProfile> {
+  return apiGet<PlayerProfile>(
+    `/api/v1/players/${encodeURIComponent(playerId)}${windowQuery(window)}`,
+  );
+}
+
+export function getPlayerSplits(
+  playerId: string,
+  window: SeasonWindow = {},
+): Promise<PlayerSplits> {
+  return apiGet<PlayerSplits>(
+    `/api/v1/players/${encodeURIComponent(playerId)}/splits${windowQuery(window)}`,
+  );
 }

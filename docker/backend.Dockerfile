@@ -5,7 +5,8 @@
 # scores every ball with the committed win probability model (models/). A
 # failed validation fails the image build, so invalid data can never ship.
 #
-# Stage 2 is the runtime: the API package and the serving database only. The
+# Stage 2 is the runtime: the API package, the serving database and the phase
+# config only. The
 # API never runs a model, so no ML libraries ship in the runtime image.
 #
 # Build from the repository root:
@@ -52,6 +53,8 @@ RUN uv sync --frozen --no-dev --package criciq-api \
     && useradd --system --uid 10001 criciq
 
 COPY --from=data /app/data/exports/serving.duckdb /app/data/exports/serving.duckdb
+# Phase labels and boundaries for player splits.
+COPY config/phases.yaml config/phases.yaml
 USER criciq
 
 EXPOSE 10000

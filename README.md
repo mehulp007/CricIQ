@@ -34,7 +34,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Ball outcome | 1.07% better log loss than phase-and-wickets frequencies; better in 11 of 11 backtest seasons |
 | Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
 | Quality | 200+ Python tests, 60+ frontend unit tests, 50 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
-| Performance | Lighthouse (mobile) 98–100 performance and 100 accessibility on every key page |
+| Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
 ## Features
 

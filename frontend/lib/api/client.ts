@@ -9,6 +9,7 @@ import type {
   PlayerPage,
   PlayerProfile,
   PlayerSplits,
+  SimilarPlayers,
   Timeline,
 } from "./types";
 
@@ -130,6 +131,15 @@ export function getPlayerSplits(
 ): Promise<PlayerSplits> {
   return apiGet<PlayerSplits>(
     `/api/v1/players/${encodeURIComponent(playerId)}/splits${windowQuery(window)}`,
+  );
+}
+
+export function getSimilarPlayers(
+  playerId: string,
+  window: SeasonWindow = {},
+): Promise<SimilarPlayers> {
+  return apiGet<SimilarPlayers>(
+    `/api/v1/players/${encodeURIComponent(playerId)}/similar${windowQuery(window)}`,
   );
 }
 

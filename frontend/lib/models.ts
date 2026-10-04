@@ -5,6 +5,7 @@
  */
 import ballOutcomeData from "@/data/models/ball-outcome.json";
 import projectionData from "@/data/models/score-projection.json";
+import ratingsData from "@/data/models/ratings.json";
 import data from "@/data/models/win-probability.json";
 
 export interface Metrics {
@@ -249,3 +250,61 @@ export interface BallOutcomeInsights {
 }
 
 export const BALL_OUTCOME = ballOutcomeData as unknown as BallOutcomeInsights;
+
+// ---------------------------------------------------------------- ratings
+
+export interface RatingComponentEvaluation {
+  key: string;
+  role: "batting" | "bowling";
+  label: string;
+  description: string;
+  unit: string;
+  unit_label: string;
+  exposure: "balls" | "innings";
+  k: number;
+  k_validation: number;
+  sigma2: number;
+  weight_at: Record<string, number>;
+  year_to_year: { r: number | null; pairs: number };
+  split_half: { r: number | null; players: number };
+  next_season: {
+    pairs: number;
+    mse?: { par: number; raw: number; shrunk: number };
+    skill_vs_par?: number;
+    skill_vs_raw?: number;
+  };
+  stability: "high" | "moderate" | "low";
+}
+
+export interface StyleRetrieval {
+  players: number;
+  candidates_median: number;
+  top1: number;
+  top5: number;
+  chance_top1: number;
+  chance_top5: number;
+  median_rank: number;
+  features: { key: string; label: string }[];
+}
+
+export interface RatingsInsights {
+  name: string;
+  version: string;
+  data_version: string;
+  trained_on: { seasons: number[] };
+  splits: { test_from: number };
+  stability: Record<"high" | "moderate", number>;
+  season_factor: number;
+  thresholds: {
+    min_balls: number;
+    min_subset_balls: number;
+    min_innings: number;
+    min_rated_balls: number;
+    min_profile_balls: number;
+    style_min_balls: number;
+  };
+  components: RatingComponentEvaluation[];
+  similarity: Record<"batting" | "bowling", StyleRetrieval>;
+}
+
+export const RATINGS = ratingsData as unknown as RatingsInsights;

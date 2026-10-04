@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   dismissalLabel,
-  formatMetric,
+  formatRatingValue,
   isBetter,
   ordinal,
   parseSeason,
+  ratingBand,
   roleLabel,
   seasonRanges,
   signed,
@@ -41,12 +42,26 @@ describe("player formatting", () => {
     expect(seasonRanges([])).toBe("");
   });
 
-  it("formats metrics by unit", () => {
-    expect(formatMetric({ value: 3.4, unit: "runs_per_100" })).toBe("+3.4 per 100 balls");
-    expect(formatMetric({ value: -2.64, unit: "runs_per_over" })).toBe("−2.64 per over");
-    expect(formatMetric({ value: 43.06, unit: "percent" })).toBe("+43%");
-    expect(formatMetric({ value: 1.74, unit: "points" })).toBe("+1.7 pts");
-    expect(formatMetric({ value: null, unit: "points" })).toBe("—");
+  it("formats rating estimates by unit", () => {
+    expect(formatRatingValue(3.4, "runs_per_100")).toBe("+3.4 runs per 100 balls");
+    expect(formatRatingValue(-0.49, "runs_per_over")).toBe("−0.49 runs saved per over");
+    expect(formatRatingValue(1.27, "dismissals_per_100")).toBe(
+      "+1.27 dismissals avoided per 100 balls",
+    );
+    expect(formatRatingValue(0.14, "wickets_per_4_overs")).toBe("+0.14 wickets per 4 overs");
+    expect(formatRatingValue(42.37, "percent")).toBe("42% of innings");
+    expect(formatRatingValue(1.53, "points")).toBe("+1.5 pts per innings");
+    expect(formatRatingValue(null, "points")).toBe("—");
+  });
+
+  it("describes ratings in words", () => {
+    expect([95, 75, 50, 12, 3].map(ratingBand)).toEqual([
+      "Elite",
+      "Strong",
+      "Average",
+      "Weak",
+      "Poor",
+    ]);
   });
 
   it("knows which direction is better", () => {

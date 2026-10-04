@@ -6,21 +6,11 @@ import type {
   BattingInnings,
   BowlingInnings,
   DismissalCount,
-  PercentileGroup,
   PhaseBatting,
   PhaseBowling,
 } from "@/lib/api/types";
 import { formatDate } from "@/lib/format";
-import {
-  PLAYER_SERIES,
-  dismissalLabel,
-  formatMetric,
-  formatWpa,
-  isBetter,
-  ordinal,
-  rate,
-  signed,
-} from "@/lib/players";
+import { PLAYER_SERIES, dismissalLabel, formatWpa, isBetter, rate, signed } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { scrollRegion } from "@/lib/a11y";
 
@@ -103,88 +93,6 @@ export function Panel({
       )}
       <div className="mt-5">{children}</div>
     </section>
-  );
-}
-
-// --------------------------------------------------------------------------- percentiles
-
-export function PercentileBars({
-  group,
-  noun,
-  window,
-}: {
-  group: PercentileGroup;
-  noun: "batters" | "bowlers";
-  window: string;
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      {!group.qualified && (
-        <p className="rounded-lg border border-dashed border-border px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-          Not ranked: percentiles need {group.min_balls} balls in the selected seasons, and this
-          window has {group.balls}. The numbers are still shown.
-        </p>
-      )}
-      <ul className="flex flex-col gap-4">
-        {group.items.map((item) => (
-          <li
-            key={item.key}
-            className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_13rem] sm:items-center sm:gap-4"
-          >
-            <div className="min-w-0">
-              <p className="text-sm" title={item.description}>
-                {item.label}
-              </p>
-              <p className="font-mono text-xs text-muted-foreground tabular-nums">
-                {formatMetric(item)}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span
-                className="relative h-2 flex-1 rounded-full bg-muted"
-                role="img"
-                aria-label={
-                  item.percentile === null
-                    ? `${item.label}: not ranked`
-                    : `${item.label}: ${ordinal(item.percentile)} percentile`
-                }
-              >
-                {item.percentile !== null && (
-                  <span
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{
-                      width: `${Math.max(item.percentile, 2)}%`,
-                      background: PLAYER_SERIES.player.color,
-                    }}
-                  />
-                )}
-                <span
-                  aria-hidden="true"
-                  className="absolute -inset-y-1 left-1/2 w-px bg-foreground/30"
-                />
-              </span>
-              <span className="w-12 text-right font-mono text-sm tabular-nums">
-                {item.percentile === null ? (
-                  <span
-                    className="text-xs text-muted-foreground"
-                    title={`Needs ${item.min_balls} balls; has ${item.balls}`}
-                  >
-                    n/a
-                  </span>
-                ) : (
-                  ordinal(item.percentile)
-                )}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        Percentile among {group.population} {noun} with {group.min_balls}+ balls in {window}. Phase
-        rows need 120 balls in that phase. The tick marks the median. Par is the league rate for the
-        same season and phase, so eras and roles compare fairly.
-      </p>
-    </div>
   );
 }
 

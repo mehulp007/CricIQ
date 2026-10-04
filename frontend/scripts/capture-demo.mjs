@@ -49,6 +49,14 @@ await page.goto(`${baseUrl}/matchups?batter=ba607b88&bowler=462411b3`, {
 await scrollTo(page.getByRole("heading", { name: "Three ways to read the record" }));
 await page.screenshot({ path: path.join(images, "matchup.png") });
 
+await page.goto(`${baseUrl}/compare?a=ba607b88&b=740742ef`, { waitUntil: "networkidle" });
+await scrollTo(page.getByRole("heading", { name: "Batting side by side" }));
+await page.screenshot({ path: path.join(images, "compare.png") });
+
+await page.goto(`${baseUrl}/players/462411b3`, { waitUntil: "networkidle" });
+await scrollTo(page.getByRole("heading", { name: "CricIQ Ratings" }));
+await page.screenshot({ path: path.join(images, "ratings.png") });
+
 // The 2019 final, from the start of the last over of the chase.
 await page.goto(`${baseUrl}/matches/1181768`, { waitUntil: "networkidle" });
 await page.locator("[data-replay-ready]").waitFor();

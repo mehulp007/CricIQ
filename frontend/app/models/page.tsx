@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { BallOutcomeInsights } from "@/components/models/ball-outcome-insights";
+import { RatingsInsights } from "@/components/models/ratings-insights";
 import { ScoreProjectionInsights } from "@/components/models/score-projection-insights";
 import { WinProbabilityInsights } from "@/components/models/win-probability-insights";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const metadata: Metadata = {
   title: "Model Insights",
   description:
-    "How CricIQ's win probability, score projection and ball-outcome models were built and tested: calibration, season-by-season backtests, rejected features and limitations.",
+    "How CricIQ's win probability, score projection and ball-outcome models and CricIQ Ratings were built and tested: calibration, season-by-season backtests, shrinkage, stability, rejected features and limitations.",
 };
 
 export default function ModelInsightsPage() {
@@ -18,8 +19,9 @@ export default function ModelInsightsPage() {
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Model Insights</h1>
         <p className="max-w-3xl leading-relaxed text-muted-foreground">
           Three models: each side&apos;s chance of winning after every ball, the projected total
-          during the first innings, and the outcome of the next ball behind the Matchup Lab. This
-          page shows how each was built and tested, and where it falls short.
+          during the first innings, and the outcome of the next ball behind the Matchup Lab; plus
+          CricIQ Ratings, which rate players with honest allowances for sample size. This page shows
+          how each was built and tested, and where it falls short.
         </p>
       </header>
 
@@ -28,6 +30,7 @@ export default function ModelInsightsPage() {
           <TabsTrigger value="win-probability">Win probability</TabsTrigger>
           <TabsTrigger value="score-projection">Score projection</TabsTrigger>
           <TabsTrigger value="ball-outcome">Ball outcome</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
         </TabsList>
         <TabsContent value="win-probability" className="mt-6">
           <WinProbabilityInsights />
@@ -37,6 +40,9 @@ export default function ModelInsightsPage() {
         </TabsContent>
         <TabsContent value="ball-outcome" className="mt-6">
           <BallOutcomeInsights />
+        </TabsContent>
+        <TabsContent value="ratings" className="mt-6">
+          <RatingsInsights />
         </TabsContent>
       </Tabs>
     </div>

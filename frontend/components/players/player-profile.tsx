@@ -1,4 +1,4 @@
-import { CalendarDays, Flag, Hand } from "lucide-react";
+import { CalendarDays, Flag, GitCompareArrows, Hand } from "lucide-react";
 import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
@@ -10,15 +10,22 @@ import {
   DismissalBars,
   Panel,
   ParDelta,
-  PercentileBars,
   RecentBattingTable,
   RecentBowlingTable,
   StatTile,
   WpaNote,
 } from "@/components/players/profile-parts";
+import { RatingBars } from "@/components/players/ratings";
+import { SimilarPlayers } from "@/components/players/similar-players";
 import { BattingSplits, BowlingSplits } from "@/components/players/splits-table";
 import { Badge } from "@/components/ui/badge";
-import type { MatchupList, PlayerProfile, PlayerSplits } from "@/lib/api/types";
+import type {
+  MatchupList,
+  PlayerProfile,
+  PlayerSplits,
+  SimilarPlayers as Similar,
+} from "@/lib/api/types";
+import { compareHref } from "@/lib/compare";
 import { formatDate } from "@/lib/format";
 import {
   figures,
@@ -47,6 +54,13 @@ export function PlayerHeader({ profile }: { profile: PlayerProfile }) {
         <Badge variant="outline" className="text-primary">
           {roleLabel(p.role, p.is_keeper)}
         </Badge>
+        <Link
+          href={compareHref(p.player_id, undefined)}
+          className="inline-flex items-center gap-1.5 text-foreground underline-offset-4 hover:text-primary hover:underline"
+        >
+          <GitCompareArrows className="size-4" aria-hidden="true" />
+          Compare
+        </Link>
         {p.country && (
           <span className="flex items-center gap-1.5">
             <Flag className="size-4" aria-hidden="true" />
@@ -142,6 +156,38 @@ function FieldingPanel({ profile, idPrefix }: { profile: PlayerProfile; idPrefix
   );
 }
 
+function SimilarPanel({
+  profile,
+  similar,
+  role,
+}: {
+  profile: PlayerProfile;
+  similar?: Similar | null;
+  role: "batting" | "bowling";
+}) {
+  const group = similar?.[role];
+  if (!group || group.items.length === 0) return null;
+  const { first_season: debut, last_season: latest } = profile.player;
+  const window = {
+    from: profile.window.first > debut ? profile.window.first : undefined,
+    to: profile.window.last < latest ? profile.window.last : undefined,
+  };
+  return (
+    <Panel
+      id={`${role}-similar`}
+      title={role === "batting" ? "Similar batters" : "Similar bowlers"}
+      lede="Closest playing styles over the same seasons."
+    >
+      <SimilarPlayers
+        group={group}
+        playerId={profile.player.player_id}
+        role={role}
+        window={window}
+      />
+    </Panel>
+  );
+}
+
 function windowLabel(profile: PlayerProfile): string {
   const first = Math.max(profile.window.first, profile.player.first_season);
   const last = Math.min(profile.window.last, profile.player.last_season);
@@ -152,10 +198,12 @@ export function BattingView({
   profile,
   splits,
   matchups,
+  similar,
 }: {
   profile: PlayerProfile;
   splits: PlayerSplits;
   matchups?: MatchupList | null;
+  similar?: Similar | null;
 }) {
   const b = profile.batting!;
   const window = windowLabel(profile);
@@ -205,22 +253,25 @@ export function BattingView({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        {profile.percentiles.batting && (
+        {profile.ratings?.batting && (
           <Panel
-            id="batting-percentiles"
-            title="Against other batters"
-            lede={`Each measure is relative to par, then ranked against qualified batters in ${window}.`}
+            id="batting-ratings"
+            title="CricIQ Ratings"
+            lede={`Batting against qualified batters in ${window}, measured against par and adjusted for sample size.`}
           >
-            <PercentileBars group={profile.percentiles.batting} noun="batters" window={window} />
+            <RatingBars group={profile.ratings?.batting} noun="batters" window={window} />
           </Panel>
         )}
-        <Panel
-          id="batting-phases"
-          title="By phase"
-          lede="Where the runs come from, and how each phase compares with par."
-        >
-          <BattingPhaseTable rows={profile.phases.batting} />
-        </Panel>
+        <div className="flex min-w-0 flex-col gap-6">
+          <Panel
+            id="batting-phases"
+            title="By phase"
+            lede="Where the runs come from, and how each phase compares with par."
+          >
+            <BattingPhaseTable rows={profile.phases.batting} />
+          </Panel>
+          <SimilarPanel profile={profile} similar={similar} role="batting" />
+        </div>
       </div>
 
       <Panel
@@ -291,10 +342,12 @@ export function BowlingView({
   profile,
   splits,
   matchups,
+  similar,
 }: {
   profile: PlayerProfile;
   splits: PlayerSplits;
   matchups?: MatchupList | null;
+  similar?: Similar | null;
 }) {
   const b = profile.bowling!;
   const window = windowLabel(profile);
@@ -342,22 +395,25 @@ export function BowlingView({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        {profile.percentiles.bowling && (
+        {profile.ratings?.bowling && (
           <Panel
-            id="bowling-percentiles"
-            title="Against other bowlers"
-            lede={`Each measure is relative to par, then ranked against qualified bowlers in ${window}.`}
+            id="bowling-ratings"
+            title="CricIQ Ratings"
+            lede={`Bowling against qualified bowlers in ${window}, measured against par and adjusted for sample size.`}
           >
-            <PercentileBars group={profile.percentiles.bowling} noun="bowlers" window={window} />
+            <RatingBars group={profile.ratings?.bowling} noun="bowlers" window={window} />
           </Panel>
         )}
-        <Panel
-          id="bowling-phases"
-          title="By phase"
-          lede="When the overs are bowled, and the economy against par for each phase."
-        >
-          <BowlingPhaseTable rows={profile.phases.bowling} />
-        </Panel>
+        <div className="flex min-w-0 flex-col gap-6">
+          <Panel
+            id="bowling-phases"
+            title="By phase"
+            lede="When the overs are bowled, and the economy against par for each phase."
+          >
+            <BowlingPhaseTable rows={profile.phases.bowling} />
+          </Panel>
+          <SimilarPanel profile={profile} similar={similar} role="bowling" />
+        </div>
       </div>
 
       <Panel

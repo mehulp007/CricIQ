@@ -11,6 +11,8 @@ const PAGES = [
   "/players/ba607b88",
   "/matchups",
   "/matchups?batter=ba607b88&bowler=462411b3",
+  "/compare",
+  "/compare?a=ba607b88&b=b8a55852",
   "/models",
   "/about",
 ];

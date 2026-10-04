@@ -19,7 +19,7 @@ test.describe("player lab", () => {
       "aria-selected",
       "true",
     );
-    await expect(page.getByText("Economy vs par", { exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "CricIQ Ratings" })).toContainText("Economy");
     await expect(page.getByRole("region", { name: "By phase", exact: true })).toContainText(
       "Death overs",
     );

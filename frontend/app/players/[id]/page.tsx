@@ -10,6 +10,7 @@ import {
   getMatchups,
   getPlayer,
   getPlayerSplits,
+  getSimilarPlayers,
   type SeasonWindow as Window,
 } from "@/lib/api/client";
 import type { PlayerProfile } from "@/lib/api/types";
@@ -59,7 +60,7 @@ export default async function PlayerPage({ params, searchParams }: PageProps<"/p
   // Matchups are an extra: the profile still renders if they are unavailable.
   const opponents = (side: "batter" | "bowler") =>
     getMatchups({ [side]: id, ...window, minBalls: 12, pageSize: 6 }).catch(() => null);
-  const [profile, splits, bowlersFaced, battersFaced] = await Promise.all([
+  const [profile, splits, bowlersFaced, battersFaced, similar] = await Promise.all([
     loadProfile(id, window),
     getPlayerSplits(id, window).catch((error: unknown) => {
       if (error instanceof ApiError && error.status === 404) notFound();
@@ -67,6 +68,7 @@ export default async function PlayerPage({ params, searchParams }: PageProps<"/p
     }),
     opponents("batter"),
     opponents("bowler"),
+    getSimilarPlayers(id, window).catch(() => null),
   ]);
   const { player } = profile;
   const first = Math.max(profile.window.first, player.first_season);
@@ -99,12 +101,22 @@ export default async function PlayerPage({ params, searchParams }: PageProps<"/p
           </TabsList>
           {hasBatting && (
             <TabsContent value="batting" className="mt-6">
-              <BattingView profile={profile} splits={splits} matchups={bowlersFaced} />
+              <BattingView
+                profile={profile}
+                splits={splits}
+                matchups={bowlersFaced}
+                similar={similar}
+              />
             </TabsContent>
           )}
           {hasBowling && (
             <TabsContent value="bowling" className="mt-6">
-              <BowlingView profile={profile} splits={splits} matchups={battersFaced} />
+              <BowlingView
+                profile={profile}
+                splits={splits}
+                matchups={battersFaced}
+                similar={similar}
+              />
             </TabsContent>
           )}
         </Tabs>

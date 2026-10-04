@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { FEATURED } from "@/lib/featured";
 import { SITE_URL } from "@/lib/site";
 
-const PAGES = ["", "/matches", "/players", "/matchups", "/models", "/about"];
+const PAGES = ["", "/matches", "/players", "/matchups", "/compare", "/models", "/about"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

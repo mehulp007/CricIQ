@@ -4,12 +4,12 @@ import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DATA_VERSION } from "@/lib/featured";
-import { BALL_OUTCOME, SCORE_PROJECTION, WIN_PROBABILITY, seasonSpan } from "@/lib/models";
+import { BALL_OUTCOME, RATINGS, SCORE_PROJECTION, WIN_PROBABILITY, seasonSpan } from "@/lib/models";
 
 export const metadata: Metadata = {
   title: "About & Methodology",
   description:
-    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, matchup shrinkage and limitations.",
+    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, CricIQ Ratings, similar players, matchup shrinkage and limitations.",
 };
 
 const PRINCIPLES: { title: string; body: string }[] = [
@@ -74,6 +74,10 @@ export default function AboutPage() {
   const bo = BALL_OUTCOME.test;
   const boGain = (bo.baseline.log_loss - bo.model.log_loss) / bo.baseline.log_loss;
   const kappa = Math.round(BALL_OUTCOME.kappa);
+  const economy = RATINGS.components.find((c) => c.role === "bowling" && c.key === "economy");
+  const wickets = RATINGS.components.find((c) => c.role === "bowling" && c.key === "wickets");
+  const scoring = RATINGS.components.find((c) => c.role === "batting" && c.key === "scoring");
+  const low = RATINGS.components.filter((c) => c.stability === "low");
 
   return (
     <div className="flex max-w-3xl flex-col gap-12">
@@ -169,6 +173,43 @@ export default function AboutPage() {
         <p>
           Par adjusts for season and phase only, not venue, match situation or opposition quality,
           and at the death it includes tailenders, which flatters top-order batters a little.
+        </p>
+      </Section>
+
+      <Section id="ratings" title="CricIQ Ratings: honest about sample size">
+        <p>
+          A rating places a player among the regulars of the same seasons (
+          {RATINGS.thresholds.min_balls}+ balls in the role) on one thing they do: run scoring,
+          survival, each phase, chasing, impact and consistency for batters; economy, wicket-taking,
+          each phase, defending, impact and consistency for bowlers. Every measure is against par,
+          and there is deliberately no single overall number.
+        </p>
+        <p>
+          Before ranking, each record is blended with the average:{" "}
+          <span className="font-mono text-foreground">
+            estimate = (own evidence + k × average) ÷ (own balls + k)
+          </span>
+          . The constant <Strong>k</Strong> is fitted per measure so a season&apos;s blended record
+          best predicts the player&apos;s next season. A batter&apos;s strike rate against par needs
+          about {Math.round(scoring?.k ?? 0)} balls before it counts for half the estimate; a
+          bowler&apos;s economy needs {Math.round(economy?.k ?? 0)}, but wickets against par need{" "}
+          {Math.round(wickets?.k ?? 0).toLocaleString("en-IN")}, because over a season they are
+          mostly luck. The rating is the share of qualified players with a lower estimate, shown
+          with a 90% interval.
+        </p>
+        <p>
+          Some ratings barely carry over from one season to the next (
+          {low.map((c) => `${c.role} ${c.label.toLowerCase()}`).join(", ")}); they are marked{" "}
+          <Strong>low stability</Strong>. The full evaluation is on{" "}
+          <A href="/models">Model Insights</A>.
+        </p>
+        <p>
+          <Strong>Similar players</Strong> compares style profiles: per-ball rates against par
+          (scoring, boundaries, dots, dismissals, or runs conceded) and how a player is used
+          (phases, batting position, workload, pace or spin), standardised within the same seasons.
+          From one season&apos;s profile, the same bowler is among the five closest next season{" "}
+          {Math.round(100 * RATINGS.similarity.bowling.top5)}% of the time, against{" "}
+          {Math.round(100 * RATINGS.similarity.bowling.chance_top5)}% by chance.
         </p>
       </Section>
 

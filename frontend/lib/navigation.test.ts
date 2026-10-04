@@ -7,6 +7,7 @@ const matches = PRIMARY_NAV.find((i) => i.href === "/matches")!;
 const players = PRIMARY_NAV.find((i) => i.href === "/players")!;
 const matchups = PRIMARY_NAV.find((i) => i.href === "/matchups")!;
 const compare = PRIMARY_NAV.find((i) => i.href === "/compare")!;
+const teams = PRIMARY_NAV.find((i) => i.href === "/teams")!;
 const models = PRIMARY_NAV.find((i) => i.href === "/models")!;
 
 describe("navigation", () => {
@@ -21,7 +22,8 @@ describe("navigation", () => {
     expect(isAvailable(models)).toBe(true);
     expect(isAvailable(players)).toBe(true);
     expect(isAvailable(matchups)).toBe(true);
-    expect(isAvailable(compare)).toBe(false);
+    expect(isAvailable(compare)).toBe(true);
+    expect(isAvailable(teams)).toBe(false);
   });
 
   it("matches the root route exactly", () => {

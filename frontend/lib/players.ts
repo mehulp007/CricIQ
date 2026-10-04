@@ -3,7 +3,7 @@
  * computed (including "par": what an average IPL player would have produced
  * from the same balls); this module only formats and labels them.
  */
-import type { Percentile, PlayerRole } from "@/lib/api/types";
+import type { PlayerRole, Rating, RatingUnit } from "@/lib/api/types";
 
 /** Chart roles: the player in the brand colour, par in neutral grey. */
 export const PLAYER_SERIES = {
@@ -68,20 +68,39 @@ export function seasonRanges(seasons: number[]): string {
   return sorted.length ? ranges.join(", ") : "";
 }
 
-/** A percentile metric's value with its unit, e.g. "+3.4 per 100 balls". */
-export function formatMetric(item: Pick<Percentile, "value" | "unit">): string {
-  if (item.value === null || item.value === undefined) return "—";
-  switch (item.unit) {
+/** A rating's estimate in its unit, e.g. "+3.4 runs per 100 balls" or "42% of innings". */
+export function formatRatingValue(value: number | null | undefined, unit: RatingUnit): string {
+  if (value === null || value === undefined) return "—";
+  switch (unit) {
     case "runs_per_100":
-      return `${signed(item.value)} per 100 balls`;
+      return `${signed(value)} runs per 100 balls`;
+    case "dismissals_per_100":
+      return `${signed(value, 2)} dismissals avoided per 100 balls`;
     case "runs_per_over":
-      return `${signed(item.value, 2)} per over`;
-    case "percent":
-      return `${signed(item.value, 0)}%`;
+      return `${signed(value, 2)} runs saved per over`;
+    case "wickets_per_4_overs":
+      return `${signed(value, 2)} wickets per 4 overs`;
     case "points":
-      return `${signed(item.value)} pts`;
+      return `${signed(value)} pts per innings`;
+    case "percent":
+      return `${value.toFixed(0)}% of innings`;
   }
 }
+
+/** Plain-language strength of a rating, from its percentile. */
+export function ratingBand(rating: number): string {
+  if (rating >= 90) return "Elite";
+  if (rating >= 70) return "Strong";
+  if (rating >= 30) return "Average";
+  if (rating >= 10) return "Weak";
+  return "Poor";
+}
+
+export const STABILITY_LABELS: Record<Rating["stability"], string> = {
+  high: "Holds up from season to season",
+  moderate: "Partly carries over from season to season",
+  low: "Mostly luck within a season",
+};
 
 /** Whether a difference from par is good for the player. */
 export function isBetter(delta: number, higherIsBetter: boolean): boolean {

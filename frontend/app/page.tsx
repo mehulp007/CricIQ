@@ -5,10 +5,10 @@ import {
   BrainCircuit,
   CircleCheck,
   CircleDashed,
+  GitCompareArrows,
   Loader,
   Play,
   Swords,
-  TrendingUp,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -33,20 +33,20 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; href: strin
   {
     icon: BrainCircuit,
     title: "Explainable win probability",
-    body: "Each side's chance after every ball, with the reasons in cricket terms and a model you can inspect.",
+    body: "Each side's chance after every ball with the reasons in cricket terms, and the projected first-innings total with an 80% range that holds up.",
     href: "/matches/1181768",
-  },
-  {
-    icon: TrendingUp,
-    title: "Score projection",
-    body: "The projected first-innings total after every ball, with an 80% range that holds up and the odds of passing any score.",
-    href: "/matches/1426268",
   },
   {
     icon: Users,
     title: "Player Lab",
-    body: "Every player's career measured against par for the same seasons and phases, with percentiles, splits and win probability added.",
+    body: "Every player's career measured against par, with CricIQ Ratings that allow for sample size, splits, win probability added and similar players.",
     href: "/players",
+  },
+  {
+    icon: GitCompareArrows,
+    title: "Compare players",
+    body: "Any two players over the same seasons: numbers against par, ratings with intervals, and their seasons lined up by year or by age.",
+    href: "/compare",
   },
   {
     icon: Swords,
@@ -218,9 +218,9 @@ export default function OverviewPage() {
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           CricIQ turns every IPL delivery since 2008 into interactive analytics. Replay any match
-          with each side&apos;s chance of winning after every ball, explore any player&apos;s career
-          against par, and read any batter-vs-bowler rivalry without over-reading small samples.
-          Every number comes from a tested model you can inspect.
+          with each side&apos;s chance of winning after every ball, explore and compare any
+          player&apos;s career against par, and read any batter-vs-bowler rivalry without
+          over-reading small samples. Every number comes from a tested model you can inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link

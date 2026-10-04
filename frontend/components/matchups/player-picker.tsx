@@ -26,11 +26,13 @@ export function PlayerPicker({
   label,
   value,
   role,
+  placeholder,
   onChange,
 }: {
   label: string;
   value: PickedPlayer | null;
   role: "batter" | "bowler";
+  placeholder?: string;
   onChange: (player: PickedPlayer | null) => void;
 }) {
   const id = useId();
@@ -117,7 +119,7 @@ export function PlayerPicker({
           aria-autocomplete="list"
           aria-activedescendant={showList && options[active] ? `${listId}-${active}` : undefined}
           value={query}
-          placeholder={role === "batter" ? "Search a batter" : "Search a bowler"}
+          placeholder={placeholder ?? (role === "batter" ? "Search a batter" : "Search a bowler")}
           autoComplete="off"
           spellCheck={false}
           onChange={(e) => {

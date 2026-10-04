@@ -61,7 +61,7 @@ export const ROADMAP: readonly Milestone[] = [
     id: "V1-a",
     title: "Compare, ratings and similar players",
     summary: "Side-by-side player comparison, transparent CricIQ Ratings and look-alike players.",
-    status: "planned",
+    status: "done",
   },
   {
     id: "V1-b",

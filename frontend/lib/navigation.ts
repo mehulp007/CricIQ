@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type MilestoneId = "M0" | "M2" | "M3" | "M5" | "M6" | "V1";
+export type MilestoneId = "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d";
 
 export interface NavItem {
   href: string;
@@ -27,17 +27,24 @@ export interface NavItem {
  * sidebar as "coming soon" so the product shape is visible from day one, but
  * are never linked to placeholder content.
  */
-export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set(["M0", "M2", "M3", "M5", "M6"]);
+export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
+  "M0",
+  "M2",
+  "M3",
+  "M5",
+  "M6",
+  "V1-a",
+]);
 
 export const PRIMARY_NAV: readonly NavItem[] = [
   { href: "/", label: "Overview", icon: LayoutDashboard, milestone: "M0" },
   { href: "/matches", label: "Matches", icon: CalendarRange, milestone: "M2" },
   { href: "/players", label: "Players", icon: Users, milestone: "M5" },
   { href: "/matchups", label: "Matchups", icon: Swords, milestone: "M6" },
-  { href: "/compare", label: "Compare", icon: GitCompareArrows, milestone: "V1" },
-  { href: "/teams", label: "Teams", icon: Shield, milestone: "V1" },
-  { href: "/simulator", label: "Simulator", icon: Dices, milestone: "V1" },
-  { href: "/lab", label: "Analytics Lab", icon: FlaskConical, milestone: "V1" },
+  { href: "/compare", label: "Compare", icon: GitCompareArrows, milestone: "V1-a" },
+  { href: "/teams", label: "Teams", icon: Shield, milestone: "V1-c" },
+  { href: "/simulator", label: "Simulator", icon: Dices, milestone: "V1-d" },
+  { href: "/lab", label: "Analytics Lab", icon: FlaskConical, milestone: "V1-b" },
   { href: "/models", label: "Model Insights", icon: BrainCircuit, milestone: "M3" },
 ];
 

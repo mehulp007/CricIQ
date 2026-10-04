@@ -78,7 +78,7 @@ export function StabilityNote({ item }: { item: Rating }) {
   if (item.stability !== "low") return null;
   return (
     <span
-      className="ml-2 rounded border border-dashed border-border px-1.5 py-px text-[10px] tracking-wide text-muted-foreground uppercase"
+      className="ml-2 inline-block rounded border border-dashed border-border px-1.5 py-px text-[10px] tracking-wide whitespace-nowrap text-muted-foreground uppercase"
       title={`${STABILITY_LABELS.low}: a single season's rating barely predicts the next.`}
     >
       Low stability

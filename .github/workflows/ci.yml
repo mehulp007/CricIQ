@@ -129,3 +129,5 @@ jobs:
           curl -sf http://127.0.0.1:10000/api/v1/meta | python3 -c "import json,sys; m=json.load(sys.stdin); print(m['data_version'], len(m['seasons']), 'seasons')"
           curl -sf "http://127.0.0.1:10000/api/v1/players/ba607b88" | python3 -c "import json,sys; p=json.load(sys.stdin); print(p['player']['name'], p['batting']['runs'], 'runs, WPA', p['batting']['wpa'])"
           curl -sf "http://127.0.0.1:10000/api/v1/matchups/ba607b88/462411b3" | python3 -c "import json,sys; m=json.load(sys.stdin); print(m['head_to_head']['balls'], 'balls, estimate SR', m['estimate']['strike_rate']['value'])"
+          curl -sf "http://127.0.0.1:10000/api/v1/players/462411b3" | python3 -c "import json,sys; r=json.load(sys.stdin)['ratings']['bowling']['items'][0]; print(r['label'], r['rating'], (r['low'], r['high']))"
+          curl -sf "http://127.0.0.1:10000/api/v1/players/462411b3/similar" | python3 -c "import json,sys; s=json.load(sys.stdin)['bowling']; print('similar:', [p['name'] for p in s['items']])"

@@ -14,6 +14,15 @@ from pydantic import BaseModel, Field
 
 Role = Literal["batter", "bowler", "all_rounder"]
 Result = Literal["won", "lost", "no_result"]
+RatingUnit = Literal[
+    "runs_per_100",
+    "dismissals_per_100",
+    "runs_per_over",
+    "wickets_per_4_overs",
+    "points",
+    "percent",
+]
+Stability = Literal["high", "moderate", "low"]
 
 
 class TeamTag(BaseModel):
@@ -223,32 +232,42 @@ class PhaseSplits(BaseModel):
     bowling: list[PhaseBowling]
 
 
-class Percentile(BaseModel):
+class Rating(BaseModel):
+    """One CricIQ Rating: a percentile among qualified players, after shrinkage."""
+
     key: str
     label: str
     description: str
-    value: float | None
-    unit: Literal["runs_per_100", "percent", "runs_per_over", "points"]
-    higher_is_better: bool
-    percentile: int | None = Field(
-        description="0-100 among qualified players; None if unqualified."
+    rating: int | None = Field(
+        description="0-100: share of qualified players in the window with a lower estimate. "
+        "None below the minimum sample."
     )
-    balls: int = Field(description="The player's balls behind this metric.")
-    min_balls: int
-    population: int = Field(description="Qualified players compared against.")
+    low: int | None = Field(description="Lower end of the 90% interval of the rating.")
+    high: int | None = Field(description="Upper end of the 90% interval of the rating.")
+    value: float | None = Field(description="Shrunk estimate, in ``unit`` (higher is better).")
+    raw: float | None = Field(description="The player's own record, in ``unit``.")
+    average: float | None = Field(description="Qualified players' average, in ``unit``.")
+    unit: RatingUnit
+    exposure: int = Field(description="Balls or innings behind the estimate.")
+    exposure_unit: Literal["balls", "innings"]
+    weight: float = Field(description="Share of the estimate that comes from the player's record.")
+    qualified: bool = Field(description="Whether the player is in the reference population.")
+    stability: Stability = Field(
+        description="How strongly single-season ratings persist into the next season."
+    )
 
 
-class PercentileGroup(BaseModel):
-    qualified: bool
+class RatingGroup(BaseModel):
+    qualified: bool = Field(description="At least ``min_balls`` in the role in the window.")
     balls: int
     min_balls: int
-    population: int
-    items: list[Percentile]
+    population: int = Field(description="Qualified players in the window.")
+    items: list[Rating]
 
 
-class Percentiles(BaseModel):
-    batting: PercentileGroup | None
-    bowling: PercentileGroup | None
+class Ratings(BaseModel):
+    batting: RatingGroup | None
+    bowling: RatingGroup | None
 
 
 class BattingInnings(BaseModel):
@@ -306,7 +325,7 @@ class PlayerProfile(BaseModel):
     fielding: FieldingSummary
     seasons: list[SeasonLine]
     phases: PhaseSplits
-    percentiles: Percentiles
+    ratings: Ratings
     recent: RecentInnings
     dismissals: Dismissals
 
@@ -362,3 +381,29 @@ class PlayerSplits(BaseModel):
     window: SeasonWindow
     batting: list[BattingSplitGroup]
     bowling: list[BowlingSplitGroup]
+
+
+# --------------------------------------------------------------------------- similar players
+
+
+class SimilarPlayer(BaseModel):
+    player_id: str
+    name: str
+    role: Role
+    team: TeamTag | None = Field(description="Most recent team.")
+    similarity: float = Field(description="Cosine similarity of the two style profiles (-1 to 1).")
+    balls: int = Field(description="The player's balls in the role in the window.")
+    shared: list[str] = Field(description="Style traits both players share.")
+
+
+class StyleGroup(BaseModel):
+    traits: list[str] = Field(description="The player's most distinctive traits.")
+    population: int = Field(description="Players compared (at least the minimum balls).")
+    min_balls: int
+    items: list[SimilarPlayer]
+
+
+class SimilarPlayers(BaseModel):
+    window: SeasonWindow
+    batting: StyleGroup | None
+    bowling: StyleGroup | None

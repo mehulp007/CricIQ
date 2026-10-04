@@ -32,6 +32,7 @@ def _warm_up(db: Database) -> None:
         if busiest is not None:
             players_service.get_profile(db, busiest)
             players_service.get_splits(db, busiest)
+            players_service.get_similar(db, busiest)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

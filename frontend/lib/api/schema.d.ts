@@ -157,9 +157,29 @@ export interface paths {
         };
         /**
          * Read Player
-         * @description Profile: batting and bowling against par, seasons, phases, percentiles and recent form.
+         * @description Profile: batting and bowling against par, seasons, phases, ratings and recent form.
          */
         get: operations["read_player_api_v1_players__player_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/players/{player_id}/similar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Similar
+         * @description Players with the most similar batting and bowling styles in the same seasons.
+         */
+        get: operations["read_similar_api_v1_players__player_id__similar_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -997,59 +1017,6 @@ export interface components {
             /** Probability */
             probability: number;
         };
-        /** Percentile */
-        Percentile: {
-            /**
-             * Balls
-             * @description The player's balls behind this metric.
-             */
-            balls: number;
-            /** Description */
-            description: string;
-            /** Higher Is Better */
-            higher_is_better: boolean;
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            /** Min Balls */
-            min_balls: number;
-            /**
-             * Percentile
-             * @description 0-100 among qualified players; None if unqualified.
-             */
-            percentile: number | null;
-            /**
-             * Population
-             * @description Qualified players compared against.
-             */
-            population: number;
-            /**
-             * Unit
-             * @enum {string}
-             */
-            unit: "runs_per_100" | "percent" | "runs_per_over" | "points";
-            /** Value */
-            value: number | null;
-        };
-        /** PercentileGroup */
-        PercentileGroup: {
-            /** Balls */
-            balls: number;
-            /** Items */
-            items: components["schemas"]["Percentile"][];
-            /** Min Balls */
-            min_balls: number;
-            /** Population */
-            population: number;
-            /** Qualified */
-            qualified: boolean;
-        };
-        /** Percentiles */
-        Percentiles: {
-            batting: components["schemas"]["PercentileGroup"] | null;
-            bowling: components["schemas"]["PercentileGroup"] | null;
-        };
         /** PhaseBatting */
         PhaseBatting: {
             /** Average */
@@ -1217,9 +1184,9 @@ export interface components {
             bowling: components["schemas"]["BowlingSummary"] | null;
             dismissals: components["schemas"]["Dismissals"];
             fielding: components["schemas"]["FieldingSummary"];
-            percentiles: components["schemas"]["Percentiles"];
             phases: components["schemas"]["PhaseSplits"];
             player: components["schemas"]["PlayerBio"];
+            ratings: components["schemas"]["Ratings"];
             recent: components["schemas"]["RecentInnings"];
             /** Seasons */
             seasons: components["schemas"]["SeasonLine"][];
@@ -1239,6 +1206,103 @@ export interface components {
             /** Bowling */
             bowling: components["schemas"]["BowlingSplitGroup"][];
             window: components["schemas"]["SeasonWindow"];
+        };
+        /**
+         * Rating
+         * @description One CricIQ Rating: a percentile among qualified players, after shrinkage.
+         */
+        Rating: {
+            /**
+             * Average
+             * @description Qualified players' average, in ``unit``.
+             */
+            average: number | null;
+            /** Description */
+            description: string;
+            /**
+             * Exposure
+             * @description Balls or innings behind the estimate.
+             */
+            exposure: number;
+            /**
+             * Exposure Unit
+             * @enum {string}
+             */
+            exposure_unit: "balls" | "innings";
+            /**
+             * High
+             * @description Upper end of the 90% interval of the rating.
+             */
+            high: number | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Low
+             * @description Lower end of the 90% interval of the rating.
+             */
+            low: number | null;
+            /**
+             * Qualified
+             * @description Whether the player is in the reference population.
+             */
+            qualified: boolean;
+            /**
+             * Rating
+             * @description 0-100: share of qualified players in the window with a lower estimate. None below the minimum sample.
+             */
+            rating: number | null;
+            /**
+             * Raw
+             * @description The player's own record, in ``unit``.
+             */
+            raw: number | null;
+            /**
+             * Stability
+             * @description How strongly single-season ratings persist into the next season.
+             * @enum {string}
+             */
+            stability: "high" | "moderate" | "low";
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "runs_per_100" | "dismissals_per_100" | "runs_per_over" | "wickets_per_4_overs" | "points" | "percent";
+            /**
+             * Value
+             * @description Shrunk estimate, in ``unit`` (higher is better).
+             */
+            value: number | null;
+            /**
+             * Weight
+             * @description Share of the estimate that comes from the player's record.
+             */
+            weight: number;
+        };
+        /** RatingGroup */
+        RatingGroup: {
+            /** Balls */
+            balls: number;
+            /** Items */
+            items: components["schemas"]["Rating"][];
+            /** Min Balls */
+            min_balls: number;
+            /**
+             * Population
+             * @description Qualified players in the window.
+             */
+            population: number;
+            /**
+             * Qualified
+             * @description At least ``min_balls`` in the role in the window.
+             */
+            qualified: boolean;
+        };
+        /** Ratings */
+        Ratings: {
+            batting: components["schemas"]["RatingGroup"] | null;
+            bowling: components["schemas"]["RatingGroup"] | null;
         };
         /** RecentInnings */
         RecentInnings: {
@@ -1358,6 +1422,58 @@ export interface components {
              * @description Last season included.
              */
             last: number;
+        };
+        /** SimilarPlayer */
+        SimilarPlayer: {
+            /**
+             * Balls
+             * @description The player's balls in the role in the window.
+             */
+            balls: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "batter" | "bowler" | "all_rounder";
+            /**
+             * Shared
+             * @description Style traits both players share.
+             */
+            shared: string[];
+            /**
+             * Similarity
+             * @description Cosine similarity of the two style profiles (-1 to 1).
+             */
+            similarity: number;
+            /** @description Most recent team. */
+            team: components["schemas"]["TeamTag"] | null;
+        };
+        /** SimilarPlayers */
+        SimilarPlayers: {
+            batting: components["schemas"]["StyleGroup"] | null;
+            bowling: components["schemas"]["StyleGroup"] | null;
+            window: components["schemas"]["SeasonWindow"];
+        };
+        /** StyleGroup */
+        StyleGroup: {
+            /** Items */
+            items: components["schemas"]["SimilarPlayer"][];
+            /** Min Balls */
+            min_balls: number;
+            /**
+             * Population
+             * @description Players compared (at least the minimum balls).
+             */
+            population: number;
+            /**
+             * Traits
+             * @description The player's most distinctive traits.
+             */
+            traits: string[];
         };
         /** TeamRef */
         TeamRef: {
@@ -1919,6 +2035,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_similar_api_v1_players__player_id__similar_get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimilarPlayers"];
                 };
             };
             /** @description Validation Error */

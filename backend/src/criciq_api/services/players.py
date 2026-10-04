@@ -1,9 +1,8 @@
-"""Assemble Player Lab responses: directory, profiles, percentiles and splits."""
+"""Assemble Player Lab responses: directory, profiles, ratings, splits and similar players."""
 
 from __future__ import annotations
 
 import unicodedata
-from collections.abc import Callable
 from typing import Any
 
 from criciq_api.db import Database, Row
@@ -22,9 +21,6 @@ from criciq_api.schemas.players import (
     Dismissals,
     FieldingSummary,
     HighScore,
-    Percentile,
-    PercentileGroup,
-    Percentiles,
     PhaseBatting,
     PhaseBowling,
     PhaseSplits,
@@ -33,21 +29,21 @@ from criciq_api.schemas.players import (
     PlayerPage,
     PlayerProfile,
     PlayerSplits,
+    Ratings,
     RecentInnings,
     SeasonBatting,
     SeasonBowling,
     SeasonLine,
     SeasonWindow,
+    SimilarPlayers,
     TeamStint,
     TeamTag,
 )
+from criciq_api.services import ratings as rating_service
 from criciq_core.cricket import overs_notation
 from criciq_core.phases import default_phase_config
 
 RECENT_INNINGS = 20
-# Minimum balls in the window to be ranked: overall, and within a phase.
-MIN_BALLS = 300
-MIN_PHASE_BALLS = 120
 
 
 class PlayerNotFoundError(LookupError):
@@ -318,236 +314,6 @@ def _phases(db: Database, player_id: str, w: SeasonWindow) -> PhaseSplits:
     return PhaseSplits(batting=batting, bowling=bowling)
 
 
-# --------------------------------------------------------------------------- percentiles
-
-Metric = Callable[[Row], float | None]
-
-
-def _rank(value: float, population: list[float], higher_is_better: bool) -> int:
-    """Share of the population this value beats (ties count half), 0-100."""
-    worse = sum(1 for v in population if (v < value if higher_is_better else v > value))
-    ties = sum(1 for v in population if v == value) - 1
-    return round(100 * (worse + 0.5 * max(ties, 0)) / max(len(population) - 1, 1))
-
-
-def _group(
-    rows: list[Row],
-    player_id: str,
-    specs: list[tuple[str, str, str, str, bool, str, Metric]],
-) -> PercentileGroup | None:
-    """Rank one player on each metric among players qualified for it.
-
-    Each spec is (key, label, description, unit, higher_is_better, balls column, metric).
-    """
-    by_id = {r["player_id"]: r for r in rows}
-    me = by_id.get(player_id)
-    if me is None or not me["balls"]:
-        return None
-    items = []
-    population_overall = sum(1 for r in rows if r["balls"] >= MIN_BALLS)
-    for key, label, description, unit, higher, balls_key, metric in specs:
-        minimum = MIN_BALLS if balls_key == "balls" else MIN_PHASE_BALLS
-        qualified = [
-            v
-            for r in rows
-            if r[balls_key] >= minimum and r["balls"] >= MIN_BALLS and (v := metric(r)) is not None
-        ]
-        value = metric(me)
-        mine_qualified = me[balls_key] >= minimum and me["balls"] >= MIN_BALLS
-        items.append(
-            Percentile(
-                key=key,
-                label=label,
-                description=description,
-                value=None if value is None else round(value, 2),
-                unit=unit,  # type: ignore[arg-type]
-                higher_is_better=higher,
-                percentile=_rank(value, qualified, higher)
-                if mine_qualified and value is not None
-                else None,
-                balls=int(me[balls_key]),
-                min_balls=minimum,
-                population=len(qualified),
-            )
-        )
-    return PercentileGroup(
-        qualified=me["balls"] >= MIN_BALLS,
-        balls=int(me["balls"]),
-        min_balls=MIN_BALLS,
-        population=population_overall,
-        items=items,
-    )
-
-
-def _with_wpa(rows: list[Row], wpa: dict[str, tuple[float, int]]) -> list[Row]:
-    out = []
-    for r in rows:
-        total, innings = wpa.get(r["player_id"], (0.0, 0))
-        out.append({**r, "wpa_per_innings": total / innings if innings else None})
-    return out
-
-
-def _per_100(above: float, balls: float) -> float | None:
-    return 100 * above / balls if balls else None
-
-
-def _batting_percentiles(db: Database, player_id: str, w: SeasonWindow) -> PercentileGroup | None:
-    rows = _with_wpa(
-        repo.batting_population(db, w.first, w.last),
-        repo.wpa_population(db, "batting", w.first, w.last),
-    )
-    specs: list[tuple[str, str, str, str, bool, str, Metric]] = [
-        (
-            "strike_rate",
-            "Strike rate vs par",
-            "Runs per 100 balls above an average batter facing the same balls.",
-            "runs_per_100",
-            True,
-            "balls",
-            lambda r: _per_100(r["runs"] - r["par_runs"], r["balls"]),
-        ),
-        (
-            "average",
-            "Average vs par",
-            "Runs per dismissal compared with par, as a percentage.",
-            "percent",
-            True,
-            "balls",
-            lambda r: (
-                100 * ((r["runs"] / max(r["outs"], 1)) / (r["par_runs"] / r["par_outs"]) - 1)
-                if r["par_outs"]
-                else None
-            ),
-        ),
-        (
-            "boundaries",
-            "Boundary rate vs par",
-            "Fours and sixes per 100 balls above par.",
-            "points",
-            True,
-            "balls",
-            lambda r: _per_100(r["boundaries"] - r["par_boundaries"], r["balls"]),
-        ),
-        (
-            "dots",
-            "Dot balls vs par",
-            "Dot balls per 100 balls relative to par. Fewer is better.",
-            "points",
-            False,
-            "balls",
-            lambda r: _per_100(r["dots"] - r["par_dots"], r["balls"]),
-        ),
-        (
-            "powerplay",
-            "Powerplay strike rate vs par",
-            "Strike rate above par in overs 1-6.",
-            "runs_per_100",
-            True,
-            "pp_balls",
-            lambda r: _per_100(r["pp_above"], r["pp_balls"]),
-        ),
-        (
-            "death",
-            "Death-overs strike rate vs par",
-            "Strike rate above par in overs 16-20.",
-            "runs_per_100",
-            True,
-            "death_balls",
-            lambda r: _per_100(r["death_above"], r["death_balls"]),
-        ),
-    ]
-    if db.has_table("player_wpa"):
-        specs.append(
-            (
-                "wpa",
-                "Win probability added per innings",
-                "Average change in the team's chance of winning while batting, in points.",
-                "points",
-                True,
-                "balls",
-                lambda r: None if r["wpa_per_innings"] is None else 100 * r["wpa_per_innings"],
-            )
-        )
-    return _group(rows, player_id, specs)
-
-
-def _bowling_percentiles(db: Database, player_id: str, w: SeasonWindow) -> PercentileGroup | None:
-    rows = _with_wpa(
-        repo.bowling_population(db, w.first, w.last),
-        repo.wpa_population(db, "bowling", w.first, w.last),
-    )
-    specs: list[tuple[str, str, str, str, bool, str, Metric]] = [
-        (
-            "economy",
-            "Economy vs par",
-            "Runs per over conceded relative to an average bowler bowling the same balls. "
-            "Lower is better.",
-            "runs_per_over",
-            False,
-            "balls",
-            lambda r: 6 * (r["runs"] - r["par_runs"]) / r["balls"] if r["balls"] else None,
-        ),
-        (
-            "wickets",
-            "Wicket rate vs par",
-            "Wickets per ball compared with par, as a percentage.",
-            "percent",
-            True,
-            "balls",
-            lambda r: 100 * (r["wickets"] / r["par_wickets"] - 1) if r["par_wickets"] else None,
-        ),
-        (
-            "dots",
-            "Dot balls vs par",
-            "Dot balls per 100 balls above par.",
-            "points",
-            True,
-            "balls",
-            lambda r: _per_100(r["dots"] - r["par_dots"], r["balls"]),
-        ),
-        (
-            "boundaries",
-            "Boundaries conceded vs par",
-            "Fours and sixes conceded per 100 balls relative to par. Fewer is better.",
-            "points",
-            False,
-            "balls",
-            lambda r: _per_100(r["boundaries"] - r["par_boundaries"], r["balls"]),
-        ),
-        (
-            "powerplay",
-            "Powerplay economy vs par",
-            "Economy relative to par in overs 1-6. Lower is better.",
-            "runs_per_over",
-            False,
-            "pp_balls",
-            lambda r: 6 * r["pp_above"] / r["pp_balls"] if r["pp_balls"] else None,
-        ),
-        (
-            "death",
-            "Death-overs economy vs par",
-            "Economy relative to par in overs 16-20. Lower is better.",
-            "runs_per_over",
-            False,
-            "death_balls",
-            lambda r: 6 * r["death_above"] / r["death_balls"] if r["death_balls"] else None,
-        ),
-    ]
-    if db.has_table("player_wpa"):
-        specs.append(
-            (
-                "wpa",
-                "Win probability added per innings",
-                "Average change in the team's chance of winning while bowling, in points.",
-                "points",
-                True,
-                "balls",
-                lambda r: None if r["wpa_per_innings"] is None else 100 * r["wpa_per_innings"],
-            )
-        )
-    return _group(rows, player_id, specs)
-
-
 # --------------------------------------------------------------------------- recent form
 
 
@@ -608,9 +374,9 @@ def get_profile(
         fielding=FieldingSummary(**repo.fielding(db, player_id, w.first, w.last)),
         seasons=_seasons(db, player_id, w),
         phases=_phases(db, player_id, w),
-        percentiles=Percentiles(
-            batting=_batting_percentiles(db, player_id, w),
-            bowling=_bowling_percentiles(db, player_id, w),
+        ratings=Ratings(
+            batting=rating_service.ratings(db, player_id, "batting", w),
+            bowling=rating_service.ratings(db, player_id, "bowling", w),
         ),
         recent=_recent(db, player_id, w),
         dismissals=Dismissals(
@@ -801,3 +567,19 @@ def get_splits(
                 )
             )
     return PlayerSplits(window=w, batting=batting, bowling=bowling)
+
+
+# --------------------------------------------------------------------------- similar players
+
+
+def get_similar(
+    db: Database, player_id: str, first: int | None = None, last: int | None = None
+) -> SimilarPlayers:
+    if repo.get_player(db, player_id) is None:
+        raise PlayerNotFoundError(player_id)
+    w = resolve_window(db, first, last)
+    return SimilarPlayers(
+        window=w,
+        batting=rating_service.similar(db, player_id, "batting", w),
+        bowling=rating_service.similar(db, player_id, "bowling", w),
+    )

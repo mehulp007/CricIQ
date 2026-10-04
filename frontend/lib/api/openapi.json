@@ -2383,153 +2383,6 @@
         "title": "OutcomeProbability",
         "type": "object"
       },
-      "Percentile": {
-        "properties": {
-          "balls": {
-            "description": "The player's balls behind this metric.",
-            "title": "Balls",
-            "type": "integer"
-          },
-          "description": {
-            "title": "Description",
-            "type": "string"
-          },
-          "higher_is_better": {
-            "title": "Higher Is Better",
-            "type": "boolean"
-          },
-          "key": {
-            "title": "Key",
-            "type": "string"
-          },
-          "label": {
-            "title": "Label",
-            "type": "string"
-          },
-          "min_balls": {
-            "title": "Min Balls",
-            "type": "integer"
-          },
-          "percentile": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "0-100 among qualified players; None if unqualified.",
-            "title": "Percentile"
-          },
-          "population": {
-            "description": "Qualified players compared against.",
-            "title": "Population",
-            "type": "integer"
-          },
-          "unit": {
-            "enum": [
-              "runs_per_100",
-              "percent",
-              "runs_per_over",
-              "points"
-            ],
-            "title": "Unit",
-            "type": "string"
-          },
-          "value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Value"
-          }
-        },
-        "required": [
-          "key",
-          "label",
-          "description",
-          "value",
-          "unit",
-          "higher_is_better",
-          "percentile",
-          "balls",
-          "min_balls",
-          "population"
-        ],
-        "title": "Percentile",
-        "type": "object"
-      },
-      "PercentileGroup": {
-        "properties": {
-          "balls": {
-            "title": "Balls",
-            "type": "integer"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/Percentile"
-            },
-            "title": "Items",
-            "type": "array"
-          },
-          "min_balls": {
-            "title": "Min Balls",
-            "type": "integer"
-          },
-          "population": {
-            "title": "Population",
-            "type": "integer"
-          },
-          "qualified": {
-            "title": "Qualified",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "qualified",
-          "balls",
-          "min_balls",
-          "population",
-          "items"
-        ],
-        "title": "PercentileGroup",
-        "type": "object"
-      },
-      "Percentiles": {
-        "properties": {
-          "batting": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/PercentileGroup"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "bowling": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/PercentileGroup"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "batting",
-          "bowling"
-        ],
-        "title": "Percentiles",
-        "type": "object"
-      },
       "PhaseBatting": {
         "properties": {
           "average": {
@@ -3133,14 +2986,14 @@
           "fielding": {
             "$ref": "#/components/schemas/FieldingSummary"
           },
-          "percentiles": {
-            "$ref": "#/components/schemas/Percentiles"
-          },
           "phases": {
             "$ref": "#/components/schemas/PhaseSplits"
           },
           "player": {
             "$ref": "#/components/schemas/PlayerBio"
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/Ratings"
           },
           "recent": {
             "$ref": "#/components/schemas/RecentInnings"
@@ -3164,7 +3017,7 @@
           "fielding",
           "seasons",
           "phases",
-          "percentiles",
+          "ratings",
           "recent",
           "dismissals"
         ],
@@ -3215,6 +3068,227 @@
           "bowling"
         ],
         "title": "PlayerSplits",
+        "type": "object"
+      },
+      "Rating": {
+        "description": "One CricIQ Rating: a percentile among qualified players, after shrinkage.",
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Qualified players' average, in ``unit``.",
+            "title": "Average"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "exposure": {
+            "description": "Balls or innings behind the estimate.",
+            "title": "Exposure",
+            "type": "integer"
+          },
+          "exposure_unit": {
+            "enum": [
+              "balls",
+              "innings"
+            ],
+            "title": "Exposure Unit",
+            "type": "string"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Upper end of the 90% interval of the rating.",
+            "title": "High"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Lower end of the 90% interval of the rating.",
+            "title": "Low"
+          },
+          "qualified": {
+            "description": "Whether the player is in the reference population.",
+            "title": "Qualified",
+            "type": "boolean"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0-100: share of qualified players in the window with a lower estimate. None below the minimum sample.",
+            "title": "Rating"
+          },
+          "raw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The player's own record, in ``unit``.",
+            "title": "Raw"
+          },
+          "stability": {
+            "description": "How strongly single-season ratings persist into the next season.",
+            "enum": [
+              "high",
+              "moderate",
+              "low"
+            ],
+            "title": "Stability",
+            "type": "string"
+          },
+          "unit": {
+            "enum": [
+              "runs_per_100",
+              "dismissals_per_100",
+              "runs_per_over",
+              "wickets_per_4_overs",
+              "points",
+              "percent"
+            ],
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Shrunk estimate, in ``unit`` (higher is better).",
+            "title": "Value"
+          },
+          "weight": {
+            "description": "Share of the estimate that comes from the player's record.",
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "description",
+          "rating",
+          "low",
+          "high",
+          "value",
+          "raw",
+          "average",
+          "unit",
+          "exposure",
+          "exposure_unit",
+          "weight",
+          "qualified",
+          "stability"
+        ],
+        "title": "Rating",
+        "type": "object"
+      },
+      "RatingGroup": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Rating"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "min_balls": {
+            "title": "Min Balls",
+            "type": "integer"
+          },
+          "population": {
+            "description": "Qualified players in the window.",
+            "title": "Population",
+            "type": "integer"
+          },
+          "qualified": {
+            "description": "At least ``min_balls`` in the role in the window.",
+            "title": "Qualified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "qualified",
+          "balls",
+          "min_balls",
+          "population",
+          "items"
+        ],
+        "title": "RatingGroup",
+        "type": "object"
+      },
+      "Ratings": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RatingGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RatingGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "batting",
+          "bowling"
+        ],
+        "title": "Ratings",
         "type": "object"
       },
       "RecentInnings": {
@@ -3555,6 +3629,137 @@
           "last"
         ],
         "title": "SeasonWindow",
+        "type": "object"
+      },
+      "SimilarPlayer": {
+        "properties": {
+          "balls": {
+            "description": "The player's balls in the role in the window.",
+            "title": "Balls",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "batter",
+              "bowler",
+              "all_rounder"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "shared": {
+            "description": "Style traits both players share.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Shared",
+            "type": "array"
+          },
+          "similarity": {
+            "description": "Cosine similarity of the two style profiles (-1 to 1).",
+            "title": "Similarity",
+            "type": "number"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Most recent team."
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "role",
+          "team",
+          "similarity",
+          "balls",
+          "shared"
+        ],
+        "title": "SimilarPlayer",
+        "type": "object"
+      },
+      "SimilarPlayers": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StyleGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StyleGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "window": {
+            "$ref": "#/components/schemas/SeasonWindow"
+          }
+        },
+        "required": [
+          "window",
+          "batting",
+          "bowling"
+        ],
+        "title": "SimilarPlayers",
+        "type": "object"
+      },
+      "StyleGroup": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarPlayer"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "min_balls": {
+            "title": "Min Balls",
+            "type": "integer"
+          },
+          "population": {
+            "description": "Players compared (at least the minimum balls).",
+            "title": "Population",
+            "type": "integer"
+          },
+          "traits": {
+            "description": "The player's most distinctive traits.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Traits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "traits",
+          "population",
+          "min_balls",
+          "items"
+        ],
+        "title": "StyleGroup",
         "type": "object"
       },
       "TeamRef": {
@@ -5056,7 +5261,7 @@
     },
     "/api/v1/players/{player_id}": {
       "get": {
-        "description": "Profile: batting and bowling against par, seasons, phases, percentiles and recent form.",
+        "description": "Profile: batting and bowling against par, seasons, phases, ratings and recent form.",
         "operationId": "read_player_api_v1_players__player_id__get",
         "parameters": [
           {
@@ -5132,6 +5337,89 @@
           }
         },
         "summary": "Read Player",
+        "tags": [
+          "players"
+        ]
+      }
+    },
+    "/api/v1/players/{player_id}/similar": {
+      "get": {
+        "description": "Players with the most similar batting and bowling styles in the same seasons.",
+        "operationId": "read_similar_api_v1_players__player_id__similar_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimilarPlayers"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Similar",
         "tags": [
           "players"
         ]

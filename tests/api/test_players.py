@@ -102,13 +102,20 @@ def test_season_window_narrows_everything(client: TestClient) -> None:
     )
 
 
-def test_percentiles_rank_only_qualified_players(client: TestClient) -> None:
-    # The fixtures are a handful of matches, so nobody reaches the 300-ball bar.
+def test_ratings_need_qualified_players_to_rank_against(client: TestClient) -> None:
+    # The fixtures are a handful of matches, so nobody reaches the 300-ball bar: estimates
+    # are shown, but there is no population to rank them in.
     mccullum = _find(client, "mccullum")["player_id"]
-    group = client.get(f"/api/v1/players/{mccullum}").json()["percentiles"]["batting"]
+    group = client.get(f"/api/v1/players/{mccullum}").json()["ratings"]["batting"]
     assert group["qualified"] is False
-    assert all(item["percentile"] is None for item in group["items"])
-    assert {i["key"] for i in group["items"]} >= {"strike_rate", "average", "death", "wpa"}
+    assert group["population"] == 0
+    assert {i["key"] for i in group["items"]} >= {"scoring", "survival", "death", "impact"}
+    for item in group["items"]:
+        assert item["rating"] is None
+        assert 0 < item["weight"] < 1
+        # Shrinkage pulls the record towards the average, never past it.
+        low, high = sorted((item["raw"], item["average"]))
+        assert low - 0.01 <= item["value"] <= high + 0.01, item
 
 
 def test_splits_partition_the_totals(client: TestClient) -> None:
@@ -131,6 +138,7 @@ def test_splits_partition_the_totals(client: TestClient) -> None:
 def test_unknown_player_is_404(client: TestClient) -> None:
     assert client.get("/api/v1/players/not-a-player").status_code == 404
     assert client.get("/api/v1/players/not-a-player/splits").status_code == 404
+    assert client.get("/api/v1/players/not-a-player/similar").status_code == 404
 
 
 def test_profile_without_model_scores(unscored_client: TestClient) -> None:
@@ -138,4 +146,7 @@ def test_profile_without_model_scores(unscored_client: TestClient) -> None:
     profile = unscored_client.get(f"/api/v1/players/{player}").json()
     assert profile["batting"]["wpa"] is None
     assert profile["recent"]["batting"][0]["wpa"] is None
-    assert "wpa" not in {i["key"] for i in profile["percentiles"]["batting"]["items"]}
+    # Rating constants are published by scoring, so there are no ratings without it.
+    assert profile["ratings"] == {"batting": None, "bowling": None}
+    similar = unscored_client.get(f"/api/v1/players/{player}/similar")
+    assert similar.status_code == 200

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from criciq_api.db import Database, get_db
 from criciq_api.repositories.players import PlayerFilters, PlayerSort, RoleFilter
-from criciq_api.schemas.players import PlayerPage, PlayerProfile, PlayerSplits
+from criciq_api.schemas.players import PlayerPage, PlayerProfile, PlayerSplits, SimilarPlayers
 from criciq_api.services import players as service
 
 router = APIRouter(prefix="/players", tags=["players"])
@@ -50,7 +50,7 @@ def _not_found(player_id: str) -> HTTPException:
 def read_player(
     db: DB, player_id: str, first: FirstSeason = None, last: LastSeason = None
 ) -> PlayerProfile:
-    """Profile: batting and bowling against par, seasons, phases, percentiles and recent form."""
+    """Profile: batting and bowling against par, seasons, phases, ratings and recent form."""
     try:
         return service.get_profile(db, player_id, first, last)
     except service.PlayerNotFoundError:
@@ -66,6 +66,19 @@ def read_splits(
     """Batting and bowling split by phase, opponent type, position, venue, opposition and more."""
     try:
         return service.get_splits(db, player_id, first, last)
+    except service.PlayerNotFoundError:
+        raise _not_found(player_id) from None
+    except service.InvalidWindowError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from None
+
+
+@router.get("/{player_id}/similar")
+def read_similar(
+    db: DB, player_id: str, first: FirstSeason = None, last: LastSeason = None
+) -> SimilarPlayers:
+    """Players with the most similar batting and bowling styles in the same seasons."""
+    try:
+        return service.get_similar(db, player_id, first, last)
     except service.PlayerNotFoundError:
         raise _not_found(player_id) from None
     except service.InvalidWindowError as error:

@@ -157,12 +157,19 @@ players they equal the league's actual totals.
 | `player_bowling_innings` | player × innings | Legal balls, runs conceded (bat + wides + no-balls), wickets credited, maidens, dots, boundaries, wides, no-balls, context and par columns |
 | `player_batting_cells` | player × season × phase × bowler type | Ball-level totals for phase and pace/spin splits; a non-striker run out counts in the cell of that ball |
 | `player_bowling_cells` | player × season × phase × batter hand | Ball-level totals for phase and handedness splits |
+| `player_batting_phases` | player × innings × phase | Balls, runs, dismissals and par in each phase of each innings: the units CricIQ Ratings are fitted on |
+| `player_bowling_phases` | player × innings × phase | Legal balls, runs conceded, wickets and par in each phase of each innings |
 | `player_fielding` | player × match | Catches (incl. caught and bowled), stumpings, run-out involvements; substitutes not credited |
 | `player_seasons` | player × season × franchise | Appearances (playing XI and substitutes) |
 | `player_index` | player | Directory: bio, career span, latest team, derived role (`batter`, `bowler`, `all_rounder` from balls per match), `is_keeper` (2+ stumpings), accent-free `search_key` |
 | `matchup_cells` | batter × bowler × season × phase | Balls faced, runs, observed outcome counts `n_*` and the ball model's expected counts `e_*` (dot, one, two, three, four, six, out), written by `criciq-ml score` |
 | `ball_model_terms` | term | The ball-outcome model's additive coefficients per outcome (intercept, situation levels, era, `batter=<id>`, `bowler=<id>`) |
 | `player_wpa` | player × innings × role | Win probability added, written by `criciq-ml score`: each ball's change in the batting side's win probability goes to the batter and, negated, to the bowler |
+
+CricIQ Ratings and similar players have no tables of their own: they are aggregates over the
+tables above for the requested seasons (definitions in [metrics.md](metrics.md)). Their fitted
+constants (`k`, `sigma2` and the stability label per component) are stored in `models` under the
+name `ratings`, published by `criciq-ml score` from `models/ratings/<version>/manifest.json`.
 
 ## `meta`
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,

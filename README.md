@@ -23,7 +23,7 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6). Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6), and V1 is under way: **V1-a** adds a Compare page, CricIQ Ratings and similar players. Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore and compare any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## At a glance
 
@@ -33,6 +33,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Score projection | 80% range covers 80.3% of first-innings totals; median error 16.9 runs vs 18.4 for par |
 | Ball outcome | 1.07% better log loss than phase-and-wickets frequencies; better in 11 of 11 backtest seasons |
 | Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
+| Ratings | 16 rating components shrunk by empirical Bayes: the shrunk record predicts a player's next season better than the raw record for all 16; year-to-year stability reported per component |
 | Quality | 200+ Python tests, 60+ frontend unit tests, 50 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
@@ -44,9 +45,12 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
 | Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
 | Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
-| Player Lab | Search every player; profiles with era- and phase-adjusted numbers ("par"), percentiles, win probability added, season trends, recent form and splits by phase, bowler type, batter hand, position, innings, result, opposition and venue, for any season window | **Live** |
+| Player Lab | Search every player; profiles with era- and phase-adjusted numbers ("par"), CricIQ Ratings, similar players, win probability added, season trends, recent form and splits by phase, bowler type, batter hand, position, innings, result, opposition and venue, for any season window | **Live** |
 | Matchup Lab | Any batter vs any bowler: the raw record, what their overall records predict, and an empirical-Bayes estimate with 90% intervals and sample-size badges; next-ball odds by phase; rivalry lists ranked by the matchup effect beyond form | **Live** |
-| Compare, Ratings, Momentum, Pressure, Teams, Simulator | Transparent derived metrics and Monte Carlo simulation | V1 |
+| CricIQ Ratings | 0-100 ratings against the regulars of the same seasons for 8 batting and 8 bowling components, shrunk by how much a record of that size can be trusted, with 90% intervals and a stability label | **Live** |
+| Compare | Any two players over the same seasons: numbers against par, ratings on shared tracks, season-by-season form by year or by age, phases and their head-to-head | **Live** |
+| Similar players | The closest style profiles (per-ball rates against par and how a player is used) in the same seasons, with shared traits | **Live** |
+| Momentum, Pressure, Teams, Simulator | Leverage and momentum in the replay, team analytics and Monte Carlo simulation | V1 |
 
 ## The data
 
@@ -123,13 +127,33 @@ players, par reproduces the league exactly (a tested invariant).
 
 - **Runs above par / runs saved:** Kohli has scored 235 runs more than par from his 6,926 balls; Bumrah
   has conceded 948 fewer.
-- **Percentiles** rank each measure against par among players with 300+ balls in the chosen seasons.
 - **Win probability added** credits every ball's change in the win probability to the batter and,
   negated, to the bowler. Narine (bowling), de Villiers and Warner (batting) lead the career totals.
 
 Splits are precomputed as innings rows and ball-level cells, so any season window is one small
 aggregate. They are checked against an independent recount of the raw Cricsheet JSON and known
 scorecards (Kohli's 973 runs in 2016, Gayle's 175*, Alzarri Joseph's 6/12).
+
+## CricIQ Ratings: trusting a record only as far as it deserves
+
+A rating places a player among the regulars of the same seasons (300+ balls) on one thing they do,
+from 0 to 100. Before ranking, each record against par is blended with the average:
+`(own evidence + k × average) ÷ (own balls + k)`, where `k` is fitted per component so a season's
+shrunk record best predicts the player's next season, and tested on 2023-2026. Every rating carries
+a 90% interval. There is deliberately no overall number.
+
+- Shrinking beats trusting the raw record for all 16 components when predicting a player's next
+  season, by 15-50%.
+- A batter's strike rate against par counts for half the estimate after about 460 balls; a bowler's
+  economy after about 320; **wickets against par need about 3,800**, because over a season they are
+  mostly luck. Runs conceded say more about a bowler than wickets do.
+- Year-to-year stability is reported for every component, and the low ones (powerplay batting,
+  wicket-taking, defending) are flagged in the app.
+
+**Similar players** compare style profiles (per-ball rates against par and how a player is used),
+z-scored within the same seasons, by cosine similarity. From one season's profile, the same bowler
+is among the five closest next season 58% of the time (chance: 12%). **Compare** puts any two
+players side by side over the same seasons. Formulas are in [docs/metrics.md](docs/metrics.md).
 
 ## Matchup Lab: small samples, honestly
 
@@ -159,7 +183,9 @@ noise around what the players' overall records already say.
 | **Match Center** | **Model Insights** |
 | ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Model Insights: calibration and backtest](docs/images/models.png) |
 | **Player Lab** | **Matchup Lab** |
-| ![Virat Kohli's profile against par, with percentiles and phases](docs/images/player.png) | ![Kohli vs Bumrah read three ways, with 90% intervals](docs/images/matchup.png) |
+| ![Virat Kohli's profile against par](docs/images/player.png) | ![Kohli vs Bumrah read three ways, with 90% intervals](docs/images/matchup.png) |
+| **CricIQ Ratings and similar players** | **Compare** |
+| ![Jasprit Bumrah's ratings with 90% intervals, next to his phases and the most similar bowlers](docs/images/ratings.png) | ![Virat Kohli and Rohit Sharma side by side against par, with their ratings](docs/images/compare.png) |
 
 ## Architecture
 
@@ -187,7 +213,9 @@ Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](
 the [architecture decision records](docs/adr/) and the model cards for
 [win probability](docs/model-cards/win-probability.md),
 [score projection](docs/model-cards/score-projection.md) and
-[ball outcome](docs/model-cards/ball-outcome.md). The site's
+[ball outcome](docs/model-cards/ball-outcome.md) and
+[CricIQ Ratings](docs/model-cards/ratings.md), with every derived metric defined in
+[docs/metrics.md](docs/metrics.md). The site's
 [About & Methodology](https://criciq-eight.vercel.app/about) page explains every number in plain terms.
 
 ## Tech stack
@@ -250,10 +278,10 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M2** Match Explorer & Replay: first public deployment
 - [x] **M3** Win Probability: calibrated, explainable, backtested
 - [x] **M4** Score Projection: conformal quantiles, honest ranges
-- [x] **M5** Player Lab: profiles against par, percentiles, splits, WPA
+- [x] **M5** Player Lab: profiles against par, splits, WPA
 - [x] **M6** Matchup Lab + ball-outcome model: empirical-Bayes head-to-head, next-ball odds
 - [x] **v0.1.0 MVP release:** polish, methodology page, Lighthouse and accessibility audit
-- [ ] **V1-a** Compare page, CricIQ Ratings, similar players
+- [x] **V1-a** Compare page, CricIQ Ratings, similar players
 - [ ] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
 - [ ] **V1-c** Team analytics and head-to-head
 - [ ] **V1-d** Match simulator and what-if sandbox

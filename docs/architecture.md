@@ -15,7 +15,8 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
        score every historical ball with the current models → serving.duckdb
-       (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms)
+       (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
+        rating constants)
                         ▼
   [backend] FastAPI /api/v1: reads serving.duckdb only; next-ball odds are computed
             from the stored ball-model terms with plain arithmetic (ADR-0005)
@@ -28,7 +29,7 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
 
 | Package | Import name | Responsibility |
 |---|---|---|
-| `core/` | `criciq_core` | Cricket rules (legal balls, overs, rates), phase config, paths, **feature definitions shared by training and serving** |
+| `core/` | `criciq_core` | Cricket rules (legal balls, overs, rates), phase config, paths, **definitions shared by training and serving** (rating components, style profiles) |
 | `pipelines/` | `criciq_pipelines` | Ingestion, normalization, validation, export (`criciq-data` CLI) |
 | `ml/` | `criciq_ml` | Feature assembly, training, evaluation, inference, explainability, metrics, simulation |
 | `backend/` | `criciq_api` | HTTP API: `routers → services → repositories → DuckDB`, `services → inference` |
@@ -60,9 +61,10 @@ database, which the API reads. Production code never imports notebooks.
 | `scoring.py` | Score every ball and publish into `serving.duckdb` atomically |
 | `ball_outcome.py` | Ball-outcome model: outcomes, situation, penalised player effects, head-to-head prior (kappa) |
 | `ball_outcome_training.py` | Its protocol: tuning, feature selection, test, calibration, head-to-head check, backtest |
-| `report.py`, `projection_report.py`, `ball_outcome_report.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app |
+| `ratings.py` | CricIQ Ratings: shrinkage per component (k, noise), next-season validation, stability, similar-player retrieval test |
+| `report.py`, `projection_report.py`, `ball_outcome_report.py`, `ratings_report.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app |
 
-The full protocols and results are in the model cards for [win probability](model-cards/win-probability.md), [score projection](model-cards/score-projection.md) and [ball outcome](model-cards/ball-outcome.md).
+The full protocols and results are in the model cards for [win probability](model-cards/win-probability.md), [score projection](model-cards/score-projection.md), [ball outcome](model-cards/ball-outcome.md) and [CricIQ Ratings](model-cards/ratings.md); derived metrics are defined in [metrics.md](metrics.md).
 
 ## Data layer
 
@@ -80,6 +82,6 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 
 ## Precompute vs live
 
-Everything historical is precomputed: every ball's win probability, explanation and projection, and the Player Lab's innings rows and ball-level cells. A profile for any season window is a handful of small aggregates over those tables (tens of milliseconds); later milestones add matchup aggregates. Evaluation artifacts are generated with each model version. Live computation is reserved for what depends on user input (what-if states, next-ball distributions, simulations), which arrives in later milestones.
+Everything historical is precomputed: every ball's win probability, explanation and projection, and the Player Lab's innings rows and ball-level cells. A profile for any season window is a handful of small aggregates over those tables (tens of milliseconds). CricIQ Ratings and similar players need the whole population of a window, so the API computes each window once (about 30 ms) and keeps the most recent 48 windows in an in-process cache; the database is read-only, so a cached window never goes stale. Evaluation artifacts are generated with each model version. Live computation is reserved for what depends on user input (what-if states, next-ball distributions, simulations), which arrives in later milestones.
 
 A match replay is driven **entirely client-side** from one timeline payload per match. There are no per-ball API calls.

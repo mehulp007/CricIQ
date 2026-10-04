@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **V1-a: Compare, CricIQ Ratings and similar players**
+  - CricIQ Ratings on every profile, replacing the raw percentiles: 8 batting and 8 bowling
+    components against par (run scoring, survival, each phase, chasing or defending, impact,
+    consistency, economy, wicket-taking), each shrunk towards the qualified average by an
+    empirically fitted amount and shown as a 0-100 rating with a 90% interval. Low-stability
+    components are flagged.
+  - `criciq-ml train ratings`: tunes the shrinkage per component on next-season prediction,
+    tests it on 2023-2026, and reports year-to-year and odd/even-season stability; committed
+    under `models/ratings/` with a model card and a Ratings tab on Model Insights.
+  - Similar players on every profile: z-scored style profiles compared by cosine similarity,
+    with shared traits and a one-click comparison; validated by a retrieval test.
+  - Compare page (`/compare`): any two players over the same seasons, side by side against par,
+    ratings on shared tracks, season-by-season form by year or by age, phases and their
+    head-to-head.
+  - `GET /players/{id}/similar`; `player_batting_phases` and `player_bowling_phases` tables.
+  - `docs/metrics.md`: par, win probability added, ratings and similar players, with formulas.
+
 ## [0.1.0] - 2026-10-01
 
 The MVP: milestones M0 to M6, plus a release pass.

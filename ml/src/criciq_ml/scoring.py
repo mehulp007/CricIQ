@@ -22,6 +22,7 @@ from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, GROUPS, RUNS, BallOutcom
 from criciq_ml.features import GROUP_KEYS, LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
 from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
+from criciq_ml.ratings import RatingsModel
 
 
 def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFrame:
@@ -298,5 +299,22 @@ def publish_ball_model(
             },
         )
         return int(con.execute("SELECT count(*) FROM matchup_cells").fetchone()[0])  # type: ignore[index]
+
+    return _publish(serving, write)
+
+
+def publish_ratings(serving: Path, model: RatingsModel) -> int:
+    """Register the rating constants (shrinkage per component) in the serving database."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        manifest = model.manifest
+        _register_model(
+            con,
+            manifest["name"],
+            model.version,
+            manifest["trained_on"]["seasons"],
+            {"components": manifest["components"]},
+        )
+        return sum(len(v) for v in manifest["components"].values())
 
     return _publish(serving, write)

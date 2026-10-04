@@ -14,7 +14,7 @@ from typing import Any
 import duckdb
 
 from criciq_core import paths
-from criciq_ml import ball_outcome_report, projection_report, registry
+from criciq_ml import ball_outcome_report, projection_report, ratings_report, registry
 
 FEATURE_LABELS: dict[str, str] = {
     "legal_balls": "Legal balls bowled",
@@ -396,7 +396,11 @@ def model_card(data: dict[str, Any]) -> str:
 
 def write_all(serving: Path) -> list[Path]:
     """Model cards and Model Insights data for every current model."""
-    written = [*projection_report.write_all(), *ball_outcome_report.write_all()]
+    written = [
+        *projection_report.write_all(),
+        *ball_outcome_report.write_all(),
+        *ratings_report.write_all(),
+    ]
     version = registry.current_version()
     if version is None:
         return written

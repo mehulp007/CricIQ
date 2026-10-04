@@ -5,6 +5,7 @@ Typical use::
     criciq-ml train win_probability    # tune, evaluate, backtest; register and promote if gated
     criciq-ml train score_projection
     criciq-ml train ball_outcome
+    criciq-ml train ratings    # rating shrinkage and stability (reads the scored serving database)
     criciq-ml score     # score every ball with the current models into the serving database
     criciq-ml report    # model cards + the Model Insights data bundled with the web app
 
@@ -24,7 +25,7 @@ import pandas as pd
 import typer
 
 from criciq_core import paths
-from criciq_ml import ball_outcome_training, registry, report, scoring
+from criciq_ml import ball_outcome_training, ratings, registry, report, scoring
 from criciq_ml.ball_outcome import load_balls
 from criciq_ml.config import load_config
 from criciq_ml.data import load_inputs
@@ -72,6 +73,7 @@ class ModelName(StrEnum):
     win_probability = "win_probability"
     score_projection = "score_projection"
     ball_outcome = "ball_outcome"
+    ratings = "ratings"
 
 
 def _train_win_probability(force: bool, promote: bool) -> None:
@@ -147,6 +149,27 @@ def _train_ball_outcome(force: bool, promote: bool) -> None:
     _finish(ball_outcome_training.gate(evaluation), promote, cfg.version, registry.BALL_OUTCOME)
 
 
+def _train_ratings(force: bool, promote: bool) -> None:
+    cfg = ratings.load_ratings_config()
+    target = registry.version_dir(cfg.version, registry.RATINGS)
+    if target.exists() and not force:
+        typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
+        raise typer.Exit(code=1)
+    serving = _serving_path()
+    data_version = load_inputs(paths.warehouse_path()).data_version
+    model, evaluation = _timed(
+        "fitting ratings",
+        lambda: ratings.train_ratings(serving, cfg, data_version=data_version, log=typer.echo),
+    )
+    registry.save(model, evaluation, registry.RATINGS)
+    levels = [c["stability"] for c in evaluation["components"]]
+    typer.echo(
+        "  stability: " + ", ".join(f"{levels.count(s)} {s}" for s in ("high", "moderate", "low"))
+    )
+    typer.echo(f"  wrote {target}")
+    _finish(ratings.gate(evaluation), promote, cfg.version, registry.RATINGS)
+
+
 def _finish(problems: list[str], promote: bool, version: str, name: str) -> None:
     for problem in problems:
         typer.echo(f"  [gate] {problem}")
@@ -168,8 +191,10 @@ def train(
         _train_win_probability(force, promote)
     elif model is ModelName.score_projection:
         _train_score_projection(force, promote)
-    else:
+    elif model is ModelName.ball_outcome:
         _train_ball_outcome(force, promote)
+    else:
+        _train_ratings(force, promote)
 
 
 @app.command()
@@ -204,6 +229,10 @@ def score(
         lambda: scoring.publish_ball_model(target, cells, ball_model, scoring.current_env(balls)),
     )
     typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
+
+    rating_constants = registry.load_current_ratings()
+    _timed("publishing ratings", lambda: scoring.publish_ratings(target, rating_constants))
+    typer.echo(f"  rating constants {rating_constants.version} -> {target}")
 
 
 @app.command("report")

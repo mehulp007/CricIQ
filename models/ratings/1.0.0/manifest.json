@@ -1,0 +1,97 @@
+{
+  "components": {
+    "batting": {
+      "chasing": {
+        "k": 487.69,
+        "sigma2": 3.50808477,
+        "stability": "moderate"
+      },
+      "consistency": {
+        "k": 46.41,
+        "sigma2": 0.22406729,
+        "stability": "moderate"
+      },
+      "death": {
+        "k": 232.04,
+        "sigma2": 3.86594549,
+        "stability": "moderate"
+      },
+      "impact": {
+        "k": 67.29,
+        "sigma2": 0.01778404,
+        "stability": "moderate"
+      },
+      "middle": {
+        "k": 218.11,
+        "sigma2": 2.91427604,
+        "stability": "high"
+      },
+      "powerplay": {
+        "k": 664.59,
+        "sigma2": 3.18555515,
+        "stability": "low"
+      },
+      "scoring": {
+        "k": 458.42,
+        "sigma2": 3.50818333,
+        "stability": "moderate"
+      },
+      "survival": {
+        "k": 357.88,
+        "sigma2": 0.04339893,
+        "stability": "high"
+      }
+    },
+    "bowling": {
+      "consistency": {
+        "k": 26.59,
+        "sigma2": 0.23971842,
+        "stability": "moderate"
+      },
+      "death": {
+        "k": 124.95,
+        "sigma2": 4.57707703,
+        "stability": "high"
+      },
+      "defending": {
+        "k": 487.69,
+        "sigma2": 3.80477091,
+        "stability": "low"
+      },
+      "economy": {
+        "k": 316.21,
+        "sigma2": 3.81572521,
+        "stability": "high"
+      },
+      "impact": {
+        "k": 63.25,
+        "sigma2": 0.02140035,
+        "stability": "moderate"
+      },
+      "middle": {
+        "k": 279.39,
+        "sigma2": 3.22449694,
+        "stability": "moderate"
+      },
+      "powerplay": {
+        "k": 380.73,
+        "sigma2": 3.38749347,
+        "stability": "moderate"
+      },
+      "wickets": {
+        "k": 3760.38,
+        "sigma2": 0.04335791,
+        "stability": "low"
+      }
+    }
+  },
+  "data_version": "2026-05-31.713dafe9",
+  "name": "ratings",
+  "trained_on": {
+    "seasons": [
+      2008,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

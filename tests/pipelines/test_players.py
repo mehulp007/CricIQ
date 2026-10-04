@@ -235,3 +235,32 @@ def test_directory_covers_everyone_who_played(con: duckdb.DuckDBPyConnection) ->
     assert dhoni is not None
     assert dhoni[0] == "batter"
     assert "dhoni" in dhoni[1]
+
+
+def test_phase_innings_add_up_to_the_innings_lines(con: duckdb.DuckDBPyConnection) -> None:
+    """The units CricIQ Ratings are fitted on partition each innings line by phase."""
+    for role, outs in (("batting", "count(*) FILTER (WHERE is_out)"), ("bowling", "sum(wickets)")):
+        phase_outs = "sum(outs)" if role == "batting" else "sum(wickets)"
+        mismatched = con.execute(
+            f"""
+            WITH lines AS (
+                SELECT player_id, match_id, innings_no, sum(runs) AS runs, sum(balls) AS balls,
+                       {outs} AS outs, round(sum(par_runs), 6) AS par_runs
+                FROM player_{role}_innings GROUP BY ALL
+            ),
+            phases AS (
+                SELECT player_id, match_id, innings_no, sum(runs) AS runs, sum(balls) AS balls,
+                       {phase_outs} AS outs, round(sum(par_runs), 6) AS par_runs
+                FROM player_{role}_phases GROUP BY ALL
+            )
+            SELECT count(*) FROM lines FULL OUTER JOIN phases
+                USING (player_id, match_id, innings_no)
+            -- A batter who reached the crease but never faced or got out has no phase rows.
+            WHERE lines.runs IS DISTINCT FROM coalesce(phases.runs, 0)
+               OR lines.balls IS DISTINCT FROM coalesce(phases.balls, 0)
+               OR lines.outs IS DISTINCT FROM coalesce(phases.outs, 0)
+               OR lines.par_runs IS DISTINCT FROM coalesce(phases.par_runs, 0)
+               OR lines.runs IS NULL
+            """
+        ).fetchone()
+        assert mismatched == (0,), role

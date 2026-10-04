@@ -7,6 +7,8 @@ season window is one small aggregate at request time:
   with match context (season, venue, opposition, result, batting position).
 - ``player_batting_cells`` / ``player_bowling_cells``: ball-level totals by
   season, phase and the opponent's type (bowler pace/spin, batter hand).
+- ``player_batting_phases`` / ``player_bowling_phases``: one row per innings and
+  phase, the units CricIQ Ratings are fitted on.
 - ``league_phase_rates``: league-wide rates per season and phase.
 - ``player_fielding``, ``player_seasons`` and ``player_index`` (the directory).
 
@@ -38,6 +40,8 @@ PLAYER_TABLES = (
     "player_bowling_innings",
     "player_batting_cells",
     "player_bowling_cells",
+    "player_batting_phases",
+    "player_bowling_phases",
     "player_fielding",
     "player_seasons",
     "player_index",
@@ -278,6 +282,50 @@ FROM bowled b LEFT JOIN wkts w USING (player_id, season, phase, batting_hand)
 ORDER BY b.player_id, b.season, b.phase, b.batting_hand
 """
 
+BATTING_PHASES_SQL = """
+CREATE TABLE player_batting_phases AS
+WITH faced AS (
+    SELECT b.match_id, b.innings_no, b.batter_id AS player_id, b.season, b.phase,
+           count(*) FILTER (WHERE b.faced) AS balls, coalesce(sum(b.runs_batter), 0) AS runs,
+           sum(r.bat_runs_rate) FILTER (WHERE b.faced) AS par_runs,
+           sum(r.bat_outs_rate) FILTER (WHERE b.faced) AS par_outs
+    FROM player_balls b JOIN league_phase_rates r USING (season, phase)
+    GROUP BY ALL
+),
+outs AS (
+    SELECT match_id, innings_no, player_id, season, phase, count(*) AS outs
+    FROM player_outs GROUP BY ALL
+)
+SELECT player_id, match_id, innings_no, season, phase,
+       coalesce(f.balls, 0)::INTEGER AS balls, coalesce(f.runs, 0)::INTEGER AS runs,
+       coalesce(o.outs, 0)::INTEGER AS outs,
+       coalesce(f.par_runs, 0) AS par_runs, coalesce(f.par_outs, 0) AS par_outs
+FROM faced f FULL OUTER JOIN outs o USING (match_id, innings_no, player_id, season, phase)
+ORDER BY player_id, match_id, innings_no, phase
+"""
+
+BOWLING_PHASES_SQL = """
+CREATE TABLE player_bowling_phases AS
+WITH bowled AS (
+    SELECT b.match_id, b.innings_no, b.bowler_id AS player_id, b.season, b.phase,
+           count(*) FILTER (WHERE b.is_legal) AS balls, sum(b.conceded) AS runs,
+           sum(r.bowl_runs_rate) FILTER (WHERE b.is_legal) AS par_runs,
+           sum(r.bowl_wicket_rate) FILTER (WHERE b.is_legal) AS par_wickets
+    FROM player_balls b JOIN league_phase_rates r USING (season, phase)
+    GROUP BY ALL
+),
+wkts AS (
+    SELECT match_id, innings_no, bowler_id AS player_id, season, phase, count(*) AS wickets
+    FROM player_outs WHERE bowler_credited GROUP BY ALL
+)
+SELECT b.player_id, b.match_id, b.innings_no, b.season, b.phase,
+       b.balls::INTEGER AS balls, b.runs::INTEGER AS runs,
+       coalesce(w.wickets, 0)::INTEGER AS wickets,
+       coalesce(b.par_runs, 0) AS par_runs, coalesce(b.par_wickets, 0) AS par_wickets
+FROM bowled b LEFT JOIN wkts w USING (match_id, innings_no, player_id, season, phase)
+ORDER BY b.player_id, b.match_id, b.innings_no, b.phase
+"""
+
 FIELDING_SQL = """
 CREATE TABLE player_fielding AS
 WITH listed AS (
@@ -368,6 +416,8 @@ def build_player_tables(con: duckdb.DuckDBPyConnection) -> None:
         BOWLING_INNINGS_SQL,
         BATTING_CELLS_SQL,
         BOWLING_CELLS_SQL,
+        BATTING_PHASES_SQL,
+        BOWLING_PHASES_SQL,
         FIELDING_SQL,
         SEASONS_SQL,
         INDEX_SQL,

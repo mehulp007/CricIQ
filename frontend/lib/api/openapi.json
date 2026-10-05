@@ -4054,6 +4054,30 @@
             "title": "Legbyes",
             "type": "integer"
           },
+          "leverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How much the next ball can move the match: expected change in win probability over the next ball, relative to a typical ball (1 = typical).",
+            "title": "Leverage"
+          },
+          "momentum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Change in the batting side's win probability over the last 12 legal balls, in percentage points.",
+            "title": "Momentum"
+          },
           "noballs": {
             "title": "Noballs",
             "type": "integer"
@@ -4070,6 +4094,18 @@
           "penalty": {
             "title": "Penalty",
             "type": "integer"
+          },
+          "pressure": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pressure index for the next ball: percentile of leverage among every historical IPL ball (0-100).",
+            "title": "Pressure"
           },
           "projection": {
             "anyOf": [
@@ -4198,10 +4234,34 @@
             "title": "Is Super Over",
             "type": "boolean"
           },
+          "leverage_start": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How much the next ball can move the match: expected change in win probability over the next ball, relative to a typical ball (1 = typical).",
+            "title": "Leverage Start"
+          },
           "max_balls": {
             "description": "Legal balls available to the batting side.",
             "title": "Max Balls",
             "type": "integer"
+          },
+          "pressure_start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pressure index for the next ball: percentile of leverage among every historical IPL ball (0-100).",
+            "title": "Pressure Start"
           },
           "projection_start": {
             "anyOf": [
@@ -4549,6 +4609,21 @@
             },
             "title": "Factor Keys",
             "type": "array"
+          },
+          "pressure_thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Leverage at the pressure index's band edges (50, 80 and 95): where Medium, High and Very high pressure begin.",
+            "title": "Pressure Thresholds"
           },
           "trained_from": {
             "title": "Trained From",

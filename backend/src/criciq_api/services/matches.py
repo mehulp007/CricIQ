@@ -224,6 +224,18 @@ def get_detail(db: Database, match_id: int) -> MatchDetail:
     return MatchDetail(summary=summary, innings=innings)
 
 
+def _wp_model(row: Row) -> WinProbabilityModel:
+    """The win probability model, with the pressure bands in leverage units if scored."""
+    scale = row.get("pressure")
+    thresholds = (
+        [round(scale["quantiles"][q] / scale["mean_swing"], 3) for q in (50, 80, 95)]
+        if scale
+        else None
+    )
+    fields = {k: v for k, v in row.items() if k != "pressure"}
+    return WinProbabilityModel(**fields, pressure_thresholds=thresholds)
+
+
 def get_timeline(db: Database, match_id: int) -> Timeline:
     summary = _summary(db, match_id)
     wp = {(r["innings_no"], r["seq_no"]): r for r in repo.get_win_probabilities(db, match_id)}
@@ -241,6 +253,14 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
 
     def factors(row: Row | None) -> list[float] | None:
         return None if row is None or row["factors"] is None else list(row["factors"])
+
+    def number(row: Row | None, key: str, digits: int) -> float | None:
+        value = None if row is None else row.get(key)
+        return None if value is None or value != value else round(float(value), digits)
+
+    def index(row: Row | None) -> int | None:
+        value = number(row, "pressure", 0)
+        return None if value is None else int(value)
 
     deliveries = []
     for r in repo.get_deliveries(db, match_id):
@@ -280,6 +300,9 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 wp=probability(p := wp.get((r["innings_no"], r["seq_no"]))),
                 factors=factors(p),
                 projection=projection(r["innings_no"], r["seq_no"]),
+                leverage=number(p, "leverage", 2),
+                pressure=index(p),
+                momentum=number(p, "momentum", 1),
             )
         )
     return Timeline(
@@ -301,11 +324,13 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 wp_start=probability(s := wp.get((r["innings_no"], 0))),
                 factors_start=factors(s),
                 projection_start=projection(r["innings_no"], 0),
+                leverage_start=number(s, "leverage", 2),
+                pressure_start=index(s),
             )
             for r in repo.get_innings(db, match_id)
         ],
         deliveries=deliveries,
         substitutions=[TimelineSubstitution(**r) for r in repo.get_substitutions(db, match_id)],
-        win_probability=WinProbabilityModel(**model_row) if model_row else None,
+        win_probability=_wp_model(model_row) if model_row else None,
         score_projection=ScoreProjectionModel(**projection_row) if projection_row else None,
     )

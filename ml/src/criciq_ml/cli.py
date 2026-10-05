@@ -205,11 +205,18 @@ def score(
     """Score every historical ball with the current models into the serving database."""
     wp_model = registry.load_current()
     projection_model = registry.load_current_projection()
-    states, _ = _timed("building features", lambda: _states(warehouse or paths.warehouse_path()))
+    inputs = _timed("loading", lambda: load_inputs(warehouse or paths.warehouse_path()))
+    states = _timed(
+        "building features", lambda: build_states(inputs, load_config().feature_config())
+    )
     target = serving or _serving_path()
 
     predictions = _timed("win probability", lambda: scoring.score_states(wp_model, states))
-    count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model))
+    predictions, scale = _timed(
+        "pressure and momentum",
+        lambda: scoring.add_pressure(wp_model, states, predictions, inputs),
+    )
+    count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model, scale))
     typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
 
     projections = _timed(

@@ -250,7 +250,7 @@ def get_win_probabilities(db: Database, match_id: int) -> list[Row]:
         return []
     return db.rows(
         """
-        SELECT innings_no, seq_no, wp_team_a, factors
+        SELECT * EXCLUDE (match_id)
         FROM wp_predictions WHERE match_id = ? ORDER BY innings_no, seq_no
         """,
         [match_id],

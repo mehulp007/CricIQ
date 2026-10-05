@@ -18,7 +18,9 @@ import duckdb
 import numpy as np
 import pandas as pd
 
+from criciq_ml import leverage
 from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, GROUPS, RUNS, BallOutcomeModel
+from criciq_ml.data import Inputs
 from criciq_ml.features import GROUP_KEYS, LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
 from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
@@ -66,6 +68,27 @@ def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFra
     )
     out["factors"] = [round_points(points[i]) if explained[i] else None for i in range(len(states))]
     return out
+
+
+def add_pressure(
+    model: WinProbabilityModel, states: pd.DataFrame, predictions: pd.DataFrame, inputs: Inputs
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Leverage, pressure (0-100) and momentum for every state (see ``criciq_ml.leverage``).
+
+    Returns the predictions with the new columns and the pressure scale: the
+    mean swing and the percentiles of swings among these states.
+    """
+    states = states.reset_index(drop=True)
+    first = (states["innings_no"] == 1).to_numpy()
+    wp_a = predictions["wp_team_a"].to_numpy(dtype=float)
+    wp_batting = np.where(first, wp_a, 1 - wp_a)
+    swing = leverage.expected_swing(model, states, inputs)
+    scale = leverage.pressure_scale(swing)
+    out = predictions.reset_index(drop=True).copy()
+    out["leverage"] = np.round(swing / scale["mean_swing"], 3)
+    out["pressure"] = leverage.pressure(swing, scale["quantiles"])
+    out["momentum"] = np.round(leverage.momentum(states, wp_batting), 2)
+    return out, scale
 
 
 def score_projections(model: ScoreProjectionModel, states: pd.DataFrame) -> pd.DataFrame:
@@ -159,18 +182,33 @@ ORDER BY player_id, match_id, innings_no, role
 """
 
 
-def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel) -> int:
-    """Add win probabilities, player WPA and model metadata to the serving database."""
+def publish(
+    serving: Path,
+    predictions: pd.DataFrame,
+    model: WinProbabilityModel,
+    pressure_scale: dict[str, Any] | None = None,
+) -> int:
+    """Add win probabilities, player WPA and model metadata to the serving database.
+
+    With ``add_pressure`` columns present, every state also carries its
+    leverage, pressure index and momentum.
+    """
 
     def write(con: duckdb.DuckDBPyConnection) -> int:
         con.register("predictions", predictions)
         con.execute("DROP TABLE IF EXISTS wp_predictions")
+        extra = (
+            ", leverage::FLOAT AS leverage, pressure::UTINYINT AS pressure, "
+            "momentum::FLOAT AS momentum"
+            if "leverage" in predictions
+            else ""
+        )
         con.execute(
-            """
+            f"""
             CREATE TABLE wp_predictions AS
             SELECT match_id::BIGINT AS match_id, innings_no::INTEGER AS innings_no,
                    seq_no::INTEGER AS seq_no, wp_team_a::DOUBLE AS wp_team_a,
-                   factors::FLOAT[] AS factors
+                   factors::FLOAT[] AS factors{extra}
             FROM predictions ORDER BY match_id, innings_no, seq_no
             """
         )
@@ -186,6 +224,7 @@ def publish(serving: Path, predictions: pd.DataFrame, model: WinProbabilityModel
                 "factor_keys": GROUP_KEYS,
                 "base_innings1": manifest["base_probability"]["1"],
                 "base_innings2": manifest["base_probability"]["2"],
+                **({"pressure": pressure_scale} if pressure_scale else {}),
             },
         )
         return int(con.execute("SELECT count(*) FROM wp_predictions").fetchone()[0])  # type: ignore[index]

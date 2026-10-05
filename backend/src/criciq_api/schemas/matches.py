@@ -160,6 +160,16 @@ class TimelineInnings(BaseModel):
         default=None,
         description="First innings only: quantiles of the final total before the first ball.",
     )
+    leverage_start: float | None = Field(
+        default=None,
+        description="How much the next ball can move the match: expected change in win "
+        "probability over the next ball, relative to a typical ball (1 = typical).",
+    )
+    pressure_start: int | None = Field(
+        default=None,
+        description="Pressure index for the next ball: percentile of leverage among every "
+        "historical IPL ball (0-100).",
+    )
 
 
 class TimelineWicket(BaseModel):
@@ -208,6 +218,21 @@ class TimelineDelivery(BaseModel):
         description="First innings only: quantiles of the final total after this ball, at the "
         "levels in Timeline.score_projection.levels (model estimate).",
     )
+    leverage: float | None = Field(
+        default=None,
+        description="How much the next ball can move the match: expected change in win "
+        "probability over the next ball, relative to a typical ball (1 = typical).",
+    )
+    pressure: int | None = Field(
+        default=None,
+        description="Pressure index for the next ball: percentile of leverage among every "
+        "historical IPL ball (0-100).",
+    )
+    momentum: float | None = Field(
+        default=None,
+        description="Change in the batting side's win probability over the last 12 legal "
+        "balls, in percentage points.",
+    )
 
 
 class TimelineSubstitution(BaseModel):
@@ -231,6 +256,11 @@ class WinProbabilityModel(BaseModel):
     )
     base_innings2: float = Field(
         description="Average chase estimate: the reference point for its factors."
+    )
+    pressure_thresholds: list[float] | None = Field(
+        default=None,
+        description="Leverage at the pressure index's band edges (50, 80 and 95): where Medium, "
+        "High and Very high pressure begin.",
     )
 
 

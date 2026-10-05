@@ -1583,6 +1583,16 @@ export interface components {
             legal_ball_no: number;
             /** Legbyes */
             legbyes: number;
+            /**
+             * Leverage
+             * @description How much the next ball can move the match: expected change in win probability over the next ball, relative to a typical ball (1 = typical).
+             */
+            leverage?: number | null;
+            /**
+             * Momentum
+             * @description Change in the batting side's win probability over the last 12 legal balls, in percentage points.
+             */
+            momentum?: number | null;
             /** Noballs */
             noballs: number;
             /** Non Striker Id */
@@ -1594,6 +1604,11 @@ export interface components {
             over_no: number;
             /** Penalty */
             penalty: number;
+            /**
+             * Pressure
+             * @description Pressure index for the next ball: percentile of leverage among every historical IPL ball (0-100).
+             */
+            pressure?: number | null;
             /**
              * Projection
              * @description First innings only: quantiles of the final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).
@@ -1639,10 +1654,20 @@ export interface components {
             /** Is Super Over */
             is_super_over: boolean;
             /**
+             * Leverage Start
+             * @description How much the next ball can move the match: expected change in win probability over the next ball, relative to a typical ball (1 = typical).
+             */
+            leverage_start?: number | null;
+            /**
              * Max Balls
              * @description Legal balls available to the batting side.
              */
             max_balls: number;
+            /**
+             * Pressure Start
+             * @description Pressure index for the next ball: percentile of leverage among every historical IPL ball (0-100).
+             */
+            pressure_start?: number | null;
             /**
              * Projection Start
              * @description First innings only: quantiles of the final total before the first ball.
@@ -1757,6 +1782,11 @@ export interface components {
              * @description Order of the values in each `factors` list.
              */
             factor_keys: string[];
+            /**
+             * Pressure Thresholds
+             * @description Leverage at the pressure index's band edges (50, 80 and 95): where Medium, High and Very high pressure begin.
+             */
+            pressure_thresholds?: number[] | null;
             /** Trained From */
             trained_from: number;
             /** Trained Through */

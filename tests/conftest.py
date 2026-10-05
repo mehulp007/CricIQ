@@ -89,13 +89,22 @@ def fixture_states(fixture_warehouse: Path) -> pd.DataFrame:
 
 @pytest.fixture(scope="session")
 def fixture_scored_serving_db(
-    fixture_serving_db: Path, fixture_states: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+    fixture_serving_db: Path,
+    fixture_warehouse: Path,
+    fixture_states: pd.DataFrame,
+    tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
     """The fixture serving database scored with the committed (current) model."""
     target = tmp_path_factory.mktemp("scored") / "serving.duckdb"
     shutil.copyfile(fixture_serving_db, target)
     model = registry.load_current()
-    scoring.publish(target, scoring.score_states(model, fixture_states), model)
+    predictions, scale = scoring.add_pressure(
+        model,
+        fixture_states,
+        scoring.score_states(model, fixture_states),
+        load_inputs(fixture_warehouse),
+    )
+    scoring.publish(target, predictions, model, scale)
     projection = registry.load_current_projection()
     scoring.publish_projections(
         target, scoring.score_projections(projection, fixture_states), projection

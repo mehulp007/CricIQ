@@ -205,6 +205,27 @@ def test_timeline_without_model_scores_still_replays(unscored_client: TestClient
     assert timeline["win_probability"] is None
     assert all(d["wp"] is None for d in timeline["deliveries"])
     assert all(i["wp_start"] is None for i in timeline["innings"])
+    assert all(d["pressure"] is None and d["momentum"] is None for d in timeline["deliveries"])
+
+
+def test_timeline_carries_pressure_and_momentum(client: TestClient) -> None:
+    """The 2019 final: CSK needed two off the last ball."""
+    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    bands = timeline["win_probability"]["pressure_thresholds"]
+    assert bands == sorted(bands)
+    assert len(bands) == 3
+    chase = [d for d in timeline["deliveries"] if d["innings_no"] == 2]
+    *_, before_last, last = chase
+    assert last["pressure"] is None  # the match is over
+    assert before_last["pressure"] >= 95
+    assert before_last["leverage"] > 5
+    assert last["momentum"] < 0  # CSK lost it on the last ball
+    first = timeline["innings"][0]
+    assert 0 <= first["pressure_start"] <= 100
+    for d in timeline["deliveries"]:
+        if d["innings_no"] <= 2 and d["pressure"] is not None:
+            assert 0 <= d["pressure"] <= 100
+            assert d["leverage"] >= 0
 
 
 def test_first_innings_carries_score_projections(client: TestClient) -> None:

@@ -1,0 +1,272 @@
+# Countries for venues outside config/venues.yaml.
+#
+# Grounds listed in venues.yaml are curated by hand (every IPL ground is). Any
+# other ground is added automatically: its name is the Cricsheet venue up to the
+# first comma ("Sabina Park, Kingston, Jamaica" -> "Sabina Park"), its city is
+# Cricsheet's city (else the text after the comma), and its country comes from
+# `cities` below, or from `venues` for grounds whose city is missing or
+# ambiguous (Hamilton is in New Zealand and Bermuda). `merges` joins names one
+# ground has had, or been recorded under. Countries are geographic: England,
+# Wales, Scotland and Northern Ireland are separate.
+
+cities:
+  Aberdeen: Scotland
+  Abu Dhabi: United Arab Emirates
+  Abuja: Nigeria
+  Accra: Ghana
+  Adelaide: Australia
+  Ahmedabad: India
+  Al Amarat: Oman
+  Albergaria: Portugal
+  Albury: Australia
+  Alice Springs: Australia
+  Almeria: Spain
+  Amstelveen: Netherlands
+  Antigua: Antigua and Barbuda
+  Apia: Samoa
+  Auckland: New Zealand
+  Ayr: Scotland
+  Bali: Indonesia
+  Bangalore: India
+  Bangi: Malaysia
+  Bangkok: Thailand
+  Barbados: Barbados
+  Basseterre: St Kitts and Nevis
+  Belfast: Northern Ireland
+  Belgrade: Serbia
+  Bengaluru: India
+  Benoni: South Africa
+  Birmingham: England
+  Blantyre: Malawi
+  Bloemfontein: South Africa
+  Bogota: Colombia
+  Bogra: Bangladesh
+  Bready: Northern Ireland
+  Bridgetown: Barbados
+  Brisbane: Australia
+  Bristol: England
+  Brondby: Denmark
+  Buenos Aires: Argentina
+  Bulawayo: Zimbabwe
+  Cairns: Australia
+  Canberra: Australia
+  Canterbury: England
+  Cape Town: South Africa
+  Cardiff: Wales
+  Carrara: Australia
+  Castel: Guernsey
+  Centurion: South Africa
+  Chandigarh: India
+  Chattogram: Bangladesh
+  Chelmsford: England
+  Chennai: India
+  Chester-le-Street: England
+  Chittagong: Bangladesh
+  Christchurch: New Zealand
+  Coffs Harbour: Australia
+  Colombo: Sri Lanka
+  Coolidge: Antigua and Barbuda
+  Copenhagen: Denmark
+  Cuttack: India
+  Dallas: United States of America
+  Dambulla: Sri Lanka
+  Dar-es-Salaam: Tanzania
+  Darwin: Australia
+  Delhi: India
+  Derry: Northern Ireland
+  Deventer: Netherlands
+  Dhaka: Bangladesh
+  Dharamsala: India
+  Dharmasala: India
+  Doha: Qatar
+  Dominica: Dominica
+  Dreux: France
+  Dubai: United Arab Emirates
+  Dublin: Ireland
+  Dundee: Scotland
+  Dunedin: New Zealand
+  Durban: South Africa
+  East London: South Africa
+  Edinburgh: Scotland
+  Entebbe: Uganda
+  Episkopi: Cyprus
+  Faisalabad: Pakistan
+  Faridabad: India
+  Fatullah: Bangladesh
+  Gaborone: Botswana
+  Galle: Sri Lanka
+  Geelong: Australia
+  Gelephu: Bhutan
+  George Town: Cayman Islands
+  Ghent: Belgium
+  Gibraltar: Gibraltar
+  Glasgow: Scotland
+  Gqeberha: South Africa
+  Graz: Austria
+  Grenada: Grenada
+  Gros Islet: St Lucia
+  Guacima: Costa Rica
+  Guwahati: India
+  Guyana: Guyana
+  Gwalior: India
+  Hambantota: Sri Lanka
+  Hangzhou: China
+  Harare: Zimbabwe
+  Hobart: Australia
+  Hong Kong: Hong Kong
+  Houston: United States of America
+  Hyderabad: India
+  Ilfov County: Romania
+  Incheon: South Korea
+  Indore: India
+  Ishoj: Denmark
+  Jaipur: India
+  Jamaica: Jamaica
+  Jamshedpur: India
+  Jinja: Uganda
+  Johannesburg: South Africa
+  Kampala: Uganda
+  Kandy: Sri Lanka
+  Kanpur: India
+  Karachi: Pakistan
+  Kathmandu: Nepal
+  Kerava: Finland
+  Khulna: Bangladesh
+  Kigali City: Rwanda
+  Kimberley: South Africa
+  King City: Canada
+  Kingston: Jamaica
+  Kingstown: St Vincent and the Grenadines
+  Kirtipur: Nepal
+  Kochi: India
+  Koge: Denmark
+  Kolkata: India
+  Krefeld: Germany
+  Kuala Lumpur: Malaysia
+  Lagos: Nigeria
+  Lahore: Pakistan
+  Latschach: Austria
+  Lauderhill: United States of America
+  Launceston: Australia
+  Leeds: England
+  Lincoln: New Zealand
+  London: England
+  Londonderry: Northern Ireland
+  Lucknow: India
+  Mackay: Australia
+  Malkerns: Eswatini
+  Manchester: England
+  Margao: India
+  Marsa: Malta
+  Melbourne: Australia
+  Mirpur: Bangladesh
+  Moe: Australia
+  Mong Kok: Hong Kong
+  Mount Maunganui: New Zealand
+  Multan: Pakistan
+  Mumbai: India
+  Murcia: Spain
+  Nagpur: India
+  Nairobi: Kenya
+  Napier: New Zealand
+  Naucalpan: Mexico
+  Nelson: New Zealand
+  New Chandigarh: India
+  New York: United States of America
+  Nisshin: Japan
+  North Sound: Antigua and Barbuda
+  Nottingham: England
+  Oslo: Norway
+  Paarl: South Africa
+  Pallekele: Sri Lanka
+  Panama City: Panama
+  Pearland: United States of America
+  Perth: Australia
+  Peshawar: Pakistan
+  Pietermaritzburg: South Africa
+  Port  Soif: Guernsey
+  Port Elizabeth: South Africa
+  Port Moresby: Papua New Guinea
+  Port Vila: Vanuatu
+  Port of Spain: Trinidad and Tobago
+  Potchefstroom: South Africa
+  Prague: Czech Republic
+  Providence: Guyana
+  Pune: India
+  Queenstown: New Zealand
+  Raipur: India
+  Rajkot: India
+  Ranchi: India
+  Rawalpindi: Pakistan
+  Rome: Italy
+  Roseau: Dominica
+  Rotterdam: Netherlands
+  Sano: Japan
+  Seropedica: Brazil
+  Sharjah: United Arab Emirates
+  Sind: Pakistan
+  Singapore: Singapore
+  Sofia: Bulgaria
+  Southampton: England
+  Spinaceto: Italy
+  St George's: Grenada
+  St John's: Antigua and Barbuda
+  St Kitts: St Kitts and Nevis
+  St Lucia: St Lucia
+  St Peter Port: Guernsey
+  St Saviour: Jersey
+  St Vincent: St Vincent and the Grenadines
+  Stockholm: Sweden
+  Sydney: Australia
+  Sylhet: Bangladesh
+  Szodliget: Hungary
+  Tallinn: Estonia
+  Tarouba: Trinidad and Tobago
+  Taunton: England
+  The Hague: Netherlands
+  Thiruvananthapuram: India
+  Toronto: Canada
+  Townsville: Australia
+  Trinidad: Trinidad and Tobago
+  Utrecht: Netherlands
+  Vadodara: India
+  Vantaa: Finland
+  Visakhapatnam: India
+  Walferdange: Luxembourg
+  Waterloo: Belgium
+  Wellington: New Zealand
+  Whangarei: New Zealand
+  Windhoek: Namibia
+  Zagreb: Croatia
+  Zemst: Belgium
+
+# Grounds whose city is missing or ambiguous, by venue name (up to the comma).
+venues:
+  Bermuda National Stadium: { city: Hamilton, country: Bermuda }
+  National Stadium: { city: Hamilton, country: Bermuda }
+  White Hill Field: { city: Sandys Parish, country: Bermuda }
+  Simonds Stadium: { city: Geelong, country: Australia }
+  Chittagong Divisional Stadium: { city: Chattogram, country: Bangladesh }
+  Dubai Sports City Cricket Stadium: { city: Dubai, country: United Arab Emirates }
+  Moara Vlasiei Cricket Ground: { city: Ilfov County, country: Romania }
+  Mombasa Sports Club Ground: { city: Mombasa, country: Kenya }
+  Queenstown Events Centre: { city: Queenstown, country: New Zealand }
+  Sheikhupura Stadium: { city: Sheikhupura, country: Pakistan }
+  St Georges Quilmes: { city: Buenos Aires, country: Argentina }
+  Sylhet Stadium: { city: Sylhet, country: Bangladesh }
+  Niaz Stadium: { city: Hyderabad, country: Pakistan }
+
+# Other names of the same ground: name (up to the comma) -> canonical name.
+merges:
+  W.A.C.A. Ground: Western Australia Cricket Association Ground
+  Westpac Park: Seddon Park
+  Beausejour Stadium: Daren Sammy National Cricket Stadium
+  Darren Sammy National Cricket Stadium: Daren Sammy National Cricket Stadium
+  Davies Park: John Davies Oval
+  UKM-YSD Cricket Oval: YSD-UKM Cricket Oval
+  Sylhet Stadium: Sylhet International Cricket Stadium
+  Chittagong Divisional Stadium: Zahur Ahmed Chowdhury Stadium
+  The Wanderers Stadium: New Wanderers Stadium
+  Wanderers: Wanderers Cricket Ground
+  Sharjah Cricket Association Stadium: Sharjah Cricket Stadium
+  Queen's Park (New): National Cricket Stadium

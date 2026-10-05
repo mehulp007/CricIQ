@@ -13,7 +13,8 @@ def test_paths_command_lists_locations() -> None:
     result = runner.invoke(app, ["paths"])
     assert result.exit_code == 0
     assert "warehouse" in result.output
-    assert "criciq.duckdb" in result.output
+    assert "cricket.duckdb" in result.output
+    assert "ipl.duckdb" in result.output
 
 
 def test_offline_end_to_end_run(
@@ -27,7 +28,8 @@ def test_offline_end_to_end_run(
     result = runner.invoke(app, ["run", "--no-download", "--report", str(report)])
     assert result.exit_code == 0, result.output
     assert "[FAIL]" not in result.output
-    assert (tmp_path / "data" / "warehouse" / "criciq.duckdb").exists()
+    assert (tmp_path / "data" / "warehouse" / "cricket.duckdb").exists()
+    assert (tmp_path / "data" / "warehouse" / "ipl.duckdb").exists()
     assert (tmp_path / "data" / "warehouse" / "validation.json").exists()
     text = report.read_text("utf-8")
     assert "**Overall status:** PASS" in text

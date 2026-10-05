@@ -1,0 +1,11 @@
+# Pakistan Super League franchises. Same structure as ipl.yaml.
+
+teams:
+  - { id: ISU, name: Islamabad United, colors: { primary: "#E4002B", secondary: "#7A7A7A" }, names: [{ name: Islamabad United, from: 2016 }] }
+  - { id: KRK, name: Karachi Kings, colors: { primary: "#1F5AA6", secondary: "#C8A04E" }, names: [{ name: Karachi Kings, from: 2016 }] }
+  - { id: LHQ, name: Lahore Qalandars, colors: { primary: "#00A859", secondary: "#D4213D" }, names: [{ name: Lahore Qalandars, from: 2016 }] }
+  - { id: MS, name: Multan Sultans, colors: { primary: "#00A79D", secondary: "#F2B705" }, names: [{ name: Multan Sultans, from: 2018 }] }
+  - { id: PSZ, name: Peshawar Zalmi, colors: { primary: "#F9B91A", secondary: "#7A7A7A" }, names: [{ name: Peshawar Zalmi, from: 2016 }] }
+  - { id: QTG, name: Quetta Gladiators, colors: { primary: "#7B3F98", secondary: "#F2B705" }, names: [{ name: Quetta Gladiators, from: 2016 }] }
+  - { id: HYK, name: Hyderabad Kingsmen, colors: { primary: "#2D6CDF", secondary: "#F2A900" }, names: [{ name: Hyderabad Kingsmen, from: 2026 }] }
+  - { id: RWP, name: Rawalpindiz, colors: { primary: "#C62828", secondary: "#FFD600" }, names: [{ name: Rawalpindiz, from: 2026 }] }

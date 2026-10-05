@@ -26,16 +26,17 @@ BOWLING_USAGE_SQL = """
 CREATE TABLE bowling_usage AS
 WITH balls AS (
     SELECT d.match_id, d.innings_no, d.over_no, d.bowler_id, d.bowling_team_id,
-           count(*) FILTER (WHERE d.is_legal) AS legal
+           count(*) FILTER (WHERE d.is_legal) AS legal, min(d.seq_no) AS first_ball
     FROM deliveries d JOIN innings i USING (match_id, innings_no)
     WHERE NOT i.is_super_over
-    GROUP BY ALL
+    GROUP BY d.match_id, d.innings_no, d.over_no, d.bowler_id, d.bowling_team_id
 ),
 owner AS (
-    -- An over belongs to the bowler who bowled most of its legal balls.
+    -- An over belongs to the bowler who bowled most of its legal balls; on a
+    -- split over (3 and 3), to the one who started it.
     SELECT match_id, innings_no, over_no,
-           arg_max(bowler_id, legal) AS player_id,
-           arg_max(bowling_team_id, legal) AS team_id
+           arg_max(bowler_id, legal * 1000000 - first_ball) AS player_id,
+           arg_max(bowling_team_id, legal * 1000000 - first_ball) AS team_id
     FROM balls GROUP BY ALL
 )
 SELECT o.player_id, s.year AS season, t.franchise_id, o.over_no, count(*)::INTEGER AS overs,

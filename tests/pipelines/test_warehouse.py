@@ -1,3 +1,4 @@
+import shutil
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -108,8 +109,9 @@ def test_unmapped_venue_fails_the_build(
     config = tmp_path / "config"
     config.mkdir()
     source = Path(__file__).resolve().parents[2] / "config"
-    for name in ("competitions.yaml", "franchises.yaml", "golden_matches.yaml"):
+    for name in ("competitions.yaml", "venue_countries.yaml", "golden_matches.yaml"):
         (config / name).write_text((source / name).read_text("utf-8"), "utf-8")
+    shutil.copytree(source / "teams", config / "teams")
     (config / "venues.yaml").write_text(
         "venues:\n  - {id: x, name: X, city: Y, country: Z, aliases: [Nowhere]}\n", "utf-8"
     )

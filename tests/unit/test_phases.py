@@ -36,8 +36,45 @@ def test_phase_for_over_index_out_of_range() -> None:
 
 
 def test_unknown_format() -> None:
-    with pytest.raises(KeyError, match="ODI"):
-        default_phase_config().for_format("ODI")
+    with pytest.raises(KeyError, match="Hundred"):
+        default_phase_config().for_format("Hundred")
+
+
+def test_odi_phases() -> None:
+    odi = default_phase_config().for_format("ODI")
+    assert odi.overs == 50
+    assert odi.phase_for_over_index(9).key == "powerplay"
+    assert odi.phase_for_over_index(10).key == "middle"
+    assert odi.phase_for_over_index(49).key == "death"
+
+
+def test_test_phases_are_open_ended() -> None:
+    test = default_phase_config().for_format("Test")
+    assert test.overs is None
+    assert test.phase_for_over_index(0).key == "new_ball"
+    assert test.phase_for_over_index(79).key == "middle"
+    assert test.phase_for_over_index(80).key == "second_new_ball"
+    assert test.phase_for_over_index(400).key == "second_new_ball"
+    assert test.sql_case("o") == (
+        "CASE WHEN o + 1 <= 20 THEN 'new_ball' WHEN o + 1 <= 80 THEN 'middle' "
+        "ELSE 'second_new_ball' END"
+    )
+
+
+def test_unlimited_format_needs_one_open_phase(tmp_path: Path) -> None:
+    bad = tmp_path / "phases.yaml"
+    bad.write_text(
+        """
+formats:
+  X:
+    phases:
+      - {key: a, label: A, first_over: 1}
+      - {key: b, label: B, first_over: 5}
+""",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="open phase"):
+        load_phase_config(bad)
 
 
 def test_config_must_cover_every_over(tmp_path: Path) -> None:

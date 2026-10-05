@@ -5,7 +5,7 @@
         "term",
         "coefs"
       ],
-      "md5": "6ec6749deb76733f9a5ce90c48225e01",
+      "md5": "41b99dfad6f9ba4f7ff082978029d096",
       "rows": 1337
     },
     "bowling_usage": {
@@ -17,7 +17,7 @@
         "overs",
         "matches"
       ],
-      "md5": "fd418e1925141d9d7876a22a5c624f86",
+      "md5": "7b13903dcc2aa0e977b24f98fd2cc936",
       "rows": 494
     },
     "competitions": {
@@ -29,7 +29,7 @@
         "gender",
         "team_type"
       ],
-      "md5": "e712d3a1150688668286ee3b72131c93",
+      "md5": "c39ee7a54aeacabb7b75166e1ed47ed7",
       "rows": 1
     },
     "deliveries": {
@@ -61,7 +61,7 @@
         "team_wickets",
         "has_review"
       ],
-      "md5": "1667ac86e4a413299edb3b7f99a440a9",
+      "md5": "2610964ae7a089b5bfc142183277e2b8",
       "rows": 3209
     },
     "franchises": {
@@ -75,7 +75,7 @@
         "last_season",
         "is_active"
       ],
-      "md5": "25518e9c4d70524314330f53cb6956b2",
+      "md5": "bc022de78f213bfc2bfeddcc7131f48a",
       "rows": 15
     },
     "innings": {
@@ -95,7 +95,7 @@
         "absent_hurt_ids",
         "miscounted_overs"
       ],
-      "md5": "f60a9ebe5fa3304da7561bd491772821",
+      "md5": "88f13351626a432e5209123c06fcac4e",
       "rows": 33
     },
     "league_phase_rates": {
@@ -113,7 +113,7 @@
         "bowl_dot_rate",
         "bowl_boundary_rate"
       ],
-      "md5": "9057ad1a63db7dd35066093c9c2271ec",
+      "md5": "00786c897b29d5fd8d4a387de7439052",
       "rows": 30
     },
     "match_players": {
@@ -125,7 +125,7 @@
         "selection",
         "substituted_out"
       ],
-      "md5": "399d094de4e5f573497cb857ca7c16f1",
+      "md5": "8511509f7c89ae36384cb44dfb428136",
       "rows": 316
     },
     "match_summaries": {
@@ -168,7 +168,7 @@
         "result_text",
         "player_of_match"
       ],
-      "md5": "83e182ad07092e7a17280a9b61daf139",
+      "md5": "99355e296f4ac95866b4d6a4733ad0ba",
       "rows": 14
     },
     "matches": {
@@ -198,7 +198,7 @@
         "player_of_match_ids",
         "cricsheet_version"
       ],
-      "md5": "3e7d69c83697bd31a9cfb1d5bc9d0a56",
+      "md5": "2eff397f45114035885f8cf271d48590",
       "rows": 14
     },
     "matchup_cells": {
@@ -224,7 +224,7 @@
         "e_six",
         "e_out"
       ],
-      "md5": "4cca69492f6b9232e4d893ff7f8ea57f",
+      "md5": "3f128af38d01f5228db3bef18c437265",
       "rows": 770
     },
     "models": {
@@ -235,7 +235,7 @@
         "trained_through",
         "info"
       ],
-      "md5": "d799d115573020a7f5c058267dadfb6b",
+      "md5": "64a26b68fcd4372dc68cf6fd26c2d608",
       "rows": 5
     },
     "player_batting_cells": {
@@ -255,7 +255,7 @@
         "par_boundaries",
         "par_dots"
       ],
-      "md5": "cfacc5341bbaf428196732469a65b57e",
+      "md5": "199eceafdf66247032d9e4863253c5e5",
       "rows": 439
     },
     "player_batting_innings": {
@@ -285,7 +285,7 @@
         "par_boundaries",
         "par_dots"
       ],
-      "md5": "969e2db202daf73067d7592a61fe1d79",
+      "md5": "a2d0e50905af9b5db0ef4ee0fcb523c7",
       "rows": 219
     },
     "player_batting_phases": {
@@ -301,7 +301,7 @@
         "par_runs",
         "par_outs"
       ],
-      "md5": "ac99bfac08960ec39c69bbf8f8309cae",
+      "md5": "1337dd4b41010f5393c2650a1a16a6b3",
       "rows": 316
     },
     "player_bowling_cells": {
@@ -323,7 +323,7 @@
         "par_boundaries",
         "par_dots"
       ],
-      "md5": "7b98ef82fa8c1deb78397e6486702ad4",
+      "md5": "f31f572dd6bc42d0a4d186e8dfd86b5a",
       "rows": 454
     },
     "player_bowling_innings": {
@@ -353,7 +353,7 @@
         "par_boundaries",
         "par_dots"
       ],
-      "md5": "4852581bcbb2f303d23d520e45881948",
+      "md5": "24f34ec20be898c116efae157bf4ef91",
       "rows": 157
     },
     "player_bowling_phases": {
@@ -369,7 +369,7 @@
         "par_runs",
         "par_wickets"
       ],
-      "md5": "0da05766b32e695c151d3d7f620de3a9",
+      "md5": "3e77268b3a6d4f19e661bad53c6b4e87",
       "rows": 287
     },
     "player_fielding": {
@@ -381,7 +381,7 @@
         "stumpings",
         "run_outs"
       ],
-      "md5": "9fd79b7b0f280ffccd727033dc8a6533",
+      "md5": "285c7c945bd6d1e763351d9b7d33026f",
       "rows": 101
     },
     "player_index": {
@@ -403,7 +403,7 @@
         "latest_team_id",
         "search_key"
       ],
-      "md5": "3fc1d4a6d2c5bbb38b645c24f7fc42df",
+      "md5": "72f57e1852ba26b0ad67f89bfb8cd2ae",
       "rows": 202
     },
     "player_seasons": {
@@ -413,7 +413,7 @@
         "franchise_id",
         "matches"
       ],
-      "md5": "e19ce672fb1a39855f3e250a9767614e",
+      "md5": "54943fc50c78deec558ed1e996917dce",
       "rows": 292
     },
     "player_wpa": {
@@ -424,7 +424,7 @@
         "role",
         "wpa"
       ],
-      "md5": "76f0fbc15d592cbe65b2873489b5e78c",
+      "md5": "d0d64bac9082ebb5c6e0ebffadd23688",
       "rows": 375
     },
     "players": {
@@ -439,7 +439,7 @@
         "bowling_type",
         "bowling_style"
       ],
-      "md5": "f420d90f6545da75c4b65f18bcbadda3",
+      "md5": "da25cad2b68c39be4e9824ba9ec2cc6f",
       "rows": 204
     },
     "score_projections": {
@@ -448,7 +448,7 @@
         "seq_no",
         "quantiles"
       ],
-      "md5": "be5686df20fbfe41cd84ca226ff553ab",
+      "md5": "10344798dbd583d4eee24df5dc538bb0",
       "rows": 1624
     },
     "seasons": {
@@ -459,7 +459,7 @@
         "cricsheet_label",
         "impact_player_rule"
       ],
-      "md5": "f56ff22f72158e1289156671e7e14287",
+      "md5": "cfe08499c0005fcd45591ed2d52eabd1",
       "rows": 10
     },
     "sim_league_rates": {
@@ -476,7 +476,7 @@
         "x4",
         "x5"
       ],
-      "md5": "ddf5accee0685f8b5d3bab591b3e2c6c",
+      "md5": "5c4cb38a54e0ff74359f9240a80f4d42",
       "rows": 60
     },
     "substitutions": {
@@ -492,7 +492,7 @@
         "player_out_id",
         "role"
       ],
-      "md5": "9f11c55a64d67169846eef770063ca0d",
+      "md5": "6f8d36e066d0e2cddb633c103e0550a0",
       "rows": 10
     },
     "team_innings_phases": {
@@ -510,7 +510,7 @@
         "sixes",
         "dots"
       ],
-      "md5": "8bb6ef0e61e16ecf819716435b613566",
+      "md5": "b9a2ec72456773233c60b349280a934a",
       "rows": 78
     },
     "team_matches": {
@@ -553,7 +553,7 @@
         "form_won",
         "form_decided"
       ],
-      "md5": "5662fbcb787caaf6b62aff6c54daded5",
+      "md5": "bf184902dabdee136c3c3af38693499f",
       "rows": 28
     },
     "team_season_records": {
@@ -578,7 +578,7 @@
         "finish",
         "exit_stage"
       ],
-      "md5": "9ea420fb7945b3df01baacdff289f5c6",
+      "md5": "f7c97ac0a4a7fd351b0779b3d1398652",
       "rows": 26
     },
     "team_seasons": {
@@ -588,7 +588,7 @@
         "season_id",
         "display_name"
       ],
-      "md5": "01028e85da88098b71d533f0b187da15",
+      "md5": "7520a2149d2e86030869fc0db16c0aa2",
       "rows": 26
     },
     "venues": {
@@ -599,7 +599,7 @@
         "country",
         "notes"
       ],
-      "md5": "95a2d914dedc00633ab831cdbb8843c4",
+      "md5": "7f3506b1bb2d65dbafa84b32bc85c178",
       "rows": 37
     },
     "wickets": {
@@ -616,7 +616,7 @@
         "fielder_ids",
         "fielder_is_substitute"
       ],
-      "md5": "b30b9bbf2fd05fde9671b64a7c47b067",
+      "md5": "96bb10231f12441d50c54fcf95e5c84f",
       "rows": 181
     },
     "wp_predictions": {
@@ -630,7 +630,7 @@
         "pressure",
         "momentum"
       ],
-      "md5": "5b497264a4b70fb34ae7c078074d6d9d",
+      "md5": "d97f5ec666107bf9e73680d0f4ccc3f9",
       "rows": 3199
     }
   },
@@ -644,7 +644,7 @@
         "gender",
         "team_type"
       ],
-      "md5": "e712d3a1150688668286ee3b72131c93",
+      "md5": "c39ee7a54aeacabb7b75166e1ed47ed7",
       "rows": 1
     },
     "deliveries": {
@@ -676,7 +676,7 @@
         "team_wickets",
         "has_review"
       ],
-      "md5": "1667ac86e4a413299edb3b7f99a440a9",
+      "md5": "2610964ae7a089b5bfc142183277e2b8",
       "rows": 3209
     },
     "franchises": {
@@ -690,7 +690,7 @@
         "last_season",
         "is_active"
       ],
-      "md5": "25518e9c4d70524314330f53cb6956b2",
+      "md5": "bc022de78f213bfc2bfeddcc7131f48a",
       "rows": 15
     },
     "innings": {
@@ -710,7 +710,7 @@
         "absent_hurt_ids",
         "miscounted_overs"
       ],
-      "md5": "f60a9ebe5fa3304da7561bd491772821",
+      "md5": "88f13351626a432e5209123c06fcac4e",
       "rows": 33
     },
     "match_players": {
@@ -722,7 +722,7 @@
         "selection",
         "substituted_out"
       ],
-      "md5": "399d094de4e5f573497cb857ca7c16f1",
+      "md5": "8511509f7c89ae36384cb44dfb428136",
       "rows": 316
     },
     "matches": {
@@ -752,7 +752,7 @@
         "player_of_match_ids",
         "cricsheet_version"
       ],
-      "md5": "3e7d69c83697bd31a9cfb1d5bc9d0a56",
+      "md5": "2eff397f45114035885f8cf271d48590",
       "rows": 14
     },
     "player_identifiers": {
@@ -761,7 +761,7 @@
         "source",
         "value"
       ],
-      "md5": "c4248d9487d808e51f78979a84be37b0",
+      "md5": "52b1817a3f0bff66cb0f7fbb44fb34d3",
       "rows": 670
     },
     "players": {
@@ -778,7 +778,7 @@
         "bowling_style",
         "attributes_source"
       ],
-      "md5": "8808b564a26984c39025af9e435492cc",
+      "md5": "01f7da43285a895aedf5e208c7e57bc3",
       "rows": 204
     },
     "seasons": {
@@ -789,7 +789,7 @@
         "cricsheet_label",
         "impact_player_rule"
       ],
-      "md5": "f56ff22f72158e1289156671e7e14287",
+      "md5": "cfe08499c0005fcd45591ed2d52eabd1",
       "rows": 10
     },
     "substitutions": {
@@ -805,7 +805,7 @@
         "player_out_id",
         "role"
       ],
-      "md5": "9f11c55a64d67169846eef770063ca0d",
+      "md5": "6f8d36e066d0e2cddb633c103e0550a0",
       "rows": 10
     },
     "team_seasons": {
@@ -815,7 +815,7 @@
         "season_id",
         "display_name"
       ],
-      "md5": "01028e85da88098b71d533f0b187da15",
+      "md5": "7520a2149d2e86030869fc0db16c0aa2",
       "rows": 26
     },
     "venue_aliases": {
@@ -823,7 +823,7 @@
         "raw_name",
         "venue_id"
       ],
-      "md5": "60f93ce4da583af2ccaf63cf8cbb0894",
+      "md5": "13d182a99a682d488ea8778b5e27c1a2",
       "rows": 60
     },
     "venues": {
@@ -834,7 +834,7 @@
         "country",
         "notes"
       ],
-      "md5": "95a2d914dedc00633ab831cdbb8843c4",
+      "md5": "7f3506b1bb2d65dbafa84b32bc85c178",
       "rows": 37
     },
     "wickets": {
@@ -851,7 +851,7 @@
         "fielder_ids",
         "fielder_is_substitute"
       ],
-      "md5": "b30b9bbf2fd05fde9671b64a7c47b067",
+      "md5": "96bb10231f12441d50c54fcf95e5c84f",
       "rows": 181
     }
   }

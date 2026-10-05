@@ -1,5 +1,17 @@
-# Competitions CricIQ ingests. Only the IPL is in scope for MVP/V1; the
-# structure is format-agnostic so other leagues can be added as new entries.
+# Competitions CricIQ ingests (men's cricket).
+#
+# A match belongs to the first competition whose `match` rules it meets: club
+# leagues by Cricsheet event name, internationals by match type. Archives are
+# only where to download from; recently-added feeds are classified the same way.
+#
+# season_basis:
+#   label    - a season is Cricsheet's season label ("2023/24"); its year is
+#              the year of its last match (PSL "2015/16" is PSL 2016).
+#   calendar - a season is the calendar year of the match's first day.
+# strict: an unknown team or venue fails the build (curated competitions);
+#   otherwise new teams and venues are added automatically and reported.
+# switcher: shown in the site's competition switcher; the other leagues feed
+#   the models and players' careers.
 
 competitions:
   - id: IPL
@@ -8,9 +20,100 @@ competitions:
     format: T20
     gender: male
     team_type: club
+    teams: ipl
+    strict: true
+    season_basis: label
+    switcher: true
     cricsheet:
       archive: ipl_json.zip
-      event_name: Indian Premier League
+      match: { event_name: Indian Premier League }
     rules:
       # Season from which the Impact Player substitution rule applied.
       impact_player_from: 2023
+
+  - id: BBL
+    name: Big Bash League
+    short_name: BBL
+    format: T20
+    gender: male
+    team_type: club
+    teams: bbl
+    season_basis: label
+    cricsheet:
+      archive: bbl_json.zip
+      match: { event_name: Big Bash League }
+
+  - id: PSL
+    name: Pakistan Super League
+    short_name: PSL
+    format: T20
+    gender: male
+    team_type: club
+    teams: psl
+    season_basis: label
+    cricsheet:
+      archive: psl_json.zip
+      match: { event_name: Pakistan Super League }
+
+  - id: CPL
+    name: Caribbean Premier League
+    short_name: CPL
+    format: T20
+    gender: male
+    team_type: club
+    teams: cpl
+    season_basis: label
+    cricsheet:
+      archive: cpl_json.zip
+      match: { event_name: Caribbean Premier League }
+
+  - id: SA20
+    name: SA20
+    short_name: SA20
+    format: T20
+    gender: male
+    team_type: club
+    teams: sa20
+    season_basis: label
+    cricsheet:
+      archive: sat_json.zip
+      match: { event_name: SA20 }
+
+  - id: T20I
+    name: Men's T20 Internationals
+    short_name: T20I
+    format: T20
+    gender: male
+    team_type: national
+    teams: national
+    season_basis: calendar
+    switcher: true
+    cricsheet:
+      archive: t20s_male_json.zip
+      match: { match_type: T20, team_type: international }
+
+  - id: ODI
+    name: Men's One-Day Internationals
+    short_name: ODI
+    format: ODI
+    gender: male
+    team_type: national
+    teams: national
+    season_basis: calendar
+    switcher: true
+    cricsheet:
+      archive: odis_male_json.zip
+      match: { match_type: ODI, team_type: international }
+
+  - id: TEST
+    name: Men's Test cricket
+    short_name: Tests
+    format: Test
+    gender: male
+    team_type: national
+    teams: national
+    season_basis: calendar
+    switcher: true
+    cricsheet:
+      archive: tests_male_json.zip
+      match: { match_type: Test, team_type: international }

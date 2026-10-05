@@ -7,8 +7,8 @@ import pytest
 from criciq_pipelines.validation import validate
 
 
-def test_fixture_warehouse_passes_every_check(fixture_warehouse: Path) -> None:
-    report = validate(fixture_warehouse)
+def test_fixture_warehouse_passes_every_check(fixture_full_warehouse: Path) -> None:
+    report = validate(fixture_full_warehouse)
     assert [(c.id, c.sample) for c in report.checks if not c.passed] == []
     assert [g.match_id for g in report.golden if not g.passed] == []
     assert len(report.golden) == 6
@@ -16,9 +16,9 @@ def test_fixture_warehouse_passes_every_check(fixture_warehouse: Path) -> None:
 
 
 @pytest.fixture
-def tampered(fixture_warehouse: Path, tmp_path: Path) -> Path:
+def tampered(fixture_full_warehouse: Path, tmp_path: Path) -> Path:
     copy = tmp_path / "tampered.duckdb"
-    shutil.copy(fixture_warehouse, copy)
+    shutil.copy(fixture_full_warehouse, copy)
     return copy
 
 
@@ -39,7 +39,7 @@ def test_inconsistent_innings_total_is_caught(tampered: Path) -> None:
     assert not report.passed
 
 
-def test_golden_mismatch_is_caught(fixture_warehouse: Path, tmp_path: Path) -> None:
+def test_golden_mismatch_is_caught(fixture_full_warehouse: Path, tmp_path: Path) -> None:
     config = Path(__file__).resolve().parents[2] / "config"
     golden = (config / "golden_matches.yaml").read_text("utf-8")
     wrong = golden.replace(
@@ -47,8 +47,9 @@ def test_golden_mismatch_is_caught(fixture_warehouse: Path, tmp_path: Path) -> N
     )
     assert wrong != golden
     (tmp_path / "golden_matches.yaml").write_text(wrong, "utf-8")
+    shutil.copy(config / "competitions.yaml", tmp_path / "competitions.yaml")
 
-    report = validate(fixture_warehouse, config_dir=tmp_path)
+    report = validate(fixture_full_warehouse, config_dir=tmp_path)
     [result] = [g for g in report.golden if g.match_id == 1181768]
     assert result.mismatches == ["win by runs: expected 2, got 1"]
     assert not report.passed

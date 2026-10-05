@@ -19,34 +19,63 @@ class Phase(BaseModel):
     key: str
     label: str
     first_over: int = Field(ge=1)
-    last_over: int = Field(ge=1)
+    # None: open-ended (the last phase of a format without an over limit).
+    last_over: int | None = Field(default=None, ge=1)
 
     @model_validator(mode="after")
     def _ordered(self) -> Phase:
-        if self.last_over < self.first_over:
+        if self.last_over is not None and self.last_over < self.first_over:
             raise ValueError(f"phase {self.key!r}: last_over < first_over")
         return self
 
+    def covers(self, over_number: int) -> bool:
+        return self.first_over <= over_number and (
+            self.last_over is None or over_number <= self.last_over
+        )
+
 
 class FormatPhases(BaseModel):
-    overs: int = Field(ge=1)
+    # None: no over limit (Test cricket).
+    overs: int | None = Field(default=None, ge=1)
     balls_per_over: int = Field(default=6, ge=1)
     phases: list[Phase]
 
     @model_validator(mode="after")
     def _covers_every_over_once(self) -> FormatPhases:
-        covered: list[int] = []
-        for phase in self.phases:
+        ordered = sorted(self.phases, key=lambda p: p.first_over)
+        if self.overs is None:
+            open_ended = [p for p in ordered if p.last_over is None]
+            if open_ended != ordered[-1:]:
+                raise ValueError("an unlimited format needs exactly one, final, open phase")
+            bounded = ordered[:-1]
+            covered: list[int] = []
+            for phase in bounded:
+                assert phase.last_over is not None
+                covered.extend(range(phase.first_over, phase.last_over + 1))
+            if covered != list(range(1, ordered[-1].first_over)):
+                raise ValueError("phases must cover every over from 1 onwards exactly once")
+            return self
+        covered = []
+        for phase in ordered:
+            if phase.last_over is None:
+                raise ValueError(f"phase {phase.key!r} needs a last_over in a limited format")
             covered.extend(range(phase.first_over, phase.last_over + 1))
         if sorted(covered) != list(range(1, self.overs + 1)):
             raise ValueError("phases must cover every over from 1..overs exactly once")
         return self
 
+    @property
+    def limit(self) -> int:
+        """The over limit of a limited-overs format (Tests have none)."""
+        if self.overs is None:
+            raise ValueError("this format has no over limit")
+        return self.overs
+
     def phase_for_over_index(self, over_index: int) -> Phase:
         """Phase of a 0-indexed over (Cricsheet convention: over 0 is the first over)."""
         over_number = over_index + 1
         for phase in self.phases:
-            if phase.first_over <= over_number <= phase.last_over:
+            if phase.covers(over_number):
                 return phase
         raise ValueError(f"over index {over_index} is outside a {self.overs}-over innings")
 
@@ -54,7 +83,9 @@ class FormatPhases(BaseModel):
         """SQL ``CASE`` expression giving the phase key of a 0-indexed over column."""
         ordered = sorted(self.phases, key=lambda p: p.first_over)
         whens = " ".join(
-            f"WHEN {over_index_column} + 1 <= {p.last_over} THEN '{p.key}'" for p in ordered
+            f"WHEN {over_index_column} + 1 <= {p.last_over} THEN '{p.key}'"
+            for p in ordered
+            if p.last_over is not None
         )
         # Overs beyond the format's length (miscounted innings) belong to the last phase.
         return f"CASE {whens} ELSE '{ordered[-1].key}' END"

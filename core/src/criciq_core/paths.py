@@ -40,8 +40,14 @@ def interim_dir() -> Path:
     return data_dir() / "interim"
 
 
-def warehouse_path() -> Path:
-    return data_dir() / "warehouse" / "criciq.duckdb"
+def cricket_warehouse_path() -> Path:
+    """The warehouse holding every competition."""
+    return data_dir() / "warehouse" / "cricket.duckdb"
+
+
+def warehouse_path(competition: str = "IPL") -> Path:
+    """One competition's warehouse in the v1 shape (see criciq_pipelines.scope)."""
+    return data_dir() / "warehouse" / f"{competition.lower()}.duckdb"
 
 
 def exports_dir() -> Path:

@@ -40,7 +40,12 @@ def _print_counts(counts: dict[str, int]) -> None:
 def _print_validation(report: ValidationReport) -> None:
     for check in report.checks:
         status = "pass" if check.passed else ("FAIL" if check.severity == "error" else "warn")
-        typer.echo(f"  [{status}] {check.id} ({check.violations})")
+        notes = (
+            "  notes: " + ", ".join(f"{k} {v}" for k, v in check.notes.items())
+            if check.notes
+            else ""
+        )
+        typer.echo(f"  [{status}] {check.id} ({check.violations}){notes}")
         if not check.passed:
             for sample in check.sample[:3]:
                 typer.echo(f"         {sample}")
@@ -60,7 +65,8 @@ def show_paths() -> None:
         "reference": paths.reference_dir(),
         "raw data": paths.raw_dir(),
         "interim": paths.interim_dir(),
-        "warehouse": paths.warehouse_path(),
+        "warehouse (all)": paths.cricket_warehouse_path(),
+        "warehouse (IPL)": paths.warehouse_path(),
         "exports": paths.exports_dir(),
         "models": paths.models_dir(),
     }
@@ -69,20 +75,36 @@ def show_paths() -> None:
         typer.echo(f"{name:<{width}}  {location}")
 
 
+def _download() -> raw.RawSnapshot:
+    archives = pipeline.archives_to_download()
+    return _timed(
+        f"downloading {', '.join(archives)} from cricsheet.org", lambda: raw.download(archives)
+    )
+
+
 @app.command()
 def download() -> None:
-    """Download the latest Cricsheet IPL archive and people register."""
-    snapshot = _timed("downloading from cricsheet.org", raw.download)
+    """Download the Cricsheet archives of the selected competitions and the register.
+
+    Competitions come from CRICIQ_COMPETITIONS (comma separated), else all of them.
+    """
+    snapshot = _download()
     typer.echo(f"  data version: {snapshot.version}")
 
 
 @app.command()
 def snapshot(
-    archive: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
-    people: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
+    files: Annotated[list[Path], typer.Argument(exists=True, dir_okay=False)],
 ) -> None:
-    """Register local Cricsheet files as a raw snapshot (offline alternative to download)."""
-    result = raw.store_snapshot(archive, people)
+    """Register local Cricsheet files as a raw snapshot (offline alternative to download).
+
+    Pass one or more match archives (.zip) and the people register (.csv).
+    """
+    archives = [f for f in files if f.suffix.lower() == ".zip"]
+    people = [f for f in files if f.suffix.lower() == ".csv"]
+    if not archives or len(people) != 1:
+        raise typer.BadParameter("pass one or more .zip archives and exactly one people .csv")
+    result = raw.store_snapshot(archives, people[0])
     typer.echo(f"data version: {result.version}")
 
 
@@ -94,7 +116,7 @@ def extract() -> None:
 
 @app.command()
 def build() -> None:
-    """Build the normalized DuckDB warehouse from the latest snapshot."""
+    """Build the warehouse (every selected competition) and the IPL copy the API reads."""
     _print_counts(_timed("building warehouse", pipeline.run_build))
 
 
@@ -149,10 +171,7 @@ def run(
     ] = None,
 ) -> None:
     """Full rebuild: download, extract, build, validate, report and export."""
-    if fetch:
-        snapshot = _timed("downloading from cricsheet.org", raw.download)
-    else:
-        snapshot = raw.latest_snapshot()
+    snapshot = _download() if fetch else raw.latest_snapshot()
     typer.echo(f"  data version: {snapshot.version}")
     _print_counts(_timed("extracting", lambda: pipeline.run_extract(snapshot)))
     _print_counts(_timed("building warehouse", lambda: pipeline.run_build(snapshot)))

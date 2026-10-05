@@ -48,8 +48,12 @@ SCHEMAS: dict[str, pa.Schema] = {
             ("outcome_eliminator", pa.string()),
             ("outcome_by_runs", pa.int32()),
             ("outcome_by_wickets", pa.int32()),
+            ("outcome_by_innings", pa.int32()),
+            ("outcome_bowl_out", pa.string()),
             ("outcome_method", pa.string()),
             ("player_of_match_ids", pa.list_(pa.string())),
+            ("match_type_number", pa.int32()),
+            ("has_supersubs", pa.bool_()),
         ]
     ),
     "innings": pa.schema(
@@ -62,6 +66,10 @@ SCHEMAS: dict[str, pa.Schema] = {
             ("target_overs", pa.float64()),
             ("absent_hurt_ids", pa.list_(pa.string())),
             ("miscounted_overs_json", pa.string()),
+            ("declared", pa.bool_()),
+            ("forfeited", pa.bool_()),
+            ("penalty_runs_pre", pa.int32()),
+            ("penalty_runs_post", pa.int32()),
         ]
     ),
     "deliveries": pa.schema(
@@ -182,8 +190,12 @@ def parse_match(match_id: int, doc: dict[str, Any]) -> dict[str, list[Row]]:
             "outcome_eliminator": outcome.get("eliminator"),
             "outcome_by_runs": by.get("runs"),
             "outcome_by_wickets": by.get("wickets"),
+            "outcome_by_innings": by.get("innings"),
+            "outcome_bowl_out": outcome.get("bowl_out"),
             "outcome_method": outcome.get("method"),
             "player_of_match_ids": [pid(p) for p in info.get("player_of_match", [])],
+            "match_type_number": info.get("match_type_number"),
+            "has_supersubs": bool(info.get("supersubs")),
         }
     )
 
@@ -216,6 +228,10 @@ def parse_match(match_id: int, doc: dict[str, Any]) -> dict[str, list[Row]]:
                     if "miscounted_overs" in innings
                     else None
                 ),
+                "declared": bool(innings.get("declared", False)),
+                "forfeited": bool(innings.get("forfeited", False)),
+                "penalty_runs_pre": innings.get("penalty_runs", {}).get("pre", 0),
+                "penalty_runs_post": innings.get("penalty_runs", {}).get("post", 0),
             }
         )
         _parse_deliveries(match_id, innings_no, innings, pid, rows)
@@ -308,12 +324,25 @@ def iter_archive(archive: Path) -> Iterator[tuple[int, dict[str, Any]]]:
             yield int(Path(name).stem), json.loads(zf.read(name))
 
 
-def extract_archive(archive: Path, out_dir: Path, batch_size: int = 100) -> dict[str, int]:
-    """Flatten every match and write one Parquet file per table.
+def iter_archives(archives: list[Path]) -> Iterator[tuple[int, dict[str, Any]]]:
+    """Matches from several archives; a match in more than one is read once."""
+    seen: set[int] = set()
+    for archive in archives:
+        for match_id, doc in iter_archive(archive):
+            if match_id not in seen:
+                seen.add(match_id)
+                yield match_id, doc
+
+
+def extract_archive(
+    archive: Path | list[Path], out_dir: Path, batch_size: int = 100
+) -> dict[str, int]:
+    """Flatten every match of one or more archives and write one Parquet file per table.
 
     Rows are flushed every ``batch_size`` matches so memory stays flat no matter
-    how large the archive grows (the build also runs on small cloud builders).
+    how large the archives grow (the build also runs on small cloud builders).
     """
+    archives = [archive] if isinstance(archive, Path) else archive
     out_dir.mkdir(parents=True, exist_ok=True)
     counts = dict.fromkeys(SCHEMAS, 0)
     buffers: dict[str, list[Row]] = {name: [] for name in SCHEMAS}
@@ -330,7 +359,7 @@ def extract_archive(archive: Path, out_dir: Path, batch_size: int = 100) -> dict
                 rows.clear()
 
     try:
-        for index, (match_id, doc) in enumerate(iter_archive(archive), start=1):
+        for index, (match_id, doc) in enumerate(iter_archives(archives), start=1):
             for name, rows in parse_match(match_id, doc).items():
                 buffers[name].extend(rows)
             if index % batch_size == 0:

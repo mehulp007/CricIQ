@@ -59,7 +59,7 @@ SMOOTHING: tuple[tuple[int, float], ...] = tuple((d, (5 - abs(d)) / 25) for d in
 
 def _phase_keys(over_index: np.ndarray) -> np.ndarray:
     phases = default_phase_config().for_format("T20")
-    lookup = {o: phases.phase_for_over_index(min(o, phases.overs - 1)).key for o in range(40)}
+    lookup = {o: phases.phase_for_over_index(min(o, phases.limit - 1)).key for o in range(40)}
     return np.array([lookup[min(int(o), 39)] for o in over_index])
 
 

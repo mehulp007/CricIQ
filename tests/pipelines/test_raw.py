@@ -32,13 +32,13 @@ def test_latest_match_date_prefers_readme(tmp_path: Path) -> None:
 
 
 def test_version_is_content_addressed(fixture_archive: Path, tmp_path: Path) -> None:
-    version = compute_version(fixture_archive, PEOPLE_CSV)
+    version = compute_version([fixture_archive], PEOPLE_CSV)
     assert version.startswith("2025-06-03.")
-    assert compute_version(fixture_archive, PEOPLE_CSV) == version
+    assert compute_version([fixture_archive], PEOPLE_CSV) == version
 
     changed = tmp_path / "people.csv"
     changed.write_text(PEOPLE_CSV.read_text("utf-8") + "\n", "utf-8")
-    assert compute_version(fixture_archive, changed) != version
+    assert compute_version([fixture_archive], changed) != version
 
 
 def test_store_snapshot_is_idempotent_and_updates_latest(
@@ -50,7 +50,7 @@ def test_store_snapshot_is_idempotent_and_updates_latest(
     assert latest_snapshot(tmp_path) == first
     manifest = first.manifest
     assert manifest["data_version"] == first.version
-    assert manifest["match_files"] == 14
+    assert manifest["match_files"] == {"ipl_json.zip": 14}
     files = manifest["files"]
     assert isinstance(files, dict)
     assert set(files) == {"ipl_json.zip", "people.csv"}

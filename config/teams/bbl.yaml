@@ -1,0 +1,13 @@
+# Big Bash League clubs. Same structure as ipl.yaml: `names[].from` / `to`
+# are inclusive season years (a BBL season's year is the year it ends).
+# Colours are data accents only (no logos, no trademarks).
+
+teams:
+  - { id: ADS, name: Adelaide Strikers, colors: { primary: "#0091D5", secondary: "#F5C400" }, names: [{ name: Adelaide Strikers, from: 2012 }] }
+  - { id: BRH, name: Brisbane Heat, colors: { primary: "#00B4D8", secondary: "#E4007C" }, names: [{ name: Brisbane Heat, from: 2012 }] }
+  - { id: HBH, name: Hobart Hurricanes, colors: { primary: "#6A2C91", secondary: "#F7A400" }, names: [{ name: Hobart Hurricanes, from: 2012 }] }
+  - { id: MLR, name: Melbourne Renegades, colors: { primary: "#E2231A", secondary: "#7A7A7A" }, names: [{ name: Melbourne Renegades, from: 2012 }] }
+  - { id: MLS, name: Melbourne Stars, colors: { primary: "#00A651", secondary: "#7A7A7A" }, names: [{ name: Melbourne Stars, from: 2012 }] }
+  - { id: PRS, name: Perth Scorchers, colors: { primary: "#F47920", secondary: "#7A7A7A" }, names: [{ name: Perth Scorchers, from: 2012 }] }
+  - { id: SYS, name: Sydney Sixers, colors: { primary: "#E2007A", secondary: "#7A7A7A" }, names: [{ name: Sydney Sixers, from: 2012 }] }
+  - { id: SYT, name: Sydney Thunder, colors: { primary: "#8CC63F", secondary: "#7A7A7A" }, names: [{ name: Sydney Thunder, from: 2012 }] }

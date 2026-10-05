@@ -71,7 +71,7 @@ def _upto(states: pd.DataFrame, season: int) -> pd.DataFrame:
 
 def phase_of(legal_balls: pd.Series) -> pd.Series:
     phases = default_phase_config().for_format("T20")
-    over_index = (legal_balls.clip(lower=0) // phases.balls_per_over).clip(upper=phases.overs - 1)
+    over_index = (legal_balls.clip(lower=0) // phases.balls_per_over).clip(upper=phases.limit - 1)
     return over_index.map(lambda o: phases.phase_for_over_index(int(o)).key)
 
 

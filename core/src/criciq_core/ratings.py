@@ -68,7 +68,7 @@ _WPA = """
 
 def _phases() -> list[tuple[str, str, int, int]]:
     phases = default_phase_config().for_format("T20").phases
-    return [(p.key, p.label, p.first_over, p.last_over) for p in phases]
+    return [(p.key, p.label, p.first_over, p.last_over) for p in phases if p.last_over]
 
 
 @cache

@@ -1,0 +1,123 @@
+# National teams (men's internationals: Tests, ODIs, T20Is).
+#
+# A national team is one identity across formats and years, so names are plain
+# (no season ranges); Swaziland and Eswatini are the same side. Ids follow the
+# usual cricket abbreviations. Colours are optional data accents for the
+# established sides; the UI falls back to neutral tones for the rest.
+#
+# Cricsheet holds no Afghanistan matches, so Afghanistan is not listed.
+
+teams:
+  # Full members
+  - { id: AUS, name: Australia, colors: { primary: "#FFCD00", secondary: "#00843D" } }
+  - { id: BAN, name: Bangladesh, colors: { primary: "#006A4E", secondary: "#F42A41" } }
+  - { id: ENG, name: England, colors: { primary: "#1D4FA0", secondary: "#C8102E" } }
+  - { id: IND, name: India, colors: { primary: "#1C6FD1", secondary: "#FF9933" } }
+  - { id: IRE, name: Ireland, colors: { primary: "#169B62", secondary: "#7A7A7A" } }
+  - { id: NZ, name: New Zealand, colors: { primary: "#A8A8A8", secondary: "#4A4A4A" } }
+  - { id: PAK, name: Pakistan, colors: { primary: "#1E8E3E", secondary: "#A3D977" } }
+  - { id: SA, name: South Africa, colors: { primary: "#007A4D", secondary: "#FFB612" } }
+  - { id: SL, name: Sri Lanka, colors: { primary: "#2B4BA8", secondary: "#FFC72C" } }
+  - { id: WI, name: West Indies, colors: { primary: "#9B1B3A", secondary: "#FFC72C" } }
+  - { id: ZIM, name: Zimbabwe, colors: { primary: "#D40000", secondary: "#FCE300" } }
+  # Associates
+  - { id: ARG, name: Argentina }
+  - { id: AUT, name: Austria }
+  - { id: BAH, name: Bahamas }
+  - { id: BHR, name: Bahrain }
+  - { id: BLZ, name: Belize }
+  - { id: BEL, name: Belgium }
+  - { id: BER, name: Bermuda }
+  - { id: BHU, name: Bhutan }
+  - { id: BOT, name: Botswana }
+  - { id: BRA, name: Brazil }
+  - { id: BUL, name: Bulgaria }
+  - { id: CAM, name: Cambodia }
+  - { id: CMR, name: Cameroon }
+  - { id: CAN, name: Canada, colors: { primary: "#D52B1E", secondary: "#7A7A7A" } }
+  - { id: CAY, name: Cayman Islands }
+  - { id: CHI, name: Chile }
+  - { id: CHN, name: China }
+  - { id: COK, name: Cook Islands }
+  - { id: CRC, name: Costa Rica }
+  - { id: CRO, name: Croatia }
+  - { id: CYP, name: Cyprus }
+  - { id: CZE, name: Czech Republic }
+  - { id: DEN, name: Denmark }
+  - { id: EST, name: Estonia }
+  - { id: SWZ, name: Eswatini, names: [Eswatini, Swaziland] }
+  - { id: FIJ, name: Fiji }
+  - { id: FIN, name: Finland }
+  - { id: FRA, name: France }
+  - { id: GAM, name: Gambia }
+  - { id: GER, name: Germany }
+  - { id: GHA, name: Ghana }
+  - { id: GIB, name: Gibraltar }
+  - { id: GRE, name: Greece }
+  - { id: GUE, name: Guernsey }
+  - { id: HK, name: Hong Kong, colors: { primary: "#DE2910", secondary: "#7A7A7A" } }
+  - { id: HUN, name: Hungary }
+  - { id: INA, name: Indonesia }
+  - { id: IRN, name: Iran }
+  - { id: IOM, name: Isle of Man }
+  - { id: ISR, name: Israel }
+  - { id: ITA, name: Italy }
+  - { id: CIV, name: Ivory Coast }
+  - { id: JPN, name: Japan }
+  - { id: JER, name: Jersey }
+  - { id: KEN, name: Kenya, colors: { primary: "#BB0000", secondary: "#006600" } }
+  - { id: KUW, name: Kuwait }
+  - { id: LES, name: Lesotho }
+  - { id: LUX, name: Luxembourg }
+  - { id: MWI, name: Malawi }
+  - { id: MAS, name: Malaysia }
+  - { id: MDV, name: Maldives }
+  - { id: MLI, name: Mali }
+  - { id: MLT, name: Malta }
+  - { id: MEX, name: Mexico }
+  - { id: MGL, name: Mongolia }
+  - { id: MOZ, name: Mozambique }
+  - { id: MYA, name: Myanmar }
+  - { id: NAM, name: Namibia, colors: { primary: "#1E5AA8", secondary: "#D21034" } }
+  - { id: NEP, name: Nepal, colors: { primary: "#DC143C", secondary: "#2B4BA8" } }
+  - { id: NED, name: Netherlands, colors: { primary: "#F36C21", secondary: "#7A7A7A" } }
+  - { id: NGA, name: Nigeria }
+  - { id: NOR, name: Norway }
+  - { id: OMA, name: Oman, colors: { primary: "#DB161B", secondary: "#008000" } }
+  - { id: PAN, name: Panama }
+  - { id: PNG, name: Papua New Guinea, colors: { primary: "#CE1126", secondary: "#FCD116" } }
+  - { id: PER, name: Peru }
+  - { id: PHI, name: Philippines }
+  - { id: POR, name: Portugal }
+  - { id: QAT, name: Qatar }
+  - { id: ROU, name: Romania }
+  - { id: RWA, name: Rwanda }
+  - { id: SAM, name: Samoa }
+  - { id: KSA, name: Saudi Arabia }
+  - { id: SCO, name: Scotland, colors: { primary: "#4B5FBF", secondary: "#7A7A7A" } }
+  - { id: SRB, name: Serbia }
+  - { id: SEY, name: Seychelles }
+  - { id: SLE, name: Sierra Leone }
+  - { id: SIN, name: Singapore }
+  - { id: SVN, name: Slovenia }
+  - { id: KOR, name: South Korea }
+  - { id: ESP, name: Spain }
+  - { id: SHN, name: St Helena }
+  - { id: SUR, name: Suriname }
+  - { id: SWE, name: Sweden }
+  - { id: SUI, name: Switzerland }
+  - { id: TAN, name: Tanzania }
+  - { id: THA, name: Thailand }
+  - { id: TLS, name: Timor-Leste }
+  - { id: TUR, name: Turkey }
+  - { id: TCI, name: Turks and Caicos Islands, names: [Turks and Caicos Island] }
+  - { id: UGA, name: Uganda }
+  - { id: UAE, name: United Arab Emirates, colors: { primary: "#00843D", secondary: "#C8102E" } }
+  - { id: USA, name: United States of America, colors: { primary: "#3C5DAA", secondary: "#B22234" } }
+  - { id: UZB, name: Uzbekistan }
+  - { id: VAN, name: Vanuatu }
+  - { id: ZAM, name: Zambia }
+  # Composite sides
+  - { id: WXI, name: ICC World XI }
+  - { id: AFX, name: Africa XI }
+  - { id: ASX, name: Asia XI }

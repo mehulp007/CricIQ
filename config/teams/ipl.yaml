@@ -9,9 +9,7 @@
 # match uses a team name outside its declared seasons.
 # Colours are used only as data accents in the UI (no logos, no trademarks).
 
-competition: IPL
-
-franchises:
+teams:
   - id: CSK
     name: Chennai Super Kings
     colors: { primary: "#F9CD05", secondary: "#0081E9" }

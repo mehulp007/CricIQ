@@ -215,7 +215,7 @@ def _tune(
 def _phase(frame: pd.DataFrame) -> np.ndarray:
     phases = default_phase_config().for_format("T20")
     overs = (frame["legal_balls"].clip(lower=0) // phases.balls_per_over).clip(
-        upper=phases.overs - 1
+        upper=phases.limit - 1
     )
     return np.asarray(overs.map(lambda o: phases.phase_for_over_index(int(o)).key).to_numpy())
 

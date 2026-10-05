@@ -4,7 +4,8 @@
 # first over). Cricsheet stores 0-indexed overs; the conversion happens in
 # criciq_core.phases, never in feature or UI code.
 #
-# Every over from 1..overs must belong to exactly one phase — this is enforced
+# Every over from 1..overs must belong to exactly one phase (for an unlimited
+# format, from over 1 onwards with an open-ended last phase); this is enforced
 # when the file is loaded.
 
 formats:
@@ -24,3 +25,38 @@ formats:
         label: Death overs
         first_over: 16
         last_over: 20
+
+  ODI:
+    overs: 50
+    balls_per_over: 6
+    phases:
+      - key: powerplay
+        label: Powerplay
+        first_over: 1
+        last_over: 10
+      - key: middle
+        label: Middle overs
+        first_over: 11
+        last_over: 40
+      - key: death
+        label: Death overs
+        first_over: 41
+        last_over: 50
+
+  # Test innings have no over limit: the last phase is open-ended. A new ball
+  # is due after 80 overs.
+  Test:
+    overs: null
+    balls_per_over: 6
+    phases:
+      - key: new_ball
+        label: New ball
+        first_over: 1
+        last_over: 20
+      - key: middle
+        label: Middle overs
+        first_over: 21
+        last_over: 80
+      - key: second_new_ball
+        label: Second new ball
+        first_over: 81

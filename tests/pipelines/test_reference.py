@@ -2,14 +2,14 @@ import pytest
 
 from criciq_pipelines.reference import (
     load_competitions,
-    load_franchises,
     load_golden_matches,
+    load_teams,
     load_venues,
 )
 
 
 def test_renamed_franchises_resolve_by_season() -> None:
-    franchises = load_franchises()
+    franchises = load_teams("ipl")
     assert franchises.resolve("Delhi Daredevils", 2012).id == "DC"
     assert franchises.resolve("Delhi Capitals", 2024).id == "DC"
     assert franchises.resolve("Kings XI Punjab", 2019).id == "PBKS"
@@ -19,7 +19,7 @@ def test_renamed_franchises_resolve_by_season() -> None:
 
 
 def test_deccan_chargers_are_not_sunrisers() -> None:
-    franchises = load_franchises()
+    franchises = load_teams("ipl")
     assert franchises.resolve("Deccan Chargers", 2009).id == "DCH"
     assert franchises.resolve("Sunrisers Hyderabad", 2016).id == "SRH"
 
@@ -34,8 +34,8 @@ def test_deccan_chargers_are_not_sunrisers() -> None:
     ],
 )
 def test_names_outside_their_seasons_are_rejected(name: str, season: int) -> None:
-    with pytest.raises(LookupError, match=r"franchises\.yaml"):
-        load_franchises().resolve(name, season)
+    with pytest.raises(LookupError, match=r"teams/ipl\.yaml"):
+        load_teams("ipl").resolve(name, season)
 
 
 def test_venue_renames_share_one_ground() -> None:
@@ -61,7 +61,7 @@ def test_official_league_tables_are_consistent() -> None:
     from criciq_pipelines.reference import load_league_tables
 
     tables = load_league_tables()
-    franchises = {f.id for f in load_franchises().franchises}
+    franchises = {f.id for f in load_teams("ipl").teams}
     assert sorted(tables.seasons) == list(range(2008, max(tables.seasons) + 1))
     for season, rows in tables.seasons.items():
         teams = [r.franchise_id for r in rows]

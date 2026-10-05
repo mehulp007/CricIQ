@@ -7,6 +7,7 @@ keyed by ``data_version``, so any step can be re-run on its own.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict
 from pathlib import Path
 
@@ -17,11 +18,29 @@ from criciq_pipelines import enrich
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.raw import RawSnapshot, latest_snapshot
+from criciq_pipelines.reference import Competition, load_competitions
+from criciq_pipelines.scope import build_scope
 from criciq_pipelines.validation import ValidationReport, validate
 from criciq_pipelines.warehouse import BuildInputs, build_warehouse
 
 ATTRIBUTES_FILE = "player_attributes.csv"
 OVERRIDES_FILE = "player_attributes_overrides.csv"
+
+
+# Competitions whose v1-shaped warehouse the export and the models read.
+SCOPED = ("IPL",)
+
+
+def selected_competitions() -> list[Competition]:
+    """Competitions to download and build: ``CRICIQ_COMPETITIONS`` (comma separated)
+    or every configured competition."""
+    wanted = os.environ.get("CRICIQ_COMPETITIONS", "").strip()
+    ids = [c.strip() for c in wanted.split(",") if c.strip()] or None
+    return load_competitions().select(ids)
+
+
+def archives_to_download() -> list[str]:
+    return list(dict.fromkeys(c.cricsheet.archive for c in selected_competitions()))
 
 
 def interim_dir_for(snapshot: RawSnapshot) -> Path:
@@ -30,25 +49,33 @@ def interim_dir_for(snapshot: RawSnapshot) -> Path:
 
 def run_extract(snapshot: RawSnapshot | None = None) -> dict[str, int]:
     snapshot = snapshot or latest_snapshot()
-    return extract_archive(snapshot.archive, interim_dir_for(snapshot))
+    return extract_archive(snapshot.archives, interim_dir_for(snapshot))
 
 
 def run_build(
     snapshot: RawSnapshot | None = None, *, warehouse: Path | None = None
 ) -> dict[str, int]:
+    """Build the full warehouse, then the v1-shaped copy of each scoped competition."""
     snapshot = snapshot or latest_snapshot()
     interim = interim_dir_for(snapshot)
     if not (interim / "matches.parquet").exists():
         run_extract(snapshot)
-    return build_warehouse(
+    selected = selected_competitions()
+    target = warehouse or paths.cricket_warehouse_path()
+    counts = build_warehouse(
         BuildInputs(
             interim_dir=interim,
             people_csv=snapshot.people,
             data_version=snapshot.version,
             attributes_csv=paths.reference_dir() / ATTRIBUTES_FILE,
+            competitions=tuple(c.id for c in selected),
         ),
-        warehouse or paths.warehouse_path(),
+        target,
     )
+    for competition in SCOPED:
+        if competition in {c.id for c in selected}:
+            build_scope(target, competition, paths.warehouse_path(competition))
+    return counts
 
 
 def serving_path() -> Path:
@@ -62,7 +89,7 @@ def run_export(*, warehouse: Path | None = None, target: Path | None = None) -> 
 def run_validate(
     *, warehouse: Path | None = None, require_all_golden: bool = True
 ) -> ValidationReport:
-    target = warehouse or paths.warehouse_path()
+    target = warehouse or paths.cricket_warehouse_path()
     report = validate(target, require_all_golden=require_all_golden)
     summary = {
         "passed": report.passed,

@@ -1,0 +1,54 @@
+# Caribbean Premier League franchises. Same structure as ipl.yaml.
+#
+# Renames are one franchise: Trinidad & Tobago Red Steel became Trinbago Knight
+# Riders; Barbados Tridents played as Barbados Royals from 2021 to 2025; St
+# Lucia Zouks played as St Lucia Stars in 2017-18 and became St Lucia Kings.
+# Antigua Hawksbills (2013-14), Jamaica Tallawahs (to 2023), Antigua and
+# Barbuda Falcons (2024-) and Jamaica Kingsmen (2026-) are separate franchises.
+
+teams:
+  - id: TKR
+    name: Trinbago Knight Riders
+    colors: { primary: "#D51F26", secondary: "#3A2A6E" }
+    names:
+      - { name: Trinidad & Tobago Red Steel, from: 2013, to: 2015 }
+      - { name: Trinbago Knight Riders, from: 2016 }
+  - id: GAW
+    name: Guyana Amazon Warriors
+    colors: { primary: "#00A651", secondary: "#E31B23" }
+    names: [{ name: Guyana Amazon Warriors, from: 2013 }]
+  - id: BR
+    name: Barbados Royals
+    colors: { primary: "#E2187F", secondary: "#2A3F8F" }
+    names:
+      - { name: Barbados Tridents, from: 2013, to: 2020 }
+      - { name: Barbados Royals, from: 2021, to: 2025 }
+      - { name: Barbados Tridents, from: 2026 }
+  - id: JT
+    name: Jamaica Tallawahs
+    colors: { primary: "#00843D", secondary: "#FFCD00" }
+    names: [{ name: Jamaica Tallawahs, from: 2013, to: 2023 }]
+  - id: SKNP
+    name: St Kitts and Nevis Patriots
+    colors: { primary: "#2E7D32", secondary: "#FBC02D" }
+    names: [{ name: St Kitts and Nevis Patriots, from: 2015 }]
+  - id: SLK
+    name: St Lucia Kings
+    colors: { primary: "#1E63B4", secondary: "#F2B705" }
+    names:
+      - { name: St Lucia Zouks, from: 2013, to: 2016 }
+      - { name: St Lucia Stars, from: 2017, to: 2018 }
+      - { name: St Lucia Zouks, from: 2019, to: 2020 }
+      - { name: St Lucia Kings, from: 2021 }
+  - id: AH
+    name: Antigua Hawksbills
+    colors: { primary: "#F57C00", secondary: "#7A7A7A" }
+    names: [{ name: Antigua Hawksbills, from: 2013, to: 2014 }]
+  - id: ABF
+    name: Antigua and Barbuda Falcons
+    colors: { primary: "#C62828", secondary: "#7A7A7A" }
+    names: [{ name: Antigua and Barbuda Falcons, from: 2024 }]
+  - id: JK
+    name: Jamaica Kingsmen
+    colors: { primary: "#1B7F3A", secondary: "#F5C400" }
+    names: [{ name: Jamaica Kingsmen, from: 2026 }]

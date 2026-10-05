@@ -50,3 +50,73 @@ matches:
     description: IPL 2017 tie between Gujarat Lions and Mumbai Indians, decided by super over
     date: 2017-04-29
     result: { tie: true, super_over_winner: MI }
+
+  # ---------------- other competitions (team ids from config/teams/) ----------------
+  - match_id: 1144530
+    competition: ODI
+    description: 2019 World Cup final (ODI) — tied, super over tied, England on boundaries
+    date: 2019-07-14
+    innings:
+      - { team: NZ, runs: 241, wickets: 8 }
+      - { team: ENG, runs: 241, wickets: 10 }
+    result: { tie: true, super_over_winner: ENG }
+
+  - match_id: 951373
+    competition: T20I
+    description: 2016 World T20 final (T20I) — Brathwaite's four sixes
+    date: 2016-04-03
+    innings:
+      - { team: ENG, runs: 155, wickets: 9 }
+      - { team: WI, runs: 161, wickets: 6 }
+    result: { winner: WI, by_wickets: 4 }
+
+  - match_id: 215010
+    competition: TEST
+    description: 2005 Edgbaston Ashes Test — England by two runs
+    date: 2005-08-04
+    innings:
+      - { team: ENG, runs: 407, wickets: 10 }
+      - { team: AUS, runs: 308, wickets: 10 }
+      - { team: ENG, runs: 182, wickets: 10 }
+      - { team: AUS, runs: 279, wickets: 10 }
+    result: { winner: ENG, by_runs: 2 }
+
+  - match_id: 1223869
+    competition: TEST
+    description: 2020 Adelaide Test — India 36/9 in the second innings
+    date: 2020-12-17
+    innings:
+      - { team: IND, runs: 244, wickets: 10 }
+      - { team: AUS, runs: 191, wickets: 10 }
+      - { team: IND, runs: 36, wickets: 9 }
+      - { team: AUS, runs: 93, wickets: 2 }
+    result: { winner: AUS, by_wickets: 8 }
+
+  - match_id: 1223871
+    competition: TEST
+    description: 2021 Sydney Test — India bat out the last day for a draw
+    date: 2021-01-07
+    innings:
+      - { team: AUS, runs: 338, wickets: 10 }
+      - { team: IND, runs: 244, wickets: 10 }
+      - { team: AUS, runs: 312, wickets: 6 }
+      - { team: IND, runs: 334, wickets: 5 }
+    result: { draw: true }
+
+  - match_id: 1386137
+    competition: BBL
+    description: BBL 2023/24 final — Brisbane Heat by 54 runs
+    date: 2024-01-24
+    innings:
+      - { team: BRH, runs: 166, wickets: 8 }
+      - { team: SYS, runs: 112, wickets: 10 }
+    result: { winner: BRH, by_runs: 54 }
+
+  - match_id: 1343973
+    competition: SA20
+    description: SA20 2023 final — Sunrisers Eastern Cape by four wickets
+    date: 2023-02-11
+    innings:
+      - { team: PC, runs: 135, wickets: 10 }
+      - { team: SEC, runs: 137, wickets: 6 }
+    result: { winner: SEC, by_wickets: 4 }

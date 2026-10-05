@@ -1,0 +1,10 @@
+# SA20 franchises. Same structure as ipl.yaml (an SA20 season's year is the
+# year it ends: the 2022/23 season is SA20 2023).
+
+teams:
+  - { id: DSG, name: Durban's Super Giants, colors: { primary: "#1E63B4", secondary: "#00B2E3" }, names: [{ name: Durban's Super Giants, from: 2023 }] }
+  - { id: JSK, name: Joburg Super Kings, colors: { primary: "#F9CD05", secondary: "#1E63B4" }, names: [{ name: Joburg Super Kings, from: 2023 }] }
+  - { id: MICT, name: MI Cape Town, colors: { primary: "#004BA0", secondary: "#D1AB3E" }, names: [{ name: MI Cape Town, from: 2023 }] }
+  - { id: PR, name: Paarl Royals, colors: { primary: "#E2187F", secondary: "#2A3F8F" }, names: [{ name: Paarl Royals, from: 2023 }] }
+  - { id: PC, name: Pretoria Capitals, colors: { primary: "#17479E", secondary: "#EF1C25" }, names: [{ name: Pretoria Capitals, from: 2023 }] }
+  - { id: SEC, name: Sunrisers Eastern Cape, colors: { primary: "#FF822A", secondary: "#7A7A7A" }, names: [{ name: Sunrisers Eastern Cape, from: 2023 }] }

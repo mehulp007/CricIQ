@@ -8,12 +8,15 @@ from criciq_core import paths
 from criciq_pipelines.validation import validate
 
 WAREHOUSE = paths.warehouse_path()
+ALL = paths.cricket_warehouse_path()
 
-pytestmark = pytest.mark.skipif(not WAREHOUSE.exists(), reason="full warehouse not built")
+pytestmark = pytest.mark.skipif(
+    not (WAREHOUSE.exists() and ALL.exists()), reason="full warehouse not built"
+)
 
 
 def test_full_warehouse_validates() -> None:
-    assert validate(WAREHOUSE).passed
+    assert validate(ALL).passed
 
 
 def test_every_season_since_2008_is_present() -> None:

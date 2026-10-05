@@ -20,6 +20,7 @@ from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
+from criciq_pipelines.scope import build_scope
 from criciq_pipelines.warehouse import BuildInputs, build_warehouse
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "cricsheet"
@@ -53,15 +54,16 @@ def fixture_interim(
     fixture_snapshot: RawSnapshot, tmp_path_factory: pytest.TempPathFactory
 ) -> Path:
     out = tmp_path_factory.mktemp("interim")
-    extract_archive(fixture_snapshot.archive, out)
+    extract_archive(fixture_snapshot.archives, out)
     return out
 
 
 @pytest.fixture(scope="session")
-def fixture_warehouse(
+def fixture_full_warehouse(
     fixture_snapshot: RawSnapshot, fixture_interim: Path, tmp_path_factory: pytest.TempPathFactory
 ) -> Path:
-    target = tmp_path_factory.mktemp("warehouse") / "criciq.duckdb"
+    """Every competition in the fixtures (the multi-competition warehouse)."""
+    target = tmp_path_factory.mktemp("warehouse") / "cricket.duckdb"
     build_warehouse(
         BuildInputs(
             interim_dir=fixture_interim,
@@ -71,6 +73,16 @@ def fixture_warehouse(
         ),
         target,
     )
+    return target
+
+
+@pytest.fixture(scope="session")
+def fixture_warehouse(
+    fixture_full_warehouse: Path, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """The IPL warehouse in the v1 shape, as the export and the models read it."""
+    target = tmp_path_factory.mktemp("scope") / "ipl.duckdb"
+    build_scope(fixture_full_warehouse, "IPL", target)
     return target
 
 

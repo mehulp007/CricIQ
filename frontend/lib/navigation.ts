@@ -34,6 +34,7 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "M5",
   "M6",
   "V1-a",
+  "V1-b",
 ]);
 
 export const PRIMARY_NAV: readonly NavItem[] = [

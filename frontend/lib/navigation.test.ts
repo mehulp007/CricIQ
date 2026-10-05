@@ -8,6 +8,7 @@ const players = PRIMARY_NAV.find((i) => i.href === "/players")!;
 const matchups = PRIMARY_NAV.find((i) => i.href === "/matchups")!;
 const compare = PRIMARY_NAV.find((i) => i.href === "/compare")!;
 const teams = PRIMARY_NAV.find((i) => i.href === "/teams")!;
+const lab = PRIMARY_NAV.find((i) => i.href === "/lab")!;
 const models = PRIMARY_NAV.find((i) => i.href === "/models")!;
 
 describe("navigation", () => {
@@ -23,6 +24,7 @@ describe("navigation", () => {
     expect(isAvailable(players)).toBe(true);
     expect(isAvailable(matchups)).toBe(true);
     expect(isAvailable(compare)).toBe(true);
+    expect(isAvailable(lab)).toBe(true);
     expect(isAvailable(teams)).toBe(false);
   });
 

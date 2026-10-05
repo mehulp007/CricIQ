@@ -13,6 +13,9 @@ const PAGES = [
   "/matchups?batter=ba607b88&bowler=462411b3",
   "/compare",
   "/compare?a=ba607b88&b=b8a55852",
+  "/lab",
+  "/lab/pressure",
+  "/lab/clutch",
   "/models",
   "/about",
 ];

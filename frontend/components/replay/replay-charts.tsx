@@ -16,6 +16,7 @@ import {
 } from "recharts";
 
 import { WinProbabilityChart } from "@/components/replay/win-probability-chart";
+import { PressureChart } from "@/components/replay/pressure-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import { oversUpTo, wormUpTo } from "@/lib/replay/engine";
@@ -145,6 +146,9 @@ export function ReplayCharts({
   onSeek: (index: number) => void;
 }) {
   const hasModel = Boolean(timeline.win_probability);
+  const hasPressure = timeline.deliveries.some(
+    (d) => d.pressure !== null && d.pressure !== undefined,
+  );
   const sides = sidesOf(timeline);
   const maxOvers = 20;
 
@@ -177,6 +181,7 @@ export function ReplayCharts({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TabsList>
             {hasModel && <TabsTrigger value="wp">Win probability</TabsTrigger>}
+            {hasPressure && <TabsTrigger value="pressure">Pressure</TabsTrigger>}
             <TabsTrigger value="worm">Worm</TabsTrigger>
             <TabsTrigger value="manhattan">Manhattan</TabsTrigger>
           </TabsList>
@@ -186,6 +191,12 @@ export function ReplayCharts({
         {hasModel && (
           <TabsContent value="wp" className="mt-4">
             <WinProbabilityChart timeline={timeline} cursor={cursor} onSeek={onSeek} />
+          </TabsContent>
+        )}
+
+        {hasPressure && (
+          <TabsContent value="pressure" className="mt-4">
+            <PressureChart timeline={timeline} cursor={cursor} onSeek={onSeek} />
           </TabsContent>
         )}
 

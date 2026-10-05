@@ -67,7 +67,7 @@ export const ROADMAP: readonly Milestone[] = [
     id: "V1-b",
     title: "Momentum, pressure and the Analytics Lab",
     summary: "Leverage and momentum in every replay, each with a published validation.",
-    status: "planned",
+    status: "done",
   },
   {
     id: "V1-c",

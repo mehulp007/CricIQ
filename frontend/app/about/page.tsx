@@ -9,7 +9,7 @@ import { BALL_OUTCOME, RATINGS, SCORE_PROJECTION, WIN_PROBABILITY, seasonSpan } 
 export const metadata: Metadata = {
   title: "About & Methodology",
   description:
-    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, CricIQ Ratings, similar players, matchup shrinkage and limitations.",
+    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, CricIQ Ratings, similar players, pressure, momentum, matchup shrinkage and limitations.",
 };
 
 const PRINCIPLES: { title: string; body: string }[] = [
@@ -210,6 +210,23 @@ export default function AboutPage() {
           From one season&apos;s profile, the same bowler is among the five closest next season{" "}
           {Math.round(100 * RATINGS.similarity.bowling.top5)}% of the time, against{" "}
           {Math.round(100 * RATINGS.similarity.bowling.chance_top5)}% by chance.
+        </p>
+      </Section>
+
+      <Section id="pressure" title="Pressure and momentum">
+        <p>
+          Before every ball, CricIQ tries each possible outcome (a dot, 1, 2, 3, 4, 6, a wicket, a
+          wide), scores the resulting state with the win probability model and weights the swings by
+          how often each outcome happens in that situation. That expected swing, relative to a
+          typical ball, is the <Strong>leverage</Strong> (the Leverage Index from baseball
+          analytics); its percentile among every IPL ball is the <Strong>pressure index</Strong> in
+          the replay. Grouped into tenths, the swings it expects match the swings that happen.
+        </p>
+        <p>
+          <Strong>Momentum</Strong> is the batting side&apos;s change in win probability over the
+          last 12 legal balls. It describes the match well but barely predicts the next overs and
+          not the result, so it is shown and never used to adjust an estimate. The tests, and why
+          clutch is not rated, are in the <A href="/lab">Analytics Lab</A>.
         </p>
       </Section>
 

@@ -7331,7 +7331,7 @@
   "info": {
     "description": "Cricket intelligence, ball by ball. Model outputs are estimates, not guarantees of real outcomes.",
     "title": "CricIQ API",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "openapi": "3.1.0",
   "paths": {

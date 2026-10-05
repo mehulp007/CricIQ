@@ -11,7 +11,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v0.1.0 (MVP)
+**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v1.0.0 · [Read the write-up](https://criciq-eight.vercel.app/writeup)
 
 <img src="docs/images/demo.gif" alt="A tour of CricIQ: the last over of the 2019 IPL final replayed ball by ball with win probability, then the Player Lab, Matchups, Compare, Teams, the Match Simulator, the Analytics Lab and Model Insights" width="880">
 
@@ -23,13 +23,13 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; V1 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator and the what-if sandbox. The full [engineering plan](docs/PLAN.md) records how it was built.
+> **Status: v1.0.0 is released**, and every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; v1.0 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator, the what-if sandbox and the full Model Insights. The story of how it was built, including what failed, is in [the write-up](https://criciq-eight.vercel.app/writeup); the [engineering plan](docs/PLAN.md) records every milestone.
 
 ## At a glance
 
 | | Result (tested once on the 2025–2026 seasons, never used for training or tuning) |
 |---|---|
-| Win probability | Log loss 0.510 vs 0.549 for a logistic baseline (95% CI of the gain excludes zero); calibration reported |
+| Win probability | Log loss 0.510 vs 0.549 for a logistic baseline (95% CI of the gain excludes zero); the side it favours goes on to win after 74.2% of balls (baseline 70.5%), and its chances are off by 3.9 points on average |
 | Score projection | 80% range covers 80.3% of first-innings totals; median error 16.9 runs vs 18.4 for par |
 | Ball outcome | 1.07% better log loss than phase-and-wickets frequencies; better in 11 of 11 backtest seasons |
 | Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
@@ -37,7 +37,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Pressure | Leverage of every ball from what-if win probabilities; expected and realised next-ball swings agree in every tenth, from 0.09× to 2.9× a typical ball |
 | League tables | Rebuilt from the balls for all 19 seasons and identical to the official tables, net run rate included; the build fails if they ever differ |
 | Simulator | 10,000 complete matches in half a second on a laptop; first-innings totals calibrated on 2025–2026 (PIT uniform); pre-match winners no better than a coin flip, reported as such |
-| Quality | 280+ Python tests, 90+ frontend unit tests, 100+ end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
+| Quality | 280+ Python tests, 100+ frontend unit tests, 110+ end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
 ## Features
@@ -46,7 +46,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 |---|---|---|
 | Match Explorer & Replay | Browse any IPL match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
 | Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
-| Model Insights | Calibration, a season-by-season backtest, baselines, rejected features and the biggest swings in IPL history | **Live** |
+| Model Insights | An overview of every model against its baseline on seasons it never saw, which seasons each model learned from, was tuned on and was tested on, the custom metrics' tests and the model registry; then each model's calibration, season-by-season backtest, rejected features and limitations | **Live** |
 | Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
 | Player Lab | Search every player; profiles with era- and phase-adjusted numbers ("par"), CricIQ Ratings, similar players, win probability added, season trends, recent form and splits by phase, bowler type, batter hand, position, innings, result, opposition and venue, for any season window | **Live** |
 | Matchup Lab | Any batter vs any bowler: the raw record, what their overall records predict, and an empirical-Bayes estimate with 90% intervals and sample-size badges; next-ball odds by phase; rivalry lists ranked by the matchup effect beyond form | **Live** |
@@ -246,7 +246,7 @@ noise around what the players' overall records already say.
 |---|---|
 | ![Overview page with featured replays and the latest season](docs/images/overview.png) | ![Match Explorer with filters](docs/images/explorer.png) |
 | **Match Center** | **Model Insights** |
-| ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Model Insights: calibration and backtest](docs/images/models.png) |
+| ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Model Insights overview: every model against its baseline on the 2025–2026 seasons](docs/images/models.png) |
 | **Player Lab** | **Matchup Lab** |
 | ![Virat Kohli's profile against par](docs/images/player.png) | ![Kohli vs Bumrah read three ways, with 90% intervals](docs/images/matchup.png) |
 | **CricIQ Ratings and similar players** | **Compare** |

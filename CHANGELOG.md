@@ -4,7 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-05
+
+V1: every planned feature is live (milestones V1-a to V1-d), plus a release pass.
+
 ### Added
+- **Release pass**
+  - Model Insights overview (now the default tab): every model against its baseline on the test
+    seasons in plain words, a chart of the seasons each model learned from, was tuned on and was
+    tested on, the testing rules, the custom metrics' tests and the model registry.
+  - The write-up (`/writeup`, in the sidebar): how CricIQ was built and tested, what failed and
+    what comes next, with its numbers read from the model registry.
+  - Version 1.0.0 across the Python packages, the API and the web app.
 - **Simulator seasons and squads:** pick any season from 2008 to 2026, two sides that played in
   it, and each XI from that side's squad that season (everyone who played for it, with their
   appearances; the season's last XI by default). The match is played in that season's scoring

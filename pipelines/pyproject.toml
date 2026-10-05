@@ -1,6 +1,6 @@
 [project]
 name = "criciq-pipelines"
-version = "0.1.0"
+version = "1.0.0"
 description = "CricIQ data pipelines: ingestion, normalization, validation and export"
 requires-python = ">=3.12,<3.13"
 dependencies = [

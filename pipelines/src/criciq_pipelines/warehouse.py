@@ -462,7 +462,7 @@ def _load_venues(
         if base in curated_base:
             aliases[raw] = curated_base[base]
             continue
-        place = places.venues.get(base)
+        place = places.venues.get(base) or places.venues.get(_venue_base(raw))
         suffix = raw.split(",", 1)[1].split(",")[0].strip() if "," in raw else None
         city = place.city if place else (city_raw or suffix)
         country = place.country if place else places.cities.get(city or "")

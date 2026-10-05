@@ -35,7 +35,10 @@ def _recount() -> tuple[Lines, Lines]:
     bowling: Lines = defaultdict(Counter)
     for path in sorted(MATCHES_DIR.glob("*.json")):
         match_id = int(path.stem)
-        for innings_no, innings in enumerate(load_match(match_id).get("innings", []), start=1):
+        doc = load_match(match_id)
+        if doc["info"].get("event", {}).get("name") != "Indian Premier League":
+            continue  # the player tables are built for the IPL
+        for innings_no, innings in enumerate(doc.get("innings", []), start=1):
             if innings.get("super_over"):
                 continue
             for over in innings["overs"]:

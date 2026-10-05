@@ -255,6 +255,7 @@ venues:
   St Georges Quilmes: { city: Buenos Aires, country: Argentina }
   Sylhet Stadium: { city: Sylhet, country: Bangladesh }
   Niaz Stadium: { city: Hyderabad, country: Pakistan }
+  Seddon Park: { city: Hamilton, country: New Zealand }
 
 # Other names of the same ground: name (up to the comma) -> canonical name.
 merges:

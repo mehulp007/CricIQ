@@ -11,7 +11,7 @@ def test_fixture_warehouse_passes_every_check(fixture_full_warehouse: Path) -> N
     report = validate(fixture_full_warehouse)
     assert [(c.id, c.sample) for c in report.checks if not c.passed] == []
     assert [g.match_id for g in report.golden if not g.passed] == []
-    assert len(report.golden) == 6
+    assert len(report.golden) == 13
     assert report.passed
 
 

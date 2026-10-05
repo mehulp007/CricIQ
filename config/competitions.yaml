@@ -6,8 +6,12 @@
 #
 # season_basis:
 #   label    - a season is Cricsheet's season label ("2023/24"); its year is
-#              the year of its last match (PSL "2015/16" is PSL 2016).
-#   calendar - a season is the calendar year of the match's first day.
+#              the year of its last match. For leagues that span the new year
+#              (the BBL) and leagues whose labels are clean (the IPL).
+#   calendar - a season is the calendar year of the match's first day. Cricsheet's
+#              PSL labels are inconsistent (the PSL 2020 playoffs, played in
+#              November 2020, are labelled "2020/21"), so leagues played within
+#              a calendar year use it.
 # strict: an unknown team or venue fails the build (curated competitions);
 #   otherwise new teams and venues are added automatically and reported.
 # switcher: shown in the site's competition switcher; the other leagues feed
@@ -50,7 +54,7 @@ competitions:
     gender: male
     team_type: club
     teams: psl
-    season_basis: label
+    season_basis: calendar
     cricsheet:
       archive: psl_json.zip
       match: { event_name: Pakistan Super League }
@@ -62,7 +66,7 @@ competitions:
     gender: male
     team_type: club
     teams: cpl
-    season_basis: label
+    season_basis: calendar
     cricsheet:
       archive: cpl_json.zip
       match: { event_name: Caribbean Premier League }
@@ -74,7 +78,7 @@ competitions:
     gender: male
     team_type: club
     teams: sa20
-    season_basis: label
+    season_basis: calendar
     cricsheet:
       archive: sat_json.zip
       match: { event_name: SA20 }

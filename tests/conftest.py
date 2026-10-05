@@ -35,7 +35,7 @@ def load_match(match_id: int) -> dict[str, Any]:
 
 @pytest.fixture(scope="session")
 def fixture_archive(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    archive = tmp_path_factory.mktemp("cricsheet") / "ipl_json.zip"
+    archive = tmp_path_factory.mktemp("cricsheet") / "fixtures_json.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in sorted(MATCHES_DIR.glob("*.json")):
             zf.write(path, arcname=path.name)

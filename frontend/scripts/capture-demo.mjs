@@ -82,8 +82,18 @@ for (let i = 0; i < 16; i++) {
 await page.waitForTimeout(800); // let the win probability bar settle
 await page.screenshot({ path: path.join(images, "replay.png") });
 
+// One ball earlier: CSK need two off the last ball, with the pressure chart open.
+await page.getByRole("button", { name: "Previous ball" }).click();
+await page.getByRole("tab", { name: "Pressure" }).click();
+await page.waitForTimeout(400);
+await page.screenshot({ path: path.join(images, "pressure.png") });
+
 await page.getByRole("tab", { name: "Scorecard" }).click();
 await page.screenshot({ path: path.join(images, "scorecard.png") });
+
+await page.goto(`${baseUrl}/lab/pressure`, { waitUntil: "networkidle" });
+await scrollTo(page.getByRole("heading", { name: "Does leverage work?" }));
+await page.screenshot({ path: path.join(images, "lab.png") });
 
 await browser.close();
 console.log(`saved screenshots to ${images}`);

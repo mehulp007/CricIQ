@@ -208,6 +208,8 @@ noise around what the players' overall records already say.
 | ![Virat Kohli's profile against par](docs/images/player.png) | ![Kohli vs Bumrah read three ways, with 90% intervals](docs/images/matchup.png) |
 | **CricIQ Ratings and similar players** | **Compare** |
 | ![Jasprit Bumrah's ratings with 90% intervals, next to his phases and the most similar bowlers](docs/images/ratings.png) | ![Virat Kohli and Rohit Sharma side by side against par, with their ratings](docs/images/compare.png) |
+| **Pressure in the replay** | **Analytics Lab** |
+| ![The 2019 final with two needed off the last ball: very high pressure and the pressure chart](docs/images/pressure.png) | ![Expected against realised next-ball swings by tenth of leverage](docs/images/lab.png) |
 
 ## Architecture
 

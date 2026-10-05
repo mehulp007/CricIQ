@@ -199,13 +199,16 @@ def _sample(probabilities: FloatArray, rng: np.random.Generator) -> IntArray:
     return np.asarray(picked, dtype=np.int64)
 
 
-def _softmax(logits: FloatArray) -> FloatArray:
-    z = np.exp(logits - logits.max(axis=1, keepdims=True))
-    out: FloatArray = z / z.sum(axis=1, keepdims=True)
-    return out
-
-
 # --------------------------------------------------------------------------- innings
+
+
+def _tally(
+    rows: IntArray, slots: IntArray, values: npt.NDArray[np.generic], width: int
+) -> IntArray:
+    """Per-simulation totals by slot from per-ball (balls, sims) arrays."""
+    flat = (rows[None, :] * width + slots).ravel()
+    sums = np.bincount(flat, weights=values.ravel().astype(float), minlength=len(rows) * width)
+    return np.asarray(np.rint(sums).reshape(len(rows), width), dtype=np.int64)
 
 
 def _can_finish(left: IntArray, over: int) -> BoolArray:
@@ -214,16 +217,22 @@ def _can_finish(left: IntArray, over: int) -> BoolArray:
     After bowler j takes ``over``, the R overs that follow need bowlers with overs
     left and no bowler twice in a row, so nobody can cover more than half of them
     (the bowler of this over one fewer). The innings can finish only if those caps
-    add up to R.
+    add up to R. Taking one over lowers that sum by at most two, so only
+    simulations within two of the limit need the check bowler by bowler.
     """
     rest = OVERS - over - 1
-    out = np.zeros(left.shape, dtype=bool)
+    cap = (rest + 1) // 2
+    out = np.ones(left.shape, dtype=bool)
+    tight = np.minimum(left, cap).sum(axis=1) - 2 < rest
+    if not tight.any():
+        return out
+    sub = left[tight]
     for j in range(left.shape[1]):
-        after = left.copy()
+        after = sub.copy()
         after[:, j] -= 1
-        caps = np.minimum(after, (rest + 1) // 2)
+        caps = np.minimum(after, cap)
         caps[:, j] = np.minimum(after[:, j], rest // 2)
-        out[:, j] = caps.clip(min=0).sum(axis=1) >= rest
+        out[tight, j] = caps.clip(min=0).sum(axis=1) >= rest
     return out
 
 
@@ -271,11 +280,18 @@ def simulate_innings(
     """Play the rest of an innings ``n`` times; ``target`` makes it a chase."""
     s = start or InningsState()
     nbat, nbowl = len(bat.batters), len(bowl.bowlers)
-    base = _base_logits(model, bat, bowl, innings)
-    wicket_t = _group_terms(model, "wickets", [lv for lv, _ in WICKET_LEVELS])
-    settled_t = _group_terms(model, "settled", [lv for lv, _ in SETTLED_LEVELS])
-    pressure_t = _group_terms(model, "pressure", PRESSURE_LEVELS)
-    extras_p = rates.extras[innings - 1]
+    nw, ns, npr = len(WICKET_LEVELS), len(SETTLED_LEVELS), len(PRESSURE_LEVELS)
+    # Every combination of phase, batter, bowler and situation level is a small
+    # table, so each ball is a lookup of unnormalised outcome weights, not a softmax.
+    logits = (
+        _base_logits(model, bat, bowl, innings)[:, :, :, None, None, None, :]
+        + _group_terms(model, "wickets", [lv for lv, _ in WICKET_LEVELS])[:, None, None, :]
+        + _group_terms(model, "settled", [lv for lv, _ in SETTLED_LEVELS])[:, None, :]
+        + _group_terms(model, "pressure", PRESSURE_LEVELS)[:, :]
+    )
+    table = np.exp(logits - logits.max(axis=-1, keepdims=True)).reshape(-1, len(CLASSES))
+    shift = None if conditions is None else np.exp(conditions[:, None] * CONDITIONS)
+    extras_cum = rates.extras[innings - 1].cumsum(axis=1)
     run_out_p = rates.run_out[innings - 1]
 
     def ints(values: list[int], size: int) -> IntArray:
@@ -298,9 +314,8 @@ def simulate_innings(
     bat_balls = ints(s.bat_balls, nbat)
     bat_out = flags(s.bat_out, nbat)
     bowl_overs = ints(s.bowl_overs, nbowl)
-    bowl_runs = np.zeros((n, nbowl), dtype=np.int64)
-    bowl_balls = np.zeros((n, nbowl), dtype=np.int64)
-    bowl_wkts = np.zeros((n, nbowl), dtype=np.int64)
+    # Tallies not needed during the innings are kept per ball and added up at the end.
+    ledger: list[tuple[IntArray, IntArray, IntArray, BoolArray, BoolArray]] = []
     current = np.full(n, -1 if s.bowler is None else s.bowler, dtype=np.int64)
     last = np.full(n, -1 if s.last_bowler is None else s.last_bowler, dtype=np.int64)
     rows = np.arange(n)
@@ -316,58 +331,56 @@ def simulate_innings(
             break
         over, in_over = divmod(ball, BALLS_PER_OVER)
         phase = OVER_PHASE[min(over, OVERS - 1)]
-        if in_over == 0 or (current < 0).any():
+        if in_over == 0 or (live & (current < 0)).any():
             pick, stuck = _pick_bowlers(bowl.usage, min(over, OVERS - 1), bowl_overs, last, rng)
             choose = live & ((current < 0) | (in_over == 0))
             current = np.where(choose, pick, current)
             forced += int(stuck)
+        u = rng.random((n, 4))
 
         # 1. Extras that come with this ball.
-        extra = EXTRA_RUNS[_sample(np.broadcast_to(extras_p[phase], (n, 6)), rng)]
+        extra = np.minimum(np.searchsorted(extras_cum[phase], u[:, 0], side="right"), 5)
         runs = np.where(live, runs + extra, runs)
 
         # 2. The ball faced.
-        striker_level = _level(bat_balls[rows, striker], SETTLED_LEVELS)
-        wicket_level = _level(wickets, WICKET_LEVELS)
+        bowler = current.clip(min=0)
+        settled = _level(bat_balls[rows, striker], SETTLED_LEVELS)
+        wicket_level = np.minimum(wickets // 2, nw - 1)
         if target is None:
-            pressure_level = np.zeros(n, dtype=np.int64)
+            pressure_level = 0
         else:
             left = np.maximum(max_balls - ball, 1)
             relative = (target - runs) / left / rates.env
             pressure_level = 1 + np.searchsorted(PRESSURE_EDGES, relative, side="right")
-        logits = (
-            base[phase, striker, current.clip(min=0)]
-            + wicket_t[wicket_level]
-            + settled_t[striker_level]
-            + pressure_t[pressure_level]
+        cell = (((phase * nbat + striker) * nbowl + bowler) * nw + wicket_level) * ns + settled
+        weights = table[cell * npr + pressure_level]
+        if shift is not None:
+            weights = weights * shift
+        cumulative = weights.cumsum(axis=1)
+        outcome = np.minimum(
+            (cumulative < (u[:, 1] * cumulative[:, -1])[:, None]).sum(axis=1), len(CLASSES) - 1
         )
-        if conditions is not None:
-            logits = logits + conditions[:, None] * CONDITIONS
-        outcome = _sample(_softmax(logits), rng)
         scored = RUNS[outcome]
         bowled_out = (outcome == OUT) & live
         # 3. Run outs, at the league rate, on balls the batter survived.
-        run_out = live & ~bowled_out & (rng.random(n) < run_out_p[phase])
-        non_striker_out = run_out & (rng.random(n) < 0.5)
+        run_out = live & ~bowled_out & (u[:, 2] < run_out_p[phase])
+        non_striker_out = run_out & (u[:, 3] < 0.5)
 
         scored = np.where(live, scored, 0)
         runs += scored
-        bat_runs[rows, striker] += scored
         bat_balls[rows, striker] += live
-        bowler = current.clip(min=0)
-        bowl_runs[rows, bowler] += scored
-        bowl_balls[rows, bowler] += live
-        bowl_wkts[rows, bowler] += bowled_out
+        ledger.append((striker, bowler, scored, live, bowled_out))
         balls = np.where(live, ball + 1, balls)
 
         out = bowled_out | run_out
-        out_slot = np.where(non_striker_out, non_striker, striker)
-        bat_out[rows[out], out_slot[out]] = True
-        wickets += out
-        replacement = np.minimum(next_in, nbat - 1)
-        striker = np.where(out & ~non_striker_out, replacement, striker)
-        non_striker = np.where(out & non_striker_out, replacement, non_striker)
-        next_in += out
+        if out.any():
+            out_slot = np.where(non_striker_out, non_striker, striker)
+            bat_out[rows[out], out_slot[out]] = True
+            wickets += out
+            replacement = np.minimum(next_in, nbat - 1)
+            striker = np.where(out & ~non_striker_out, replacement, striker)
+            non_striker = np.where(out & non_striker_out, replacement, non_striker)
+            next_in += out
 
         swap = live & ~out & (scored % 2 == 1)
         if in_over == BALLS_PER_OVER - 1:
@@ -386,6 +399,16 @@ def simulate_innings(
             done |= live & (runs >= target)
         done |= balls >= max_balls
 
+    if ledger:
+        strikers, bowlers, scores, lives, outs = (np.stack(x) for x in zip(*ledger, strict=True))
+        bat_runs += _tally(rows, strikers, scores, nbat)
+        bowl_runs = _tally(rows, bowlers, scores, nbowl)
+        bowl_balls = _tally(rows, bowlers, lives, nbowl)
+        bowl_wkts = _tally(rows, bowlers, outs, nbowl)
+    else:
+        bowl_runs = np.zeros((n, nbowl), dtype=np.int64)
+        bowl_balls = np.zeros((n, nbowl), dtype=np.int64)
+        bowl_wkts = np.zeros((n, nbowl), dtype=np.int64)
     return InningsResult(
         runs=runs,
         wickets=wickets,

@@ -2,7 +2,8 @@
 //
 //   node scripts/capture-demo.mjs [baseUrl]    (default: http://localhost:3000)
 //
-// Writes PNGs to ../docs/images/ and GIF frames to ../docs/images/frames/.
+// Writes PNGs to ../docs/images/ and the demo GIF's frames to ../docs/images/frames/
+// (named <order>-<milliseconds to show>.png).
 // Assemble the GIF with: uv run --with pillow python scripts/make_gif.py
 import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
@@ -78,7 +79,6 @@ await page
 await page.mouse.click(5, 5); // move focus off the dropdown
 
 for (let i = 0; i < 16; i++) {
-  await page.screenshot({ path: path.join(frames, `${String(i).padStart(3, "0")}.png`) });
   const atEnd = await page
     .getByRole("region", { name: "Scoreboard" })
     .getByText(/won by/)
@@ -122,6 +122,56 @@ await page.screenshot({ path: path.join(images, "simulator.png") });
 await page.goto(`${baseUrl}/lab/pressure`, { waitUntil: "networkidle" });
 await scrollTo(page.getByRole("heading", { name: "Does leverage work?" }));
 await page.screenshot({ path: path.join(images, "lab.png") });
+
+// The README's demo GIF: the last over of the 2019 final, then a tour of every section.
+let frameNo = 0;
+async function frame(ms) {
+  await page.mouse.move(5, 5);
+  const name = `${String(frameNo++).padStart(3, "0")}-${ms}.png`;
+  await page.screenshot({ path: path.join(frames, name) });
+}
+
+await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+await frame(1800);
+await page.goto(`${baseUrl}/matches/1181768`, { waitUntil: "networkidle" });
+await page.locator("[data-replay-ready]").waitFor();
+await page.getByRole("combobox", { name: "Jump to over" }).click();
+await page.getByRole("option", { name: "CSK · over 19" }).click();
+await page.mouse.click(5, 5);
+for (let i = 0; i < 16; i++) {
+  const atEnd = await page
+    .getByRole("region", { name: "Scoreboard" })
+    .getByText(/won by/)
+    .count();
+  await page.waitForTimeout(atEnd ? 800 : 150);
+  await frame(atEnd ? 2200 : 650);
+  if (atEnd) break;
+  await page.getByRole("button", { name: "Next ball" }).click();
+}
+const tour = [
+  ["/players/ba607b88", 1700],
+  ["/matchups?batter=ba607b88&bowler=462411b3", 1700],
+  ["/compare?a=ba607b88&b=740742ef", 1700],
+  ["/teams?season=2019", 1700],
+];
+for (const [url, ms] of tour) {
+  await page.goto(`${baseUrl}${url}`, { waitUntil: "networkidle" });
+  await frame(ms);
+}
+await page.goto(`${baseUrl}/simulator?season=2019&a=MI&b=CSK`, { waitUntil: "networkidle" });
+await frame(1500);
+await page.getByRole("button", { name: /Simulate 10,000 matches/ }).click();
+await page.getByRole("heading", { name: "Who wins" }).waitFor({ timeout: 90_000 });
+await page.waitForTimeout(500);
+await scrollTo(page.getByRole("heading", { name: "Who wins" }));
+await frame(2200);
+for (const [url, ms] of [
+  ["/lab", 1700],
+  ["/models", 2400],
+]) {
+  await page.goto(`${baseUrl}${url}`, { waitUntil: "networkidle" });
+  await frame(ms);
+}
 
 await browser.close();
 console.log(`saved screenshots to ${images}`);

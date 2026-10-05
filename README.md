@@ -13,17 +13,17 @@
 
 **[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v0.1.0 (MVP)
 
-<img src="docs/images/replay.gif" alt="Replaying the last over of the 2019 IPL final ball by ball in CricIQ" width="880">
+<img src="docs/images/demo.gif" alt="A tour of CricIQ: the last over of the 2019 IPL final replayed ball by ball with win probability, then the Player Lab, Matchups, Compare, Teams, the Match Simulator, the Analytics Lab and Model Insights" width="880">
 
 </div>
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season's league table, and simulate any two XIs 10,000 times, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season's league table, and play any two sides from any season 10,000 times with XIs picked from that season's squads, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6), and V1 is under way: **V1-a** added a Compare page, CricIQ Ratings and similar players; **V1-b** adds pressure and momentum to every replay and the Analytics Lab. Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore and compare any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; V1 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator and the what-if sandbox. The full [engineering plan](docs/PLAN.md) records how it was built.
 
 ## At a glance
 
@@ -56,7 +56,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Pressure & momentum | Every replay shows the pressure on the next ball (how much it can move the match) and each side's momentum over the last 12 balls, with a pressure chart and the tensest moments | **Live** |
 | Teams | Every franchise's seasons, league tables that match the official ones, results by situation, phases against par, comebacks and collapses, and any head-to-head set against what form predicted | **Live** |
 | Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill, do rivalries repeat | **Live** |
-| Match Simulator | Any two XIs played 10,000 times, ball by ball: win shares, the spread of totals and each player's likely contribution, labelled as a model simulation and backtested | **Live** |
+| Match Simulator | Pick any season from 2008 to 2026 and two sides, choose each XI from that season's squad, and play the match 10,000 times, ball by ball: win shares, the spread of totals and each player's typical innings, labelled as a model simulation and backtested | **Live** |
 | What-if sandbox | In any replay, change the score at any ball and see how the rest of the match changes | **Live** |
 
 ## The data
@@ -199,10 +199,12 @@ time; a season's win rate predicts the next season's with r = 0.06).
 
 ## Match simulator and what-if, backtested
 
-The [simulator](https://criciq-eight.vercel.app/simulator) plays any two XIs ball by ball with the
-ball-outcome model: extras and run outs at league rates, each over's bowler drawn from how that
+The [simulator](https://criciq-eight.vercel.app/simulator) plays any two sides from any season,
+each XI picked from everyone who played for that franchise that year, ball by ball with the
+ball-outcome model, in that season's scoring era: extras and run outs at league rates, each over's bowler drawn from how that
 bowler was used (four overs each, never twice in a row, and only if the innings can still be
-finished), and match conditions drawn per match and shared by both innings. All 10,000
+finished), and match conditions drawn per match and shared by both innings. Each player's
+scorecard line is their typical (median) innings, so it reads in whole runs and wickets. All 10,000
 simulations step forward together as numpy arrays, so 10,000 matches take about half a second on a laptop
 ([ADR-0006](docs/adr/0006-simulator-in-the-api-with-numpy.md)).
 
@@ -258,33 +260,102 @@ noise around what the players' overall records already say.
 
 ## Architecture
 
+CricIQ is a **modular monolith**: one data pipeline, one ML package, one API and one web app in a
+single repository, split into a build-time half that does all the heavy work and a small, read-only
+runtime half that serves it.
+
 ```mermaid
-flowchart LR
-    A[Cricsheet IPL JSON] --> B[pipelines<br/>ingest · normalize · validate]
-    R[config + reference<br/>aliases, player attributes] --> B
-    B --> C[(DuckDB warehouse)]
-    C --> D[ML<br/>leak-free features · train · calibrate<br/>explain · batch-score]
-    M[models/ registry<br/>committed, gated versions] --> D
-    C --> E[(serving.duckdb<br/>timelines · player & matchup tables<br/>predictions · model terms)]
-    D --> E
-    E --> F[FastAPI /api/v1<br/>read-only, no ML libraries]
-    F --> G[Next.js on Vercel<br/>server components + client replay]
-    H[bundled featured replays<br/>and model insights] --> G
+flowchart TB
+    subgraph build["Build time: data pipeline, model training and scoring"]
+        direction LR
+        SRC[Cricsheet IPL JSON<br/>ODC-BY, 2008–2026] --> ING[pipelines<br/>download · extract · normalize]
+        CFG[config/*.yaml<br/>franchises · venues · aliases<br/>official league tables] --> ING
+        REF[reference/<br/>player attributes] --> ING
+        ING --> WH[(warehouse.duckdb<br/>matches · innings · deliveries<br/>wickets · players)]
+        WH --> VAL{validate<br/>17 invariants<br/>6 golden scorecards}
+        VAL --> EXP[export<br/>player, matchup, team, simulator tables<br/>19 league tables checked]
+        WH --> FEAT[ml features<br/>as-of, leak-free states]
+        FEAT --> TRAIN[train · tune · calibrate<br/>backtest · gate]
+        TRAIN --> REG[models/ registry<br/>committed versions<br/>+ model cards]
+        REG --> SCORE[batch scoring<br/>WP · projection · SHAP<br/>leverage · WPA · terms]
+        EXP --> SERV[(serving.duckdb<br/>read-only, versioned)]
+        SCORE --> SERV
+    end
+
+    subgraph api["API: Docker on Render"]
+        direction TB
+        RT[FastAPI routers /api/v1] --> SVC[services<br/>timelines · players · matchups<br/>teams · ratings · simulation]
+        SVC --> REPO[repositories<br/>plain SQL]
+        SVC --> ENG[criciq_core engines<br/>ball-model arithmetic<br/>numpy match simulator]
+        SVC --> LRU[in-process LRU<br/>simulation results]
+    end
+
+    subgraph web["Web: Next.js on Vercel"]
+        direction TB
+        RSC[server components<br/>cached per data version] --> UI[client components<br/>replay engine · simulator<br/>what-if · charts]
+        RH[route handlers<br/>POST proxy · wake-up retry] --> UI
+        STATIC[bundled featured replays<br/>and model insights] --> UI
+    end
+
+    SERV -- baked into the image --> REPO
+    RT -- JSON, ETag, cache tags --> RSC
+    RT -- simulations --> RH
+    UI --> USER([Browser])
 ```
 
-The API image is built from the latest Cricsheet data: the build validates it, exports the serving
-database and scores every ball with the committed models, so the API never trains or loads an ML
-library. The replay runs entirely in the browser from a single timeline payload per match, with no
-per-ball API calls. Next-ball odds for any pair are computed from the ball model's stored terms with
-plain arithmetic ([ADR-0005](docs/adr/0005-ball-model-as-additive-terms.md)).
+**How a request flows.** Pages are server-rendered: a server component calls the API, and the
+response is cached on Vercel under one tag, so a redeploy of the API is followed by one cache
+invalidation instead of stale pages. Once a match page loads, its replay runs entirely in the
+browser from one timeline payload: every ball's score, win probability, projection, explanation,
+pressure and momentum, with no per-ball API calls. Live questions (a simulation, a what-if, next-ball
+odds for any pair) go through a Next.js route handler that keeps the API address private and retries
+while a sleeping free instance wakes up.
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant N as Next.js route handler
+    participant A as FastAPI
+    participant E as numpy engine
+    participant D as serving.duckdb
+    B->>N: POST /api/simulate/match (season, two XIs)
+    N->>A: POST /api/v1/simulate/match
+    A->>D: squads, players' recent usage, league rates, ball-model terms
+    A->>E: 10,000 matches, every simulation one array row
+    E-->>A: totals, wins, per-player innings
+    A-->>N: win shares, score spread, typical scorecard (cached by request)
+    N-->>B: JSON
+```
+
+| Layer | What it does | Key choices |
+|---|---|---|
+| **Data** (`pipelines/`) | Downloads Cricsheet, flattens every delivery, maps renamed franchises and venues, counts legal balls and rain-revised targets, and fails loudly on any broken invariant | DuckDB over Postgres ([ADR-0001](docs/adr/0001-duckdb-over-postgres.md)); every build versioned by `data_version` |
+| **Features** (`ml/`) | One row per match state, with player, venue and era history taken only from earlier matches | A leakage test rewrites every later match and checks nothing earlier changes |
+| **Models** (`ml/`) | Win probability (monotonic LightGBM), score projection (quantile LightGBM + conformal), ball outcome (penalised multinomial logit), ratings (empirical Bayes), simulator settings | Versions committed and gated on test scores; deploys only score ([ADR-0004](docs/adr/0004-committed-models-precomputed-predictions.md)) |
+| **Serving DB** | Precomputed timelines, predictions, explanations, player and team tables, model terms | Baked into the API image: no database server, no ML library at runtime |
+| **API** (`backend/`) | `routers → services → repositories → DuckDB`, plus the shared engines from `criciq_core` | Ball model served as additive terms ([ADR-0005](docs/adr/0005-ball-model-as-additive-terms.md)); simulator in numpy ([ADR-0006](docs/adr/0006-simulator-in-the-api-with-numpy.md)) |
+| **Web** (`frontend/`) | Next.js App Router, server components for data, client components for the replay and simulator | Types generated from the API's OpenAPI spec; CI fails if they drift |
+| **Hosting** | Vercel (web, Mumbai) and Render (API, Singapore), both free tiers | [ADR-0003](docs/adr/0003-hosting-vercel-and-render.md); featured replays bundled so the home page works while the API sleeps |
+
+**What is precomputed and what is live.** Everything about the 1,243 real matches is computed once
+at build time: every ball's win probability with its explanation, projections, leverage, momentum,
+win probability added, ratings and league tables. Only questions nobody can anticipate run live: a
+simulated match (10,000 games in about half a second on a laptop), a what-if from an edited score,
+and next-ball odds for an arbitrary pair, each computed from stored model terms with numpy or plain
+arithmetic.
+
+**Dependency direction.** `pipelines`, `ml` and `backend` all depend on `core` (cricket rules,
+phases, shared feature definitions and the simulation engine), never on each other: the ML package
+writes its outputs into the serving database and the API only reads it, so training code can never
+leak into a request.
 
 Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md),
 the [architecture decision records](docs/adr/) and the model cards for
 [win probability](docs/model-cards/win-probability.md),
-[score projection](docs/model-cards/score-projection.md) and
-[ball outcome](docs/model-cards/ball-outcome.md) and
-[CricIQ Ratings](docs/model-cards/ratings.md), with every derived metric defined in
-[docs/metrics.md](docs/metrics.md). The site's
+[score projection](docs/model-cards/score-projection.md),
+[ball outcome](docs/model-cards/ball-outcome.md),
+[CricIQ Ratings](docs/model-cards/ratings.md) and the [simulator](docs/model-cards/simulator.md),
+with every derived metric defined in [docs/metrics.md](docs/metrics.md). The site's
 [About & Methodology](https://criciq-eight.vercel.app/about) page explains every number in plain terms.
 
 ## Tech stack
@@ -339,21 +410,6 @@ notebooks/   exploration and research (executed, with outputs)
 docs/        plan, architecture, ADRs, model cards, metric definitions
 tests/       Python tests + real-match fixtures for every data edge case
 ```
-
-## Roadmap
-
-- [x] **M0** Foundations: monorepo, tooling, CI, design system, app shell
-- [x] **M1** Data warehouse: Cricsheet ingestion, normalization, validation
-- [x] **M2** Match Explorer & Replay: first public deployment
-- [x] **M3** Win Probability: calibrated, explainable, backtested
-- [x] **M4** Score Projection: conformal quantiles, honest ranges
-- [x] **M5** Player Lab: profiles against par, splits, WPA
-- [x] **M6** Matchup Lab + ball-outcome model: empirical-Bayes head-to-head, next-ball odds
-- [x] **v0.1.0 MVP release:** polish, methodology page, Lighthouse and accessibility audit
-- [x] **V1-a** Compare page, CricIQ Ratings, similar players
-- [x] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
-- [x] **V1-c** Team analytics and head-to-head
-- [x] **V1-d** Match simulator and what-if sandbox
 
 ## Data & attribution
 

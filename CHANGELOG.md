@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Simulator seasons and squads:** pick any season from 2008 to 2026, two sides that played in
+  it, and each XI from that side's squad that season (everyone who played for it, with their
+  appearances; the season's last XI by default). The match is played in that season's scoring
+  era, with league rates and players' batting positions and bowling usage as of then; players
+  from outside the squad are refused. `GET /simulate/seasons`, `GET /simulate/squad/{season}/{team}`
+  and `season` on `POST /simulate/match`.
 - **V1-d: match simulator and what-if sandbox**
   - `criciq_core.simulation`: a vectorised Monte Carlo engine that plays matches ball by ball with
     the ball-outcome model, league extras and run-out rates, a usage-based bowling policy that
@@ -67,6 +73,19 @@ All notable changes to this project are documented here. The format follows [Kee
     head-to-head.
   - `GET /players/{id}/similar`; `player_batting_phases` and `player_bowling_phases` tables.
   - `docs/metrics.md`: par, win probability added, ratings and similar players, with formulas.
+
+### Changed
+- The simulated scorecard shows each player's typical (median) innings in whole runs, balls and
+  wickets, with the middle half of their scores as a range, instead of fractional averages.
+- The simulator and the replay's what-if retry while a sleeping API wakes (the free instance
+  sleeps when idle), start waking it as soon as either page opens, and say so instead of failing;
+  the API builds the simulator and plays a few matches at startup.
+- The what-if takes players' batting positions and bowling usage as of the match's season.
+- README: a demo GIF touring every section, a more detailed architecture section, and no roadmap
+  (every milestone is done; the plan records them).
+
+### Removed
+- The "Build progress" list on the Overview page.
 
 ## [0.1.0] - 2026-10-01
 

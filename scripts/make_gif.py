@@ -1,7 +1,7 @@
-"""Assemble docs/images/frames/*.png into docs/images/replay.gif.
+"""Assemble docs/images/frames/*.png into docs/images/demo.gif, the README's tour.
 
 Usage: uv run --with pillow python scripts/make_gif.py
-(frames come from frontend/scripts/capture-demo.mjs)
+(frames come from frontend/scripts/capture-demo.mjs, named <order>-<milliseconds>.png)
 """
 
 from __future__ import annotations
@@ -15,7 +15,13 @@ IMAGES = Path(__file__).resolve().parents[1] / "docs" / "images"
 FRAMES = IMAGES / "frames"
 WIDTH = 960
 FRAME_MS = 700
-HOLD_LAST_MS = 3000
+COLORS = 160
+
+
+def duration(path: Path) -> int:
+    """How long a frame is shown: the number after the dash in its name."""
+    _, _, ms = path.stem.partition("-")
+    return int(ms) if ms.isdigit() else FRAME_MS
 
 
 def main() -> None:
@@ -28,15 +34,21 @@ def main() -> None:
             rgb = img.convert("RGB")
             height = round(rgb.height * WIDTH / rgb.width)
             frames.append(rgb.resize((WIDTH, height), Image.Resampling.LANCZOS))
-    palette = frames[-1].quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+    # One palette for the whole tour, from every frame, so no page loses its colours.
+    thumbs = [f.resize((WIDTH // 4, f.height // 4)) for f in frames]
+    sheet = Image.new("RGB", (WIDTH // 4, sum(t.height for t in thumbs)))
+    y = 0
+    for t in thumbs:
+        sheet.paste(t, (0, y))
+        y += t.height
+    palette = sheet.quantize(colors=COLORS, method=Image.Quantize.MEDIANCUT)
     quantized = [f.quantize(palette=palette, dither=Image.Dither.NONE) for f in frames]
-    durations = [FRAME_MS] * (len(quantized) - 1) + [HOLD_LAST_MS]
-    target = IMAGES / "replay.gif"
+    target = IMAGES / "demo.gif"
     quantized[0].save(
         target,
         save_all=True,
         append_images=quantized[1:],
-        duration=durations,
+        duration=[duration(p) for p in paths],
         loop=0,
         optimize=True,
     )

@@ -248,12 +248,15 @@ export default function AboutPage() {
 
       <Section id="simulator" title="Match simulator and what-if">
         <p>
-          The simulator plays a match ball by ball with the ball-outcome model, 10,000 times at
-          once: extras and run outs at league rates, each over&apos;s bowler chosen the way captains
-          used that bowler, and each match&apos;s pitch and conditions drawn at random and shared by
-          both innings. Backtested before a ball was bowled on every 2025 and 2026 match, its
-          first-innings totals are calibrated; its pick of the winner is no better than a coin flip,
-          and simulated chases run a little pessimistic.
+          The simulator plays a match between two sides from any season, each XI picked from
+          everyone who played for that side that year, ball by ball with the ball-outcome model,
+          10,000 times at once, in that season&apos;s scoring era: extras and run outs at league
+          rates, each over&apos;s bowler chosen the way captains used that bowler, and each
+          match&apos;s pitch and conditions drawn at random and shared by both innings. Backtested
+          before a ball was bowled on every 2025 and 2026 match, its first-innings totals are
+          calibrated; its pick of the winner is no better than a coin flip, and simulated chases run
+          a little pessimistic. Each player&apos;s line on the simulated scorecard is their typical
+          (median) innings, so it reads in whole runs and wickets.
         </p>
         <p>
           So the replay&apos;s what-if starts from the win probability model at the real score and

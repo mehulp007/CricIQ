@@ -53,6 +53,14 @@ await page.goto(`${baseUrl}/compare?a=ba607b88&b=740742ef`, { waitUntil: "networ
 await scrollTo(page.getByRole("heading", { name: "Batting side by side" }));
 await page.screenshot({ path: path.join(images, "compare.png") });
 
+await page.goto(`${baseUrl}/teams?season=2019`, { waitUntil: "networkidle" });
+await scrollTo(page.getByRole("heading", { name: "2019 league table" }));
+await page.screenshot({ path: path.join(images, "teams.png") });
+
+await page.goto(`${baseUrl}/teams/h2h?a=MI&b=KKR`, { waitUntil: "networkidle" });
+await scrollTo(page.getByRole("heading", { name: "The record" }), 96);
+await page.screenshot({ path: path.join(images, "h2h.png") });
+
 await page.goto(`${baseUrl}/players/462411b3`, { waitUntil: "networkidle" });
 await scrollTo(page.getByRole("heading", { name: "CricIQ Ratings" }));
 await page.screenshot({ path: path.join(images, "ratings.png") });

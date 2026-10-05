@@ -5,7 +5,15 @@ import { ClutchScatter } from "@/components/lab/clutch-scatter";
 import { IntervalRows } from "@/components/lab/interval-rows";
 import { Panel } from "@/components/players/profile-parts";
 import { scrollRegion } from "@/lib/a11y";
-import { CLUTCH, type ClutchRole, MOMENTUM, PRESSURE, signed } from "@/lib/lab";
+import {
+  CLUTCH,
+  type ClutchRole,
+  MOMENTUM,
+  PRESSURE,
+  RIVALRIES,
+  type RivalryGroup,
+  signed,
+} from "@/lib/lab";
 import { cn } from "@/lib/utils";
 
 function Prose({ children }: { children: ReactNode }) {
@@ -452,6 +460,179 @@ export function ClutchNoteView() {
             Limits: a career split into halves has fewer high-pressure balls than a full career, so
             a very small skill could hide in the noise; the comparison is with each player&apos;s
             own expected output, which already includes their overall ability.
+          </p>
+        </Prose>
+      </Panel>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------- rivalries
+
+function excessRows(groups: RivalryGroup[], detail: (g: RivalryGroup) => string) {
+  return groups
+    .filter((g) => g.excess)
+    .map((g) => ({ label: g.label, detail: detail(g), estimate: g.excess! }));
+}
+
+export function RivalriesNoteView() {
+  const r = RIVALRIES;
+  const lead = r.rivalry[0];
+  const p = r.persistence;
+  const best = r.form_scan.reduce((a, b) => (b.log_loss < a.log_loss ? b : a));
+  return (
+    <div className="flex flex-col gap-8">
+      <Prose>
+        <p>
+          To ask whether a rivalry or a knack for tight finishes predicts anything, we first need an
+          expectation that knows nothing about either. Here it is each side&apos;s{" "}
+          <Strong>form</Strong>: its results in its previous 14 matches, from before the match only,
+          combined into a win chance with the log5 formula. Then we check whether{" "}
+          {r.meetings.toLocaleString("en-IN")} IPL matches since 2008 beat that expectation in the
+          ways a rivalry or a clutch team would.
+        </p>
+      </Prose>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Finding
+          label="Side in better form won"
+          value={`${r.favourite.win_pct ?? "n/a"}%`}
+          detail={`Expected ${r.favourite.expected_pct ?? "n/a"}%. Recent results say little about the next match.`}
+        />
+        <Finding
+          label="A season's win rate, next season"
+          value={`r = ${p.win_r?.toFixed(2) ?? "n/a"}`}
+          detail={`Across ${p.season_pairs} pairs of consecutive seasons: last year's table barely predicts this year's.`}
+        />
+        <Finding
+          label={`Rivalry leaders (${lead ? lead.label.replace("Won ", "won ") : ""})`}
+          value={lead?.excess ? `${signed(lead.excess.value, 1)} pts` : "n/a"}
+          detail={
+            lead?.excess
+              ? `Win rate above form, 90%: ${signed(lead.excess.low, 1)} to ${signed(lead.excess.high, 1)}. No hold.`
+              : "Too few meetings."
+          }
+        />
+        <Finding
+          label="Close finishes, next season"
+          value={`r = ${p.close_r?.toFixed(2) ?? "n/a"}`}
+          detail={`${p.pairs} team-seasons; chance alone gives ±${p.null_90?.toFixed(2) ?? "n/a"} nine times in ten (p = ${p.p_value?.toFixed(2) ?? "n/a"}).`}
+        />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel
+          id="rivalries-form"
+          title="How much form is worth"
+          lede={`Form is pulled toward an even record as if each side had also played ${r.form_prior} matches at 50%: the strength that predicts results best. Less pull makes the predictions worse than a coin flip.`}
+        >
+          <div className="overflow-x-auto" {...scrollRegion("Prediction error by shrinkage")}>
+            <table className="w-full min-w-[20rem] text-sm">
+              <thead className="border-b border-border">
+                <tr className="text-xs text-muted-foreground">
+                  <th scope="col" className="px-2 py-2 text-left font-medium">
+                    Pull toward even (matches at 50%)
+                  </th>
+                  <th scope="col" className="px-2 py-2 text-right font-medium">
+                    Log loss
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border font-mono tabular-nums">
+                {r.form_scan.map((f) => (
+                  <tr key={f.prior} className={cn(f.prior === best.prior && "text-foreground")}>
+                    <th scope="row" className="px-2 py-2 text-left font-normal">
+                      {f.prior}
+                      {f.prior === best.prior && (
+                        <span className="ml-2 text-xs text-primary">best</span>
+                      )}
+                    </th>
+                    <td className="px-2 py-2 text-right">{f.log_loss.toFixed(4)}</td>
+                  </tr>
+                ))}
+                <tr className="text-muted-foreground">
+                  <th scope="row" className="px-2 py-2 text-left font-normal">
+                    Coin flip
+                  </th>
+                  <td className="px-2 py-2 text-right">{r.coin_flip_log_loss.toFixed(4)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-6">
+            <IntervalRows
+              rows={excessRows(
+                r.calibration,
+                (g) => `${g.meetings} matches · won ${g.win_pct}%, expected ${g.expected_pct}%`,
+              )}
+              unit="points of win rate above form"
+              caption="The favourite's win rate minus its expected rate, by how strongly form favoured it. Intervals that cross zero mean the expectation holds."
+            />
+          </div>
+        </Panel>
+
+        <Panel
+          id="rivalries-hold"
+          title="Do rivalry leaders keep winning?"
+          lede={`Matches where the two sides had met at least ${r.min_prior} times before, seen from the side that had won more of those meetings.`}
+        >
+          <IntervalRows
+            rows={excessRows(
+              r.rivalry,
+              (g) => `${g.meetings} matches · won ${g.win_pct}%, expected ${g.expected_pct}%`,
+            )}
+            unit="points of win rate above form"
+            caption={
+              r.edge_per_10
+                ? `Each extra 10 points of past dominance comes with ${interval(r.edge_per_10, 1)} points of win rate above form in the next meeting: indistinguishable from nothing.`
+                : "Too few meetings to measure."
+            }
+          />
+        </Panel>
+      </div>
+
+      <Panel
+        id="rivalries-close"
+        title="Close finishes"
+        lede={`${r.close_share}% of matches end within 5 runs, with 2 balls or fewer to spare, or in a super over.`}
+      >
+        <div className="grid gap-6 xl:grid-cols-2">
+          <IntervalRows
+            rows={excessRows(
+              r.favourites,
+              (g) =>
+                `${g.meetings} matches · favourite won ${g.win_pct}%, expected ${g.expected_pct}%`,
+            )}
+            unit="points of win rate above form"
+            caption="The side in better form wins close finishes about as often as any other match: no sign that better sides close them out."
+          />
+          <Prose>
+            <p>
+              If some sides had a knack for tight finishes, their close-finish record would carry
+              over from one season to the next. Across {p.pairs} pairs of consecutive seasons with
+              at least {p.min_close} close finishes in both, it carries over with a correlation of{" "}
+              <Strong>{p.close_r?.toFixed(2) ?? "n/a"}</Strong>, inside the ±
+              {p.null_90?.toFixed(2) ?? "n/a"} that shuffled seasons give nine times in ten. But a
+              side&apos;s whole record carries over barely more (r = {p.win_r?.toFixed(2) ?? "n/a"}
+              ), so this test can rule out a large effect, not a small one.
+            </p>
+          </Prose>
+        </div>
+      </Panel>
+
+      <Panel id="rivalries-verdict" title="Verdict">
+        <Prose>
+          <p>
+            Head-to-head records describe the past and <Strong>predict nothing</Strong> beyond form.
+            A franchise&apos;s squad turns over every few seasons through the auction, so a rivalry
+            is between badges more than teams. Close finishes behave like coin flips, and even form
+            is a weak guide, which is why the Teams pages set every head-to-head record against form
+            and the range chance allows.
+          </p>
+          <p>
+            Limits: form here is results only, not the players available; the shrinkage was chosen
+            on these same matches (one number, so little room to overfit); a real but small rivalry
+            or close-finish effect could hide inside the intervals.
           </p>
         </Prose>
       </Panel>

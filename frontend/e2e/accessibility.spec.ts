@@ -16,6 +16,12 @@ const PAGES = [
   "/lab",
   "/lab/pressure",
   "/lab/clutch",
+  "/lab/rivalries",
+  "/teams",
+  "/teams?season=2019",
+  "/teams/MI",
+  "/teams/h2h",
+  "/teams/h2h?a=MI&b=CSK",
   "/models",
   "/about",
 ];

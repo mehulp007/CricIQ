@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ClutchNoteView, MomentumNoteView, PressureNoteView } from "@/components/lab/notes";
+import {
+  ClutchNoteView,
+  MomentumNoteView,
+  PressureNoteView,
+  RivalriesNoteView,
+} from "@/components/lab/notes";
 import { LAB, type LabSlug, labEntry } from "@/lib/lab";
 
 const VIEWS: Record<LabSlug, () => React.ReactNode> = {
   momentum: MomentumNoteView,
   pressure: PressureNoteView,
   clutch: ClutchNoteView,
+  rivalries: RivalriesNoteView,
 };
 
 export const dynamicParams = false;

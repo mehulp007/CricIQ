@@ -6,6 +6,7 @@
 import clutchData from "@/data/lab/clutch.json";
 import momentumData from "@/data/lab/momentum.json";
 import pressureData from "@/data/lab/pressure.json";
+import rivalriesData from "@/data/lab/rivalries.json";
 
 export interface Estimate {
   value: number;
@@ -96,11 +97,45 @@ export interface ClutchNote {
   data_version: string;
 }
 
+export interface RivalryGroup {
+  label: string;
+  meetings: number;
+  win_pct: number | null;
+  expected_pct: number | null;
+  excess: Estimate | null;
+}
+
+export interface RivalriesNote {
+  meetings: number;
+  min_prior: number;
+  form_prior: number;
+  form_scan: { prior: number; log_loss: number }[];
+  coin_flip_log_loss: number;
+  favourite: RivalryGroup;
+  calibration: RivalryGroup[];
+  rivalry: RivalryGroup[];
+  edge_per_10: Estimate | null;
+  close_share: number;
+  favourites: RivalryGroup[];
+  persistence: {
+    pairs: number;
+    min_close: number;
+    season_pairs: number;
+    win_r: number | null;
+    close_r: number | null;
+    other_r: number | null;
+    null_90: number | null;
+    p_value: number | null;
+  };
+  data_version: string;
+}
+
 export const MOMENTUM = momentumData as unknown as MomentumNote;
 export const PRESSURE = pressureData as unknown as PressureNote;
 export const CLUTCH = clutchData as unknown as ClutchNote;
+export const RIVALRIES = rivalriesData as unknown as RivalriesNote;
 
-export type LabSlug = "momentum" | "pressure" | "clutch";
+export type LabSlug = "momentum" | "pressure" | "clutch" | "rivalries";
 
 export interface LabEntry {
   slug: LabSlug;
@@ -140,6 +175,13 @@ export const LAB: readonly LabEntry[] = [
     question:
       "Some players seem to rise to the big moments. Does a player's record under pressure in some seasons predict it in others?",
     answer: `Not reliably. A batter's record under pressure in odd seasons predicts it in even seasons with a correlation of ${CLUTCH.roles.batting.split_half_r?.toFixed(2) ?? "n/a"}, far below the ${CLUTCH.roles.batting.reliable_r} a usable rating would need; for bowlers it is ${CLUTCH.roles.bowling.split_half_r?.toFixed(2) ?? "n/a"}.`,
+  },
+  {
+    slug: "rivalries",
+    title: "Do rivalries and close finishes repeat?",
+    question:
+      "Some sides seem to have a hold over others, and some seem to win every tight finish. Does either predict the next match?",
+    answer: `No. Sides that had won ${RIVALRIES.rivalry[0]?.label.replace("Won ", "") ?? "60%+"} of earlier meetings won ${RIVALRIES.rivalry[0]?.win_pct ?? "n/a"}% of the next, against ${RIVALRIES.rivalry[0]?.expected_pct ?? "n/a"}% expected from form, and close-finish records do not carry over. Even form says little: the side in better form wins ${RIVALRIES.favourite.win_pct ?? "n/a"}% of the time.`,
   },
 ];
 

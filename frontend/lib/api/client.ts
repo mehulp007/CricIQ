@@ -10,6 +10,10 @@ import type {
   PlayerProfile,
   PlayerSplits,
   SimilarPlayers,
+  Standings,
+  HeadToHead,
+  TeamProfile,
+  TeamsOverview,
   Timeline,
 } from "./types";
 
@@ -180,4 +184,29 @@ export function getMatchup(
   return apiGet<MatchupDetail>(
     `/api/v1/matchups/${encodeURIComponent(batterId)}/${encodeURIComponent(bowlerId)}${query ? `?${query}` : ""}`,
   );
+}
+
+export function getTeams(): Promise<TeamsOverview> {
+  return apiGet<TeamsOverview>("/api/v1/teams");
+}
+
+export function getStandings(season: number): Promise<Standings> {
+  return apiGet<Standings>(`/api/v1/teams/standings/${season}`);
+}
+
+export function getTeam(franchiseId: string, window: SeasonWindow = {}): Promise<TeamProfile> {
+  return apiGet<TeamProfile>(
+    `/api/v1/teams/${encodeURIComponent(franchiseId)}${windowQuery(window)}`,
+  );
+}
+
+export function getHeadToHead(
+  a: string,
+  b: string,
+  window: SeasonWindow = {},
+): Promise<HeadToHead> {
+  const params = new URLSearchParams({ a, b });
+  if (window.from) params.set("from", String(window.from));
+  if (window.to) params.set("to", String(window.to));
+  return apiGet<HeadToHead>(`/api/v1/teams/h2h?${params}`);
 }

@@ -230,6 +230,22 @@ export default function AboutPage() {
         </p>
       </Section>
 
+      <Section id="teams" title="Teams: league tables rebuilt">
+        <p>
+          Every season&apos;s league table is rebuilt from the balls, with net run rate under the
+          playing conditions (a side bowled out is charged its full overs; a rain-revised chase
+          credits the side batting first with the target minus one). With the fixtures abandoned
+          before a ball added, every season matches the official table exactly, and the build fails
+          if one ever stops matching.
+        </p>
+        <p>
+          Head-to-head records are set against what each side&apos;s <Strong>form</Strong> (its
+          previous 14 results, pulled strongly toward even) predicted. Across every IPL rivalry,
+          past meetings add nothing to form, and form itself is a weak guide: see{" "}
+          <A href="/lab/rivalries">Do rivalries and close finishes repeat?</A>
+        </p>
+      </Section>
+
       <Section id="matchups" title="Matchup Lab: three readings of a record">
         <p>
           Even the longest IPL rivalry is only about 160 balls, and the median pair has met for 5.

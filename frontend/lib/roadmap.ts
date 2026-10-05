@@ -72,8 +72,9 @@ export const ROADMAP: readonly Milestone[] = [
   {
     id: "V1-c",
     title: "Team analytics",
-    summary: "Team profiles and head-to-head records across seasons.",
-    status: "planned",
+    summary:
+      "Franchise records, official league tables, head-to-head records and what form is worth.",
+    status: "done",
   },
   {
     id: "V1-d",

@@ -9,10 +9,13 @@ const PAGES = [
   "/players",
   "/matchups",
   "/compare",
+  "/teams",
+  "/teams/h2h",
   "/lab",
   "/lab/momentum",
   "/lab/pressure",
   "/lab/clutch",
+  "/lab/rivalries",
   "/models",
   "/about",
 ];

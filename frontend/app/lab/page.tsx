@@ -7,7 +7,7 @@ import { LAB } from "@/lib/lab";
 export const metadata: Metadata = {
   title: "Analytics Lab",
   description:
-    "Research notes on IPL cricket: is momentum real, what pressure does to batting, and whether clutch is a skill, each answered with a test that could have gone the other way.",
+    "Research notes on IPL cricket: is momentum real, what pressure does to batting, and whether clutch is a skill and whether rivalries repeat, each answered with a test that could have gone the other way.",
 };
 
 export default function LabPage() {

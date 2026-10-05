@@ -26,7 +26,7 @@ describe("NavList", () => {
     expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute("href", "/players");
     expect(screen.getByRole("link", { name: "Matchups" })).toHaveAttribute("href", "/matchups");
     expect(screen.getByRole("link", { name: "Compare" })).toHaveAttribute("href", "/compare");
-    expect(screen.queryByRole("link", { name: /Teams/ })).not.toBeInTheDocument();
-    expect(screen.getByText("Teams").closest("[aria-disabled]")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Simulator/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Simulator").closest("[aria-disabled]")).toBeInTheDocument();
   });
 });

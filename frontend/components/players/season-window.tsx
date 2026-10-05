@@ -23,10 +23,13 @@ export function SeasonWindow({
   career,
   first,
   last,
+  allLabel = "Career",
 }: {
   career: [number, number];
   first: number;
   last: number;
+  /** Label of the preset covering every season. */
+  allLabel?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -48,7 +51,7 @@ export function SeasonWindow({
   }
 
   const presets = [
-    { label: "Career", from: career[0], to: career[1] },
+    { label: allLabel, from: career[0], to: career[1] },
     { label: "Last 3 seasons", from: Math.max(career[0], career[1] - 2), to: career[1] },
     ...(career[1] >= IMPACT_PLAYER_ERA && career[0] < IMPACT_PLAYER_ERA
       ? [{ label: "Impact Player era", from: IMPACT_PLAYER_ERA, to: career[1] }]

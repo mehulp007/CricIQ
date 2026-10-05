@@ -1,0 +1,858 @@
+{
+  "serving": {
+    "ball_model_terms": {
+      "columns": [
+        "term",
+        "coefs"
+      ],
+      "md5": "6ec6749deb76733f9a5ce90c48225e01",
+      "rows": 1337
+    },
+    "bowling_usage": {
+      "columns": [
+        "player_id",
+        "season",
+        "franchise_id",
+        "over_no",
+        "overs",
+        "matches"
+      ],
+      "md5": "fd418e1925141d9d7876a22a5c624f86",
+      "rows": 494
+    },
+    "competitions": {
+      "columns": [
+        "competition_id",
+        "name",
+        "short_name",
+        "format",
+        "gender",
+        "team_type"
+      ],
+      "md5": "e712d3a1150688668286ee3b72131c93",
+      "rows": 1
+    },
+    "deliveries": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "over_no",
+        "ball_label",
+        "legal_ball_no",
+        "is_legal",
+        "batting_team_id",
+        "bowling_team_id",
+        "batter_id",
+        "non_striker_id",
+        "bowler_id",
+        "runs_batter",
+        "runs_extras",
+        "runs_total",
+        "is_four",
+        "is_six",
+        "extras_wides",
+        "extras_noballs",
+        "extras_byes",
+        "extras_legbyes",
+        "extras_penalty",
+        "is_wicket",
+        "team_runs",
+        "team_wickets",
+        "has_review"
+      ],
+      "md5": "1667ac86e4a413299edb3b7f99a440a9",
+      "rows": 3209
+    },
+    "franchises": {
+      "columns": [
+        "franchise_id",
+        "competition_id",
+        "name",
+        "primary_color",
+        "secondary_color",
+        "first_season",
+        "last_season",
+        "is_active"
+      ],
+      "md5": "25518e9c4d70524314330f53cb6956b2",
+      "rows": 15
+    },
+    "innings": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "batting_team_id",
+        "bowling_team_id",
+        "is_super_over",
+        "target_runs",
+        "target_overs",
+        "target_balls",
+        "runs",
+        "wickets",
+        "legal_balls",
+        "extras",
+        "absent_hurt_ids",
+        "miscounted_overs"
+      ],
+      "md5": "f60a9ebe5fa3304da7561bd491772821",
+      "rows": 33
+    },
+    "league_phase_rates": {
+      "columns": [
+        "season",
+        "phase",
+        "bat_balls",
+        "bowl_balls",
+        "bat_runs_rate",
+        "bat_outs_rate",
+        "bat_boundary_rate",
+        "bat_dot_rate",
+        "bowl_runs_rate",
+        "bowl_wicket_rate",
+        "bowl_dot_rate",
+        "bowl_boundary_rate"
+      ],
+      "md5": "9057ad1a63db7dd35066093c9c2271ec",
+      "rows": 30
+    },
+    "match_players": {
+      "columns": [
+        "match_id",
+        "team_season_id",
+        "player_id",
+        "list_position",
+        "selection",
+        "substituted_out"
+      ],
+      "md5": "399d094de4e5f573497cb857ca7c16f1",
+      "rows": 316
+    },
+    "match_summaries": {
+      "columns": [
+        "match_id",
+        "match_order",
+        "season",
+        "match_date",
+        "match_number",
+        "stage",
+        "is_playoff",
+        "venue_id",
+        "venue_name",
+        "venue_city",
+        "team_a_id",
+        "team_a_name",
+        "team_a_short",
+        "team_a_color",
+        "team_b_id",
+        "team_b_name",
+        "team_b_short",
+        "team_b_color",
+        "team_a_runs",
+        "team_a_wickets",
+        "team_a_overs",
+        "team_b_runs",
+        "team_b_wickets",
+        "team_b_overs",
+        "target_runs",
+        "toss_winner_id",
+        "toss_winner_name",
+        "toss_decision",
+        "outcome_type",
+        "winner_id",
+        "winner_name",
+        "win_by_runs",
+        "win_by_wickets",
+        "win_method",
+        "decided_by_super_over",
+        "result_text",
+        "player_of_match"
+      ],
+      "md5": "83e182ad07092e7a17280a9b61daf139",
+      "rows": 14
+    },
+    "matches": {
+      "columns": [
+        "match_id",
+        "competition_id",
+        "season_id",
+        "match_order",
+        "match_date",
+        "end_date",
+        "match_number",
+        "stage",
+        "is_playoff",
+        "venue_id",
+        "team1_id",
+        "team2_id",
+        "toss_winner_id",
+        "toss_decision",
+        "outcome_type",
+        "winner_id",
+        "win_by_runs",
+        "win_by_wickets",
+        "win_method",
+        "decided_by_super_over",
+        "scheduled_overs",
+        "balls_per_over",
+        "player_of_match_ids",
+        "cricsheet_version"
+      ],
+      "md5": "3e7d69c83697bd31a9cfb1d5bc9d0a56",
+      "rows": 14
+    },
+    "matchup_cells": {
+      "columns": [
+        "batter_id",
+        "bowler_id",
+        "season",
+        "phase",
+        "balls",
+        "runs",
+        "n_dot",
+        "n_one",
+        "n_two",
+        "n_three",
+        "n_four",
+        "n_six",
+        "n_out",
+        "e_dot",
+        "e_one",
+        "e_two",
+        "e_three",
+        "e_four",
+        "e_six",
+        "e_out"
+      ],
+      "md5": "4cca69492f6b9232e4d893ff7f8ea57f",
+      "rows": 770
+    },
+    "models": {
+      "columns": [
+        "name",
+        "version",
+        "trained_from",
+        "trained_through",
+        "info"
+      ],
+      "md5": "d799d115573020a7f5c058267dadfb6b",
+      "rows": 5
+    },
+    "player_batting_cells": {
+      "columns": [
+        "player_id",
+        "season",
+        "phase",
+        "bowling_type",
+        "balls",
+        "runs",
+        "fours",
+        "sixes",
+        "dots",
+        "outs",
+        "par_runs",
+        "par_outs",
+        "par_boundaries",
+        "par_dots"
+      ],
+      "md5": "cfacc5341bbaf428196732469a65b57e",
+      "rows": 439
+    },
+    "player_batting_innings": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "innings_no",
+        "season",
+        "match_order",
+        "match_date",
+        "venue_id",
+        "is_playoff",
+        "team_id",
+        "opposition_id",
+        "result",
+        "position",
+        "runs",
+        "balls",
+        "fours",
+        "sixes",
+        "dots",
+        "is_out",
+        "dismissal",
+        "dismissed_by",
+        "par_runs",
+        "par_outs",
+        "par_boundaries",
+        "par_dots"
+      ],
+      "md5": "969e2db202daf73067d7592a61fe1d79",
+      "rows": 219
+    },
+    "player_batting_phases": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "innings_no",
+        "season",
+        "phase",
+        "balls",
+        "runs",
+        "outs",
+        "par_runs",
+        "par_outs"
+      ],
+      "md5": "ac99bfac08960ec39c69bbf8f8309cae",
+      "rows": 316
+    },
+    "player_bowling_cells": {
+      "columns": [
+        "player_id",
+        "season",
+        "phase",
+        "batting_hand",
+        "balls",
+        "runs",
+        "wickets",
+        "dots",
+        "fours",
+        "sixes",
+        "wides",
+        "noballs",
+        "par_runs",
+        "par_wickets",
+        "par_boundaries",
+        "par_dots"
+      ],
+      "md5": "7b98ef82fa8c1deb78397e6486702ad4",
+      "rows": 454
+    },
+    "player_bowling_innings": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "innings_no",
+        "season",
+        "match_order",
+        "match_date",
+        "venue_id",
+        "is_playoff",
+        "team_id",
+        "opposition_id",
+        "result",
+        "balls",
+        "runs",
+        "wickets",
+        "maidens",
+        "dots",
+        "fours",
+        "sixes",
+        "wides",
+        "noballs",
+        "par_runs",
+        "par_wickets",
+        "par_boundaries",
+        "par_dots"
+      ],
+      "md5": "4852581bcbb2f303d23d520e45881948",
+      "rows": 157
+    },
+    "player_bowling_phases": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "innings_no",
+        "season",
+        "phase",
+        "balls",
+        "runs",
+        "wickets",
+        "par_runs",
+        "par_wickets"
+      ],
+      "md5": "0da05766b32e695c151d3d7f620de3a9",
+      "rows": 287
+    },
+    "player_fielding": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "season",
+        "catches",
+        "stumpings",
+        "run_outs"
+      ],
+      "md5": "9fd79b7b0f280ffccd727033dc8a6533",
+      "rows": 101
+    },
+    "player_index": {
+      "columns": [
+        "player_id",
+        "name",
+        "full_name",
+        "country",
+        "date_of_birth",
+        "batting_hand",
+        "bowling_arm",
+        "bowling_type",
+        "bowling_style",
+        "role",
+        "is_keeper",
+        "first_season",
+        "last_season",
+        "matches",
+        "latest_team_id",
+        "search_key"
+      ],
+      "md5": "3fc1d4a6d2c5bbb38b645c24f7fc42df",
+      "rows": 202
+    },
+    "player_seasons": {
+      "columns": [
+        "player_id",
+        "season",
+        "franchise_id",
+        "matches"
+      ],
+      "md5": "e19ce672fb1a39855f3e250a9767614e",
+      "rows": 292
+    },
+    "player_wpa": {
+      "columns": [
+        "player_id",
+        "match_id",
+        "innings_no",
+        "role",
+        "wpa"
+      ],
+      "md5": "76f0fbc15d592cbe65b2873489b5e78c",
+      "rows": 375
+    },
+    "players": {
+      "columns": [
+        "player_id",
+        "name",
+        "full_name",
+        "country",
+        "date_of_birth",
+        "batting_hand",
+        "bowling_arm",
+        "bowling_type",
+        "bowling_style"
+      ],
+      "md5": "f420d90f6545da75c4b65f18bcbadda3",
+      "rows": 204
+    },
+    "score_projections": {
+      "columns": [
+        "match_id",
+        "seq_no",
+        "quantiles"
+      ],
+      "md5": "be5686df20fbfe41cd84ca226ff553ab",
+      "rows": 1624
+    },
+    "seasons": {
+      "columns": [
+        "season_id",
+        "competition_id",
+        "year",
+        "cricsheet_label",
+        "impact_player_rule"
+      ],
+      "md5": "f56ff22f72158e1289156671e7e14287",
+      "rows": 10
+    },
+    "sim_league_rates": {
+      "columns": [
+        "season",
+        "innings_no",
+        "phase",
+        "legal_balls",
+        "run_outs",
+        "x0",
+        "x1",
+        "x2",
+        "x3",
+        "x4",
+        "x5"
+      ],
+      "md5": "ddf5accee0685f8b5d3bab591b3e2c6c",
+      "rows": 60
+    },
+    "substitutions": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "sub_no",
+        "kind",
+        "reason",
+        "team_season_id",
+        "player_in_id",
+        "player_out_id",
+        "role"
+      ],
+      "md5": "9f11c55a64d67169846eef770063ca0d",
+      "rows": 10
+    },
+    "team_innings_phases": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "season",
+        "phase",
+        "batting_id",
+        "bowling_id",
+        "runs",
+        "balls",
+        "wickets",
+        "fours",
+        "sixes",
+        "dots"
+      ],
+      "md5": "8bb6ef0e61e16ecf819716435b613566",
+      "rows": 78
+    },
+    "team_matches": {
+      "columns": [
+        "match_id",
+        "match_order",
+        "season",
+        "match_date",
+        "stage",
+        "is_playoff",
+        "venue_id",
+        "franchise_id",
+        "team_id",
+        "team_name",
+        "opponent_id",
+        "opponent_team_id",
+        "opponent_name",
+        "result",
+        "tied",
+        "in_table",
+        "batted_first",
+        "won_toss",
+        "toss_decision",
+        "runs_for",
+        "wickets_for",
+        "balls_for",
+        "runs_against",
+        "wickets_against",
+        "balls_against",
+        "nrr_runs_for",
+        "nrr_balls_for",
+        "nrr_runs_against",
+        "nrr_balls_against",
+        "win_by_runs",
+        "win_by_wickets",
+        "win_method",
+        "balls_to_spare",
+        "is_close",
+        "venue_type",
+        "form_won",
+        "form_decided"
+      ],
+      "md5": "5662fbcb787caaf6b62aff6c54daded5",
+      "rows": 28
+    },
+    "team_season_records": {
+      "columns": [
+        "season",
+        "franchise_id",
+        "team_id",
+        "team_name",
+        "played",
+        "won",
+        "lost",
+        "no_result",
+        "abandoned",
+        "points",
+        "nrr_runs_for",
+        "nrr_balls_for",
+        "nrr_runs_against",
+        "nrr_balls_against",
+        "nrr",
+        "position",
+        "teams",
+        "finish",
+        "exit_stage"
+      ],
+      "md5": "9ea420fb7945b3df01baacdff289f5c6",
+      "rows": 26
+    },
+    "team_seasons": {
+      "columns": [
+        "team_season_id",
+        "franchise_id",
+        "season_id",
+        "display_name"
+      ],
+      "md5": "01028e85da88098b71d533f0b187da15",
+      "rows": 26
+    },
+    "venues": {
+      "columns": [
+        "venue_id",
+        "name",
+        "city",
+        "country",
+        "notes"
+      ],
+      "md5": "95a2d914dedc00633ab831cdbb8843c4",
+      "rows": 37
+    },
+    "wickets": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "wicket_no",
+        "player_out_id",
+        "kind",
+        "is_dismissal",
+        "bowler_credited",
+        "bowler_id",
+        "fielder_ids",
+        "fielder_is_substitute"
+      ],
+      "md5": "b30b9bbf2fd05fde9671b64a7c47b067",
+      "rows": 181
+    },
+    "wp_predictions": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "wp_team_a",
+        "factors",
+        "leverage",
+        "pressure",
+        "momentum"
+      ],
+      "md5": "5b497264a4b70fb34ae7c078074d6d9d",
+      "rows": 3199
+    }
+  },
+  "warehouse": {
+    "competitions": {
+      "columns": [
+        "competition_id",
+        "name",
+        "short_name",
+        "format",
+        "gender",
+        "team_type"
+      ],
+      "md5": "e712d3a1150688668286ee3b72131c93",
+      "rows": 1
+    },
+    "deliveries": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "over_no",
+        "ball_label",
+        "legal_ball_no",
+        "is_legal",
+        "batting_team_id",
+        "bowling_team_id",
+        "batter_id",
+        "non_striker_id",
+        "bowler_id",
+        "runs_batter",
+        "runs_extras",
+        "runs_total",
+        "is_four",
+        "is_six",
+        "extras_wides",
+        "extras_noballs",
+        "extras_byes",
+        "extras_legbyes",
+        "extras_penalty",
+        "is_wicket",
+        "team_runs",
+        "team_wickets",
+        "has_review"
+      ],
+      "md5": "1667ac86e4a413299edb3b7f99a440a9",
+      "rows": 3209
+    },
+    "franchises": {
+      "columns": [
+        "franchise_id",
+        "competition_id",
+        "name",
+        "primary_color",
+        "secondary_color",
+        "first_season",
+        "last_season",
+        "is_active"
+      ],
+      "md5": "25518e9c4d70524314330f53cb6956b2",
+      "rows": 15
+    },
+    "innings": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "batting_team_id",
+        "bowling_team_id",
+        "is_super_over",
+        "target_runs",
+        "target_overs",
+        "target_balls",
+        "runs",
+        "wickets",
+        "legal_balls",
+        "extras",
+        "absent_hurt_ids",
+        "miscounted_overs"
+      ],
+      "md5": "f60a9ebe5fa3304da7561bd491772821",
+      "rows": 33
+    },
+    "match_players": {
+      "columns": [
+        "match_id",
+        "team_season_id",
+        "player_id",
+        "list_position",
+        "selection",
+        "substituted_out"
+      ],
+      "md5": "399d094de4e5f573497cb857ca7c16f1",
+      "rows": 316
+    },
+    "matches": {
+      "columns": [
+        "match_id",
+        "competition_id",
+        "season_id",
+        "match_order",
+        "match_date",
+        "end_date",
+        "match_number",
+        "stage",
+        "is_playoff",
+        "venue_id",
+        "team1_id",
+        "team2_id",
+        "toss_winner_id",
+        "toss_decision",
+        "outcome_type",
+        "winner_id",
+        "win_by_runs",
+        "win_by_wickets",
+        "win_method",
+        "decided_by_super_over",
+        "scheduled_overs",
+        "balls_per_over",
+        "player_of_match_ids",
+        "cricsheet_version"
+      ],
+      "md5": "3e7d69c83697bd31a9cfb1d5bc9d0a56",
+      "rows": 14
+    },
+    "player_identifiers": {
+      "columns": [
+        "player_id",
+        "source",
+        "value"
+      ],
+      "md5": "c4248d9487d808e51f78979a84be37b0",
+      "rows": 670
+    },
+    "players": {
+      "columns": [
+        "player_id",
+        "name",
+        "unique_name",
+        "full_name",
+        "date_of_birth",
+        "country",
+        "batting_hand",
+        "bowling_arm",
+        "bowling_type",
+        "bowling_style",
+        "attributes_source"
+      ],
+      "md5": "8808b564a26984c39025af9e435492cc",
+      "rows": 204
+    },
+    "seasons": {
+      "columns": [
+        "season_id",
+        "competition_id",
+        "year",
+        "cricsheet_label",
+        "impact_player_rule"
+      ],
+      "md5": "f56ff22f72158e1289156671e7e14287",
+      "rows": 10
+    },
+    "substitutions": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "sub_no",
+        "kind",
+        "reason",
+        "team_season_id",
+        "player_in_id",
+        "player_out_id",
+        "role"
+      ],
+      "md5": "9f11c55a64d67169846eef770063ca0d",
+      "rows": 10
+    },
+    "team_seasons": {
+      "columns": [
+        "team_season_id",
+        "franchise_id",
+        "season_id",
+        "display_name"
+      ],
+      "md5": "01028e85da88098b71d533f0b187da15",
+      "rows": 26
+    },
+    "venue_aliases": {
+      "columns": [
+        "raw_name",
+        "venue_id"
+      ],
+      "md5": "60f93ce4da583af2ccaf63cf8cbb0894",
+      "rows": 60
+    },
+    "venues": {
+      "columns": [
+        "venue_id",
+        "name",
+        "city",
+        "country",
+        "notes"
+      ],
+      "md5": "95a2d914dedc00633ab831cdbb8843c4",
+      "rows": 37
+    },
+    "wickets": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "wicket_no",
+        "player_out_id",
+        "kind",
+        "is_dismissal",
+        "bowler_credited",
+        "bowler_id",
+        "fielder_ids",
+        "fielder_is_substitute"
+      ],
+      "md5": "b30b9bbf2fd05fde9671b64a7c47b067",
+      "rows": 181
+    }
+  }
+}

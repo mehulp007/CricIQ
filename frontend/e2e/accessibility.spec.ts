@@ -25,6 +25,8 @@ const PAGES = [
   "/simulator",
   "/models?tab=simulator",
   "/models",
+  "/models?tab=win-probability",
+  "/writeup",
   "/about",
 ];
 

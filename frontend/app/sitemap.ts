@@ -18,6 +18,7 @@ const PAGES = [
   "/lab/clutch",
   "/lab/rivalries",
   "/models",
+  "/writeup",
   "/about",
 ];
 

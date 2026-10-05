@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   BrainCircuit,
   CalendarRange,
   Dices,
@@ -12,7 +13,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type MilestoneId = "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d";
+export type MilestoneId =
+  "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0";
 
 export interface NavItem {
   href: string;
@@ -37,6 +39,7 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "V1-b",
   "V1-c",
   "V1-d",
+  "v1.0",
 ]);
 
 export const PRIMARY_NAV: readonly NavItem[] = [
@@ -52,6 +55,7 @@ export const PRIMARY_NAV: readonly NavItem[] = [
 ];
 
 export const SECONDARY_NAV: readonly NavItem[] = [
+  { href: "/writeup", label: "The write-up", icon: BookOpen, milestone: "v1.0" },
   { href: "/about", label: "About & Methodology", icon: Info, milestone: "M0" },
 ];
 

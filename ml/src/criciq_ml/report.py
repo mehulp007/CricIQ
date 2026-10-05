@@ -14,7 +14,7 @@ from typing import Any
 import duckdb
 
 from criciq_core import paths
-from criciq_ml import ball_outcome_report, projection_report, ratings_report, registry
+from criciq_ml import ball_outcome_report, lab, projection_report, ratings_report, registry
 
 FEATURE_LABELS: dict[str, str] = {
     "legal_balls": "Legal balls bowled",
@@ -400,6 +400,7 @@ def write_all(serving: Path) -> list[Path]:
         *projection_report.write_all(),
         *ball_outcome_report.write_all(),
         *ratings_report.write_all(),
+        *lab.write_all(serving),
     ]
     version = registry.current_version()
     if version is None:

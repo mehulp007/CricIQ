@@ -1,0 +1,124 @@
+{
+  "slug": "momentum",
+  "states": 41106,
+  "matches": 1242,
+  "momentum_sd": 10.1,
+  "runs_per_10_points": {
+    "value": 0.193,
+    "low": 0.137,
+    "high": 0.257
+  },
+  "wickets_per_10_points": {
+    "value": 0.0133,
+    "low": 0.0066,
+    "high": 0.0198
+  },
+  "result_per_10_points": {
+    "value": -0.0042,
+    "low": -0.0069,
+    "high": -0.0009
+  },
+  "bands": [
+    {
+      "label": "Lost 15+ points",
+      "states": 2735,
+      "runs_next_12": 14.7,
+      "runs_above_expected": {
+        "value": -0.45,
+        "low": -0.65,
+        "high": -0.26
+      },
+      "wickets_above_expected": {
+        "value": -0.047,
+        "low": -0.071,
+        "high": -0.024
+      },
+      "result_above_wp": {
+        "value": 0.006,
+        "low": -0.011,
+        "high": 0.025
+      }
+    },
+    {
+      "label": "Lost 5-15",
+      "states": 7742,
+      "runs_next_12": 15.44,
+      "runs_above_expected": {
+        "value": -0.24,
+        "low": -0.37,
+        "high": -0.11
+      },
+      "wickets_above_expected": {
+        "value": -0.027,
+        "low": -0.042,
+        "high": -0.013
+      },
+      "result_above_wp": {
+        "value": 0.002,
+        "low": -0.009,
+        "high": 0.014
+      }
+    },
+    {
+      "label": "Level (within 5)",
+      "states": 20324,
+      "runs_next_12": 16.38,
+      "runs_above_expected": {
+        "value": -0.02,
+        "low": -0.13,
+        "high": 0.09
+      },
+      "wickets_above_expected": {
+        "value": -0.009,
+        "low": -0.018,
+        "high": 0.0
+      },
+      "result_above_wp": {
+        "value": -0.002,
+        "low": -0.01,
+        "high": 0.006
+      }
+    },
+    {
+      "label": "Gained 5-15",
+      "states": 8066,
+      "runs_next_12": 16.75,
+      "runs_above_expected": {
+        "value": 0.02,
+        "low": -0.12,
+        "high": 0.15
+      },
+      "wickets_above_expected": {
+        "value": -0.01,
+        "low": -0.023,
+        "high": 0.004
+      },
+      "result_above_wp": {
+        "value": -0.002,
+        "low": -0.011,
+        "high": 0.009
+      }
+    },
+    {
+      "label": "Gained 15+",
+      "states": 2239,
+      "runs_next_12": 17.7,
+      "runs_above_expected": {
+        "value": 0.54,
+        "low": 0.26,
+        "high": 0.84
+      },
+      "wickets_above_expected": {
+        "value": 0.024,
+        "low": -0.003,
+        "high": 0.052
+      },
+      "result_above_wp": {
+        "value": -0.026,
+        "low": -0.045,
+        "high": -0.006
+      }
+    }
+  ],
+  "data_version": "2026-05-31.713dafe9"
+}

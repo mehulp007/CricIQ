@@ -1,0 +1,425 @@
+{
+  "slug": "pressure",
+  "balls": 285628,
+  "bands": [
+    {
+      "label": "Low",
+      "from": 0,
+      "to": 50
+    },
+    {
+      "label": "Medium",
+      "from": 50,
+      "to": 80
+    },
+    {
+      "label": "High",
+      "from": 80,
+      "to": 95
+    },
+    {
+      "label": "Very high",
+      "from": 95,
+      "to": 100
+    }
+  ],
+  "rows": [
+    {
+      "band": "Low",
+      "from": 0,
+      "to": 50,
+      "innings_no": 1,
+      "balls": 91373,
+      "share": 0.6167,
+      "strike_rate": 134.0,
+      "expected_strike_rate": 133.6,
+      "dot_pct": 36.4,
+      "boundary_pct": 17.4,
+      "dismissals_per_100": 4.6,
+      "expected_dismissals_per_100": 4.58,
+      "runs_above_expected_per_100": {
+        "value": 0.44,
+        "low": -0.65,
+        "high": 1.54
+      }
+    },
+    {
+      "band": "Low",
+      "from": 0,
+      "to": 50,
+      "innings_no": 2,
+      "balls": 51476,
+      "share": 0.3745,
+      "strike_rate": 129.7,
+      "expected_strike_rate": 131.3,
+      "dot_pct": 39.4,
+      "boundary_pct": 17.2,
+      "dismissals_per_100": 4.96,
+      "expected_dismissals_per_100": 4.9,
+      "runs_above_expected_per_100": {
+        "value": -1.6,
+        "low": -3.06,
+        "high": -0.12
+      }
+    },
+    {
+      "band": "Medium",
+      "from": 50,
+      "to": 80,
+      "innings_no": 1,
+      "balls": 45560,
+      "share": 0.3075,
+      "strike_rate": 131.9,
+      "expected_strike_rate": 133.5,
+      "dot_pct": 38.3,
+      "boundary_pct": 17.4,
+      "dismissals_per_100": 4.64,
+      "expected_dismissals_per_100": 4.7,
+      "runs_above_expected_per_100": {
+        "value": -1.65,
+        "low": -2.93,
+        "high": -0.21
+      }
+    },
+    {
+      "band": "Medium",
+      "from": 50,
+      "to": 80,
+      "innings_no": 2,
+      "balls": 40128,
+      "share": 0.2919,
+      "strike_rate": 127.5,
+      "expected_strike_rate": 128.6,
+      "dot_pct": 39.5,
+      "boundary_pct": 17.1,
+      "dismissals_per_100": 4.0,
+      "expected_dismissals_per_100": 4.14,
+      "runs_above_expected_per_100": {
+        "value": -1.14,
+        "low": -2.54,
+        "high": 0.24
+      }
+    },
+    {
+      "band": "High",
+      "from": 80,
+      "to": 95,
+      "innings_no": 1,
+      "balls": 10685,
+      "share": 0.0721,
+      "strike_rate": 147.3,
+      "expected_strike_rate": 144.2,
+      "dot_pct": 34.7,
+      "boundary_pct": 20.2,
+      "dismissals_per_100": 5.31,
+      "expected_dismissals_per_100": 5.19,
+      "runs_above_expected_per_100": {
+        "value": 3.1,
+        "low": 0.14,
+        "high": 5.66
+      }
+    },
+    {
+      "band": "High",
+      "from": 80,
+      "to": 95,
+      "innings_no": 2,
+      "balls": 32215,
+      "share": 0.2344,
+      "strike_rate": 133.5,
+      "expected_strike_rate": 132.6,
+      "dot_pct": 37.0,
+      "boundary_pct": 17.6,
+      "dismissals_per_100": 4.39,
+      "expected_dismissals_per_100": 4.45,
+      "runs_above_expected_per_100": {
+        "value": 0.92,
+        "low": -0.74,
+        "high": 2.56
+      }
+    },
+    {
+      "band": "Very high",
+      "from": 95,
+      "to": 100,
+      "innings_no": 1,
+      "balls": 550,
+      "share": 0.0037,
+      "strike_rate": 145.8,
+      "expected_strike_rate": 129.5,
+      "dot_pct": 38.7,
+      "boundary_pct": 22.2,
+      "dismissals_per_100": 2.73,
+      "expected_dismissals_per_100": 4.2,
+      "runs_above_expected_per_100": {
+        "value": 16.28,
+        "low": 4.77,
+        "high": 29.07
+      }
+    },
+    {
+      "band": "Very high",
+      "from": 95,
+      "to": 100,
+      "innings_no": 2,
+      "balls": 13641,
+      "share": 0.0992,
+      "strike_rate": 155.2,
+      "expected_strike_rate": 147.4,
+      "dot_pct": 29.9,
+      "boundary_pct": 19.7,
+      "dismissals_per_100": 6.9,
+      "expected_dismissals_per_100": 6.53,
+      "runs_above_expected_per_100": {
+        "value": 7.84,
+        "low": 5.04,
+        "high": 10.19
+      }
+    }
+  ],
+  "top_moments": [
+    {
+      "match_id": 548327,
+      "innings_no": 2,
+      "seq_no": 124,
+      "ball_label": "19.6",
+      "season": 2012,
+      "date": "2012-04-17",
+      "teams": "PWI v RCB",
+      "stage": "League",
+      "result": "Royal Challengers Bangalore won by 6 wickets",
+      "leverage": 33.2,
+      "situation": "3 needed from 1 ball",
+      "bowler": "A Nehra",
+      "happened": "SS Tiwary hit a six"
+    },
+    {
+      "match_id": 980977,
+      "innings_no": 2,
+      "seq_no": 122,
+      "ball_label": "19.6",
+      "season": 2016,
+      "date": "2016-05-09",
+      "teams": "RCB v PBKS",
+      "stage": "League",
+      "result": "Royal Challengers Bangalore won by 1 run",
+      "leverage": 32.7,
+      "situation": "4 needed from 1 ball",
+      "bowler": "CJ Jordan",
+      "happened": "2 runs"
+    },
+    {
+      "match_id": 1304086,
+      "innings_no": 2,
+      "seq_no": 125,
+      "ball_label": "19.6",
+      "season": 2022,
+      "date": "2022-04-27",
+      "teams": "SRH v GT",
+      "stage": "League",
+      "result": "Gujarat Titans won by 5 wickets",
+      "leverage": 32.3,
+      "situation": "3 needed from 1 ball",
+      "bowler": "M Jansen",
+      "happened": "Rashid Khan hit a six"
+    },
+    {
+      "match_id": 1473489,
+      "innings_no": 2,
+      "seq_no": 121,
+      "ball_label": "19.6",
+      "season": 2025,
+      "date": "2025-05-03",
+      "teams": "RCB v CSK",
+      "stage": "League",
+      "result": "Royal Challengers Bengaluru won by 2 runs",
+      "leverage": 31.5,
+      "situation": "4 needed from 1 ball",
+      "bowler": "Yash Dayal",
+      "happened": "1 run"
+    },
+    {
+      "match_id": 336036,
+      "innings_no": 2,
+      "seq_no": 125,
+      "ball_label": "19.6",
+      "season": 2008,
+      "date": "2008-05-26",
+      "teams": "MI v RR",
+      "stage": "League",
+      "result": "Rajasthan Royals won by 5 wickets",
+      "leverage": 31.3,
+      "situation": "3 needed from 2 balls",
+      "bowler": "CRD Fernando",
+      "happened": "1 run"
+    },
+    {
+      "match_id": 548314,
+      "innings_no": 2,
+      "seq_no": 120,
+      "ball_label": "19.6",
+      "season": 2012,
+      "date": "2012-04-09",
+      "teams": "DCH v MI",
+      "stage": "League",
+      "result": "Mumbai Indians won by 5 wickets",
+      "leverage": 31.0,
+      "situation": "3 needed from 1 ball",
+      "bowler": "DT Christian",
+      "happened": "RG Sharma hit a six"
+    },
+    {
+      "match_id": 501267,
+      "innings_no": 2,
+      "seq_no": 126,
+      "ball_label": "19.6",
+      "season": 2011,
+      "date": "2011-05-22",
+      "teams": "KKR v MI",
+      "stage": "League",
+      "result": "Mumbai Indians won by 5 wickets",
+      "leverage": 30.9,
+      "situation": "4 needed from 1 ball",
+      "bowler": "L Balaji",
+      "happened": "AT Rayudu hit a six"
+    },
+    {
+      "match_id": 1178400,
+      "innings_no": 2,
+      "seq_no": 124,
+      "ball_label": "19.6",
+      "season": 2019,
+      "date": "2019-04-11",
+      "teams": "RR v CSK",
+      "stage": "League",
+      "result": "Chennai Super Kings won by 4 wickets",
+      "leverage": 30.2,
+      "situation": "3 needed from 1 ball",
+      "bowler": "BA Stokes",
+      "happened": "MJ Santner hit a six"
+    },
+    {
+      "match_id": 1082650,
+      "innings_no": 2,
+      "seq_no": 123,
+      "ball_label": "19.6",
+      "season": 2017,
+      "date": "2017-05-21",
+      "teams": "MI v RPS",
+      "stage": "Final",
+      "result": "Mumbai Indians won by 1 run",
+      "leverage": 30.0,
+      "situation": "4 needed from 1 ball",
+      "bowler": "MG Johnson",
+      "happened": "DT Christian out (run out)"
+    },
+    {
+      "match_id": 1254111,
+      "innings_no": 2,
+      "seq_no": 128,
+      "ball_label": "19.6",
+      "season": 2021,
+      "date": "2021-09-21",
+      "teams": "RR v PBKS",
+      "stage": "League",
+      "result": "Rajasthan Royals won by 2 runs",
+      "leverage": 30.0,
+      "situation": "3 needed from 1 ball",
+      "bowler": "Kartik Tyagi",
+      "happened": "0 runs"
+    }
+  ],
+  "swing_check": [
+    {
+      "balls": 29550,
+      "leverage": 0.092,
+      "realised": {
+        "value": 0.089,
+        "low": 0.087,
+        "high": 0.093
+      }
+    },
+    {
+      "balls": 29550,
+      "leverage": 0.362,
+      "realised": {
+        "value": 0.363,
+        "low": 0.358,
+        "high": 0.369
+      }
+    },
+    {
+      "balls": 29549,
+      "leverage": 0.529,
+      "realised": {
+        "value": 0.506,
+        "low": 0.499,
+        "high": 0.514
+      }
+    },
+    {
+      "balls": 29550,
+      "leverage": 0.651,
+      "realised": {
+        "value": 0.613,
+        "low": 0.606,
+        "high": 0.622
+      }
+    },
+    {
+      "balls": 29549,
+      "leverage": 0.761,
+      "realised": {
+        "value": 0.751,
+        "low": 0.742,
+        "high": 0.761
+      }
+    },
+    {
+      "balls": 29550,
+      "leverage": 0.881,
+      "realised": {
+        "value": 0.871,
+        "low": 0.86,
+        "high": 0.882
+      }
+    },
+    {
+      "balls": 29549,
+      "leverage": 1.033,
+      "realised": {
+        "value": 1.02,
+        "low": 1.007,
+        "high": 1.034
+      }
+    },
+    {
+      "balls": 29550,
+      "leverage": 1.248,
+      "realised": {
+        "value": 1.257,
+        "low": 1.241,
+        "high": 1.271
+      }
+    },
+    {
+      "balls": 29549,
+      "leverage": 1.564,
+      "realised": {
+        "value": 1.604,
+        "low": 1.586,
+        "high": 1.624
+      }
+    },
+    {
+      "balls": 29550,
+      "leverage": 2.879,
+      "realised": {
+        "value": 2.926,
+        "low": 2.885,
+        "high": 2.968
+      }
+    }
+  ],
+  "data_version": "2026-05-31.713dafe9"
+}

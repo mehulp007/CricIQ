@@ -31,6 +31,33 @@ class SimPlayer(BaseModel):
     recent_overs: float = Field(description="Overs bowled in the player's last three seasons.")
 
 
+class SquadPlayer(SimPlayer):
+    matches: int = Field(description="Matches played for the side that season.")
+
+
+class SimSquad(BaseModel):
+    """A side's squad in one season: everyone who played for it, and its last XI."""
+
+    team: TeamTag
+    season: int
+    display_name: str = Field(description="The side's name that season.")
+    players: list[SquadPlayer] = Field(description="Most appearances first.")
+    xi: list[str] = Field(description="The season's last playing XI, in batting order.")
+    bowlers: list[str] = Field(description="That XI's default bowling options.")
+    from_match: int | None
+    match_date: dt.date | None
+
+
+class SimSeasonTeam(BaseModel):
+    team: TeamTag
+    display_name: str
+
+
+class SimSeason(BaseModel):
+    season: int
+    teams: list[SimSeasonTeam]
+
+
 class SimXI(BaseModel):
     team: TeamTag | None
     from_match: int | None = Field(description="The match this XI is taken from, if any.")
@@ -66,6 +93,16 @@ class SideRequest(BaseModel):
 class SimulationRequest(BaseModel):
     a: SideRequest
     b: SideRequest
+    season: int | None = Field(
+        default=None,
+        ge=2008,
+        le=2100,
+        description=(
+            "Play the match in this season: each side must come from its squad that season, "
+            "and the scoring era, league rates and players' recent records are as of then. "
+            "Empty means today's era with any players."
+        ),
+    )
     bat_first: Literal["a", "b"] | None = Field(
         default=None, description="Who bats first; empty means the toss decides (half each)."
     )
@@ -89,20 +126,24 @@ class SimBatter(BaseModel):
     player_id: str
     name: str
     batted_pct: float = Field(description="Share of simulated innings in which they batted.")
-    runs: float = Field(description="Average runs per simulated innings.")
-    balls: float
+    runs: int | None = Field(description="Typical (median) score in the innings they batted.")
+    runs_low: int | None = Field(description="25th percentile of those scores.")
+    runs_high: int | None = Field(description="75th percentile of those scores.")
+    balls: int | None = Field(description="Typical (median) balls faced in those innings.")
     strike_rate: float | None
-    fifty_pct: float
+    fifty_pct: float = Field(description="Share of all simulated innings with 50 or more.")
     out_pct: float
 
 
 class SimBowler(BaseModel):
     player_id: str
     name: str
-    overs: float
-    runs: float = Field(description="Runs off the bat conceded per simulated innings.")
-    wickets: float
+    bowled_pct: float = Field(description="Share of simulated innings in which they bowled.")
+    balls: int | None = Field(description="Typical (median) legal balls bowled when bowling.")
+    runs: int | None = Field(description="Typical runs off the bat conceded when bowling.")
+    wickets: int | None = Field(description="Typical wickets when bowling.")
     economy: float | None
+    wicket_pct: float = Field(description="Share of all simulated innings with a wicket.")
     three_wicket_pct: float
 
 

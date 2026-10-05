@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from criciq_api.db import Database, get_db
 from criciq_api.schemas.simulation import (
+    SimSeason,
+    SimSquad,
     SimulationRequest,
     SimulationResult,
     SimXI,
@@ -22,6 +24,26 @@ DB = Annotated[Database, Depends(get_db)]
 
 def _unavailable() -> HTTPException:
     return HTTPException(status_code=503, detail="the simulator is not available in this build")
+
+
+@router.get("/seasons")
+def read_seasons(db: DB) -> list[SimSeason]:
+    """Every season, newest first, with the sides that played in it."""
+    try:
+        return service.seasons(db)
+    except service.SimulationUnavailableError:
+        raise _unavailable() from None
+
+
+@router.get("/squad/{season}/{franchise_id}")
+def read_squad(db: DB, season: int, franchise_id: str) -> SimSquad:
+    """Everyone who played for a side in a season, with its last XI that season."""
+    try:
+        return service.squad(db, season, franchise_id)
+    except service.SimulationUnavailableError:
+        raise _unavailable() from None
+    except service.UnknownSquadError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from None
 
 
 @router.get("/xi/{franchise_id}")
@@ -57,6 +79,8 @@ def simulate_match(db: DB, request: SimulationRequest) -> SimulationResult:
         raise HTTPException(status_code=404, detail=f"player {error} not found") from None
     except service.InvalidSideError as error:
         raise HTTPException(status_code=422, detail=str(error)) from None
+    except service.UnknownSquadError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from None
 
 
 @router.post("/state")

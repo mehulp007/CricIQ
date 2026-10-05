@@ -4626,8 +4626,16 @@
       "SimBatter": {
         "properties": {
           "balls": {
-            "title": "Balls",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typical (median) balls faced in those innings.",
+            "title": "Balls"
           },
           "batted_pct": {
             "description": "Share of simulated innings in which they batted.",
@@ -4635,6 +4643,7 @@
             "type": "number"
           },
           "fifty_pct": {
+            "description": "Share of all simulated innings with 50 or more.",
             "title": "Fifty Pct",
             "type": "number"
           },
@@ -4651,9 +4660,40 @@
             "type": "string"
           },
           "runs": {
-            "description": "Average runs per simulated innings.",
-            "title": "Runs",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typical (median) score in the innings they batted.",
+            "title": "Runs"
+          },
+          "runs_high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "75th percentile of those scores.",
+            "title": "Runs High"
+          },
+          "runs_low": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "25th percentile of those scores.",
+            "title": "Runs Low"
           },
           "strike_rate": {
             "anyOf": [
@@ -4672,6 +4712,8 @@
           "name",
           "batted_pct",
           "runs",
+          "runs_low",
+          "runs_high",
           "balls",
           "strike_rate",
           "fifty_pct",
@@ -4682,6 +4724,23 @@
       },
       "SimBowler": {
         "properties": {
+          "balls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typical (median) legal balls bowled when bowling.",
+            "title": "Balls"
+          },
+          "bowled_pct": {
+            "description": "Share of simulated innings in which they bowled.",
+            "title": "Bowled Pct",
+            "type": "number"
+          },
           "economy": {
             "anyOf": [
               {
@@ -4697,35 +4756,53 @@
             "title": "Name",
             "type": "string"
           },
-          "overs": {
-            "title": "Overs",
-            "type": "number"
-          },
           "player_id": {
             "title": "Player Id",
             "type": "string"
           },
           "runs": {
-            "description": "Runs off the bat conceded per simulated innings.",
-            "title": "Runs",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typical runs off the bat conceded when bowling.",
+            "title": "Runs"
           },
           "three_wicket_pct": {
             "title": "Three Wicket Pct",
             "type": "number"
           },
-          "wickets": {
-            "title": "Wickets",
+          "wicket_pct": {
+            "description": "Share of all simulated innings with a wicket.",
+            "title": "Wicket Pct",
             "type": "number"
+          },
+          "wickets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typical wickets when bowling.",
+            "title": "Wickets"
           }
         },
         "required": [
           "player_id",
           "name",
-          "overs",
+          "bowled_pct",
+          "balls",
           "runs",
           "wickets",
           "economy",
+          "wicket_pct",
           "three_wicket_pct"
         ],
         "title": "SimBowler",
@@ -4802,6 +4879,120 @@
           "recent_overs"
         ],
         "title": "SimPlayer",
+        "type": "object"
+      },
+      "SimSeason": {
+        "properties": {
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/SimSeasonTeam"
+            },
+            "title": "Teams",
+            "type": "array"
+          }
+        },
+        "required": [
+          "season",
+          "teams"
+        ],
+        "title": "SimSeason",
+        "type": "object"
+      },
+      "SimSeasonTeam": {
+        "properties": {
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamTag"
+          }
+        },
+        "required": [
+          "team",
+          "display_name"
+        ],
+        "title": "SimSeasonTeam",
+        "type": "object"
+      },
+      "SimSquad": {
+        "description": "A side's squad in one season: everyone who played for it, and its last XI.",
+        "properties": {
+          "bowlers": {
+            "description": "That XI's default bowling options.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "display_name": {
+            "description": "The side's name that season.",
+            "title": "Display Name",
+            "type": "string"
+          },
+          "from_match": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Match"
+          },
+          "match_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Date"
+          },
+          "players": {
+            "description": "Most appearances first.",
+            "items": {
+              "$ref": "#/components/schemas/SquadPlayer"
+            },
+            "title": "Players",
+            "type": "array"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "xi": {
+            "description": "The season's last playing XI, in batting order.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Xi",
+            "type": "array"
+          }
+        },
+        "required": [
+          "team",
+          "season",
+          "display_name",
+          "players",
+          "xi",
+          "bowlers",
+          "from_match",
+          "match_date"
+        ],
+        "title": "SimSquad",
         "type": "object"
       },
       "SimXI": {
@@ -4986,6 +5177,20 @@
             "description": "Who bats first; empty means the toss decides (half each).",
             "title": "Bat First"
           },
+          "season": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 2008.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Play the match in this season: each side must come from its squad that season, and the scoring era, league rates and players' recent records are as of then. Empty means today's era with any players.",
+            "title": "Season"
+          },
           "seed": {
             "anyOf": [
               {
@@ -5108,6 +5313,85 @@
           "conditions_sd"
         ],
         "title": "SimulationResult",
+        "type": "object"
+      },
+      "SquadPlayer": {
+        "properties": {
+          "batting_hand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batting Hand"
+          },
+          "bowling_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Type"
+          },
+          "matches": {
+            "description": "Matches played for the side that season.",
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Usual batting position in recent seasons.",
+            "title": "Position"
+          },
+          "recent_overs": {
+            "description": "Overs bowled in the player's last three seasons.",
+            "title": "Recent Overs",
+            "type": "number"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "role",
+          "batting_hand",
+          "bowling_type",
+          "position",
+          "recent_overs",
+          "matches"
+        ],
+        "title": "SquadPlayer",
         "type": "object"
       },
       "StandingRow": {
@@ -8055,6 +8339,84 @@
           }
         },
         "summary": "Simulate Match",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v1/simulate/seasons": {
+      "get": {
+        "description": "Every season, newest first, with the sides that played in it.",
+        "operationId": "read_seasons_api_v1_simulate_seasons_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SimSeason"
+                  },
+                  "title": "Response Read Seasons Api V1 Simulate Seasons Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Seasons",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v1/simulate/squad/{season}/{franchise_id}": {
+      "get": {
+        "description": "Everyone who played for a side in a season, with its last XI that season.",
+        "operationId": "read_squad_api_v1_simulate_squad__season___franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season",
+            "required": true,
+            "schema": {
+              "title": "Season",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimSquad"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Squad",
         "tags": [
           "simulation"
         ]

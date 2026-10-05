@@ -61,9 +61,15 @@ def test_simulate_match(client: TestClient) -> None:
     assert abs(a["batting_first_pct"] - 50) < 0.1  # the toss splits the simulations
     assert a["first_innings"]["p10"] <= a["first_innings"]["p50"] <= a["first_innings"]["p90"]
     assert len(a["batters"]) == 11
-    overs = sum(bw["overs"] for bw in a["bowlers"])
-    assert 15 < overs <= 20
-    assert all(bw["overs"] <= 4 for bw in a["bowlers"])
+    # Scorecards are typical innings in whole runs, balls and wickets.
+    opener = a["batters"][0]
+    assert opener["batted_pct"] == 100.0
+    assert all(isinstance(opener[k], int) for k in ("runs", "runs_low", "runs_high", "balls"))
+    assert opener["runs_low"] <= opener["runs"] <= opener["runs_high"]
+    for bw in a["bowlers"]:
+        assert bw["balls"] is None or 0 < bw["balls"] <= 24
+        assert bw["wickets"] is None or isinstance(bw["wickets"], int)
+    assert sum(bw["bowled_pct"] for bw in a["bowlers"]) >= 400  # five bowlers or more
     # The same request gets the same answer.
     again = post(client, "/api/v1/simulate/match", body)
     assert again["a_win_pct"] == result["a_win_pct"]
@@ -85,6 +91,52 @@ def test_simulate_match_rejects_bad_sides(client: TestClient) -> None:
     assert client.post("/api/v1/simulate/match", json=few).status_code == 422
     stranger = {**body, "a": {**body["a"], "bowlers": body["b"]["batters"][:5]}}
     assert client.post("/api/v1/simulate/match", json=stranger).status_code == 422
+
+
+def test_seasons_and_squads(client: TestClient) -> None:
+    seasons = get(client, "/api/v1/simulate/seasons")
+    years = [s["season"] for s in seasons]
+    assert years == sorted(years, reverse=True)
+    final = next(s for s in seasons if s["season"] == 2019)
+    assert {"MI", "CSK"} <= {t["team"]["franchise_id"] for t in final["teams"]}
+
+    squad = get(client, "/api/v1/simulate/squad/2019/MI")
+    assert squad["season"] == 2019
+    assert squad["display_name"] == "Mumbai Indians"
+    ids = [p["player_id"] for p in squad["players"]]
+    assert len(ids) >= 11
+    assert len(set(ids)) == len(ids)
+    appearances = [p["matches"] for p in squad["players"]]
+    assert appearances == sorted(appearances, reverse=True)
+    assert min(appearances) >= 1
+    assert len(squad["xi"]) == 11
+    assert set(squad["xi"]) <= set(ids)
+    assert len(squad["bowlers"]) >= 5
+    assert set(squad["bowlers"]) <= set(squad["xi"])
+    assert client.get("/api/v1/simulate/squad/2019/XYZ").status_code == 404
+    assert client.get("/api/v1/simulate/squad/1990/MI").status_code == 404
+
+
+def test_simulate_a_season(client: TestClient) -> None:
+    mi = get(client, "/api/v1/simulate/squad/2019/MI")
+    csk = get(client, "/api/v1/simulate/squad/2019/CSK")
+    body = {
+        "a": {"franchise_id": "MI", "batters": mi["xi"]},
+        "b": {"franchise_id": "CSK", "batters": csk["xi"]},
+        "season": 2019,
+        "simulations": 1000,
+    }
+    result = post(client, "/api/v1/simulate/match", body)
+    assert abs(result["a_win_pct"] + result["b_win_pct"] + result["tie_pct"] - 100) < 0.2
+    # Every player must come from the side's squad that season.
+    stranger = {**body, "b": {"franchise_id": "CSK", "batters": mi["xi"]}}
+    response = client.post("/api/v1/simulate/match", json=stranger)
+    assert response.status_code == 422
+    assert "did not play for Chennai Super Kings in 2019" in response.json()["detail"]
+    teamless = {**body, "a": {"batters": mi["xi"]}}
+    assert client.post("/api/v1/simulate/match", json=teamless).status_code == 422
+    absent = {**body, "season": 2008}
+    assert client.post("/api/v1/simulate/match", json=absent).status_code in (404, 422)
 
 
 def test_what_if_moves_the_model_estimate(client: TestClient) -> None:
@@ -124,3 +176,4 @@ def test_unscored_data_has_no_simulator(client: TestClient, unscored_client: Tes
     assert unscored_client.get("/api/v1/simulate/xi/MI").status_code == 200
     body = _request(client)
     assert unscored_client.post("/api/v1/simulate/match", json=body).status_code == 503
+    assert unscored_client.get("/api/v1/simulate/seasons").status_code == 503

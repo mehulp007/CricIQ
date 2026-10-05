@@ -4,9 +4,11 @@ Everything the engine needs is assembled from the serving database: the ball
 model's terms (published by ``criciq-ml score``), the tuned conditions spread,
 league rates for extras and run outs and the league's pattern of bowling usage
 over the last three seasons, and each picked player's own recent batting
-position and bowling usage. Results are cached by request, and a request with
-no seed is seeded from its own content, so the same question always gets the
-same answer.
+position and bowling usage. A match can be played in any season: the sides come
+from that season's squads (everyone who played for the franchise that year), and
+the scoring era, league rates and players' records are as of then. Results are
+cached by request, and a request with no seed is seeded from its own content, so
+the same question always gets the same answer.
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ import hashlib
 import math
 import time
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -32,9 +34,13 @@ from criciq_api.schemas.simulation import (
     SimBatter,
     SimBowler,
     SimPlayer,
+    SimSeason,
+    SimSeasonTeam,
+    SimSquad,
     SimulationRequest,
     SimulationResult,
     SimXI,
+    SquadPlayer,
     StateOutcome,
     StateRequest,
     StateResult,
@@ -66,6 +72,10 @@ class StateNotFoundError(LookupError):
     pass
 
 
+class UnknownSquadError(LookupError):
+    pass
+
+
 # --------------------------------------------------------------------------- inputs
 
 
@@ -77,6 +87,8 @@ class Engine:
     conditions_sd: float
     ball_version: str
     version: str
+    # Players' batting positions and bowling usage come from seasons up to this one.
+    season: int | None = None
 
 
 def engine(db: Database) -> Engine:
@@ -103,31 +115,49 @@ def engine(db: Database) -> Engine:
     return out
 
 
-def era_engine(db: Database, match_id: int) -> Engine:
-    """The engine as of a historical match: its scoring era, and league rates and
-    bowling patterns from the three seasons up to it."""
+def _engine_at(db: Database, key: str, match_order: int, season: int) -> Engine:
+    """The engine as of a point in history: the scoring era of the matches before
+    ``match_order``, and league rates and bowling patterns from the three seasons
+    up to ``season``."""
     base = engine(db)
-    context = repo.match_context(db, match_id)
-    if context is None:
-        raise StateNotFoundError(f"match {match_id} not found")
-    key = f"sim_engine:{context['season']}:{context['match_order']}"
     if key not in db.cache:
         ball = matches_repo.get_model(db, "ball_outcome")
         assert ball is not None
-        env = repo.era_env(db, int(context["match_order"]), ERA_WINDOW) or float(ball["env_now"])
+        env = repo.era_env(db, match_order, ERA_WINDOW) or float(ball["env_now"])
         era = (math.log(env) - float(ball["env_mean"])) / float(ball["env_std"])
-        last = int(context["season"])
-        first = last - HISTORY + 1
+        first = season - HISTORY + 1
         db.cache[key] = Engine(
             model=sim.BallModel(terms=base.model.terms, era=era),
-            rates=sim.league_rates(repo.league_rates(db, first, last), env),
-            priors=sim.usage_priors(repo.usage_priors(db, first, last)),
+            rates=sim.league_rates(repo.league_rates(db, first, season), env),
+            priors=sim.usage_priors(repo.usage_priors(db, first, season)),
             conditions_sd=base.conditions_sd,
             ball_version=base.ball_version,
             version=base.version,
+            season=season,
         )
     out: Engine = db.cache[key]
     return out
+
+
+def era_engine(db: Database, match_id: int) -> Engine:
+    """The engine as of a historical match."""
+    engine(db)
+    context = repo.match_context(db, match_id)
+    if context is None:
+        raise StateNotFoundError(f"match {match_id} not found")
+    order, season = int(context["match_order"]), int(context["season"])
+    return _engine_at(db, f"sim_engine:{season}:{order}", order, season)
+
+
+def season_engine(db: Database, season: int) -> Engine:
+    """The engine for a match played in ``season``: the scoring era at its end."""
+    current = engine(db)
+    if season >= repo.latest_season(db):
+        return current
+    end = repo.season_end(db, season)
+    if end is None:
+        raise UnknownSquadError(f"no IPL season {season}")
+    return _engine_at(db, f"sim_engine:season:{season}", end + 1, season)
 
 
 def _cache(db: Database) -> OrderedDict[str, Any]:
@@ -159,8 +189,8 @@ class Picked:
         return str(self.row["full_name"] or self.row["name"])
 
 
-def _picked(db: Database, ids: list[str]) -> dict[str, Picked]:
-    rows = {r["player_id"]: r for r in repo.candidates(db, ids, HISTORY)}
+def _picked(db: Database, ids: list[str], upto: int | None = None) -> dict[str, Picked]:
+    rows = {r["player_id"]: r for r in repo.candidates(db, ids, HISTORY, upto)}
     missing = [pid for pid in ids if pid not in rows]
     if missing:
         raise UnknownPlayerError(missing[0])
@@ -234,6 +264,63 @@ def latest_xi(db: Database, franchise_id: str) -> SimXI:
     )
 
 
+# --------------------------------------------------------------------------- seasons
+
+
+def seasons(db: Database) -> list[SimSeason]:
+    """Every season, newest first, with the sides that played in it."""
+    engine(db)
+    out: dict[int, list[SimSeasonTeam]] = {}
+    for r in repo.season_teams(db):
+        out.setdefault(int(r["season"]), []).append(
+            SimSeasonTeam(
+                team=TeamTag(franchise_id=r["franchise_id"], name=r["name"], color=r["color"]),
+                display_name=r["display_name"],
+            )
+        )
+    return [SimSeason(season=s, teams=teams) for s, teams in out.items()]
+
+
+def squad(db: Database, season: int, franchise_id: str) -> SimSquad:
+    """A side's squad in a season, with its last XI that season as the default."""
+    engine(db)
+    team = _team(db, franchise_id)
+    rows = repo.season_squad(db, season, franchise_id.upper()) if team else []
+    if team is None or not rows:
+        raise UnknownSquadError(f"{franchise_id} did not play in {season}")
+    ids = [r["player_id"] for r in rows]
+    picked = _picked(db, ids, season)
+    found = repo.latest_xi(db, team.franchise_id, season)
+    match, xi = found if found else (None, [])
+    return SimSquad(
+        team=team,
+        season=season,
+        display_name=rows[0]["display_name"],
+        players=[
+            SquadPlayer(**_sim_player(picked[r["player_id"]]).model_dump(), matches=r["matches"])
+            for r in rows
+        ],
+        xi=xi,
+        bowlers=sim.default_bowlers([picked[pid].candidate for pid in xi]) if xi else [],
+        from_match=None if match is None else int(match["match_id"]),
+        match_date=None if match is None else match["match_date"],
+    )
+
+
+def _check_squad(db: Database, season: int, side: SideRequest, names: dict[str, str]) -> None:
+    if not side.franchise_id:
+        raise InvalidSideError(f"pick a team from the {season} season")
+    rows = repo.season_squad(db, season, side.franchise_id.upper())
+    if not rows:
+        raise InvalidSideError(f"{side.franchise_id} did not play in {season}")
+    squad_ids = {r["player_id"] for r in rows}
+    for pid in side.batters:
+        if pid not in squad_ids:
+            raise InvalidSideError(
+                f"{names.get(pid, pid)} did not play for {rows[0]['display_name']} in {season}"
+            )
+
+
 # --------------------------------------------------------------------------- match
 
 
@@ -274,101 +361,83 @@ def _pct(x: float) -> float:
 
 @dataclass
 class _Tally:
-    """Per-player sums across every innings a side batted or bowled."""
+    """Every simulated innings a side batted and bowled, one row per simulation."""
 
-    innings: int = 0
-    bat_runs: np.ndarray | None = None
-    bat_balls: np.ndarray | None = None
-    batted: np.ndarray | None = None
-    fifties: np.ndarray | None = None
-    outs: np.ndarray | None = None
-    bowl_runs: np.ndarray | None = None
-    bowl_balls: np.ndarray | None = None
-    bowl_wkts: np.ndarray | None = None
-    three: np.ndarray | None = None
+    batting: list[sim.InningsResult] = field(default_factory=list)
+    bowling: list[sim.InningsResult] = field(default_factory=list)
 
-    def add_batting(self, r: sim.InningsResult) -> None:
-        batted = (r.bat_balls > 0) | r.bat_out
-        parts = {
-            "bat_runs": r.bat_runs.sum(axis=0),
-            "bat_balls": r.bat_balls.sum(axis=0),
-            "batted": batted.sum(axis=0),
-            "fifties": (r.bat_runs >= 50).sum(axis=0),
-            "outs": r.bat_out.sum(axis=0),
-        }
-        for k, v in parts.items():
-            cur = getattr(self, k)
-            setattr(self, k, v if cur is None else cur + v)
-        self.innings += len(r.runs)
 
-    def add_bowling(self, r: sim.InningsResult) -> None:
-        parts = {
-            "bowl_runs": r.bowl_runs.sum(axis=0),
-            "bowl_balls": r.bowl_balls.sum(axis=0),
-            "bowl_wkts": r.bowl_wickets.sum(axis=0),
-            "three": (r.bowl_wickets >= 3).sum(axis=0),
-        }
-        for k, v in parts.items():
-            cur = getattr(self, k)
-            setattr(self, k, v if cur is None else cur + v)
+def _quartiles(values: np.ndarray) -> tuple[int | None, int | None, int | None]:
+    """25th, 50th and 75th percentiles as values that occurred (whole runs)."""
+    if not len(values):
+        return None, None, None
+    q = np.quantile(values, [0.25, 0.5, 0.75], method="inverted_cdf")
+    return int(q[0]), int(q[1]), int(q[2])
 
 
 def _batters(t: _Tally, order: list[Picked]) -> list[SimBatter]:
-    n = max(t.innings, 1)
-    assert t.bat_runs is not None
-    assert t.bat_balls is not None
-    assert t.batted is not None
-    assert t.fifties is not None
-    assert t.outs is not None
-    out = []
+    runs = np.concatenate([r.bat_runs for r in t.batting])
+    balls = np.concatenate([r.bat_balls for r in t.batting])
+    out = np.concatenate([r.bat_out for r in t.batting])
+    batted = (balls > 0) | out
+    result = []
     for i, p in enumerate(order):
-        balls = float(t.bat_balls[i])
-        out.append(
+        mask = batted[:, i]
+        low, mid, high = _quartiles(runs[mask, i])
+        faced = int(balls[:, i].sum())
+        result.append(
             SimBatter(
                 player_id=p.candidate.player.player_id,
                 name=p.name,
-                batted_pct=_pct(t.batted[i] / n),
-                runs=round(float(t.bat_runs[i]) / n, 1),
-                balls=round(balls / n, 1),
-                strike_rate=round(100 * float(t.bat_runs[i]) / balls, 1) if balls else None,
-                fifty_pct=_pct(t.fifties[i] / n),
-                out_pct=_pct(t.outs[i] / n),
+                batted_pct=_pct(float(mask.mean())),
+                runs=mid,
+                runs_low=low,
+                runs_high=high,
+                balls=_quartiles(balls[mask, i])[1],
+                strike_rate=round(100 * float(runs[:, i].sum()) / faced, 1) if faced else None,
+                fifty_pct=_pct(float((runs[:, i] >= 50).mean())),
+                out_pct=_pct(float(out[:, i].mean())),
             )
         )
-    return out
+    return result
 
 
 def _bowlers(t: _Tally, side: sim.Side, names: dict[str, str]) -> list[SimBowler]:
-    n = max(t.innings, 1)
-    assert t.bowl_runs is not None
-    assert t.bowl_balls is not None
-    assert t.bowl_wkts is not None
-    assert t.three is not None
-    out = []
+    runs = np.concatenate([r.bowl_runs for r in t.bowling])
+    balls = np.concatenate([r.bowl_balls for r in t.bowling])
+    wickets = np.concatenate([r.bowl_wickets for r in t.bowling])
+    result = []
     for j, b in enumerate(side.bowlers):
-        balls = float(t.bowl_balls[j])
-        out.append(
+        mask = balls[:, j] > 0
+        bowled = int(balls[:, j].sum())
+        result.append(
             SimBowler(
                 player_id=b.player_id,
                 name=names[b.player_id],
-                overs=round(balls / 6 / n, 2),
-                runs=round(float(t.bowl_runs[j]) / n, 1),
-                wickets=round(float(t.bowl_wkts[j]) / n, 2),
-                economy=round(6 * float(t.bowl_runs[j]) / balls, 2) if balls else None,
-                three_wicket_pct=_pct(t.three[j] / n),
+                bowled_pct=_pct(float(mask.mean())),
+                balls=_quartiles(balls[mask, j])[1],
+                runs=_quartiles(runs[mask, j])[1],
+                wickets=_quartiles(wickets[mask, j])[1],
+                economy=round(6 * float(runs[:, j].sum()) / bowled, 2) if bowled else None,
+                wicket_pct=_pct(float((wickets[:, j] >= 1).mean())),
+                three_wicket_pct=_pct(float((wickets[:, j] >= 3).mean())),
             )
         )
-    return out
+    return result
 
 
 def simulate(db: Database, request: SimulationRequest) -> SimulationResult:
-    e = engine(db)
+    e = engine(db) if request.season is None else season_engine(db, request.season)
     key = request.model_dump_json()
     cached = _cache(db).get(key)
     if cached is not None:
         return cached  # type: ignore[no-any-return]
     started = time.perf_counter()
-    picked = _picked(db, [*request.a.batters, *request.b.batters])
+    picked = _picked(db, [*request.a.batters, *request.b.batters], e.season)
+    if request.season is not None:
+        names = {pid: p.name for pid, p in picked.items()}
+        _check_squad(db, request.season, request.a, names)
+        _check_squad(db, request.season, request.b, names)
 
     def build(side: SideRequest) -> tuple[list[Picked], sim.Side]:
         order = [picked[pid] for pid in side.batters]
@@ -422,10 +491,10 @@ def simulate(db: Database, request: SimulationRequest) -> SimulationResult:
         wins[first] += int((played.outcome == 1).sum())
         wins[second] += int((played.outcome == -1).sum())
         ties += int((played.outcome == 0).sum())
-        tallies[first].add_batting(played.first)
-        tallies[second].add_bowling(played.first)
-        tallies[second].add_batting(played.second)
-        tallies[first].add_bowling(played.second)
+        tallies[first].batting.append(played.first)
+        tallies[second].bowling.append(played.first)
+        tallies[second].batting.append(played.second)
+        tallies[first].bowling.append(played.second)
         first_totals[first] = played.first.runs
         chases[second] = (int((played.outcome == -1).sum()), played.n)
         won = played.outcome == 1
@@ -472,6 +541,25 @@ def simulate(db: Database, request: SimulationRequest) -> SimulationResult:
     return result
 
 
+def warm_up(db: Database) -> None:
+    """Build the engine and play a few matches, so the first request is not slow."""
+    try:
+        latest = seasons(db)[0]
+        a, b = (squad(db, latest.season, t.team.franchise_id) for t in latest.teams[:2])
+        if len(a.xi) == len(b.xi) == 11:
+            simulate(
+                db,
+                SimulationRequest(
+                    a=SideRequest(franchise_id=a.team.franchise_id, batters=a.xi),
+                    b=SideRequest(franchise_id=b.team.franchise_id, batters=b.xi),
+                    season=latest.season,
+                    simulations=500,
+                ),
+            )
+    except (LookupError, ValueError, IndexError):
+        pass  # no simulator in this build, or too little data to play a match
+
+
 # --------------------------------------------------------------------------- what-if
 
 
@@ -487,16 +575,16 @@ class _Position:
 
 
 def _order_for(
-    db: Database, arrived: list[str], squad: list[str]
+    db: Database, e: Engine, arrived: list[str], squad: list[str]
 ) -> tuple[list[Picked], dict[str, Picked]]:
-    picked = _picked(db, list(dict.fromkeys([*arrived, *squad])))
+    picked = _picked(db, list(dict.fromkeys([*arrived, *squad])), e.season)
     rest = sim.typical_order([picked[pid].candidate for pid in squad if pid not in arrived])
     ids = [*arrived, *(c.player.player_id for c in rest)][:11]
     return [picked[pid] for pid in ids], picked
 
 
 def _fielding_side(e: Engine, db: Database, squad: list[str], bowled: list[str]) -> sim.Side:
-    picked = _picked(db, squad)
+    picked = _picked(db, squad, e.season)
     candidates = [picked[pid].candidate for pid in squad]
     ids = list(dict.fromkeys([*bowled, *sim.default_bowlers(candidates)]))
     for c in sorted(candidates, key=lambda c: -c.overs):  # top up to five options
@@ -537,7 +625,7 @@ def _position(db: Database, e: Engine, request: StateRequest) -> _Position:
         if pid not in arrived:
             arrived.append(pid)
     bat_squad = repo.squad(db, m, bat_team)
-    order, _ = _order_for(db, arrived, bat_squad)
+    order, _ = _order_for(db, e, arrived, bat_squad)
     ids = [p.candidate.player.player_id for p in order]
     out = set(repo.dismissed(db, m, inn, seq))
 
@@ -687,9 +775,9 @@ def what_if(db: Database, request: StateRequest) -> StateResult:
         raise StateNotFoundError("the innings is over at this ball")
     chasing = None
     if request.innings_no == 1:
-        squad = repo.squad(db, request.match_id, pos.bowling_team)
-        picked = _picked(db, squad)
-        cands = [picked[pid].candidate for pid in squad]
+        fielding = repo.squad(db, request.match_id, pos.bowling_team)
+        picked = _picked(db, fielding, e.season)
+        cands = [picked[pid].candidate for pid in fielding]
         chasing = sim.build_side(
             "", sim.typical_order(cands)[:11], sim.default_bowlers(cands), e.priors
         )

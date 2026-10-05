@@ -19,6 +19,7 @@ from criciq_api.db import Database
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
 from criciq_api.services import players as players_service
+from criciq_api.services import simulation as simulation_service
 
 
 def _warm_up(db: Database) -> None:
@@ -33,6 +34,7 @@ def _warm_up(db: Database) -> None:
             players_service.get_profile(db, busiest)
             players_service.get_splits(db, busiest)
             players_service.get_similar(db, busiest)
+    simulation_service.warm_up(db)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

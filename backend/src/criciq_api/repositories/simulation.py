@@ -41,6 +41,48 @@ def latest_season(db: Database) -> int:
     return int(db.scalar("SELECT max(year) FROM seasons"))
 
 
+def season_end(db: Database, season: int) -> int | None:
+    """The match order of a season's last match."""
+    value = db.scalar(
+        "SELECT max(m.match_order) FROM matches m JOIN seasons s USING (season_id) "
+        "WHERE s.year = ?",
+        [season],
+    )
+    return None if value is None else int(value)
+
+
+def season_teams(db: Database) -> list[Row]:
+    """Every side that played in each season, with its name that season."""
+    return db.rows(
+        """
+        SELECT s.year AS season, f.franchise_id, f.name, f.primary_color AS color,
+               t.display_name
+        FROM team_seasons t
+        JOIN seasons s USING (season_id)
+        JOIN franchises f USING (franchise_id)
+        WHERE t.team_season_id IN (SELECT DISTINCT team_season_id FROM match_players)
+        ORDER BY s.year DESC, f.name
+        """
+    )
+
+
+def season_squad(db: Database, season: int, franchise_id: str) -> list[Row]:
+    """Everyone who played for a franchise in a season (XI or substitute), with their
+    appearances, most first."""
+    return db.rows(
+        """
+        SELECT mp.player_id, count(DISTINCT mp.match_id) AS matches, t.display_name
+        FROM match_players mp
+        JOIN team_seasons t USING (team_season_id)
+        JOIN seasons s USING (season_id)
+        WHERE s.year = ? AND t.franchise_id = ?
+        GROUP BY ALL
+        ORDER BY matches DESC, mp.player_id
+        """,
+        [season, franchise_id],
+    )
+
+
 def league_rates(db: Database, first: int, last: int) -> list[tuple[Any, ...]]:
     rows = db.rows(
         """
@@ -66,12 +108,15 @@ def usage_priors(db: Database, first: int, last: int) -> list[tuple[str | None, 
     return [(r["bowling_type"], int(r["over_no"]), float(r["overs"])) for r in rows]
 
 
-def candidates(db: Database, player_ids: Sequence[str], history: int) -> list[Row]:
+def candidates(
+    db: Database, player_ids: Sequence[str], history: int, upto: int | None = None
+) -> list[Row]:
     """Players with their usual batting position and recent bowling usage.
 
-    Both come from each player's own last ``history`` seasons, so a player from any
-    era can be picked.
+    Both come from each player's own last ``history`` seasons up to ``upto`` (any
+    season when empty), so a player from any era can be picked as they were then.
     """
+    last = 9999 if upto is None else upto
     if not player_ids:
         return []
     marks = ", ".join("?" for _ in player_ids)
@@ -82,9 +127,10 @@ def candidates(db: Database, player_ids: Sequence[str], history: int) -> list[Ro
             SELECT b.player_id, avg(b.position) AS position FROM player_batting_innings b
             JOIN (
                 SELECT player_id, max(season) AS last FROM player_batting_innings
-                WHERE player_id IN (SELECT player_id FROM picked) GROUP BY player_id
+                WHERE player_id IN (SELECT player_id FROM picked) AND season <= ?
+                GROUP BY player_id
             ) l USING (player_id)
-            WHERE b.season > l.last - ? GROUP BY b.player_id
+            WHERE b.season > l.last - ? AND b.season <= l.last GROUP BY b.player_id
         ),
         bowl AS (
             SELECT u.player_id, list(struct_pack(over_no := u.over_no, overs := u.overs)) AS overs
@@ -92,9 +138,10 @@ def candidates(db: Database, player_ids: Sequence[str], history: int) -> list[Ro
                 SELECT u.player_id, u.over_no, sum(u.overs) AS overs FROM bowling_usage u
                 JOIN (
                     SELECT player_id, max(season) AS last FROM bowling_usage
-                    WHERE player_id IN (SELECT player_id FROM picked) GROUP BY player_id
+                    WHERE player_id IN (SELECT player_id FROM picked) AND season <= ?
+                    GROUP BY player_id
                 ) l USING (player_id)
-                WHERE u.season > l.last - ? AND u.over_no < 20
+                WHERE u.season > l.last - ? AND u.season <= l.last AND u.over_no < 20
                 GROUP BY ALL
             ) u
             GROUP BY u.player_id
@@ -107,19 +154,25 @@ def candidates(db: Database, player_ids: Sequence[str], history: int) -> list[Ro
         LEFT JOIN bat USING (player_id)
         LEFT JOIN bowl USING (player_id)
         """,
-        [*player_ids, history, history],
+        [*player_ids, last, history, last, history],
     )
 
 
-def latest_xi(db: Database, franchise_id: str) -> tuple[Row, list[str]] | None:
-    """The franchise's most recent playing XI, in that match's batting order."""
+def latest_xi(
+    db: Database, franchise_id: str, season: int | None = None
+) -> tuple[Row, list[str]] | None:
+    """The franchise's most recent playing XI (in ``season``, if given), in that
+    match's batting order."""
     match = db.row(
         """
         SELECT match_id, team_id, season, match_date FROM team_matches
-        WHERE franchise_id = ? ORDER BY match_order DESC LIMIT 1
+        WHERE franchise_id = ? AND season <= coalesce(?, 9999)
+        ORDER BY match_order DESC LIMIT 1
         """,
-        [franchise_id],
+        [franchise_id, season],
     )
+    if match is not None and season is not None and int(match["season"]) != season:
+        return None
     if match is None:
         return None
     rows = db.rows(

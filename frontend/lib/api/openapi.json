@@ -1183,6 +1183,29 @@
         "title": "FieldingSummary",
         "type": "object"
       },
+      "FormerName": {
+        "properties": {
+          "first_season": {
+            "title": "First Season",
+            "type": "integer"
+          },
+          "last_season": {
+            "title": "Last Season",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "first_season",
+          "last_season"
+        ],
+        "title": "FormerName",
+        "type": "object"
+      },
       "FranchiseInfo": {
         "properties": {
           "first_season": {
@@ -1231,6 +1254,341 @@
           "is_active"
         ],
         "title": "FranchiseInfo",
+        "type": "object"
+      },
+      "FranchiseSummary": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "finals": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Finals",
+            "type": "array"
+          },
+          "first_season": {
+            "title": "First Season",
+            "type": "integer"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "last_season": {
+            "title": "Last Season",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "names": {
+            "description": "Every name the franchise played under.",
+            "items": {
+              "$ref": "#/components/schemas/FormerName"
+            },
+            "title": "Names",
+            "type": "array"
+          },
+          "playoffs": {
+            "description": "Seasons in which the side reached the playoffs.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Playoffs",
+            "type": "array"
+          },
+          "record": {
+            "$ref": "#/components/schemas/Record"
+          },
+          "seasons": {
+            "title": "Seasons",
+            "type": "integer"
+          },
+          "secondary_color": {
+            "title": "Secondary Color",
+            "type": "string"
+          },
+          "titles": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Titles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "color",
+          "secondary_color",
+          "is_active",
+          "first_season",
+          "last_season",
+          "seasons",
+          "names",
+          "record",
+          "titles",
+          "finals",
+          "playoffs"
+        ],
+        "title": "FranchiseSummary",
+        "type": "object"
+      },
+      "H2HExpectation": {
+        "description": "A's wins against what each side's form in those seasons predicts (log5).",
+        "properties": {
+          "a_expected": {
+            "title": "A Expected",
+            "type": "number"
+          },
+          "a_won": {
+            "title": "A Won",
+            "type": "integer"
+          },
+          "decided": {
+            "title": "Decided",
+            "type": "integer"
+          },
+          "high": {
+            "title": "High",
+            "type": "number"
+          },
+          "low": {
+            "description": "90% range of A's wins from chance alone.",
+            "title": "Low",
+            "type": "number"
+          },
+          "seasons_used": {
+            "title": "Seasons Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decided",
+          "a_won",
+          "a_expected",
+          "low",
+          "high",
+          "seasons_used"
+        ],
+        "title": "H2HExpectation",
+        "type": "object"
+      },
+      "H2HPlayer": {
+        "properties": {
+          "balls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balls"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runs"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "wickets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wickets"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "team",
+          "innings"
+        ],
+        "title": "H2HPlayer",
+        "type": "object"
+      },
+      "H2HRecord": {
+        "properties": {
+          "a_won": {
+            "title": "A Won",
+            "type": "integer"
+          },
+          "b_won": {
+            "title": "B Won",
+            "type": "integer"
+          },
+          "no_result": {
+            "title": "No Result",
+            "type": "integer"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "tied": {
+            "description": "Ties settled by a super over (already counted as wins).",
+            "title": "Tied",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "played",
+          "a_won",
+          "b_won",
+          "no_result",
+          "tied"
+        ],
+        "title": "H2HRecord",
+        "type": "object"
+      },
+      "H2HScoring": {
+        "properties": {
+          "a_avg_total": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "A Avg Total"
+          },
+          "a_highest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTotal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "b_avg_total": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "B Avg Total"
+          },
+          "b_highest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTotal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "a_avg_total",
+          "b_avg_total",
+          "a_highest",
+          "b_highest"
+        ],
+        "title": "H2HScoring",
+        "type": "object"
+      },
+      "H2HSeason": {
+        "properties": {
+          "record": {
+            "$ref": "#/components/schemas/H2HRecord"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "season",
+          "record"
+        ],
+        "title": "H2HSeason",
+        "type": "object"
+      },
+      "H2HSplit": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/components/schemas/H2HRecord"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "record"
+        ],
+        "title": "H2HSplit",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1493,6 +1851,42 @@
           "high"
         ],
         "title": "Interval",
+        "type": "object"
+      },
+      "LeagueTrends": {
+        "properties": {
+          "chasing": {
+            "$ref": "#/components/schemas/Rate",
+            "description": "Matches won by the side batting second."
+          },
+          "close": {
+            "$ref": "#/components/schemas/Rate",
+            "description": "Close finishes as a share of decided matches."
+          },
+          "home": {
+            "$ref": "#/components/schemas/Rate",
+            "description": "Home sides' wins in matches with a home side."
+          },
+          "seasons": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonTrend"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "toss": {
+            "$ref": "#/components/schemas/Rate",
+            "description": "Matches won by the side that won the toss."
+          }
+        },
+        "required": [
+          "chasing",
+          "toss",
+          "home",
+          "close",
+          "seasons"
+        ],
+        "title": "LeagueTrends",
         "type": "object"
       },
       "MatchDetail": {
@@ -2351,6 +2745,22 @@
         "title": "NextBallResponse",
         "type": "object"
       },
+      "OpponentRecord": {
+        "properties": {
+          "opponent": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "record": {
+            "$ref": "#/components/schemas/Record"
+          }
+        },
+        "required": [
+          "opponent",
+          "record"
+        ],
+        "title": "OpponentRecord",
+        "type": "object"
+      },
       "OutcomeProbability": {
         "properties": {
           "label": {
@@ -2614,6 +3024,126 @@
           "share"
         ],
         "title": "PhaseBowling",
+        "type": "object"
+      },
+      "PhaseLine": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "balls_per_wicket": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balls Per Wicket"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "par_balls_per_wicket": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Balls Per Wicket"
+          },
+          "par_boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Boundary Pct"
+          },
+          "par_dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Dot Pct"
+          },
+          "par_run_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "League run rate in the same seasons and phase, weighted by this side's balls.",
+            "title": "Par Run Rate"
+          },
+          "run_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "balls",
+          "runs",
+          "wickets",
+          "run_rate",
+          "par_run_rate",
+          "balls_per_wicket",
+          "par_balls_per_wicket",
+          "boundary_pct",
+          "par_boundary_pct",
+          "dot_pct",
+          "par_dot_pct"
+        ],
+        "title": "PhaseLine",
         "type": "object"
       },
       "PhaseSplits": {
@@ -3070,6 +3600,61 @@
         "title": "PlayerSplits",
         "type": "object"
       },
+      "Rate": {
+        "description": "A share of decided matches with a 90% Wilson interval.",
+        "properties": {
+          "high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "hits": {
+            "title": "Hits",
+            "type": "integer"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "hits",
+          "total",
+          "pct",
+          "low",
+          "high"
+        ],
+        "title": "Rate",
+        "type": "object"
+      },
       "Rating": {
         "description": "One CricIQ Rating: a percentile among qualified players, after shrinkage.",
         "properties": {
@@ -3315,6 +3900,96 @@
         "title": "RecentInnings",
         "type": "object"
       },
+      "Record": {
+        "description": "Results; a tie settled by a super over counts for the super-over winner.",
+        "properties": {
+          "lost": {
+            "title": "Lost",
+            "type": "integer"
+          },
+          "no_result": {
+            "title": "No Result",
+            "type": "integer"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Wins as a percentage of decided matches.",
+            "title": "Win Pct"
+          },
+          "won": {
+            "title": "Won",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "played",
+          "won",
+          "lost",
+          "no_result",
+          "win_pct"
+        ],
+        "title": "Record",
+        "type": "object"
+      },
+      "RecordGroup": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "splits": {
+            "items": {
+              "$ref": "#/components/schemas/RecordSplit"
+            },
+            "title": "Splits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "splits"
+        ],
+        "title": "RecordGroup",
+        "type": "object"
+      },
+      "RecordSplit": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/components/schemas/Record"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "record"
+        ],
+        "title": "RecordSplit",
+        "type": "object"
+      },
       "SampleSize": {
         "properties": {
           "balls": {
@@ -3540,6 +4215,58 @@
         "title": "SeasonBowling",
         "type": "object"
       },
+      "SeasonChampion": {
+        "properties": {
+          "champion": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "final_match_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Final Match Id"
+          },
+          "result_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Text"
+          },
+          "runner_up": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "season",
+          "champion",
+          "runner_up",
+          "final_match_id",
+          "result_text"
+        ],
+        "title": "SeasonChampion",
+        "type": "object"
+      },
       "SeasonInfo": {
         "properties": {
           "impact_player_rule": {
@@ -3609,6 +4336,87 @@
           "bowling"
         ],
         "title": "SeasonLine",
+        "type": "object"
+      },
+      "SeasonTrend": {
+        "properties": {
+          "avg_first_innings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg First Innings"
+          },
+          "chasing_win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chasing Win Pct"
+          },
+          "field_first_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Share of tosses won where the side bowled.",
+            "title": "Field First Pct"
+          },
+          "home_win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None when the season had no home games.",
+            "title": "Home Win Pct"
+          },
+          "matches": {
+            "description": "Decided matches.",
+            "title": "Matches",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "toss_winner_win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toss Winner Win Pct"
+          }
+        },
+        "required": [
+          "season",
+          "matches",
+          "chasing_win_pct",
+          "toss_winner_win_pct",
+          "field_first_pct",
+          "home_win_pct",
+          "avg_first_innings"
+        ],
+        "title": "SeasonTrend",
         "type": "object"
       },
       "SeasonWindow": {
@@ -3726,6 +4534,126 @@
         "title": "SimilarPlayers",
         "type": "object"
       },
+      "StandingRow": {
+        "properties": {
+          "exit_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Last playoff match for sides that did not win.",
+            "title": "Exit Stage"
+          },
+          "finish": {
+            "enum": [
+              "champion",
+              "runner_up",
+              "playoffs",
+              "league"
+            ],
+            "title": "Finish",
+            "type": "string"
+          },
+          "lost": {
+            "title": "Lost",
+            "type": "integer"
+          },
+          "no_result": {
+            "description": "Includes fixtures abandoned without a ball bowled.",
+            "title": "No Result",
+            "type": "integer"
+          },
+          "nrr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nrr"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "team_name": {
+            "description": "The name the side played under that season.",
+            "title": "Team Name",
+            "type": "string"
+          },
+          "won": {
+            "title": "Won",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position",
+          "team",
+          "team_name",
+          "played",
+          "won",
+          "lost",
+          "no_result",
+          "points",
+          "nrr",
+          "finish",
+          "exit_stage"
+        ],
+        "title": "StandingRow",
+        "type": "object"
+      },
+      "Standings": {
+        "properties": {
+          "abandoned": {
+            "description": "League fixtures abandoned without a ball bowled.",
+            "title": "Abandoned",
+            "type": "integer"
+          },
+          "playoffs": {
+            "items": {
+              "$ref": "#/components/schemas/MatchSummary"
+            },
+            "title": "Playoffs",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/StandingRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "season",
+          "rows",
+          "playoffs",
+          "abandoned"
+        ],
+        "title": "Standings",
+        "type": "object"
+      },
       "StyleGroup": {
         "properties": {
           "items": {
@@ -3760,6 +4688,417 @@
           "items"
         ],
         "title": "StyleGroup",
+        "type": "object"
+      },
+      "Swing": {
+        "description": "A win from a low win probability, or a defeat from a high one.",
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "result_text": {
+            "title": "Result Text",
+            "type": "string"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "seq_no": {
+            "title": "Seq No",
+            "type": "integer"
+          },
+          "situation": {
+            "description": "The score at that ball, e.g. 'CSK 45/4 after 9.2 overs'.",
+            "title": "Situation",
+            "type": "string"
+          },
+          "win_probability": {
+            "description": "The side's lowest (comeback) or highest (collapse).",
+            "title": "Win Probability",
+            "type": "number"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "opponent",
+          "result_text",
+          "win_probability",
+          "innings_no",
+          "seq_no",
+          "situation"
+        ],
+        "title": "Swing",
+        "type": "object"
+      },
+      "TeamBatter": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "innings",
+          "runs",
+          "balls",
+          "strike_rate",
+          "average"
+        ],
+        "title": "TeamBatter",
+        "type": "object"
+      },
+      "TeamBowler": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "innings",
+          "wickets",
+          "balls",
+          "economy",
+          "average"
+        ],
+        "title": "TeamBowler",
+        "type": "object"
+      },
+      "TeamHeadToHead": {
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "b": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "batters": {
+            "items": {
+              "$ref": "#/components/schemas/H2HPlayer"
+            },
+            "title": "Batters",
+            "type": "array"
+          },
+          "bowlers": {
+            "items": {
+              "$ref": "#/components/schemas/H2HPlayer"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "expectation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/H2HExpectation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meetings": {
+            "description": "Every meeting in the window, newest first.",
+            "items": {
+              "$ref": "#/components/schemas/MatchSummary"
+            },
+            "title": "Meetings",
+            "type": "array"
+          },
+          "record": {
+            "$ref": "#/components/schemas/H2HRecord"
+          },
+          "scoring": {
+            "$ref": "#/components/schemas/H2HScoring"
+          },
+          "seasons": {
+            "items": {
+              "$ref": "#/components/schemas/H2HSeason"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "splits": {
+            "items": {
+              "$ref": "#/components/schemas/H2HSplit"
+            },
+            "title": "Splits",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/SeasonWindow"
+          }
+        },
+        "required": [
+          "a",
+          "b",
+          "window",
+          "record",
+          "expectation",
+          "splits",
+          "seasons",
+          "scoring",
+          "batters",
+          "bowlers",
+          "meetings"
+        ],
+        "title": "TeamHeadToHead",
+        "type": "object"
+      },
+      "TeamMargin": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "result_text": {
+            "title": "Result Text",
+            "type": "string"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "opponent",
+          "result_text"
+        ],
+        "title": "TeamMargin",
+        "type": "object"
+      },
+      "TeamPhase": {
+        "properties": {
+          "batting": {
+            "$ref": "#/components/schemas/PhaseLine"
+          },
+          "bowling": {
+            "$ref": "#/components/schemas/PhaseLine"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phase",
+          "label",
+          "batting",
+          "bowling"
+        ],
+        "title": "TeamPhase",
+        "type": "object"
+      },
+      "TeamProfile": {
+        "properties": {
+          "batters": {
+            "items": {
+              "$ref": "#/components/schemas/TeamBatter"
+            },
+            "title": "Batters",
+            "type": "array"
+          },
+          "bowlers": {
+            "items": {
+              "$ref": "#/components/schemas/TeamBowler"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "close": {
+            "$ref": "#/components/schemas/Record",
+            "description": "Close finishes in the window."
+          },
+          "collapses": {
+            "items": {
+              "$ref": "#/components/schemas/Swing"
+            },
+            "title": "Collapses",
+            "type": "array"
+          },
+          "comebacks": {
+            "items": {
+              "$ref": "#/components/schemas/Swing"
+            },
+            "title": "Comebacks",
+            "type": "array"
+          },
+          "opponents": {
+            "items": {
+              "$ref": "#/components/schemas/OpponentRecord"
+            },
+            "title": "Opponents",
+            "type": "array"
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/TeamPhase"
+            },
+            "title": "Phases",
+            "type": "array"
+          },
+          "record": {
+            "$ref": "#/components/schemas/Record"
+          },
+          "scoring": {
+            "$ref": "#/components/schemas/TeamScoring"
+          },
+          "seasons": {
+            "description": "Every season, regardless of the window.",
+            "items": {
+              "$ref": "#/components/schemas/TeamSeason"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "splits": {
+            "items": {
+              "$ref": "#/components/schemas/RecordGroup"
+            },
+            "title": "Splits",
+            "type": "array"
+          },
+          "team": {
+            "$ref": "#/components/schemas/FranchiseSummary"
+          },
+          "venues": {
+            "items": {
+              "$ref": "#/components/schemas/VenueRecord"
+            },
+            "title": "Venues",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/SeasonWindow"
+          }
+        },
+        "required": [
+          "team",
+          "window",
+          "seasons",
+          "record",
+          "splits",
+          "close",
+          "phases",
+          "scoring",
+          "batters",
+          "bowlers",
+          "opponents",
+          "venues",
+          "comebacks",
+          "collapses"
+        ],
+        "title": "TeamProfile",
         "type": "object"
       },
       "TeamRef": {
@@ -3855,6 +5194,174 @@
         "title": "TeamScore",
         "type": "object"
       },
+      "TeamScoring": {
+        "properties": {
+          "avg_first_innings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg First Innings"
+          },
+          "biggest_win_runs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamMargin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "biggest_win_wickets": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamMargin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "first_innings": {
+            "title": "First Innings",
+            "type": "integer"
+          },
+          "highest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTotal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lowest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTotal"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Lowest completed total (bowled out or 20 overs)."
+          }
+        },
+        "required": [
+          "avg_first_innings",
+          "first_innings",
+          "highest",
+          "lowest",
+          "biggest_win_runs",
+          "biggest_win_wickets"
+        ],
+        "title": "TeamScoring",
+        "type": "object"
+      },
+      "TeamSeason": {
+        "properties": {
+          "exit_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Stage"
+          },
+          "finish": {
+            "enum": [
+              "champion",
+              "runner_up",
+              "playoffs",
+              "league"
+            ],
+            "title": "Finish",
+            "type": "string"
+          },
+          "lost": {
+            "title": "Lost",
+            "type": "integer"
+          },
+          "no_result": {
+            "title": "No Result",
+            "type": "integer"
+          },
+          "nrr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nrr"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "playoff_lost": {
+            "title": "Playoff Lost",
+            "type": "integer"
+          },
+          "playoff_won": {
+            "title": "Playoff Won",
+            "type": "integer"
+          },
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "team_name": {
+            "title": "Team Name",
+            "type": "string"
+          },
+          "teams": {
+            "title": "Teams",
+            "type": "integer"
+          },
+          "won": {
+            "title": "Won",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "season",
+          "team_name",
+          "position",
+          "teams",
+          "played",
+          "won",
+          "lost",
+          "no_result",
+          "points",
+          "nrr",
+          "finish",
+          "exit_stage",
+          "playoff_won",
+          "playoff_lost"
+        ],
+        "title": "TeamSeason",
+        "type": "object"
+      },
       "TeamStint": {
         "properties": {
           "color": {
@@ -3912,6 +5419,85 @@
           "color"
         ],
         "title": "TeamTag",
+        "type": "object"
+      },
+      "TeamTotal": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "match_id",
+          "season",
+          "date",
+          "opponent",
+          "runs",
+          "wickets",
+          "overs"
+        ],
+        "title": "TeamTotal",
+        "type": "object"
+      },
+      "TeamsOverview": {
+        "properties": {
+          "champions": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonChampion"
+            },
+            "title": "Champions",
+            "type": "array"
+          },
+          "franchises": {
+            "items": {
+              "$ref": "#/components/schemas/FranchiseSummary"
+            },
+            "title": "Franchises",
+            "type": "array"
+          },
+          "league": {
+            "$ref": "#/components/schemas/LeagueTrends"
+          },
+          "seasons": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Seasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "seasons",
+          "franchises",
+          "champions",
+          "league"
+        ],
+        "title": "TeamsOverview",
         "type": "object"
       },
       "Timeline": {
@@ -4564,6 +6150,33 @@
           "matches"
         ],
         "title": "VenueInfo",
+        "type": "object"
+      },
+      "VenueRecord": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/components/schemas/Record"
+          },
+          "venue_id": {
+            "title": "Venue Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "venue_id",
+          "name",
+          "city",
+          "record"
+        ],
+        "title": "VenueRecord",
         "type": "object"
       },
       "VenueRef": {
@@ -5622,6 +7235,256 @@
         "summary": "Predict Next Ball",
         "tags": [
           "matchups"
+        ]
+      }
+    },
+    "/api/v1/teams": {
+      "get": {
+        "description": "Every franchise's record and titles, champions by season and league-wide trends.",
+        "operationId": "read_overview_api_v1_teams_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Overview",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v1/teams/h2h": {
+      "get": {
+        "description": "Head-to-head record of two franchises, against what their form predicts.",
+        "operationId": "read_head_to_head_api_v1_teams_h2h_get",
+        "parameters": [
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "a",
+            "required": true,
+            "schema": {
+              "description": "Franchise id, e.g. MI",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "A",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "b",
+            "required": true,
+            "schema": {
+              "description": "Franchise id, e.g. MI",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "B",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamHeadToHead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Head To Head",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v1/teams/standings/{season}": {
+      "get": {
+        "description": "The league table for a season (points, net run rate, finish) and its playoffs.",
+        "operationId": "read_standings_api_v1_teams_standings__season__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2008,
+              "title": "Season",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Standings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Standings",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v1/teams/{franchise_id}": {
+      "get": {
+        "description": "A franchise's seasons, results by situation, phase profile, players and swings.",
+        "operationId": "read_team_api_v1_teams__franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2008,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Team",
+        "tags": [
+          "teams"
         ]
       }
     },

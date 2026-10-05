@@ -228,6 +228,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Overview
+         * @description Every franchise's record and titles, champions by season and league-wide trends.
+         */
+        get: operations["read_overview_api_v1_teams_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/h2h": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Head To Head
+         * @description Head-to-head record of two franchises, against what their form predicts.
+         */
+        get: operations["read_head_to_head_api_v1_teams_h2h_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/standings/{season}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Standings
+         * @description The league table for a season (points, net run rate, finish) and its playoffs.
+         */
+        get: operations["read_standings_api_v1_teams_standings__season__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Team
+         * @description A franchise's seasons, results by situation, phase profile, players and swings.
+         */
+        get: operations["read_team_api_v1_teams__franchise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -625,6 +705,15 @@ export interface components {
             /** Stumpings */
             stumpings: number;
         };
+        /** FormerName */
+        FormerName: {
+            /** First Season */
+            first_season: number;
+            /** Last Season */
+            last_season: number;
+            /** Name */
+            name: string;
+        };
         /** FranchiseInfo */
         FranchiseInfo: {
             /** First Season */
@@ -641,6 +730,120 @@ export interface components {
             primary_color: string;
             /** Secondary Color */
             secondary_color: string;
+        };
+        /** FranchiseSummary */
+        FranchiseSummary: {
+            /** Color */
+            color: string;
+            /** Finals */
+            finals: number[];
+            /** First Season */
+            first_season: number;
+            /** Franchise Id */
+            franchise_id: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Last Season */
+            last_season: number;
+            /** Name */
+            name: string;
+            /**
+             * Names
+             * @description Every name the franchise played under.
+             */
+            names: components["schemas"]["FormerName"][];
+            /**
+             * Playoffs
+             * @description Seasons in which the side reached the playoffs.
+             */
+            playoffs: number[];
+            record: components["schemas"]["Record"];
+            /** Seasons */
+            seasons: number;
+            /** Secondary Color */
+            secondary_color: string;
+            /** Titles */
+            titles: number[];
+        };
+        /**
+         * H2HExpectation
+         * @description A's wins against what each side's form in those seasons predicts (log5).
+         */
+        H2HExpectation: {
+            /** A Expected */
+            a_expected: number;
+            /** A Won */
+            a_won: number;
+            /** Decided */
+            decided: number;
+            /** High */
+            high: number;
+            /**
+             * Low
+             * @description 90% range of A's wins from chance alone.
+             */
+            low: number;
+            /** Seasons Used */
+            seasons_used: number;
+        };
+        /** H2HPlayer */
+        H2HPlayer: {
+            /** Balls */
+            balls?: number | null;
+            /** Economy */
+            economy?: number | null;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Runs */
+            runs?: number | null;
+            /** Strike Rate */
+            strike_rate?: number | null;
+            team: components["schemas"]["TeamTag"];
+            /** Wickets */
+            wickets?: number | null;
+        };
+        /** H2HRecord */
+        H2HRecord: {
+            /** A Won */
+            a_won: number;
+            /** B Won */
+            b_won: number;
+            /** No Result */
+            no_result: number;
+            /** Played */
+            played: number;
+            /**
+             * Tied
+             * @description Ties settled by a super over (already counted as wins).
+             */
+            tied: number;
+        };
+        /** H2HScoring */
+        H2HScoring: {
+            /** A Avg Total */
+            a_avg_total: number | null;
+            a_highest: components["schemas"]["TeamTotal"] | null;
+            /** B Avg Total */
+            b_avg_total: number | null;
+            b_highest: components["schemas"]["TeamTotal"] | null;
+        };
+        /** H2HSeason */
+        H2HSeason: {
+            record: components["schemas"]["H2HRecord"];
+            /** Season */
+            season: number;
+        };
+        /** H2HSplit */
+        H2HSplit: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            record: components["schemas"]["H2HRecord"];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -729,6 +932,19 @@ export interface components {
             low: number | null;
             /** Value */
             value: number | null;
+        };
+        /** LeagueTrends */
+        LeagueTrends: {
+            /** @description Matches won by the side batting second. */
+            chasing: components["schemas"]["Rate"];
+            /** @description Close finishes as a share of decided matches. */
+            close: components["schemas"]["Rate"];
+            /** @description Home sides' wins in matches with a home side. */
+            home: components["schemas"]["Rate"];
+            /** Seasons */
+            seasons: components["schemas"]["SeasonTrend"][];
+            /** @description Matches won by the side that won the toss. */
+            toss: components["schemas"]["Rate"];
         };
         /** MatchDetail */
         MatchDetail: {
@@ -1005,6 +1221,11 @@ export interface components {
             /** With History */
             with_history: components["schemas"]["OutcomeProbability"][];
         };
+        /** OpponentRecord */
+        OpponentRecord: {
+            opponent: components["schemas"]["TeamTag"];
+            record: components["schemas"]["Record"];
+        };
         /** OutcomeProbability */
         OutcomeProbability: {
             /** Label */
@@ -1073,6 +1294,34 @@ export interface components {
             share: number;
             /** Strike Rate */
             strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+        };
+        /** PhaseLine */
+        PhaseLine: {
+            /** Balls */
+            balls: number;
+            /** Balls Per Wicket */
+            balls_per_wicket: number | null;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Par Balls Per Wicket */
+            par_balls_per_wicket: number | null;
+            /** Par Boundary Pct */
+            par_boundary_pct: number | null;
+            /** Par Dot Pct */
+            par_dot_pct: number | null;
+            /**
+             * Par Run Rate
+             * @description League run rate in the same seasons and phase, weighted by this side's balls.
+             */
+            par_run_rate: number | null;
+            /** Run Rate */
+            run_rate: number | null;
+            /** Runs */
+            runs: number;
             /** Wickets */
             wickets: number;
         };
@@ -1208,6 +1457,22 @@ export interface components {
             window: components["schemas"]["SeasonWindow"];
         };
         /**
+         * Rate
+         * @description A share of decided matches with a 90% Wilson interval.
+         */
+        Rate: {
+            /** High */
+            high: number | null;
+            /** Hits */
+            hits: number;
+            /** Low */
+            low: number | null;
+            /** Pct */
+            pct: number | null;
+            /** Total */
+            total: number;
+        };
+        /**
          * Rating
          * @description One CricIQ Rating: a percentile among qualified players, after shrinkage.
          */
@@ -1311,6 +1576,42 @@ export interface components {
             /** Bowling */
             bowling: components["schemas"]["BowlingInnings"][];
         };
+        /**
+         * Record
+         * @description Results; a tie settled by a super over counts for the super-over winner.
+         */
+        Record: {
+            /** Lost */
+            lost: number;
+            /** No Result */
+            no_result: number;
+            /** Played */
+            played: number;
+            /**
+             * Win Pct
+             * @description Wins as a percentage of decided matches.
+             */
+            win_pct: number | null;
+            /** Won */
+            won: number;
+        };
+        /** RecordGroup */
+        RecordGroup: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Splits */
+            splits: components["schemas"]["RecordSplit"][];
+        };
+        /** RecordSplit */
+        RecordSplit: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            record: components["schemas"]["Record"];
+        };
         /** SampleSize */
         SampleSize: {
             /** Balls */
@@ -1390,6 +1691,17 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /** SeasonChampion */
+        SeasonChampion: {
+            champion: components["schemas"]["TeamTag"];
+            /** Final Match Id */
+            final_match_id: number | null;
+            /** Result Text */
+            result_text: string | null;
+            runner_up: components["schemas"]["TeamTag"] | null;
+            /** Season */
+            season: number;
+        };
         /** SeasonInfo */
         SeasonInfo: {
             /** Impact Player Rule */
@@ -1409,6 +1721,32 @@ export interface components {
             season: number;
             /** Teams */
             teams: string[];
+        };
+        /** SeasonTrend */
+        SeasonTrend: {
+            /** Avg First Innings */
+            avg_first_innings: number | null;
+            /** Chasing Win Pct */
+            chasing_win_pct: number | null;
+            /**
+             * Field First Pct
+             * @description Share of tosses won where the side bowled.
+             */
+            field_first_pct: number | null;
+            /**
+             * Home Win Pct
+             * @description None when the season had no home games.
+             */
+            home_win_pct: number | null;
+            /**
+             * Matches
+             * @description Decided matches.
+             */
+            matches: number;
+            /** Season */
+            season: number;
+            /** Toss Winner Win Pct */
+            toss_winner_win_pct: number | null;
         };
         /** SeasonWindow */
         SeasonWindow: {
@@ -1458,6 +1796,56 @@ export interface components {
             bowling: components["schemas"]["StyleGroup"] | null;
             window: components["schemas"]["SeasonWindow"];
         };
+        /** StandingRow */
+        StandingRow: {
+            /**
+             * Exit Stage
+             * @description Last playoff match for sides that did not win.
+             */
+            exit_stage: string | null;
+            /**
+             * Finish
+             * @enum {string}
+             */
+            finish: "champion" | "runner_up" | "playoffs" | "league";
+            /** Lost */
+            lost: number;
+            /**
+             * No Result
+             * @description Includes fixtures abandoned without a ball bowled.
+             */
+            no_result: number;
+            /** Nrr */
+            nrr: number | null;
+            /** Played */
+            played: number;
+            /** Points */
+            points: number;
+            /** Position */
+            position: number;
+            team: components["schemas"]["TeamTag"];
+            /**
+             * Team Name
+             * @description The name the side played under that season.
+             */
+            team_name: string;
+            /** Won */
+            won: number;
+        };
+        /** Standings */
+        Standings: {
+            /**
+             * Abandoned
+             * @description League fixtures abandoned without a ball bowled.
+             */
+            abandoned: number;
+            /** Playoffs */
+            playoffs: components["schemas"]["MatchSummary"][];
+            /** Rows */
+            rows: components["schemas"]["StandingRow"][];
+            /** Season */
+            season: number;
+        };
         /** StyleGroup */
         StyleGroup: {
             /** Items */
@@ -1474,6 +1862,148 @@ export interface components {
              * @description The player's most distinctive traits.
              */
             traits: string[];
+        };
+        /**
+         * Swing
+         * @description A win from a low win probability, or a defeat from a high one.
+         */
+        Swing: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Innings No */
+            innings_no: number;
+            /** Match Id */
+            match_id: number;
+            opponent: components["schemas"]["TeamTag"];
+            /** Result Text */
+            result_text: string;
+            /** Season */
+            season: number;
+            /** Seq No */
+            seq_no: number;
+            /**
+             * Situation
+             * @description The score at that ball, e.g. 'CSK 45/4 after 9.2 overs'.
+             */
+            situation: string;
+            /**
+             * Win Probability
+             * @description The side's lowest (comeback) or highest (collapse).
+             */
+            win_probability: number;
+        };
+        /** TeamBatter */
+        TeamBatter: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
+        /** TeamBowler */
+        TeamBowler: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Economy */
+            economy: number | null;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Wickets */
+            wickets: number;
+        };
+        /** TeamHeadToHead */
+        TeamHeadToHead: {
+            a: components["schemas"]["TeamTag"];
+            b: components["schemas"]["TeamTag"];
+            /** Batters */
+            batters: components["schemas"]["H2HPlayer"][];
+            /** Bowlers */
+            bowlers: components["schemas"]["H2HPlayer"][];
+            expectation: components["schemas"]["H2HExpectation"] | null;
+            /**
+             * Meetings
+             * @description Every meeting in the window, newest first.
+             */
+            meetings: components["schemas"]["MatchSummary"][];
+            record: components["schemas"]["H2HRecord"];
+            scoring: components["schemas"]["H2HScoring"];
+            /** Seasons */
+            seasons: components["schemas"]["H2HSeason"][];
+            /** Splits */
+            splits: components["schemas"]["H2HSplit"][];
+            window: components["schemas"]["SeasonWindow"];
+        };
+        /** TeamMargin */
+        TeamMargin: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Match Id */
+            match_id: number;
+            opponent: components["schemas"]["TeamTag"];
+            /** Result Text */
+            result_text: string;
+            /** Season */
+            season: number;
+        };
+        /** TeamPhase */
+        TeamPhase: {
+            batting: components["schemas"]["PhaseLine"];
+            bowling: components["schemas"]["PhaseLine"];
+            /** Label */
+            label: string;
+            /** Phase */
+            phase: string;
+        };
+        /** TeamProfile */
+        TeamProfile: {
+            /** Batters */
+            batters: components["schemas"]["TeamBatter"][];
+            /** Bowlers */
+            bowlers: components["schemas"]["TeamBowler"][];
+            /** @description Close finishes in the window. */
+            close: components["schemas"]["Record"];
+            /** Collapses */
+            collapses: components["schemas"]["Swing"][];
+            /** Comebacks */
+            comebacks: components["schemas"]["Swing"][];
+            /** Opponents */
+            opponents: components["schemas"]["OpponentRecord"][];
+            /** Phases */
+            phases: components["schemas"]["TeamPhase"][];
+            record: components["schemas"]["Record"];
+            scoring: components["schemas"]["TeamScoring"];
+            /**
+             * Seasons
+             * @description Every season, regardless of the window.
+             */
+            seasons: components["schemas"]["TeamSeason"][];
+            /** Splits */
+            splits: components["schemas"]["RecordGroup"][];
+            team: components["schemas"]["FranchiseSummary"];
+            /** Venues */
+            venues: components["schemas"]["VenueRecord"][];
+            window: components["schemas"]["SeasonWindow"];
         };
         /** TeamRef */
         TeamRef: {
@@ -1506,6 +2036,52 @@ export interface components {
             /** Wickets */
             wickets: number | null;
         };
+        /** TeamScoring */
+        TeamScoring: {
+            /** Avg First Innings */
+            avg_first_innings: number | null;
+            biggest_win_runs: components["schemas"]["TeamMargin"] | null;
+            biggest_win_wickets: components["schemas"]["TeamMargin"] | null;
+            /** First Innings */
+            first_innings: number;
+            highest: components["schemas"]["TeamTotal"] | null;
+            /** @description Lowest completed total (bowled out or 20 overs). */
+            lowest: components["schemas"]["TeamTotal"] | null;
+        };
+        /** TeamSeason */
+        TeamSeason: {
+            /** Exit Stage */
+            exit_stage: string | null;
+            /**
+             * Finish
+             * @enum {string}
+             */
+            finish: "champion" | "runner_up" | "playoffs" | "league";
+            /** Lost */
+            lost: number;
+            /** No Result */
+            no_result: number;
+            /** Nrr */
+            nrr: number | null;
+            /** Played */
+            played: number;
+            /** Playoff Lost */
+            playoff_lost: number;
+            /** Playoff Won */
+            playoff_won: number;
+            /** Points */
+            points: number;
+            /** Position */
+            position: number;
+            /** Season */
+            season: number;
+            /** Team Name */
+            team_name: string;
+            /** Teams */
+            teams: number;
+            /** Won */
+            won: number;
+        };
         /** TeamStint */
         TeamStint: {
             /** Color */
@@ -1527,6 +2103,35 @@ export interface components {
             franchise_id: string;
             /** Name */
             name: string;
+        };
+        /** TeamTotal */
+        TeamTotal: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Match Id */
+            match_id: number;
+            opponent: components["schemas"]["TeamTag"];
+            /** Overs */
+            overs: string;
+            /** Runs */
+            runs: number;
+            /** Season */
+            season: number;
+            /** Wickets */
+            wickets: number;
+        };
+        /** TeamsOverview */
+        TeamsOverview: {
+            /** Champions */
+            champions: components["schemas"]["SeasonChampion"][];
+            /** Franchises */
+            franchises: components["schemas"]["FranchiseSummary"][];
+            league: components["schemas"]["LeagueTrends"];
+            /** Seasons */
+            seasons: number[];
         };
         /**
          * Timeline
@@ -1750,6 +2355,16 @@ export interface components {
             matches: number;
             /** Name */
             name: string;
+            /** Venue Id */
+            venue_id: string;
+        };
+        /** VenueRecord */
+        VenueRecord: {
+            /** City */
+            city: string;
+            /** Name */
+            name: string;
+            record: components["schemas"]["Record"];
             /** Venue Id */
             venue_id: string;
         };
@@ -2170,6 +2785,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NextBallResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_overview_api_v1_teams_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamsOverview"];
+                };
+            };
+        };
+    };
+    read_head_to_head_api_v1_teams_h2h_get: {
+        parameters: {
+            query: {
+                /** @description Franchise id, e.g. MI */
+                a: string;
+                /** @description Franchise id, e.g. MI */
+                b: string;
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamHeadToHead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_standings_api_v1_teams_standings__season__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Standings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_team_api_v1_teams__franchise_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                franchise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamProfile"];
                 };
             };
             /** @description Validation Error */

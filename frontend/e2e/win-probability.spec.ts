@@ -27,7 +27,7 @@ test.describe("win probability", () => {
   });
 
   test("model insights link straight to the biggest swings", async ({ page }) => {
-    await page.goto("/models");
+    await page.goto("/models?tab=win-probability");
     await expect(page.getByRole("heading", { name: "Model Insights", level: 1 })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Does 70% mean 70%?" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "What didn't make the cut" })).toBeVisible();

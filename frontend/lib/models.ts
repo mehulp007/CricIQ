@@ -146,6 +146,7 @@ export interface ProjectionBacktestRow {
 export interface ScoreProjectionInsights {
   name: string;
   version: string;
+  data_version: string;
   trained_on: { seasons: number[]; innings: number; rows: number };
   calibrated_on: number[];
   levels: number[];
@@ -374,3 +375,89 @@ export interface SimulatorInsights {
 }
 
 export const SIMULATOR = simulatorData as unknown as SimulatorInsights;
+
+// ---------------------------------------------------------------- overview
+
+/** Share of balls on which the side the model favoured went on to win, from reliability bins. */
+export function favouriteAccuracy(bins: ReliabilityBin[]): number {
+  const total = bins.reduce((sum, b) => sum + b.count, 0);
+  const right = bins.reduce(
+    (sum, b) => sum + b.count * (b.lower >= 0.5 ? b.observed : 1 - b.observed),
+    0,
+  );
+  return total ? right / total : 0;
+}
+
+export type SplitRole = "train" | "validation" | "test";
+
+export interface ModelSplit {
+  key: string;
+  label: string;
+  roles: { role: SplitRole; from: number; to: number }[];
+}
+
+export const FIRST_SEASON = 2008;
+
+/** A season list from the registry: two entries are an inclusive range. */
+function span(seasons: number[]): { from: number; to: number } {
+  return { from: Math.min(...seasons), to: Math.max(...seasons) };
+}
+
+/** Which seasons each model learned from, was tuned on and was tested on. */
+export function modelSplits(): ModelSplit[] {
+  const wp = WIN_PROBABILITY.splits;
+  const sp = SCORE_PROJECTION.splits;
+  const bo = BALL_OUTCOME.splits;
+  const tested = span(wp.test);
+  return [
+    {
+      key: "win-probability",
+      label: "Win probability",
+      roles: [
+        { role: "train", ...span(wp.train) },
+        { role: "validation", ...span(wp.validation) },
+        { role: "test", ...tested },
+      ],
+    },
+    {
+      key: "score-projection",
+      label: "Score projection",
+      roles: [
+        { role: "train", from: FIRST_SEASON, to: sp.tune_train_through },
+        { role: "validation", from: span(sp.tune_valid).from, to: span(sp.calibrate).to },
+        { role: "test", ...span(sp.test) },
+      ],
+    },
+    {
+      key: "ball-outcome",
+      label: "Ball outcome",
+      roles: [
+        { role: "train", from: FIRST_SEASON, to: bo.tune_train_through },
+        { role: "validation", ...span(bo.tune_valid) },
+        { role: "test", ...span(bo.test) },
+      ],
+    },
+    {
+      key: "ratings",
+      label: "Ratings",
+      roles: [
+        { role: "train", from: FIRST_SEASON, to: RATINGS.splits.test_from - 1 },
+        { role: "test", from: RATINGS.splits.test_from, to: wp.served_through },
+      ],
+    },
+    {
+      key: "simulator",
+      label: "Simulator",
+      roles: [
+        { role: "train", from: FIRST_SEASON, to: span(SIMULATOR.valid).from - 1 },
+        { role: "validation", ...span(SIMULATOR.valid) },
+        { role: "test", ...span(SIMULATOR.test) },
+      ],
+    },
+  ];
+}
+
+/** The role a season plays for a model, or null when it is not used. */
+export function roleIn(split: ModelSplit, season: number): SplitRole | null {
+  return split.roles.find((r) => season >= r.from && season <= r.to)?.role ?? null;
+}

@@ -15,7 +15,7 @@ IMAGES = Path(__file__).resolve().parents[1] / "docs" / "images"
 FRAMES = IMAGES / "frames"
 WIDTH = 960
 FRAME_MS = 700
-COLORS = 160
+COLORS = 256
 
 
 def duration(path: Path) -> int:
@@ -35,13 +35,13 @@ def main() -> None:
             height = round(rgb.height * WIDTH / rgb.width)
             frames.append(rgb.resize((WIDTH, height), Image.Resampling.LANCZOS))
     # One palette for the whole tour, from every frame, so no page loses its colours.
-    thumbs = [f.resize((WIDTH // 4, f.height // 4)) for f in frames]
-    sheet = Image.new("RGB", (WIDTH // 4, sum(t.height for t in thumbs)))
+    # Octree keeps small saturated details (team colours, accents) that median cut drops.
+    sheet = Image.new("RGB", (WIDTH, sum(f.height for f in frames)))
     y = 0
-    for t in thumbs:
-        sheet.paste(t, (0, y))
-        y += t.height
-    palette = sheet.quantize(colors=COLORS, method=Image.Quantize.MEDIANCUT)
+    for f in frames:
+        sheet.paste(f, (0, y))
+        y += f.height
+    palette = sheet.quantize(colors=COLORS, method=Image.Quantize.FASTOCTREE)
     quantized = [f.quantize(palette=palette, dither=Image.Dither.NONE) for f in frames]
     target = IMAGES / "demo.gif"
     quantized[0].save(

@@ -1,4 +1,4 @@
-"""Analytics Lab: research notes on momentum, pressure and clutch.
+"""Analytics Lab: research notes on momentum, pressure, clutch and rivalries.
 
 Each note asks one question of the scored data and answers it with a test
 that could have come out the other way:
@@ -12,6 +12,9 @@ that could have come out the other way:
 * **Clutch.** Do some batters (or bowlers) reliably do better in high-pressure
   balls than in the rest? If so, a player's record in odd seasons should
   predict it in even seasons.
+* **Rivalries.** Does a side that has dominated a rivalry beat that opponent more
+  often than both sides' form that season predicts? And is winning close
+  finishes a repeatable team trait, or a coin flip?
 
 "Expected" always comes from the served ball-outcome model, which knows the
 batter, the bowler, the phase, the wickets, how settled the batter is and the
@@ -29,6 +32,7 @@ import numpy as np
 import pandas as pd
 
 from criciq_core import paths
+from criciq_core.teams import FORM_PRIOR
 from criciq_ml import registry
 from criciq_ml.ball_outcome import OUT, RUNS, load_balls
 
@@ -53,6 +57,19 @@ MOMENTUM_BANDS: tuple[tuple[str, float, float], ...] = (
 CLUTCH_MIN_BALLS = 60
 # A split-half correlation this high would make clutch usable as a rating (docs/PLAN.md).
 RELIABLE_R = 0.3
+# Rivalries: a side "leads" a rivalry after at least RIVALRY_MIN_PRIOR earlier meetings.
+RIVALRY_MIN_PRIOR = 6
+RIVALRY_LEAD = 0.6
+FORM_BANDS: tuple[tuple[str, float, float], ...] = (
+    ("Slight (50-52.5%)", 0.5, 0.525),
+    ("Moderate (52.5-55%)", 0.525, 0.55),
+    ("Clear (55%+)", 0.55, 1.01),
+)
+# Shrinkage strengths (matches at 50%) scanned to show how little form predicts.
+FORM_PRIORS = (2, 10, 20, 40, 80, 160)
+CLOSE_MIN_GAMES = 3
+# Fewer meetings than this give no slope (e.g. on the test fixtures).
+MIN_SLOPE_MEETINGS = 20
 
 
 # --------------------------------------------------------------------------- data
@@ -515,6 +532,210 @@ def clutch_note(balls: pd.DataFrame, names: dict[str, str]) -> dict[str, Any]:
     return out
 
 
+# --------------------------------------------------------------------------- rivalries
+
+
+def load_team_matches(serving: Path) -> pd.DataFrame:
+    """Decided matches from each side's point of view (team Analytics tables)."""
+    con = duckdb.connect(str(serving), read_only=True)
+    try:
+        return con.execute(
+            """
+            SELECT match_id, match_order, season, franchise_id, opponent_id, is_close,
+                   form_won, form_decided, (result = 'won')::DOUBLE AS won
+            FROM team_matches WHERE result <> 'no_result'
+            ORDER BY match_order, franchise_id
+            """
+        ).df()
+    finally:
+        con.close()
+
+
+def _log5(p_a: np.ndarray, p_b: np.ndarray) -> np.ndarray:
+    num = p_a * (1 - p_b)
+    return np.asarray(num / (num + p_b * (1 - p_a)), dtype=float)
+
+
+def _form(won: pd.Series, decided: pd.Series, prior: float = FORM_PRIOR) -> np.ndarray:
+    return np.asarray((won + prior / 2) / (decided + prior), dtype=float)
+
+
+def meetings_with_form(sides: pd.DataFrame) -> pd.DataFrame:
+    """One row per decided match (from the alphabetically first side), with each side's form.
+
+    Form is the side's shrunk win rate in its previous matches (``form_won`` of
+    ``form_decided``, built by the pipeline from results before the match only;
+    see criciq_core.teams); log5 turns the two forms into the chance the first
+    side wins. ``prior_won``/``prior_n`` are the first side's earlier meetings
+    with this opponent, in any season.
+    """
+    first = sides[sides["franchise_id"] < sides["opponent_id"]]
+    other = sides[["match_id", "franchise_id", "form_won", "form_decided"]].rename(
+        columns={
+            "franchise_id": "opponent_id",
+            "form_won": "opp_form_won",
+            "form_decided": "opp_form_decided",
+        }
+    )
+    first = first.merge(other, on=["match_id", "opponent_id"])
+    first = first.sort_values("match_order").reset_index(drop=True)
+    first["expected"] = _log5(
+        _form(first["form_won"], first["form_decided"]),
+        _form(first["opp_form_won"], first["opp_form_decided"]),
+    )
+    pair = first.groupby(["franchise_id", "opponent_id"])
+    first["prior_won"] = pair["won"].cumsum() - first["won"]
+    first["prior_n"] = pair.cumcount()
+    return first
+
+
+def _leader_view(meetings: pd.DataFrame) -> pd.DataFrame:
+    """Each meeting from the side that had won more of the earlier meetings."""
+    m = meetings[meetings["prior_n"] > 0].copy()
+    share = m["prior_won"] / m["prior_n"]
+    flip = share < 0.5
+    m["lead_share"] = np.where(flip, 1 - share, share)
+    m["won"] = np.where(flip, 1 - m["won"], m["won"])
+    m["expected"] = np.where(flip, 1 - m["expected"], m["expected"])
+    m["excess"] = m["won"] - m["expected"]
+    return m[share != 0.5]
+
+
+def _group(frame: pd.DataFrame, label: str) -> dict[str, Any]:
+    some = len(frame) > 0
+    return {
+        "label": label,
+        "meetings": len(frame),
+        "win_pct": round(100 * float(frame["won"].mean()), 1) if some else None,
+        "expected_pct": round(100 * float(frame["expected"].mean()), 1) if some else None,
+        "excess": _ci(bootstrap_mean(frame, "excess", 100), 1) if len(frame) >= 2 else None,
+    }
+
+
+def _persistence(sides: pd.DataFrame) -> dict[str, Any]:
+    """Season-to-season correlation of close-finish and other win rates for each franchise."""
+    rates = (
+        sides.assign(kind=np.where(sides["is_close"], "close", "other"))
+        .groupby(["franchise_id", "season", "kind"])["won"]
+        .agg(["mean", "count"])
+        .unstack("kind")
+    )
+    rates.columns = [f"{a}_{b}" for a, b in rates.columns]
+    rates = rates.reset_index()
+    nxt = rates.assign(season=rates["season"] - 1)
+    pairs = rates.merge(nxt, on=["franchise_id", "season"], suffixes=("", "_next"))
+    # Reference: how much a side's whole record carries over to the next season.
+    overall = sides.groupby(["franchise_id", "season"])["won"].mean().reset_index()
+    following = overall.assign(season=overall["season"] - 1)
+    both = overall.merge(following, on=["franchise_id", "season"], suffixes=("", "_next"))
+    win_r = float(np.corrcoef(both["won"], both["won_next"])[0, 1]) if len(both) >= 10 else None
+    pairs = pairs[
+        (pairs["count_close"] >= CLOSE_MIN_GAMES) & (pairs["count_close_next"] >= CLOSE_MIN_GAMES)
+    ]
+    out: dict[str, Any] = {
+        "pairs": len(pairs),
+        "min_close": CLOSE_MIN_GAMES,
+        "season_pairs": len(both),
+        "win_r": None if win_r is None else round(win_r, 3),
+    }
+    if len(pairs) < 10:
+        return out | {"close_r": None, "other_r": None, "null_90": None, "p_value": None}
+    close_r = float(np.corrcoef(pairs["mean_close"], pairs["mean_close_next"])[0, 1])
+    other_r = float(np.corrcoef(pairs["mean_other"], pairs["mean_other_next"])[0, 1])
+    rng = np.random.default_rng(SEED)
+    nxt_close = pairs["mean_close_next"].to_numpy()
+    null = [
+        float(np.corrcoef(pairs["mean_close"], rng.permutation(nxt_close))[0, 1])
+        for _ in range(500)
+    ]
+    return out | {
+        "close_r": round(close_r, 3),
+        "other_r": round(other_r, 3),
+        "null_90": round(float(np.percentile(np.abs(null), 90)), 3),
+        "p_value": round(float(np.mean(np.abs(null) >= abs(close_r))), 3),
+        "points": [
+            {
+                "team": row.franchise_id,
+                "season": int(row.season),
+                "close": round(100 * float(row.mean_close), 1),
+                "close_next": round(100 * float(row.mean_close_next), 1),
+                "games": int(row.count_close),
+                "games_next": int(row.count_close_next),
+            }
+            for row in pairs.itertuples()
+        ],
+    }
+
+
+def _log_loss(y: np.ndarray, p: np.ndarray) -> float:
+    return float(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
+
+
+def form_scan(meetings: pd.DataFrame) -> list[dict[str, float]]:
+    """Log loss of the form expectation at several shrinkage strengths."""
+    y = meetings["won"].to_numpy()
+    return [
+        {
+            "prior": prior,
+            "log_loss": round(
+                _log_loss(
+                    y,
+                    _log5(
+                        _form(meetings["form_won"], meetings["form_decided"], prior),
+                        _form(meetings["opp_form_won"], meetings["opp_form_decided"], prior),
+                    ),
+                ),
+                4,
+            ),
+        }
+        for prior in FORM_PRIORS
+    ]
+
+
+def rivalries_note(sides: pd.DataFrame) -> dict[str, Any]:
+    meetings = meetings_with_form(sides)
+    # Does the form expectation itself work? From the side form favours.
+    fav = meetings.assign(
+        won=np.where(meetings["expected"] >= 0.5, meetings["won"], 1 - meetings["won"]),
+        expected=np.maximum(meetings["expected"], 1 - meetings["expected"]),
+    )
+    fav = fav.assign(excess=fav["won"] - fav["expected"])
+    calibration = [
+        _group(fav[(fav["expected"] >= lo) & (fav["expected"] < hi)], label)
+        for label, lo, hi in FORM_BANDS
+    ]
+    leaders = _leader_view(meetings)
+    seasoned = leaders[leaders["prior_n"] >= RIVALRY_MIN_PRIOR]
+    rivalry = [
+        _group(seasoned[seasoned["lead_share"] >= RIVALRY_LEAD], f"Won {RIVALRY_LEAD:.0%}+"),
+        _group(
+            seasoned[seasoned["lead_share"] < RIVALRY_LEAD],
+            f"Won 50-{RIVALRY_LEAD:.0%}",
+        ),
+    ]
+    leaders = leaders.assign(edge=leaders["lead_share"] - 0.5)
+    tested = leaders[leaders["prior_n"] >= RIVALRY_MIN_PRIOR]
+    close = fav[fav["is_close"]]
+    other = fav[~fav["is_close"]]
+    return {
+        "slug": "rivalries",
+        "meetings": len(meetings),
+        "min_prior": RIVALRY_MIN_PRIOR,
+        "form_prior": FORM_PRIOR,
+        "form_scan": form_scan(meetings),
+        "coin_flip_log_loss": round(float(np.log(2)), 4),
+        "favourite": _group(fav, "Side in better form"),
+        "calibration": calibration,
+        "rivalry": rivalry,
+        "edge_per_10": _ci(bootstrap_slope(tested, "edge", "excess", 10), 3)
+        if len(tested) >= MIN_SLOPE_MEETINGS
+        else None,
+        "close_share": round(100 * float(fav["is_close"].mean()), 1),
+        "favourites": [_group(close, "Close finishes"), _group(other, "All other results")],
+        "persistence": _persistence(sides),
+    }
+
+
 # --------------------------------------------------------------------------- output
 
 
@@ -535,7 +756,19 @@ def notes(serving: Path) -> dict[str, dict[str, Any]]:
         "momentum": momentum_note(balls, states),
         "pressure": pressure_note(balls, top_moments(serving), swing_check(serving)),
         "clutch": clutch_note(balls, _names(serving)),
-    }
+    } | ({"rivalries": rivalries_note(load_team_matches(serving))} if _has_teams(serving) else {})
+
+
+def _has_teams(serving: Path) -> bool:
+    con = duckdb.connect(str(serving), read_only=True)
+    try:
+        return bool(
+            con.execute(
+                "SELECT count(*) FROM information_schema.tables WHERE table_name = 'team_matches'"
+            ).fetchone()[0]  # type: ignore[index]
+        )
+    finally:
+        con.close()
 
 
 def write_all(serving: Path, out_dir: Path = LAB_DIR) -> list[Path]:

@@ -1,0 +1,538 @@
+{
+  "slug": "rivalries",
+  "meetings": 1234,
+  "min_prior": 6,
+  "form_prior": 80,
+  "form_scan": [
+    {
+      "prior": 2,
+      "log_loss": 0.7431
+    },
+    {
+      "prior": 10,
+      "log_loss": 0.7091
+    },
+    {
+      "prior": 20,
+      "log_loss": 0.6985
+    },
+    {
+      "prior": 40,
+      "log_loss": 0.6934
+    },
+    {
+      "prior": 80,
+      "log_loss": 0.692
+    },
+    {
+      "prior": 160,
+      "log_loss": 0.6921
+    }
+  ],
+  "coin_flip_log_loss": 0.6931,
+  "favourite": {
+    "label": "Side in better form",
+    "meetings": 1234,
+    "win_pct": 53.3,
+    "expected_pct": 52.3,
+    "excess": {
+      "value": 1.0,
+      "low": -1.4,
+      "high": 3.0
+    }
+  },
+  "calibration": [
+    {
+      "label": "Slight (50-52.5%)",
+      "meetings": 760,
+      "win_pct": 53.8,
+      "expected_pct": 51.2,
+      "excess": {
+        "value": 2.7,
+        "low": -0.5,
+        "high": 5.0
+      }
+    },
+    {
+      "label": "Moderate (52.5-55%)",
+      "meetings": 350,
+      "win_pct": 52.9,
+      "expected_pct": 53.6,
+      "excess": {
+        "value": -0.7,
+        "low": -5.0,
+        "high": 3.3
+      }
+    },
+    {
+      "label": "Clear (55%+)",
+      "meetings": 124,
+      "win_pct": 51.6,
+      "expected_pct": 56.0,
+      "excess": {
+        "value": -4.4,
+        "low": -11.7,
+        "high": 2.9
+      }
+    }
+  ],
+  "rivalry": [
+    {
+      "label": "Won 60%+",
+      "meetings": 350,
+      "win_pct": 53.4,
+      "expected_pct": 51.0,
+      "excess": {
+        "value": 2.4,
+        "low": -1.3,
+        "high": 6.6
+      }
+    },
+    {
+      "label": "Won 50-60%",
+      "meetings": 356,
+      "win_pct": 47.2,
+      "expected_pct": 50.4,
+      "excess": {
+        "value": -3.2,
+        "low": -7.8,
+        "high": 1.0
+      }
+    }
+  ],
+  "edge_per_10": {
+    "value": 1.212,
+    "low": -2.561,
+    "high": 5.54
+  },
+  "close_share": 17.8,
+  "favourites": [
+    {
+      "label": "Close finishes",
+      "meetings": 220,
+      "win_pct": 52.7,
+      "expected_pct": 52.5,
+      "excess": {
+        "value": 0.3,
+        "low": -5.1,
+        "high": 5.4
+      }
+    },
+    {
+      "label": "All other results",
+      "meetings": 1014,
+      "win_pct": 53.5,
+      "expected_pct": 52.3,
+      "excess": {
+        "value": 1.2,
+        "low": -1.3,
+        "high": 3.7
+      }
+    }
+  ],
+  "persistence": {
+    "pairs": 49,
+    "min_close": 3,
+    "season_pairs": 149,
+    "win_r": 0.062,
+    "close_r": 0.106,
+    "other_r": 0.089,
+    "null_90": 0.248,
+    "p_value": 0.464,
+    "points": [
+      {
+        "team": "CSK",
+        "season": 2012,
+        "close": 50.0,
+        "close_next": 100.0,
+        "games": 6,
+        "games_next": 3
+      },
+      {
+        "team": "CSK",
+        "season": 2013,
+        "close": 100.0,
+        "close_next": 50.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "CSK",
+        "season": 2014,
+        "close": 50.0,
+        "close_next": 75.0,
+        "games": 4,
+        "games_next": 4
+      },
+      {
+        "team": "CSK",
+        "season": 2018,
+        "close": 57.1,
+        "close_next": 66.7,
+        "games": 7,
+        "games_next": 6
+      },
+      {
+        "team": "CSK",
+        "season": 2021,
+        "close": 60.0,
+        "close_next": 33.3,
+        "games": 5,
+        "games_next": 3
+      },
+      {
+        "team": "CSK",
+        "season": 2022,
+        "close": 33.3,
+        "close_next": 33.3,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "DC",
+        "season": 2013,
+        "close": 0.0,
+        "close_next": 0.0,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "DC",
+        "season": 2014,
+        "close": 0.0,
+        "close_next": 50.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "DC",
+        "season": 2018,
+        "close": 50.0,
+        "close_next": 75.0,
+        "games": 4,
+        "games_next": 4
+      },
+      {
+        "team": "DC",
+        "season": 2019,
+        "close": 75.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "DC",
+        "season": 2020,
+        "close": 66.7,
+        "close_next": 28.6,
+        "games": 3,
+        "games_next": 7
+      },
+      {
+        "team": "GL",
+        "season": 2016,
+        "close": 100.0,
+        "close_next": 25.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "GT",
+        "season": 2022,
+        "close": 80.0,
+        "close_next": 25.0,
+        "games": 5,
+        "games_next": 4
+      },
+      {
+        "team": "GT",
+        "season": 2023,
+        "close": 25.0,
+        "close_next": 33.3,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "KKR",
+        "season": 2008,
+        "close": 66.7,
+        "close_next": 20.0,
+        "games": 3,
+        "games_next": 5
+      },
+      {
+        "team": "KKR",
+        "season": 2014,
+        "close": 66.7,
+        "close_next": 40.0,
+        "games": 3,
+        "games_next": 5
+      },
+      {
+        "team": "KKR",
+        "season": 2019,
+        "close": 33.3,
+        "close_next": 66.7,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "KKR",
+        "season": 2020,
+        "close": 66.7,
+        "close_next": 75.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "KKR",
+        "season": 2023,
+        "close": 75.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "KKR",
+        "season": 2024,
+        "close": 66.7,
+        "close_next": 33.3,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "KKR",
+        "season": 2025,
+        "close": 33.3,
+        "close_next": 50.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "LSG",
+        "season": 2022,
+        "close": 50.0,
+        "close_next": 100.0,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "MI",
+        "season": 2012,
+        "close": 100.0,
+        "close_next": 75.0,
+        "games": 5,
+        "games_next": 4
+      },
+      {
+        "team": "MI",
+        "season": 2017,
+        "close": 66.7,
+        "close_next": 33.3,
+        "games": 6,
+        "games_next": 6
+      },
+      {
+        "team": "MI",
+        "season": 2018,
+        "close": 33.3,
+        "close_next": 100.0,
+        "games": 6,
+        "games_next": 3
+      },
+      {
+        "team": "MI",
+        "season": 2019,
+        "close": 100.0,
+        "close_next": 33.3,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2009,
+        "close": 100.0,
+        "close_next": 33.3,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2012,
+        "close": 75.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2015,
+        "close": 25.0,
+        "close_next": 0.0,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2018,
+        "close": 66.7,
+        "close_next": 33.3,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2019,
+        "close": 33.3,
+        "close_next": 50.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "PBKS",
+        "season": 2020,
+        "close": 50.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "PBKS",
+        "season": 2023,
+        "close": 40.0,
+        "close_next": 33.3,
+        "games": 5,
+        "games_next": 3
+      },
+      {
+        "team": "RCB",
+        "season": 2012,
+        "close": 25.0,
+        "close_next": 50.0,
+        "games": 4,
+        "games_next": 6
+      },
+      {
+        "team": "RCB",
+        "season": 2013,
+        "close": 50.0,
+        "close_next": 50.0,
+        "games": 6,
+        "games_next": 4
+      },
+      {
+        "team": "RCB",
+        "season": 2014,
+        "close": 50.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "RCB",
+        "season": 2020,
+        "close": 50.0,
+        "close_next": 60.0,
+        "games": 4,
+        "games_next": 5
+      },
+      {
+        "team": "RPS",
+        "season": 2016,
+        "close": 33.3,
+        "close_next": 80.0,
+        "games": 3,
+        "games_next": 5
+      },
+      {
+        "team": "RR",
+        "season": 2008,
+        "close": 100.0,
+        "close_next": 100.0,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "RR",
+        "season": 2012,
+        "close": 33.3,
+        "close_next": 60.0,
+        "games": 3,
+        "games_next": 5
+      },
+      {
+        "team": "RR",
+        "season": 2021,
+        "close": 66.7,
+        "close_next": 100.0,
+        "games": 3,
+        "games_next": 3
+      },
+      {
+        "team": "RR",
+        "season": 2022,
+        "close": 100.0,
+        "close_next": 50.0,
+        "games": 3,
+        "games_next": 4
+      },
+      {
+        "team": "RR",
+        "season": 2023,
+        "close": 50.0,
+        "close_next": 50.0,
+        "games": 4,
+        "games_next": 4
+      },
+      {
+        "team": "RR",
+        "season": 2024,
+        "close": 50.0,
+        "close_next": 0.0,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "SRH",
+        "season": 2014,
+        "close": 60.0,
+        "close_next": 25.0,
+        "games": 5,
+        "games_next": 4
+      },
+      {
+        "team": "SRH",
+        "season": 2015,
+        "close": 25.0,
+        "close_next": 66.7,
+        "games": 4,
+        "games_next": 3
+      },
+      {
+        "team": "SRH",
+        "season": 2018,
+        "close": 60.0,
+        "close_next": 0.0,
+        "games": 5,
+        "games_next": 5
+      },
+      {
+        "team": "SRH",
+        "season": 2019,
+        "close": 0.0,
+        "close_next": 33.3,
+        "games": 5,
+        "games_next": 3
+      },
+      {
+        "team": "SRH",
+        "season": 2020,
+        "close": 33.3,
+        "close_next": 20.0,
+        "games": 3,
+        "games_next": 5
+      }
+    ]
+  },
+  "data_version": "2026-05-31.713dafe9"
+}

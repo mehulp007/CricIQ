@@ -11,7 +11,7 @@ version: 1.0.0
 
 valid: [2023, 2024]      # the conditions spread is tuned here ...
 conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-tuning_simulations: 1000
+tuning_simulations: 2000
 test: [2025, 2026]       # ... and every match with a result here is simulated once
 simulations: 2000        # per test match
 history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons

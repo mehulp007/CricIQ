@@ -1,7 +1,7 @@
 """Backtest of the match simulator (criciq_core.simulation).
 
-The spread of match conditions is tuned on validation seasons (lowest CRPS of
-the first-innings total). Then every match of the test seasons is simulated
+The spread of match conditions is tuned on validation seasons (the 80% range of
+first-innings totals should hold 80% of them). Then every test match is simulated
 before a ball is bowled, with nothing the captain would not have known:
 
 - a ball-outcome model refit on the seasons before the test (with the served
@@ -366,7 +366,8 @@ def chase_chance(setup: Setup, n: int, conditions_sd: float, rng: np.random.Gene
 def tune_conditions(
     setups: list[Setup], cfg: SimulatorConfig, log: Log
 ) -> tuple[float, list[dict[str, float]]]:
-    """The conditions spread with the lowest first-innings CRPS on validation seasons."""
+    """The conditions spread whose 80% range holds closest to 80% of first-innings
+    totals on the validation seasons (CRPS is reported too, and breaks ties)."""
     grid = []
     for sd in cfg.conditions_grid:
         done, _ = simulate_all(setups, cfg.tuning_simulations, sd, cfg.seed)
@@ -384,7 +385,8 @@ def tune_conditions(
             f"    sd {sd}: CRPS {row['crps']}, "
             f"80% coverage {row['coverage_80']}, Brier {row['brier']}"
         )
-    best = min(grid, key=lambda r: r["crps"])
+    # The 80% range should hold 80% of totals; ties go to the lower CRPS.
+    best = min(grid, key=lambda r: (round(abs(r["coverage_80"] - 0.8), 3), r["crps"]))
     return float(best["conditions_sd"]), grid
 
 

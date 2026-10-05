@@ -31,7 +31,7 @@ the ball model, far too many for a Python loop per ball.
 ## Consequences
 
 **Positive**
-- 10,000 complete matches in about 1 second on a laptop; the simulator and the backtest share
+- 10,000 complete matches in about half a second on a laptop; the simulator and the backtest share
   one implementation.
 - The runtime image grows by numpy only (about 20 MB), well within the 512 MB instance.
 

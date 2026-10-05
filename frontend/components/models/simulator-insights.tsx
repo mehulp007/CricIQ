@@ -119,7 +119,7 @@ export function SimulatorInsights() {
       <Section
         id="simulator"
         title="How a match is simulated"
-        lede={`Every legal ball: extras from league rates; the ball faced from the ball-outcome model; run outs at the league rate. Each over's bowler follows how that bowler was used in their last ${s.settings.history_seasons} seasons, within the four-over quota and never twice in a row. Each match draws its own conditions, shared by both innings: a spread of ${s.settings.conditions_sd}, chosen on ${seasonSpan(s.valid)} as the one with the lowest first-innings CRPS.`}
+        lede={`Every legal ball: extras from league rates; the ball faced from the ball-outcome model; run outs at the league rate. Each over's bowler follows how that bowler was used in their last ${s.settings.history_seasons} seasons, within the four-over quota and never twice in a row. Each match draws its own conditions, shared by both innings: a spread of ${s.settings.conditions_sd}, chosen on ${seasonSpan(s.valid)} as the one whose 80% range held closest to 80% of first-innings totals.`}
       >
         <div className="overflow-x-auto" {...scrollRegion("Conditions spread tuning")}>
           <table className="w-full min-w-[24rem] text-sm">

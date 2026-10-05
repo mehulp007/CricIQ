@@ -21,17 +21,19 @@ Each over's bowler is drawn from how often each bowler bowled that over in their
 3 seasons, shrunk toward their type's league pattern (worth 8 overs), within the four-over quota, never twice in a row, and
 only if the rest of the innings can still be covered. Each simulated match draws its
 own conditions (how good the pitch and ground are for batting), shared by both innings,
-with a spread of 0.3 on the log-odds scale, the value with the lowest
-first-innings CRPS on the validation seasons:
+with a spread of 0.3 on the log-odds scale: on the validation seasons,
+the value whose 80% range held closest to 80% of first-innings totals. CRPS barely
+separates 0.3 from 0.4 there, and a season of jumping scores (2023) rewards extra width
+for its bias, so coverage, not CRPS, decides:
 
 | Spread | CRPS | 80% coverage | Brier |
 |---|---|---|---|
-| 0.0 | 21.629 | 59.6% | 0.2561 |
-| 0.1 | 21.465 | 62.4% | 0.2562 |
-| 0.2 | 21.2 | 72.3% | 0.2535 |
-| 0.3 | 21.068 | 78.7% | 0.2559 |
-| 0.4 | 21.108 | 84.4% | 0.2554 |
-| 0.5 | 21.289 | 90.1% | 0.2553 |
+| 0.0 | 21.557 | 59.6% | 0.2535 |
+| 0.1 | 21.47 | 63.1% | 0.2522 |
+| 0.2 | 21.218 | 70.9% | 0.2524 |
+| 0.3 | 21.023 | 79.4% | 0.2522 |
+| 0.4 | 21.019 | 85.8% | 0.2519 |
+| 0.5 | 21.22 | 90.1% | 0.2530 |
 
 ## Backtest
 
@@ -45,14 +47,14 @@ first.
 
 | Chance the side batting first wins | Brier | Log loss |
 |---|---|---|
-| **Simulator** | **0.2559** | **0.7051** |
+| **Simulator** | **0.2553** | **0.7041** |
 | Coin flip | 0.2500 | 0.6931 |
 | Batting-first rate before the test (45.7%) | 0.2459 | 0.6849 |
 | Both sides' recent form (log5) | 0.2503 | 0.6937 |
 
-Against a coin flip the simulator's Brier score is -0.0059 (90%: -0.0133 to +0.0013; positive would be better). Before the toss,
+Against a coin flip the simulator's Brier score is -0.0053 (90%: -0.0130 to +0.0023; positive would be better). Before a ball is bowled,
 who wins an IPL match is close to unpredictable from XIs and form (see the Analytics Lab
-note on rivalries); the simulator predicted the side batting first 50.2%
+note on rivalries); the simulator predicted the side batting first 50.4%
 on average, and it won 43.1% of these matches.
 
 ### From the first ball of a chase
@@ -61,11 +63,11 @@ With the actual target, the simulated chance of chasing it (140 chases):
 
 | | Brier | Log loss |
 |---|---|---|
-| **Simulator** | **0.1927** | **0.5764** |
+| **Simulator** | **0.1913** | **0.5705** |
 | Chase success rate before the test (54.3%) | 0.2457 | 0.6846 |
 
-Gain over the base rate +0.0531 (90%: +0.0238 to +0.0815). The simulated chances rank chases well but are too low:
-46.9% on average against 57.1% chased
+Gain over the base rate +0.0545 (90%: +0.0257 to +0.0828). The simulated chances rank chases well but are too low:
+47.1% on average against 57.1% chased
 successfully, most for modest targets. Real chasers manage risk to see a gettable target
 home in ways the ball-by-ball model does not capture. The what-if sandbox therefore starts
 from the win probability model's estimate at the real score and moves it by the
@@ -73,10 +75,10 @@ simulated change (on the log-odds scale) rather than showing the simulated level
 
 | Predicted (fifths) | Matches | Simulated | Chased |
 |---|---|---|---|
-| 1 | 28 | 16.9% | 17.9% |
-| 2 | 28 | 29.5% | 46.4% |
-| 3 | 28 | 41.6% | 53.6% |
-| 4 | 28 | 62.0% | 78.6% |
+| 1 | 28 | 17.1% | 14.3% |
+| 2 | 28 | 29.7% | 50.0% |
+| 3 | 28 | 41.7% | 53.6% |
+| 4 | 28 | 62.5% | 78.6% |
 | 5 | 28 | 84.5% | 89.3% |
 
 ### First-innings totals
@@ -86,16 +88,16 @@ actual total's percentile within its simulation (PIT) is uniform:
 
 | PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Matches | 9 | 18 | 14 | 7 | 13 | 16 | 16 | 20 | 16 | 11 |
+| Matches | 8 | 19 | 13 | 9 | 12 | 16 | 15 | 20 | 17 | 11 |
 
-Chi-square 10.57 (uniform at the 5% level below 16.92). The simulated 80% range held 85.7% of actual totals and the 50% range 47.9%; CRPS 20.42 runs. Average total 191.5 simulated against 194.1 actual; wickets 6.37 against 6.34.
+Chi-square 10.71 (uniform at the 5% level below 16.92). The simulated 80% range held 86.4% of actual totals and the 50% range 47.1%; CRPS 20.41 runs. Average total 191.6 simulated against 194.1 actual; wickets 6.38 against 6.34.
 
 ## Speed and rules
 
-10,000 complete matches in 1.184 s on the
+10,000 complete matches in 0.523 s on the
 development machine (numpy, all simulations stepped together). Bowling rules gave way in
 0 simulated overs of the backtest. Ties are reported as ties (super
-overs are not simulated): 2.04% of simulated test matches.
+overs are not simulated): 2.03% of simulated test matches.
 
 ## Limitations
 

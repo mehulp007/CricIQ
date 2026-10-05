@@ -11,7 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
     respects the quota and never strands an innings, and per-match conditions shared by both
     innings (ADR-0006: numpy in the API).
   - Match Simulator (`/simulator`): any two XIs (each team's latest by default; reorder, swap
-    players, choose bowling options and who bats first), 10,000 simulations in about a second,
+    players, choose bowling options and who bats first), 10,000 simulations in half a second on a laptop,
     with win shares, first-innings distributions, the average simulated scorecard and margins.
   - What-if sandbox in every replay: edit the runs or wickets at any ball and see the batting
     side's chance, anchored on the win probability model and moved by the simulated change, with

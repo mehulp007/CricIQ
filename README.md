@@ -36,7 +36,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Ratings | 16 rating components shrunk by empirical Bayes: the shrunk record predicts a player's next season better than the raw record for all 16; year-to-year stability reported per component |
 | Pressure | Leverage of every ball from what-if win probabilities; expected and realised next-ball swings agree in every tenth, from 0.09× to 2.9× a typical ball |
 | League tables | Rebuilt from the balls for all 19 seasons and identical to the official tables, net run rate included; the build fails if they ever differ |
-| Simulator | 10,000 complete matches in about a second; first-innings totals calibrated on 2025–2026 (PIT uniform); pre-match winners no better than a coin flip, reported as such |
+| Simulator | 10,000 complete matches in half a second on a laptop; first-innings totals calibrated on 2025–2026 (PIT uniform); pre-match winners no better than a coin flip, reported as such |
 | Quality | 280+ Python tests, 90+ frontend unit tests, 100+ end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
@@ -203,7 +203,7 @@ The [simulator](https://criciq-eight.vercel.app/simulator) plays any two XIs bal
 ball-outcome model: extras and run outs at league rates, each over's bowler drawn from how that
 bowler was used (four overs each, never twice in a row, and only if the innings can still be
 finished), and match conditions drawn per match and shared by both innings. All 10,000
-simulations step forward together as numpy arrays, so a full simulation takes about a second
+simulations step forward together as numpy arrays, so 10,000 matches take about half a second on a laptop
 ([ADR-0006](docs/adr/0006-simulator-in-the-api-with-numpy.md)).
 
 Backtested on every 2025–2026 match before a ball was bowled, with a ball model that never saw
@@ -211,9 +211,9 @@ those seasons ([model card](docs/model-cards/simulator.md)):
 
 | Check | Result |
 |---|---|
-| First-innings totals | PIT uniform (χ² 10.6, 5% threshold 16.9); 86% inside the simulated 80% range |
-| From the first ball of a chase | Brier 0.193 against 0.246 for the base chase rate, but chances run about 10 points low |
-| Winner, pre-match | Brier 0.256 against 0.250 for a coin flip: no better, and the page says so |
+| First-innings totals | PIT uniform (χ² 10.7, 5% threshold 16.9); 86% inside the simulated 80% range |
+| From the first ball of a chase | Brier 0.191 against 0.246 for the base chase rate, but chances run about 10 points low |
+| Winner, pre-match | Brier 0.255 against 0.250 for a coin flip: no better, and the page says so |
 
 Because simulated chases run low, the replay's **what-if** starts from the calibrated win
 probability at the real score and adds only the simulated change from your edit.

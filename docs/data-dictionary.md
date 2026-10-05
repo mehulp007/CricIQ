@@ -171,6 +171,16 @@ tables above for the requested seasons (definitions in [metrics.md](metrics.md))
 constants (`k`, `sigma2` and the stability label per component) are stored in `models` under the
 name `ratings`, published by `criciq-ml score` from `models/ratings/<version>/manifest.json`.
 
+## Model outputs (serving database only)
+
+Written by `criciq-ml score` with the committed models; the API never runs a model.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `wp_predictions` | match × innings × state (`seq_no`, 0 = before the first ball) | `wp_team_a` (win probability of the side batting first), `factors` (explanation in points), `leverage` (expected swing of the next ball relative to a typical ball; empty once the innings is over), `pressure` (percentile of leverage among every state, 0-100), `momentum` (batting side's change in win probability over the last 12 legal balls, points). See [metrics.md](metrics.md) |
+| `score_projections` | first-innings state | Quantiles of the final total |
+| `models` | model name | Version, training seasons and served settings as JSON `info`; the win probability row also stores the pressure scale (mean swing and percentiles) |
+
 ## `meta`
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,
 `player_attributes`.

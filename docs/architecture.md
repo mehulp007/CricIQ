@@ -61,6 +61,8 @@ database, which the API reads. Production code never imports notebooks.
 | `scoring.py` | Score every ball and publish into `serving.duckdb` atomically |
 | `ball_outcome.py` | Ball-outcome model: outcomes, situation, penalised player effects, head-to-head prior (kappa) |
 | `ball_outcome_training.py` | Its protocol: tuning, feature selection, test, calibration, head-to-head check, backtest |
+| `leverage.py` | Pressure (leverage) for every state from what-if next balls, and momentum |
+| `lab.py` | Analytics Lab research notes: momentum, pressure and clutch tests |
 | `ratings.py` | CricIQ Ratings: shrinkage per component (k, noise), next-season validation, stability, similar-player retrieval test |
 | `report.py`, `projection_report.py`, `ball_outcome_report.py`, `ratings_report.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app |
 

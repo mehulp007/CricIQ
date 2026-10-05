@@ -1,7 +1,7 @@
 # CricIQ Metrics
 
 Definitions of the numbers CricIQ derives itself, with their formulas, why they are built this
-way, and where they fall short. Model outputs (win probability, score projection, ball outcome)
+way, how they were validated, and where they fall short. Model outputs (win probability, score projection, ball outcome)
 are documented in the [model cards](model-cards/). Every figure quoted here comes from the
 current data; the generated [ratings model card](model-cards/ratings.md) has the full tables.
 
@@ -136,6 +136,110 @@ powerplay batting and second-innings bowling within a single season. Current num
   the match situation, it is approximate.
 - Ratings describe what happened, adjusted for sample size; they do not forecast form, fitness or
   role changes.
+
+## Pressure (leverage)
+
+**How much the next ball can move the match.** Shown in every replay as a pressure index and
+explained in the Analytics Lab note
+[What pressure does to batting](https://criciq-eight.vercel.app/lab/pressure). Code:
+`ml/src/criciq_ml/leverage.py`.
+
+For a match state `s`, each possible next ball `o` (a dot, 1, 2, 3, 4 or 6 runs, a wicket, or a
+wide or no-ball) is applied to the state, every model feature is rebuilt, and the win probability
+model scores the result:
+
+```
+swing(s)    = Σ_o p(o | s) · |WP(s after o) − WP(s)|
+leverage(s) = swing(s) / mean swing over every historical state
+pressure(s) = percentile of swing(s) among every historical state (0-100)
+bands       : Low < 50 ≤ Medium < 80 ≤ High < 95 ≤ Very high
+```
+
+- `p(o | s)` is the league's rate of each outcome in that innings, phase and wickets-in-hand
+  bucket (1-2, 3-4, 5-7, 8-10 in hand), with thin cells borrowing from the overall rates.
+- Tree models move in steps, so every win probability in the swing is averaged over scores within
+  four runs (triangular weights). This cut the ball-to-ball jitter of leverage by about 40%
+  without blunting real spikes such as last-ball finishes; averaging over balls as well was tried
+  and rejected because it flattened the end of chases.
+- Once an innings is over there is no next ball, so leverage is empty.
+
+**Why:** the Leverage Index from baseball analytics (Tango) has a natural scale (1 = a typical
+ball) and comes straight from the win probability model, so situation, wickets and the chase
+equation enter through a tested model rather than hand-picked weights. The percentile makes it
+readable; in leverage terms, medium pressure starts at about 0.8×, high at 1.4× and very high at
+2.4× a typical ball, and the tensest IPL balls (3 or 4 needed off the last ball) reach about 33×.
+
+**Validation:** two tests.
+
+- *The rebuilt states are right:* applying the ball that was actually bowled to a state
+  reproduces every feature of the state that followed, exactly (a unit test over the fixture
+  matches).
+- *Leverage anticipates what happens:* grouping every ball since 2008 into tenths by leverage,
+  the realised change in win probability on the next ball matches the expected one in every
+  group, from 0.09× (expected) vs 0.09× (realised) for the calmest tenth to 2.88× vs 2.93× for
+  the tensest.
+
+**Limits:** leverage inherits the win probability model's view of each state; outcome rates are
+the league's, not those of the batter and bowler at the crease; and "pressure" here is the match
+situation, not what players feel.
+
+## Momentum
+
+**The change in the batting side's win probability over the last 12 legal balls**, in percentage
+points, shown in every replay:
+
+```
+momentum(s) = 100 · (WP_batting(s) − WP_batting(last state with ≤ L − 12 legal balls))
+```
+
+where `L` is the legal balls bowled at `s`; in the first 12 balls of an innings it is measured
+from the innings' first state.
+
+**Why:** a hand-weighted "momentum index" of recent runs, wickets and dots would be arbitrary.
+Measuring momentum on the scale the match is decided on makes it comparable across situations
+and testable.
+
+**Validation** (Analytics Lab: [Is momentum real?](https://criciq-eight.vercel.app/lab/momentum)):
+from the end of every over with at least 12 balls on either side (about 41,000 moments in 1,242
+matches), momentum was compared with the next 12 balls faced, measured against the ball-outcome
+model's expectation (which knows the batter, bowler, phase, wickets, how settled the batter is and
+the chase equation), and with the result. Intervals resample whole matches.
+
+- Next 12 balls: +0.19 runs above expectation per 10 points of momentum (90%: +0.14 to +0.26).
+  After a surge of 15+ points, +0.5 runs over the next two overs, against about 16 runs scored.
+- Wickets: +0.013 per 10 points (90%: +0.007 to +0.020): sides on a run also lose slightly more
+  wickets, so they are attacking, not suddenly better.
+- Result: −0.42 points of win rate above win probability per 10 points of momentum (90%: −0.69 to
+  −0.09). The win probability already prices momentum in, and if anything overreacts to a hot
+  streak.
+
+Momentum is therefore **descriptive, not predictive**; it is shown, but never used to adjust an
+estimate.
+
+**Limits:** twelve balls is one choice of window; the test uses the served models, which were
+fitted on these seasons.
+
+## Clutch (not a rating)
+
+The plan allowed a clutch rating only if it proved reliable (split-half correlation above 0.3).
+It did not.
+
+```
+clutch(player) = runs above expectation per 100 balls in balls at pressure ≥ 80
+               − runs above expectation per 100 balls in all other balls
+```
+
+(for bowlers, runs saved), with "expectation" from the ball-outcome model as above, so a
+player's overall ability is already accounted for.
+
+**Validation** (Analytics Lab: [Is clutch a skill?](https://criciq-eight.vercel.app/lab/clutch)):
+each career is split into odd and even seasons, and players with 60+ high-pressure balls in both
+halves are compared. Batters: r = 0.17 across 104 players, against ±0.16 that shuffled halves
+produce nine times in ten (permutation p ≈ 0.07): at most a faint signal. Bowlers: r = −0.06
+across 110 (p ≈ 0.53): none. Even for the batters with 1,000+ high-pressure balls, career
+clutch records carry 90% intervals about 20 runs per 100 balls wide.
+
+Clutch is therefore reported as a research finding, not as a rating or a player label.
 
 ## Similar players
 

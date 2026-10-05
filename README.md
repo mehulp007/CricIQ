@@ -23,7 +23,7 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6), and V1 is under way: **V1-a** adds a Compare page, CricIQ Ratings and similar players. Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore and compare any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
+> **Status:** **v0.1.0, the MVP, is released** (milestones M0–M6), and V1 is under way: **V1-a** added a Compare page, CricIQ Ratings and similar players; **V1-b** adds pressure and momentum to every replay and the Analytics Lab. Replay every IPL match since 2008 with each side's chance of winning, and the reasons, after every ball; see a projected first-innings total with an honest range; explore and compare any player's career against par; and compare any batter with any bowler. See the [roadmap](#roadmap) and the full [engineering plan](docs/PLAN.md).
 
 ## At a glance
 
@@ -34,6 +34,7 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Ball outcome | 1.07% better log loss than phase-and-wickets frequencies; better in 11 of 11 backtest seasons |
 | Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
 | Ratings | 16 rating components shrunk by empirical Bayes: the shrunk record predicts a player's next season better than the raw record for all 16; year-to-year stability reported per component |
+| Pressure | Leverage of every ball from what-if win probabilities; expected and realised next-ball swings agree in every tenth, from 0.09× to 2.9× a typical ball |
 | Quality | 200+ Python tests, 60+ frontend unit tests, 50 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
@@ -50,7 +51,9 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | CricIQ Ratings | 0-100 ratings against the regulars of the same seasons for 8 batting and 8 bowling components, shrunk by how much a record of that size can be trusted, with 90% intervals and a stability label | **Live** |
 | Compare | Any two players over the same seasons: numbers against par, ratings on shared tracks, season-by-season form by year or by age, phases and their head-to-head | **Live** |
 | Similar players | The closest style profiles (per-ball rates against par and how a player is used) in the same seasons, with shared traits | **Live** |
-| Momentum, Pressure, Teams, Simulator | Leverage and momentum in the replay, team analytics and Monte Carlo simulation | V1 |
+| Pressure & momentum | Every replay shows the pressure on the next ball (how much it can move the match) and each side's momentum over the last 12 balls, with a pressure chart and the tensest moments | **Live** |
+| Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill | **Live** |
+| Teams, Simulator | Team analytics and Monte Carlo simulation | V1 |
 
 ## The data
 
@@ -154,6 +157,25 @@ a 90% interval. There is deliberately no overall number.
 z-scored within the same seasons, by cosine similarity. From one season's profile, the same bowler
 is among the five closest next season 58% of the time (chance: 12%). **Compare** puts any two
 players side by side over the same seasons. Formulas are in [docs/metrics.md](docs/metrics.md).
+
+## Pressure, momentum and the Analytics Lab
+
+Before every ball, CricIQ tries each possible outcome, scores the resulting state with the win
+probability model and weights the swings by how often each outcome happens: the **leverage**, or how
+many typical balls this one is worth (the Leverage Index from baseball analytics). Its percentile is
+the **pressure index** in the replay. Grouped into tenths, the swings it expects match the swings
+that happen, from the calmest balls to the tensest (about 33× a typical ball: 3 or 4 needed off the
+last ball).
+
+The [Analytics Lab](https://criciq-eight.vercel.app/lab) publishes the tests, including the "no"s:
+
+- **Momentum** (win probability gained over the last 12 balls) is descriptive, not predictive: after
+  a 15-point surge sides score half a run more than expected over the next two overs, lose slightly
+  more wickets, and do not win any more often than the win probability says.
+- **Pressure** changes behaviour at the end of close chases: batters score about 8 runs per 100 balls
+  above expectation and get out more often.
+- **Clutch** is not a reliable skill: a batter's record under pressure in odd seasons predicts it in
+  even seasons with r = 0.17, far below the 0.3 the plan required for a rating, so there is none.
 
 ## Matchup Lab: small samples, honestly
 
@@ -282,7 +304,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **M6** Matchup Lab + ball-outcome model: empirical-Bayes head-to-head, next-ball odds
 - [x] **v0.1.0 MVP release:** polish, methodology page, Lighthouse and accessibility audit
 - [x] **V1-a** Compare page, CricIQ Ratings, similar players
-- [ ] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
+- [x] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
 - [ ] **V1-c** Team analytics and head-to-head
 - [ ] **V1-d** Match simulator and what-if sandbox
 

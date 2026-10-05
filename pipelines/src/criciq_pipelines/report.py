@@ -29,12 +29,23 @@ def _pct(part: int, whole: int) -> str:
     return f"{part:,} / {whole:,} ({100 * part / whole:.1f}%)" if whole else "0 / 0"
 
 
-def render_report(warehouse: Path, validation: ValidationReport) -> str:
+def render_report(
+    warehouse: Path, validation: ValidationReport, everything: Path | None = None
+) -> str:
+    """The IPL report from ``warehouse``, with an all-competitions section from
+    ``everything`` (the full warehouse) when given."""
     con = duckdb.connect(str(warehouse), read_only=True)
     try:
-        return _render(con, validation)
+        text = _render(con, validation)
     finally:
         con.close()
+    if everything is None or not everything.exists():
+        return text
+    full = duckdb.connect(str(everything), read_only=True)
+    try:
+        return text + "\n" + _competitions_section(full, validation) + "\n"
+    finally:
+        full.close()
 
 
 def _render(con: duckdb.DuckDBPyConnection, validation: ValidationReport) -> str:
@@ -114,14 +125,18 @@ def _render(con: duckdb.DuckDBPyConnection, validation: ValidationReport) -> str
         "Schema constraints (primary keys, foreign keys, value domains) are enforced when the",
         "warehouse loads. The checks below cover cricket logic a schema cannot express.",
         "",
+        "Violations count curated competitions (the IPL), where any fails the build. Elsewhere",
+        "the source has known quirks, reported as notes (see All competitions below).",
+        "",
         _table(
-            ["Check", "Severity", "Status", "Violations", "Rule"],
+            ["Check", "Severity", "Status", "Violations", "Notes elsewhere", "Rule"],
             [
                 (
                     f"`{c.id}`",
                     c.severity,
                     "pass" if c.passed else ("FAIL" if c.severity == "error" else "warn"),
                     c.violations,
+                    ", ".join(f"{k} {v}" for k, v in c.notes.items()) or "",
                     c.description,
                 )
                 for c in validation.checks
@@ -213,6 +228,86 @@ def _render(con: duckdb.DuckDBPyConnection, validation: ValidationReport) -> str
         _attribute_section(con),
     ]
     return "\n".join(sections) + "\n"
+
+
+def _competitions_section(con: duckdb.DuckDBPyConnection, validation: ValidationReport) -> str:
+    """Every competition in the full warehouse: coverage, quarantine and notes."""
+    notes: dict[str, int] = {}
+    for check in validation.checks:
+        for competition, count in check.notes.items():
+            notes[competition] = notes.get(competition, 0) + count
+    rows = con.execute(
+        """
+        WITH games AS (
+            SELECT competition_id, min(s.year) || '-' || max(s.year) AS seasons,
+                   count(*) AS matches
+            FROM matches m JOIN seasons s USING (season_id, competition_id) GROUP BY ALL
+        ),
+        balls AS (
+            SELECT m.competition_id, count(*) AS deliveries
+            FROM deliveries d JOIN matches m USING (match_id) GROUP BY ALL
+        ),
+        sides AS (
+            SELECT s.competition_id, count(DISTINCT ts.team_id) AS teams
+            FROM team_seasons ts JOIN seasons s USING (season_id) GROUP BY ALL
+        ),
+        held AS (SELECT competition_id, count(*) AS quarantined FROM quarantine GROUP BY ALL)
+        SELECT c.competition_id, c.name, c.format, g.seasons, g.matches,
+               coalesce(b.deliveries, 0), coalesce(t.teams, 0), coalesce(h.quarantined, 0)
+        FROM competitions c
+        JOIN games g USING (competition_id)
+        LEFT JOIN balls b USING (competition_id)
+        LEFT JOIN sides t USING (competition_id)
+        LEFT JOIN held h USING (competition_id)
+        ORDER BY c.competition_id <> 'IPL', c.format, c.competition_id
+        """
+    ).fetchall()
+    table_rows = [
+        (cid, name, fmt, span, f"{n:,}", f"{balls:,}", teams, q, notes.get(cid, 0))
+        for cid, name, fmt, span, n, balls, teams, q in rows
+    ]
+    quarantined = con.execute(
+        "SELECT match_id, competition_id, rule, detail FROM quarantine ORDER BY ALL"
+    ).fetchall()
+    added = con.execute(
+        "SELECT count(*), count(*) FILTER (WHERE country IS NULL) FROM venues WHERE NOT is_curated"
+    ).fetchone()
+    assert added is not None
+    return "\n".join(
+        [
+            "## All competitions",
+            "",
+            "The warehouse holds every competition in `config/competitions.yaml`; the sections",
+            "above cover the IPL, which the site serves today. Cricsheet holds no matches",
+            "involving Afghanistan, in any format, so Afghanistan's record is absent.",
+            "",
+            _table(
+                [
+                    "Competition",
+                    "Name",
+                    "Format",
+                    "Seasons",
+                    "Matches",
+                    "Deliveries",
+                    "Teams",
+                    "Quarantined",
+                    "Notes",
+                ],
+                table_rows,
+            ),
+            "",
+            "**Quarantined matches** have a source error that would break the warehouse's keys",
+            "and are left out:",
+            "",
+            _table(["Match", "Competition", "Rule", "Detail"], quarantined)
+            if quarantined
+            else "None.",
+            "",
+            f"**Grounds added automatically:** {added[0]} grounds outside the curated",
+            "`config/venues.yaml`, named from Cricsheet and placed with",
+            f"`config/venue_countries.yaml`; {added[1]} without a country.",
+        ]
+    )
 
 
 def _attribute_section(con: duckdb.DuckDBPyConnection) -> str:

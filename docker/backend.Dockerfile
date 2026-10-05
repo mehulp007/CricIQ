@@ -22,7 +22,10 @@ FROM python:${PYTHON_VERSION}-slim AS data
 COPY --from=uv /uv /bin/uv
 # LightGBM needs the OpenMP runtime.
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1     && rm -rf /var/lib/apt/lists/*
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never CRICIQ_ROOT=/app
+# The API serves the IPL: only its archive is downloaded and built here, although
+# the pipeline can build every competition (config/competitions.yaml).
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never CRICIQ_ROOT=/app \
+    CRICIQ_COMPETITIONS=IPL
 WORKDIR /app
 
 COPY pyproject.toml uv.lock .python-version ./

@@ -1,32 +1,39 @@
 # Data Pipeline
 
-CricIQ turns Cricsheet's ball-by-ball JSON into a validated, normalized DuckDB warehouse.
-One command rebuilds everything from scratch:
+CricIQ turns Cricsheet's ball-by-ball JSON into a validated, normalized DuckDB warehouse holding
+every competition it covers: the IPL, the BBL, PSL, CPL and SA20, and men's T20 internationals,
+ODIs and Tests. One command rebuilds everything from scratch:
 
 ```bash
 just data run            # download -> extract -> build -> validate -> report
 just data run --no-download   # rebuild from the latest local snapshot
 ```
 
-The run takes about 10 seconds after download and ends with the validation summary. It also
-regenerates [data-quality-report.md](data-quality-report.md).
+`CRICIQ_COMPETITIONS` (comma separated, e.g. `IPL`) limits a run to some competitions; by default
+every competition in `config/competitions.yaml` is downloaded and built. All of them (about 9,900
+matches and 4.6 million deliveries) extract in about 20 seconds and build in about 40 after
+download. The run ends with the validation summary and regenerates
+[data-quality-report.md](data-quality-report.md).
 
 ## Layers
 
 ```
-cricsheet.org                   config/*.yaml, reference/*.csv (version-controlled)
-     │                                   │
-     ▼                                   │
-data/raw/<data_version>/        immutable snapshot + manifest.json
-     │  extract                          │
-     ▼                                   │
-data/interim/<data_version>/    flat, typed Parquet (one file per table)
-     │  build  ◄─────────────────────────┘
+cricsheet.org                       config/*.yaml, reference/*.csv (version-controlled)
+     │                                       │
+     ▼                                       │
+data/raw/<data_version>/            immutable snapshot: one archive per competition,
+     │                              the people register, manifest.json
+     │  extract                              │
+     ▼                                       │
+data/interim/<data_version>/        flat, typed Parquet (one file per table)
+     │  build  ◄─────────────────────────────┘
      ▼
-data/warehouse/criciq.duckdb    normalized warehouse (constraints enforced)
-     │  validate
+data/warehouse/cricket.duckdb       every competition (constraints enforced)
+     │  validate ──► data/warehouse/validation.json + docs/data-quality-report.md
+     │  scope
      ▼
-data/warehouse/validation.json + docs/data-quality-report.md
+data/warehouse/ipl.duckdb           the IPL in the v1 shape: what the export,
+                                    the models and the reports read today
 ```
 
 Everything under `data/` is generated and gitignored. Curated knowledge lives in version-controlled
@@ -34,10 +41,11 @@ files:
 
 | File | Purpose |
 |---|---|
-| `config/competitions.yaml` | Competitions in scope and their rules (e.g. Impact Player from 2023) |
-| `config/franchises.yaml` | Franchises and every name they played under, with season ranges |
-| `config/venues.yaml` | Canonical grounds and every raw venue string that maps to them |
-| `config/phases.yaml` | Powerplay / middle / death definitions per format |
+| `config/competitions.yaml` | Competitions, how a match is recognised, season rules, which are curated |
+| `config/teams/*.yaml` | Teams of each competition family and every name they played under (`ipl.yaml`, `bbl.yaml`, ..., `national.yaml`) |
+| `config/venues.yaml` | Curated grounds (every IPL ground) and every raw venue string that maps to them |
+| `config/venue_countries.yaml` | Countries and renames for grounds added automatically |
+| `config/phases.yaml` | Phase definitions per format (T20, ODI, open-ended Test) |
 | `config/golden_matches.yaml` | Independently known scorecards the warehouse must reproduce |
 | `reference/player_attributes.csv` | Full name, date of birth, country, batting hand, bowling style |
 | `reference/player_attributes_overrides.csv` | Documented manual corrections, applied last |
@@ -46,17 +54,19 @@ files:
 
 ### 1. Download (`criciq-data download`)
 
-The step fetches `ipl_json.zip` and the `people.csv` register from Cricsheet. The snapshot is
-**content-addressed**: its `data_version` is the date of the latest match plus a hash of both files
-(e.g. `2026-05-31.713dafe9`). Downloading unchanged data again reuses the existing snapshot. Every
-downstream artifact records the version it was built from.
+The step fetches the archive of every selected competition (`ipl_json.zip`, `bbl_json.zip`,
+`t20s_male_json.zip`, `odis_male_json.zip`, `tests_male_json.zip`, ...) and the `people.csv`
+register. The snapshot is **content-addressed**: its `data_version` is the date of the latest match
+plus a hash of every file (e.g. `2026-09-17.103eadea`). Downloading unchanged data again reuses the
+existing snapshot. Every downstream artifact records the version it was built from.
 
-For offline work, `criciq-data snapshot <zip> <people.csv>` registers local files the same way.
+For offline work, `criciq-data snapshot <zip>... <people.csv>` registers local files the same way.
 
 ### 2. Extract (`criciq-data extract`)
 
 This step flattens each match into seven typed tables (`matches`, `innings`, `deliveries`,
-`wickets`, `replacements`, `match_players`, `registry`) with explicit Arrow schemas. It does no
+`wickets`, `replacements`, `match_players`, `registry`) with explicit Arrow schemas, including
+Test details (declarations, forfeits, penalty runs, wins by an innings) and bowl-outs. It does no
 cricket interpretation beyond two things:
 
 - **Name resolution.** Every person is resolved to their Cricsheet id through the match's own
@@ -74,35 +84,65 @@ This step loads interim tables and reference config into the schema in
 Primary keys, foreign keys, `NOT NULL` and `CHECK` constraints are enforced by DuckDB, so a build
 that completes already guarantees referential integrity.
 
-- **Franchises.** Each (season, raw team name) pair is resolved through `franchises.yaml`. Delhi
-  Daredevils and Delhi Capitals are one franchise (`DC`); Deccan Chargers (`DCH`) and Sunrisers
-  Hyderabad (`SRH`) are different franchises. A team name outside its declared seasons fails the build.
-- **Venues.** Raw venue strings map to physical grounds. Pure renames are merged (Feroz Shah Kotla
-  becomes Arun Jaitley Stadium); rebuilt or different grounds stay separate (Motera and Narendra Modi
-  Stadium, PCA Mohali and Mullanpur). An unmapped venue fails the build.
-- **Chronology.** `matches.match_order` is a strict chronological ordinal. It is the key for all
-  future *as-of* feature computation, so no feature can see a later match.
+- **Competitions.** A match joins the first competition whose rule it meets: club leagues by
+  Cricsheet event name, internationals by match type, men's matches only. The archive it came from
+  does not matter, so any Cricsheet feed can be ingested; matches that belong to no competition
+  (women's cricket, county games) are left out.
+- **Seasons.** The BBL spans the new year, so its seasons are Cricsheet's labels ("2023/24" is BBL
+  2024, the year it ends); the IPL's labels are clean too. Leagues played within a year (PSL, CPL,
+  SA20) and internationals use the calendar year: Cricsheet labels the PSL 2020 playoffs, played in
+  November 2020, as "2020/21".
+- **Teams.** Each (competition, season, raw team name) is resolved through `config/teams/`. Delhi
+  Daredevils and Delhi Capitals are one IPL franchise (`DC`); Deccan Chargers (`DCH`) and Sunrisers
+  Hyderabad (`SRH`) are different franchises; Barbados Tridents and Barbados Royals are one CPL
+  franchise. A national side is one team across formats (`IND`), with a team-season per
+  competition (`ODI-IND-2023`).
+- **Venues.** Raw venue strings map to physical grounds. Curated grounds (`venues.yaml`) merge pure
+  renames (Feroz Shah Kotla becomes Arun Jaitley Stadium) and keep rebuilt grounds apart (Motera and
+  Narendra Modi Stadium). Other grounds are added automatically: named from the text before the
+  first comma, placed with `venue_countries.yaml`, and listed in `auto_added` for review.
+- **Curated or not.** In a `strict` competition (the IPL) an unknown team or venue fails the build.
+  Elsewhere new teams and venues are added automatically, so a new associate nation never stops a
+  refresh.
+- **Quarantine.** A match with a source error that would break the warehouse's keys (one register
+  id on both sides, a player missing from the register) is set aside in `quarantine` instead of
+  failing the build; in a curated competition it fails the build.
+- **Chronology.** `matches.match_order` is a strict chronological ordinal within a competition and
+  `global_order` across all of them. They are the keys for *as-of* features, so no feature can see
+  a later match.
 - **Derived fields.** These include running score and wickets per delivery, boundary flags that
-  exclude run fours, dismissal versus retirement, bowler credit, revised chase targets in balls, and
-  Impact Player / concussion substitutes.
+  exclude run fours, dismissal versus retirement, bowler credit, revised chase targets in balls,
+  follow-ons, innings totals with penalty runs, and Impact Player / concussion substitutes.
 
 The build writes to a temporary file and atomically replaces the warehouse only on success.
 
 ### 4. Validate (`criciq-data validate`)
 
 This step runs SQL invariant checks (each returns violating rows, so a failure explains itself)
-plus the golden scorecards. Examples:
+plus the golden scorecards. Checks are format-aware: limited-overs rules skip Tests, and Test results
+have their own. Examples:
 
-- innings totals equal the running score after the last ball
+- innings totals equal the running score after the last ball, plus penalty runs
 - the chase target is the first-innings total plus one, unless a rain rule applied
-- margins of victory are consistent with the scores (D/L-aware)
+- margins of victory are consistent with the scores (D/L-aware), including innings wins in Tests
+- a Test has at most four innings
 - batters and bowlers belong to the right side's squad
-- each side names exactly 11 starting players
+- each side names 11 starting players (12 under the 2005-06 supersub rule)
 
-The step exits non-zero on any error-level failure. Results go to `data/warehouse/validation.json`
-and the committed report.
+In a curated competition every violation is an error. Elsewhere the source has known quirks (rain
+reductions without a recorded method, associate matches with inconsistent margins, sides of ten),
+reported as notes per competition rather than failing the build. The step exits non-zero on any
+error-level failure. Results go to `data/warehouse/validation.json` and the committed report.
 
-### 5. Player enrichment (`criciq-data enrich-players`, occasional)
+### 5. Scope
+
+The export, the models and the reports were written for the IPL. Until they are made
+multi-competition, `criciq_pipelines.scope` copies the IPL out of the full warehouse into
+`data/warehouse/ipl.duckdb` with exactly the v1 tables and columns, and an IPL regression test
+(`tests/pipelines/test_ipl_regression.py`) checks that the IPL warehouse and the scored serving
+database are unchanged, table by table.
+
+### 6. Player enrichment (`criciq-data enrich-players`, occasional)
 
 Cricsheet has no biographical attributes. This step links players through their ESPNcricinfo id to
 **Wikidata** (full name, date of birth, country; CC0) and to the player's **English Wikipedia**
@@ -113,11 +153,16 @@ and the infobox's international side is preferred over Wikidata citizenship, whi
 The result is committed as `reference/player_attributes.csv`, so normal builds never touch the
 network. Values that are still missing stay empty unless a correction is certain, in which case it
 goes in the overrides file with a note. Coverage is reported in the data-quality report (about 98% for
-players with a meaningful sample).
+IPL players with a meaningful sample).
+
+## Known gaps in the source
+
+- **Afghanistan.** Cricsheet holds no matches involving Afghanistan, in any format.
+- **Coverage starts** in 2001 (Tests), 2002 (ODIs) and 2005 (T20Is): Cricsheet's ball-by-ball
+  record of earlier internationals is not available.
+- **Pitch, weather and session times** are not in the data.
 
 ## Refreshing data
-
-During an IPL season:
 
 ```bash
 just data run                    # fetch new matches and rebuild
@@ -128,8 +173,11 @@ uv run python scripts/make_fixtures.py   # only if fixture matches should change
 
 ## Testing
 
-`tests/fixtures/cricsheet/` holds 14 real matches chosen for edge cases: every golden scorecard, a
+`tests/fixtures/cricsheet/` holds 31 real matches chosen for edge cases: every golden scorecard, a
 double super over, a no-result, D/L chases, umpire miscounts, penalty runs, substitutions and
-retirements. The test suite builds a complete warehouse from them, and includes negative tests
-that corrupt data to prove the checks catch it. `tests/pipelines/test_full_dataset.py` validates the
-full local warehouse when one has been built.
+retirements in the IPL; and from the other competitions a BBL season spanning two years, the PSL's
+inconsistent labels, a renamed CPL franchise, a bowl-out, a quarantined source error, a side of ten,
+the 2019 World Cup final, supersubs, and Tests with a draw, a declaration, a follow-on and an
+innings win. The test suite builds a complete warehouse from them, and includes negative tests that
+corrupt data to prove the checks catch it. `tests/pipelines/test_full_dataset.py` validates the full
+local warehouse when one has been built.

@@ -1,8 +1,11 @@
 # Data Dictionary
 
-Tables in the CricIQ warehouse (`data/warehouse/criciq.duckdb`). The authoritative DDL, with every
-constraint, is [`schema.sql`](../pipelines/src/criciq_pipelines/sql/schema.sql). Core entities are
-format-agnostic; IPL-specific knowledge lives in `config/`.
+Tables in the CricIQ warehouse. `data/warehouse/cricket.duckdb` holds every competition; the
+sections below describe the IPL copy (`data/warehouse/ipl.duckdb`, the v1 shape the export and the
+models read), and [Every competition](#every-competition-cricketduckdb) lists what the full
+warehouse adds. The authoritative DDL, with every constraint, is
+[`schema.sql`](../pipelines/src/criciq_pipelines/sql/schema.sql). Core entities are
+format-agnostic; competition-specific knowledge lives in `config/`.
 
 **Conventions**
 - Players, officials and substitutes are identified by their Cricsheet person id (8 hex chars).
@@ -142,6 +145,26 @@ One row per delivery, including wides and no-balls.
 | `kind` | `match` (player swap) or `role` (e.g. a bowler replaced mid-over) |
 | `reason` | `impact_player`, `concussion_substitute`, `injury`, … |
 | `team_season_id`, `player_in_id`, `player_out_id`, `role` | Details |
+
+## Every competition (`cricket.duckdb`)
+
+The full warehouse has the tables above for every competition, with these differences. The IPL copy
+is built from it by `criciq_pipelines.scope`, which keeps only v1 columns and calls teams
+`franchises`.
+
+| Table | Difference |
+|---|---|
+| `competitions` | `format` is `T20`, `ODI` or `Test`; `team_type` is `club` or `national`; `switcher` marks competitions in the site's switcher (IPL, T20I, ODI, Test) |
+| `seasons` | `season_id` is `<competition>-<year>`; `start_date` and `end_date` of the season's matches. Label seasons take the year they end (BBL 2023/24 is 2024); calendar seasons the year of the first day |
+| `teams` | One identity across seasons and, for national sides, formats: `team_id` (`MI`, `SYS`, `IND`), `name`, `team_type`, optional colours, `is_curated` (false for a side added automatically) |
+| `competition_teams` | Which teams a competition has: `first_season`, `last_season`, `is_active` (a national side is active if it played in the competition's last three seasons) |
+| `team_seasons` | `team_id` instead of `franchise_id`. Club ids stay `<team>-<year>`; national ids carry the competition (`ODI-IND-2023`) |
+| `venues` | `is_curated`; `city` and `country` can be NULL for an added ground |
+| `venue_aliases` | `is_curated`: false for raw names mapped automatically |
+| `matches` | `match_order` is chronological within a competition and `global_order` across all; `outcome_type` adds `draw`; `win_by_innings`; `decided_by_bowl_out`; `scheduled_overs` is NULL for Tests; `days`; Cricsheet's `event_name` (series or tournament) and `match_type_number`; `has_supersubs` (the 2005-06 twelve-player rule) |
+| `innings` | `declared`, `forfeited`, `follow_on` (the side bats twice in a row), `penalty_runs` (awarded outside the deliveries and included in `runs`) |
+| `auto_added` | Teams and grounds added automatically outside the curated config, for review |
+| `quarantine` | Matches set aside for a source error, with the rule and the detail |
 
 ## Player Lab (serving database only)
 

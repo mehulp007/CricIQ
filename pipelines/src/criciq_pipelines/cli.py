@@ -150,7 +150,10 @@ def report(
     """Write the data-quality report (docs/data-quality-report.md)."""
     target = output or paths.repo_root() / "docs" / "data-quality-report.md"
     validation = pipeline.run_validate()
-    target.write_text(render_report(paths.warehouse_path(), validation), encoding="utf-8")
+    target.write_text(
+        render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
+        encoding="utf-8",
+    )
     typer.echo(f"wrote {target}")
 
 
@@ -178,7 +181,10 @@ def run(
     validation = _timed("validating", pipeline.run_validate)
     _print_validation(validation)
     target = report_path or paths.repo_root() / "docs" / "data-quality-report.md"
-    target.write_text(render_report(paths.warehouse_path(), validation), encoding="utf-8")
+    target.write_text(
+        render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
+        encoding="utf-8",
+    )
     typer.echo(f"> wrote {target}")
     if not validation.passed:
         raise typer.Exit(code=1)

@@ -4,6 +4,33 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
+
+### Added
+- **V2-0: multi-competition foundation**
+  - One warehouse for every competition (ADR-0007): the IPL, BBL, PSL, CPL and SA20, and men's
+    T20Is, ODIs and Tests, about 9,900 matches and 4.6 million deliveries, registered in
+    `config/competitions.yaml` and classified from each match's own details.
+  - Test cricket in the data model: draws, wins by an innings, declarations, forfeits, follow-ons,
+    penalty runs and match days; ODI and open-ended Test phases.
+  - Teams across formats (`config/teams/`), national sides with one identity, seasons from
+    Cricsheet labels or the calendar, grounds added automatically with countries, a quarantine for
+    source errors, and format-aware validation with notes for quirks outside curated competitions.
+  - Seven new golden scorecards (the 2019 World Cup final, the 2005 Edgbaston Test, Adelaide 2020,
+    Sydney 2021, the 2016 World T20 final, BBL and SA20 finals) and 17 new fixture matches.
+  - An IPL regression gate: the IPL warehouse and scored serving database are compared table by
+    table with checksums from the v1 code.
+  - The data-quality report covers every competition.
+
+### Changed
+- `criciq-data download` and `run` fetch every selected competition (`CRICIQ_COMPETITIONS`, default
+  all); `snapshot` takes several archives. The API image builds the IPL only.
+- `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
+
+### Fixed
+- An over split between two bowlers (three balls each) is credited to the bowler who started it;
+  before, the choice depended on row order.
+
 ## [1.0.0] - 2026-10-05
 
 V1: every planned feature is live (milestones V1-a to V1-d), plus a release pass.

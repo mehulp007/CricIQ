@@ -14,6 +14,7 @@ import duckdb
 
 from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
 from criciq_pipelines.reference import load_league_tables
+from criciq_pipelines.simulation import SIMULATION_TABLES, build_simulation_tables
 from criciq_pipelines.teams import TEAM_TABLES, build_team_tables, check_league_tables
 
 # Warehouse tables copied as-is.
@@ -159,6 +160,7 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
         build_player_tables(con)
         league_tables = load_league_tables()
         build_team_tables(con, league_tables)
+        build_simulation_tables(con)
         failed = [c for c in check_league_tables(con, league_tables) if not c.passed]
         if failed:
             details = "; ".join(f"{c.season}: {', '.join(c.problems)}" for c in failed)
@@ -173,6 +175,7 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
                 "match_summaries",
                 *PLAYER_TABLES,
                 *TEAM_TABLES,
+                *SIMULATION_TABLES,
             )
         }
         con.execute("CHECKPOINT")

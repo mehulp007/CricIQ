@@ -3,10 +3,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   BrainCircuit,
-  CircleCheck,
-  CircleDashed,
   GitCompareArrows,
-  Loader,
   Play,
   Swords,
   Users,
@@ -20,8 +17,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FEATURED, SNAPSHOT } from "@/lib/featured";
 import { WIN_PROBABILITY } from "@/lib/models";
 import { signed } from "@/lib/players";
-import { ROADMAP, type MilestoneStatus } from "@/lib/roadmap";
-import { cn } from "@/lib/utils";
 
 const CAPABILITIES: { icon: LucideIcon; title: string; body: string; href: string }[] = [
   {
@@ -61,18 +56,6 @@ const CAPABILITIES: { icon: LucideIcon; title: string; body: string; href: strin
     href: "/models",
   },
 ];
-
-const STATUS_ICON: Record<MilestoneStatus, LucideIcon> = {
-  done: CircleCheck,
-  active: Loader,
-  planned: CircleDashed,
-};
-
-const STATUS_LABEL: Record<MilestoneStatus, string> = {
-  done: "Done",
-  active: "In progress",
-  planned: "Planned",
-};
 
 const LEADERS: { key: keyof typeof SNAPSHOT.leaders; label: string; unit: string }[] = [
   { key: "runs", label: "Most runs", unit: "runs" },
@@ -305,49 +288,6 @@ export default function OverviewPage() {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section aria-labelledby="roadmap-heading" className="flex flex-col gap-6">
-        <div>
-          <h2 id="roadmap-heading" className="text-xl font-semibold tracking-tight">
-            Build progress
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Built in vertical slices. Nothing is shown until it is real.
-          </p>
-        </div>
-        <Card className="bg-card/70">
-          <CardContent>
-            <ol className="flex flex-col divide-y divide-border">
-              {ROADMAP.map((m) => {
-                const Icon = STATUS_ICON[m.status];
-                return (
-                  <li key={m.id} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
-                    <Icon
-                      aria-hidden="true"
-                      className={cn(
-                        "mt-0.5 size-5 shrink-0",
-                        m.status === "done" && "text-positive",
-                        m.status === "active" && "text-team-b",
-                        m.status === "planned" && "text-muted-foreground",
-                      )}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium">
-                        <span className="mr-2 font-mono text-xs text-muted-foreground">{m.id}</span>
-                        {m.title}
-                      </p>
-                      <p className="mt-0.5 text-sm text-muted-foreground">{m.summary}</p>
-                    </div>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {STATUS_LABEL[m.status]}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </CardContent>
-        </Card>
       </section>
     </div>
   );

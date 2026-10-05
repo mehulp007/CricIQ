@@ -10,7 +10,8 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
   [pipelines] download → raw (immutable, versioned by data_version)
               extract/normalize → warehouse.duckdb (core tables)
               validate (schemas + invariants + golden matches)
-              export → serving.duckdb (slim, read-only, plus Player Lab tables with par)
+              export → serving.duckdb (slim, read-only, plus Player Lab tables with par
+                       and Team Analytics tables checked against the official league tables)
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)

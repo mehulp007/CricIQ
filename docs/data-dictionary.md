@@ -171,6 +171,18 @@ tables above for the requested seasons (definitions in [metrics.md](metrics.md))
 constants (`k`, `sigma2` and the stability label per component) are stored in `models` under the
 name `ratings`, published by `criciq-ml score` from `models/ratings/<version>/manifest.json`.
 
+## Team Analytics (serving database only)
+
+Built by `criciq_pipelines.teams` during export, with `config/league_tables.yaml` (abandoned and
+voided fixtures). The export fails if a computed league table differs from the official one for
+any season the data fully covers. Definitions are in [metrics.md](metrics.md).
+
+| Table | Grain | Notes |
+|---|---|---|
+| `team_matches` | franchise × match | Both sides of every match: `result` (`won`, `lost`, `no_result`; a super-over tie counts for its winner, with `tied`), `in_table` (league and not voided), `batted_first`, `won_toss`, totals for and against, net run rate credits `nrr_*` (empty for no results), margins, `balls_to_spare`, `is_close`, `venue_type` (`home`, `away`, `neutral`) and `form_won`/`form_decided` (results in the side's previous 14 matches) |
+| `team_innings_phases` | innings × phase | Runs (including extras), legal balls, dismissals, fours, sixes and dots, with batting and bowling franchise |
+| `team_season_records` | franchise × season | League table: played, won, lost, no result, `abandoned`, points, net run rate (and its four sums), `position`, number of teams, `finish` (`champion`, `runner_up`, `playoffs`, `league`) and `exit_stage` |
+
 ## Model outputs (serving database only)
 
 Written by `criciq-ml score` with the committed models; the API never runs a model.

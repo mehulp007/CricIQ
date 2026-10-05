@@ -35,7 +35,8 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Matchups | Head-to-head prior fitted by empirical Bayes (355 balls); raw records predict a pair's future far worse than shrunk ones |
 | Ratings | 16 rating components shrunk by empirical Bayes: the shrunk record predicts a player's next season better than the raw record for all 16; year-to-year stability reported per component |
 | Pressure | Leverage of every ball from what-if win probabilities; expected and realised next-ball swings agree in every tenth, from 0.09× to 2.9× a typical ball |
-| Quality | 200+ Python tests, 60+ frontend unit tests, 50 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
+| League tables | Rebuilt from the balls for all 19 seasons and identical to the official tables, net run rate included; the build fails if they ever differ |
+| Quality | 250+ Python tests, 80+ frontend unit tests, 99 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
 ## Features
@@ -52,8 +53,9 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Compare | Any two players over the same seasons: numbers against par, ratings on shared tracks, season-by-season form by year or by age, phases and their head-to-head | **Live** |
 | Similar players | The closest style profiles (per-ball rates against par and how a player is used) in the same seasons, with shared traits | **Live** |
 | Pressure & momentum | Every replay shows the pressure on the next ball (how much it can move the match) and each side's momentum over the last 12 balls, with a pressure chart and the tensest moments | **Live** |
-| Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill | **Live** |
-| Teams, Simulator | Team analytics and Monte Carlo simulation | V1 |
+| Teams | Every franchise's seasons, league tables that match the official ones, results by situation, phases against par, comebacks and collapses, and any head-to-head set against what form predicted | **Live** |
+| Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill, do rivalries repeat | **Live** |
+| Simulator | Monte Carlo simulation and a what-if sandbox | V1 |
 
 ## The data
 
@@ -177,6 +179,22 @@ The [Analytics Lab](https://criciq-eight.vercel.app/lab) publishes the tests, in
 - **Clutch** is not a reliable skill: a batter's record under pressure in odd seasons predicts it in
   even seasons with r = 0.17, far below the 0.3 the plan required for a rating, so there is none.
 
+## Teams: official tables, rebuilt
+
+Every league table since 2008 is rebuilt from the balls: points, wins, and net run rate under the
+playing conditions (a side bowled out is charged its full overs, a rain-revised chase credits the
+side batting first with the target minus one, an umpire's seven-ball over counts as one). With 12
+fixtures abandoned before a ball (missing from Cricsheet) and one voided match added, **all 19
+seasons match the official tables exactly**, and the build fails if they ever stop matching.
+
+Franchise pages split results by batting order, toss, home ground and stage, measure batting and
+bowling in each phase against par, and find each side's greatest comebacks and costliest defeats
+from the win probability of every ball. Head-to-head records are set against what each side's
+form going into the match predicted, and the [Lab note](https://criciq-eight.vercel.app/lab/rivalries)
+shows why: across every IPL rivalry, past head-to-head records add nothing to form, close-finish
+records do not carry over, and even form is a weak guide (the side in better form wins 53% of the
+time; a season's win rate predicts the next season's with r = 0.06).
+
 ## Matchup Lab: small samples, honestly
 
 The longest IPL rivalry is about 160 balls; the median batter-bowler pair has met for 5. A ball-outcome
@@ -210,6 +228,8 @@ noise around what the players' overall records already say.
 | ![Jasprit Bumrah's ratings with 90% intervals, next to his phases and the most similar bowlers](docs/images/ratings.png) | ![Virat Kohli and Rohit Sharma side by side against par, with their ratings](docs/images/compare.png) |
 | **Pressure in the replay** | **Analytics Lab** |
 | ![The 2019 final with two needed off the last ball: very high pressure and the pressure chart](docs/images/pressure.png) | ![Expected against realised next-ball swings by tenth of leverage](docs/images/lab.png) |
+| **Teams** | **Head to head** |
+| ![The 2019 league table rebuilt from the balls, identical to the official one](docs/images/teams.png) | ![Mumbai Indians against Kolkata Knight Riders, set against what form predicted](docs/images/h2h.png) |
 
 ## Architecture
 
@@ -307,7 +327,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **v0.1.0 MVP release:** polish, methodology page, Lighthouse and accessibility audit
 - [x] **V1-a** Compare page, CricIQ Ratings, similar players
 - [x] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
-- [ ] **V1-c** Team analytics and head-to-head
+- [x] **V1-c** Team analytics and head-to-head
 - [ ] **V1-d** Match simulator and what-if sandbox
 
 ## Data & attribution

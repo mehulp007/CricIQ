@@ -241,6 +241,98 @@ clutch records carry 90% intervals about 20 runs per 100 balls wide.
 
 Clutch is therefore reported as a research finding, not as a rating or a player label.
 
+## League tables and net run rate
+
+**Every season's league table, rebuilt from the scorecards.** Shown on the Teams pages. Code:
+`pipelines/src/criciq_pipelines/teams.py`; reference: `config/league_tables.yaml`.
+
+```
+points       = 2 · won + no result     (a tie settled by a super over is a win)
+order        : points, then wins, then net run rate
+NRR          = 6 · Σ runs scored / Σ balls faced − 6 · Σ runs conceded / Σ balls bowled
+```
+
+Net run rate follows the playing conditions, over league matches with a result:
+
+- a side bowled out is charged its full quota of overs, not the balls it lasted;
+- when a chase is revised or ended by rain (D/L), the side batting first is credited with the
+  target minus one from the overs the chasing side had;
+- an over an umpire miscounted (five or seven legal balls) counts as one over.
+
+Cricsheet has no record of league fixtures **abandoned without a ball bowled** (12 since 2008), but
+each side took a point; they are listed in the config, as is one **voided** match (PBKS v DC at
+Dharamsala, 8 May 2025, stopped for security reasons and replayed in full).
+
+**Why:** a team page needs the season's standing as the IPL recorded it, and rebuilding it from
+the balls (rather than copying it) makes every number on the page traceable to the same data.
+
+**Validation:** the export compares the computed table with the official one (ESPNcricinfo, as
+transcribed on Wikipedia) for every season the data fully covers, and fails on any difference.
+All 19 seasons match exactly: positions, wins, losses, no results, points and net run rate to
+three decimals. Wikipedia lists DC's 2025 net run rate as −0.011, but the scorecards give +0.011
+(every other entry matches them exactly), so +0.011 is recorded. The tie-break was found the
+same way: separating level teams by net run rate alone misorders 2015 and 2025; wins first, then
+net run rate, reproduces every season.
+
+**Limits:** the league stage only (playoffs have no table); finishes come from playoff results
+(champion, runner-up, or the playoff match a side went out in).
+
+## Home ground, close finishes and form
+
+Team records are split by situation. Three of the splits need a definition:
+
+- **Home ground.** A ground in India is a side's home in a season when the side played at least 2
+  league matches there and was in at least 75% of the league matches played there. Seasons
+  abroad or at shared neutral venues (2009, 2020–2022, the UAE leg of 2014) have no home sides,
+  and adopted grounds count (Ranchi for CSK in 2014). Every match is home/away or neutral for
+  both sides, never home for both. Home sides won 53.4% of 897 such matches (90%: 50.7–56.1%).
+- **Close finish.** Won by 5 runs or fewer, with 2 balls or fewer to spare, or in a super over:
+  17.8% of decided matches.
+- **Form.** A side's results in its previous 14 matches (about a season), counting only matches
+  before the one being described, shrunk toward an even record as if it had also played 80
+  matches at 50%:
+
+```
+form(side)  = (wins in last 14 + 40) / (decided in last 14 + 80)
+P(A beats B) = log5 = fA (1 − fB) / (fA (1 − fB) + fB (1 − fA))
+```
+
+**Why the shrinkage:** T20 results are noisy. On every IPL match since 2008, 80 is the strength
+that predicts results best (log loss 0.6920, against 0.6931 for a coin flip); with less shrinkage
+form predicts worse than a coin flip, and even at its best the side in better form wins 53.3% of
+the time (expected 52.3%). An earlier version measured form from the same season with the match
+left out; that biased the test (removing a win lowers the winner's form and raises the loser's,
+so favourites appeared to underperform by 20 points), and form now counts only earlier matches.
+
+## Head-to-head expectation
+
+On the head-to-head page, A's wins over B are set against what both sides' form going into each
+meeting predicts:
+
+```
+expected wins = Σ over decided meetings of log5(form A, form B)
+chance range  = expected ± 1.645 · √Σ p (1 − p)
+```
+
+A record outside the range is outside what chance gives nine times in ten; with dozens of
+rivalries a few land there by chance, so the page says so rather than calling it a hold.
+
+**Validation** (Analytics Lab: [Do rivalries and close finishes repeat?](https://criciq-eight.vercel.app/lab/rivalries)):
+
+- Sides that had won 60%+ of at least six earlier meetings won 53.4% of the next, against 51.0%
+  expected from form: +2.4 points (90%: −1.3 to +6.6). Each extra 10 points of past dominance
+  adds +1.2 points of win rate above form (90%: −2.6 to +5.5). Head-to-head history predicts
+  nothing beyond form.
+- The side in better form wins close finishes (52.7%, expected 52.5%) as often as other matches.
+  A side's record in close finishes carries over to the next season with r = 0.11 (49 pairs of
+  seasons with 3+ close finishes; shuffled seasons give ±0.25 nine times in ten), but so does
+  little else: a side's whole win rate carries over with r = 0.06 across 149 pairs of seasons.
+  The test rules out a large close-finish skill, not a small one.
+
+**Limits:** form is results only, not the players available; the shrinkage was chosen on these
+same matches (one number); a small rivalry or close-finish effect could hide inside the
+intervals.
+
 ## Similar players
 
 **Style profile.** For a window, each player's profile is a handful of per-ball rates against par

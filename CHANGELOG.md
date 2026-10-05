@@ -5,6 +5,23 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V1-c: team analytics and head-to-head**
+  - League tables for every season rebuilt from the scorecards (points, wins, net run rate under
+    the playing conditions' rules, abandoned fixtures, playoff finishes); the export fails unless
+    they match the official tables, and all 19 seasons do.
+  - Teams page (`/teams`): every franchise under every name, any season's table and playoffs,
+    champions, and what chasing, the home ground and the toss are worth, with 90% intervals.
+  - Franchise pages (`/teams/[id]`): season by season, results by situation (batting order, toss,
+    home or away, stage, close finishes), batting and bowling by phase against par, totals and
+    margins, leading players, record against each opponent and at each ground, and the greatest
+    comebacks and costliest defeats by win probability, each linked to the replay.
+  - Head to head (`/teams/h2h`): any two franchises by season, ground, batting order and stage,
+    their highest totals and leading players, every meeting, and the record set against what
+    each side's form predicted.
+  - Analytics Lab note "Do rivalries and close finishes repeat?": head-to-head history and
+    close-finish records predict nothing beyond form, and form itself barely predicts results.
+  - `GET /teams`, `/teams/standings/{season}`, `/teams/{id}`, `/teams/h2h`; tables
+    `team_matches`, `team_innings_phases`, `team_season_records`; `config/league_tables.yaml`.
 - **V1-b: pressure, momentum and the Analytics Lab**
   - Pressure on the next ball in every replay: leverage from what-if win probabilities for each
     possible outcome (smoothed over nearby scores), its 0-100 percentile and band, a pressure

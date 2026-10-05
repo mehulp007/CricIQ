@@ -25,6 +25,7 @@ from criciq_ml.features import GROUP_KEYS, LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
 from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
 from criciq_ml.ratings import RatingsModel
+from criciq_ml.simulator import SimulatorSettings
 
 
 def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFrame:
@@ -340,6 +341,19 @@ def publish_ball_model(
         return int(con.execute("SELECT count(*) FROM matchup_cells").fetchone()[0])  # type: ignore[index]
 
     return _publish(serving, write)
+
+
+def publish_simulator(serving: Path, settings: SimulatorSettings) -> None:
+    """Register the simulator's settings (the tuned conditions spread) for the API."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        manifest = settings.manifest
+        seasons = con.execute("SELECT min(year), max(year) FROM seasons").fetchone()
+        assert seasons is not None
+        _register_model(con, manifest["name"], settings.version, list(seasons), manifest)
+        return 1
+
+    _publish(serving, write)
 
 
 def publish_ratings(serving: Path, model: RatingsModel) -> int:

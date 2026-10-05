@@ -115,4 +115,5 @@ def fixture_scored_serving_db(
         target, scoring.score_matchups(ball_model, balls), ball_model, scoring.current_env(balls)
     )
     scoring.publish_ratings(target, registry.load_current_ratings())
+    scoring.publish_simulator(target, registry.load_current_simulator())
     return target

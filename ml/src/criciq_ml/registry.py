@@ -15,11 +15,13 @@ from criciq_ml.ball_outcome import BallOutcomeModel
 from criciq_ml.model import WinProbabilityModel
 from criciq_ml.projection import ScoreProjectionModel
 from criciq_ml.ratings import RatingsModel
+from criciq_ml.simulator import SimulatorSettings
 
 NAME = "win_probability"
 PROJECTION = "score_projection"
 BALL_OUTCOME = "ball_outcome"
 RATINGS = "ratings"
+SIMULATOR = "simulator"
 
 
 def root(name: str = NAME) -> Path:
@@ -63,6 +65,14 @@ def load_current_ratings() -> RatingsModel:
     return RatingsModel.load(version_dir(version, RATINGS))
 
 
+def load_current_simulator() -> SimulatorSettings:
+    version = current_version(SIMULATOR)
+    if version is None:
+        raise FileNotFoundError("no current simulator; run `criciq-ml train simulator`")
+    manifest = json.loads((version_dir(version, SIMULATOR) / "manifest.json").read_text("utf-8"))
+    return SimulatorSettings(manifest)
+
+
 def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
     data: dict[str, Any] = json.loads(
         (version_dir(version, name) / "evaluation.json").read_text(encoding="utf-8")
@@ -71,7 +81,11 @@ def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
 
 
 def save(
-    model: WinProbabilityModel | ScoreProjectionModel | BallOutcomeModel | RatingsModel,
+    model: WinProbabilityModel
+    | ScoreProjectionModel
+    | BallOutcomeModel
+    | RatingsModel
+    | SimulatorSettings,
     evaluation: dict[str, Any],
     name: str = NAME,
 ) -> Path:

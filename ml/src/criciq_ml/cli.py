@@ -6,6 +6,7 @@ Typical use::
     criciq-ml train score_projection
     criciq-ml train ball_outcome
     criciq-ml train ratings    # rating shrinkage and stability (reads the scored serving database)
+    criciq-ml train simulator  # backtest the match simulator on the test seasons
     criciq-ml score     # score every ball with the current models into the serving database
     criciq-ml report    # model cards + the Model Insights data bundled with the web app
 
@@ -25,8 +26,8 @@ import pandas as pd
 import typer
 
 from criciq_core import paths
-from criciq_ml import ball_outcome_training, ratings, registry, report, scoring
-from criciq_ml.ball_outcome import load_balls
+from criciq_ml import ball_outcome_training, ratings, registry, report, scoring, simulator
+from criciq_ml.ball_outcome import BallOutcomeModel, load_balls
 from criciq_ml.config import load_config
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
@@ -74,6 +75,7 @@ class ModelName(StrEnum):
     score_projection = "score_projection"
     ball_outcome = "ball_outcome"
     ratings = "ratings"
+    simulator = "simulator"
 
 
 def _train_win_probability(force: bool, promote: bool) -> None:
@@ -170,6 +172,37 @@ def _train_ratings(force: bool, promote: bool) -> None:
     _finish(ratings.gate(evaluation), promote, cfg.version, registry.RATINGS)
 
 
+def _train_simulator(force: bool, promote: bool) -> None:
+    cfg = simulator.load_simulator_config()
+    target = registry.version_dir(cfg.version, registry.SIMULATOR)
+    if target.exists() and not force:
+        typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
+        raise typer.Exit(code=1)
+    warehouse = paths.warehouse_path()
+    balls = _timed("loading balls", lambda: load_balls(warehouse))
+    data_version = load_inputs(warehouse).data_version
+    served = registry.load_current_ball_outcome().manifest
+    ball_cfg = ball_outcome_training.load_ball_outcome_config()
+
+    def fit(train: pd.DataFrame) -> BallOutcomeModel:
+        return BallOutcomeModel.fit(
+            train,
+            player_scale=float(served["player_scale"]),
+            c=float(served["c"]),
+            max_iter=ball_cfg.model.max_iter,
+        )
+
+    settings, evaluation = _timed(
+        "backtesting",
+        lambda: simulator.run(
+            _serving_path(), balls, fit, cfg, data_version=data_version, log=typer.echo
+        ),
+    )
+    registry.save(settings, evaluation, registry.SIMULATOR)
+    typer.echo(f"  wrote {target}")
+    _finish(simulator.gate(evaluation), promote, cfg.version, registry.SIMULATOR)
+
+
 def _finish(problems: list[str], promote: bool, version: str, name: str) -> None:
     for problem in problems:
         typer.echo(f"  [gate] {problem}")
@@ -193,6 +226,8 @@ def train(
         _train_score_projection(force, promote)
     elif model is ModelName.ball_outcome:
         _train_ball_outcome(force, promote)
+    elif model is ModelName.simulator:
+        _train_simulator(force, promote)
     else:
         _train_ratings(force, promote)
 
@@ -240,6 +275,10 @@ def score(
     rating_constants = registry.load_current_ratings()
     _timed("publishing ratings", lambda: scoring.publish_ratings(target, rating_constants))
     typer.echo(f"  rating constants {rating_constants.version} -> {target}")
+
+    settings = registry.load_current_simulator()
+    _timed("publishing simulator settings", lambda: scoring.publish_simulator(target, settings))
+    typer.echo(f"  simulator settings {settings.version} -> {target}")
 
 
 @app.command("report")

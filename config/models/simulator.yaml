@@ -1,0 +1,19 @@
+# Match simulator: backtest configuration.
+#
+# The simulator has no fitted parameters of its own: it plays matches with the
+# ball-outcome model, plus one setting: the spread of the match conditions it
+# cannot see, tuned on the validation seasons. The backtest refits the ball
+# model on the seasons before each period and simulates every match before a
+# ball is bowled.
+
+name: simulator
+version: 1.0.0
+
+valid: [2023, 2024]      # the conditions spread is tuned here ...
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+tuning_simulations: 1000
+test: [2025, 2026]       # ... and every match with a result here is simulated once
+simulations: 2000        # per test match
+history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
+timing_simulations: 10000
+seed: 2026

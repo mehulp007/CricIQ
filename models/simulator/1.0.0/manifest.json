@@ -1,0 +1,10 @@
+{
+  "conditions_sd": 0.3,
+  "data_version": "2026-05-31.713dafe9",
+  "history_seasons": 3,
+  "min_bowling_overs": 4.0,
+  "name": "simulator",
+  "urgent_from_over": 12,
+  "usage_strength": 8.0,
+  "version": "1.0.0"
+}

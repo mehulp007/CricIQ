@@ -42,6 +42,7 @@ def test_every_state_is_scored_and_published(
         "score_projection": registry.current_version(registry.PROJECTION),
         "ball_outcome": registry.current_version(registry.BALL_OUTCOME),
         "ratings": registry.current_version(registry.RATINGS),
+        "simulator": registry.current_version(registry.SIMULATOR),
     }
     assert info is not None
     assert '"factor_keys": ["situation", "wickets", "recent"]' in info[0]

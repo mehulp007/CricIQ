@@ -13,6 +13,8 @@ from pathlib import Path
 import duckdb
 
 from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
+from criciq_pipelines.reference import load_league_tables
+from criciq_pipelines.teams import TEAM_TABLES, build_team_tables, check_league_tables
 
 # Warehouse tables copied as-is.
 COPIED_TABLES = (
@@ -125,8 +127,16 @@ ORDER BY m.match_order
 """
 
 
+class LeagueTableMismatchError(RuntimeError):
+    pass
+
+
 def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
-    """Write the serving database to ``target`` atomically; return row counts."""
+    """Write the serving database to ``target`` atomically; return row counts.
+
+    Fails if a computed league table differs from the official one for any season
+    the data fully covers.
+    """
     target.parent.mkdir(parents=True, exist_ok=True)
     staging = target.with_name(target.name + ".building")
     staging.unlink(missing_ok=True)
@@ -147,12 +157,29 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
         con.execute(MATCH_SUMMARIES_SQL)
         con.execute("DETACH wh")
         build_player_tables(con)
+        league_tables = load_league_tables()
+        build_team_tables(con, league_tables)
+        failed = [c for c in check_league_tables(con, league_tables) if not c.passed]
+        if failed:
+            details = "; ".join(f"{c.season}: {', '.join(c.problems)}" for c in failed)
+            raise LeagueTableMismatchError(
+                f"league tables differ from the official ones: {details}"
+            )
         counts = {
             table: int(con.execute(f"SELECT count(*) FROM {table}").fetchone()[0])  # type: ignore[index]
-            for table in (*COPIED_TABLES, "players", "match_summaries", *PLAYER_TABLES)
+            for table in (
+                *COPIED_TABLES,
+                "players",
+                "match_summaries",
+                *PLAYER_TABLES,
+                *TEAM_TABLES,
+            )
         }
         con.execute("CHECKPOINT")
-    finally:
+    except BaseException:
         con.close()
+        staging.unlink(missing_ok=True)
+        raise
+    con.close()
     os.replace(staging, target)
     return counts

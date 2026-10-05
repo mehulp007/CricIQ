@@ -188,3 +188,45 @@ class GoldenMatchesConfig(BaseModel):
 
 def load_golden_matches(directory: Path | None = None) -> GoldenMatchesConfig:
     return GoldenMatchesConfig.model_validate(_load_yaml("golden_matches.yaml", directory))
+
+
+# --------------------------------------------------------------------------- league tables
+
+
+class AbandonedFixture(BaseModel):
+    season: int
+    teams: tuple[str, str]
+
+
+class VoidedMatch(BaseModel):
+    match_id: int
+    note: str
+
+
+class TableRow(BaseModel):
+    """One official league-table row: [franchise, won, lost, no result, points, NRR]."""
+
+    franchise_id: str
+    won: int
+    lost: int
+    no_result: int
+    points: int
+    nrr: float
+
+    @model_validator(mode="before")
+    @classmethod
+    def _from_list(cls, value: Any) -> Any:
+        if isinstance(value, list):
+            keys = ("franchise_id", "won", "lost", "no_result", "points", "nrr")
+            return dict(zip(keys, value, strict=True))
+        return value
+
+
+class LeagueTablesConfig(BaseModel):
+    abandoned: list[AbandonedFixture] = []
+    voided: list[VoidedMatch] = []
+    seasons: dict[int, list[TableRow]] = Field(default_factory=dict)
+
+
+def load_league_tables(directory: Path | None = None) -> LeagueTablesConfig:
+    return LeagueTablesConfig.model_validate(_load_yaml("league_tables.yaml", directory))

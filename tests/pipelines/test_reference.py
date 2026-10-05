@@ -55,3 +55,23 @@ def test_competition_and_golden_config_load() -> None:
     assert ipl.rules.impact_player_from == 2023
     golden = load_golden_matches()
     assert {g.match_id for g in golden.matches} >= {335982, 1181768, 1370353}
+
+
+def test_official_league_tables_are_consistent() -> None:
+    from criciq_pipelines.reference import load_league_tables
+
+    tables = load_league_tables()
+    franchises = {f.id for f in load_franchises().franchises}
+    assert sorted(tables.seasons) == list(range(2008, max(tables.seasons) + 1))
+    for season, rows in tables.seasons.items():
+        teams = [r.franchise_id for r in rows]
+        assert len(set(teams)) == len(teams), season
+        assert set(teams) <= franchises, season
+        for r in rows:
+            assert r.points == 2 * r.won + r.no_result, (season, r.franchise_id)
+        # Every match has a winner and a loser.
+        assert sum(r.won for r in rows) == sum(r.lost for r in rows), season
+        points = [r.points for r in rows]
+        assert points == sorted(points, reverse=True), season
+    for fixture in tables.abandoned:
+        assert set(fixture.teams) <= {r.franchise_id for r in tables.seasons[fixture.season]}

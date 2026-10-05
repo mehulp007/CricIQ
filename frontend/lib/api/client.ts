@@ -10,7 +10,12 @@ import type {
   PlayerProfile,
   PlayerSplits,
   SimilarPlayers,
+  SimulationRequest,
+  SimulationResult,
+  SimXI,
   Standings,
+  StateRequest,
+  StateResult,
   HeadToHead,
   TeamProfile,
   TeamsOverview,
@@ -209,4 +214,49 @@ export function getHeadToHead(
   if (window.from) params.set("from", String(window.from));
   if (window.to) params.set("to", String(window.to));
   return apiGet<HeadToHead>(`/api/v1/teams/h2h?${params}`);
+}
+
+/** POST without caching: simulations depend on the request body. */
+async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (cause) {
+    throw new ApiError(`CricIQ API unreachable (${String(cause)})`, null);
+  }
+  if (!response.ok) {
+    let detail = "";
+    try {
+      detail = ((await response.json()) as { detail?: string }).detail ?? "";
+    } catch {
+      // not JSON
+    }
+    throw new ApiError(
+      detail || `CricIQ API returned ${response.status} for ${path}`,
+      response.status,
+    );
+  }
+  return (await response.json()) as T;
+}
+
+export function getLatestXI(franchiseId: string): Promise<SimXI> {
+  return apiGet<SimXI>(`/api/v1/simulate/xi/${encodeURIComponent(franchiseId)}`);
+}
+
+export function orderXI(playerIds: string[]): Promise<SimXI> {
+  return apiPost<SimXI>("/api/v1/simulate/xi", { player_ids: playerIds });
+}
+
+export function simulateMatch(request: SimulationRequest): Promise<SimulationResult> {
+  return apiPost<SimulationResult>("/api/v1/simulate/match", request);
+}
+
+export function simulateState(request: StateRequest): Promise<StateResult> {
+  return apiPost<StateResult>("/api/v1/simulate/state", request);
 }

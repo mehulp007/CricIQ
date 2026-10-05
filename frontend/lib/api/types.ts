@@ -82,3 +82,14 @@ export type HeadToHead = Schemas["TeamHeadToHead"];
 export type H2HRecord = Schemas["H2HRecord"];
 export type H2HExpectation = Schemas["H2HExpectation"];
 export type H2HPlayer = Schemas["H2HPlayer"];
+
+export type SimXI = Schemas["SimXI"];
+export type SimPlayer = Schemas["SimPlayer"];
+export type SimulationRequest = Schemas["SimulationRequest"];
+export type SimulationResult = Schemas["SimulationResult"];
+export type SimSideResult = Schemas["SideResult"];
+export type SimBatter = Schemas["SimBatter"];
+export type SimBowler = Schemas["SimBowler"];
+export type SimDistribution = Schemas["Distribution"];
+export type StateRequest = Schemas["StateRequest"];
+export type StateResult = Schemas["StateResult"];

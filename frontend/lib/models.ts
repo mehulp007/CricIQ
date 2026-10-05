@@ -6,6 +6,7 @@
 import ballOutcomeData from "@/data/models/ball-outcome.json";
 import projectionData from "@/data/models/score-projection.json";
 import ratingsData from "@/data/models/ratings.json";
+import simulatorData from "@/data/models/simulator.json";
 import data from "@/data/models/win-probability.json";
 
 export interface Metrics {
@@ -308,3 +309,68 @@ export interface RatingsInsights {
 }
 
 export const RATINGS = ratingsData as unknown as RatingsInsights;
+
+export interface Scores {
+  brier: number;
+  log_loss: number;
+}
+
+export interface Gain {
+  value: number;
+  low: number;
+  high: number;
+}
+
+export interface CalibrationRow {
+  matches: number;
+  predicted: number;
+  observed: number;
+}
+
+export interface SimulatorInsights {
+  version: string;
+  data_version: string;
+  valid: number[];
+  test: number[];
+  settings: { conditions_sd: number; history_seasons: number; usage_strength: number };
+  tuning: { conditions_sd: number; crps: number; coverage_80: number; brier: number }[];
+  matches: number;
+  simulations_per_match: number;
+  forced_overs: number;
+  win: {
+    simulator: Scores;
+    coin_flip: Scores;
+    bat_first_rate: Scores & { rate: number };
+    form: Scores;
+    gain_vs_coin_flip: Gain;
+    calibration: CalibrationRow[];
+    mean_predicted: number;
+    observed: number;
+  };
+  chase: {
+    matches: number;
+    simulator: Scores;
+    chase_rate: Scores & { rate: number };
+    gain_vs_chase_rate: Gain;
+    calibration: CalibrationRow[];
+    mean_predicted: number;
+    observed: number;
+  };
+  first_innings: {
+    matches: number;
+    pit_counts: number[];
+    pit_chi2: number;
+    pit_chi2_critical: number;
+    crps: number;
+    coverage_80: number;
+    coverage_50: number;
+    actual_mean: number;
+    simulated_mean: number;
+    actual_wickets: number;
+    simulated_wickets: number;
+  };
+  ties: { simulated: number };
+  timing: { simulations: number; seconds: number };
+}
+
+export const SIMULATOR = simulatorData as unknown as SimulatorInsights;

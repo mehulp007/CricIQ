@@ -79,7 +79,8 @@ export const ROADMAP: readonly Milestone[] = [
   {
     id: "V1-d",
     title: "Match simulator",
-    summary: "Monte Carlo simulation of any fixture, plus a what-if sandbox in the replay.",
-    status: "planned",
+    summary:
+      "Monte Carlo simulation of any two XIs, plus a what-if sandbox in the replay, backtested.",
+    status: "done",
   },
 ];

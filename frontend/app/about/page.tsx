@@ -246,6 +246,22 @@ export default function AboutPage() {
         </p>
       </Section>
 
+      <Section id="simulator" title="Match simulator and what-if">
+        <p>
+          The simulator plays a match ball by ball with the ball-outcome model, 10,000 times at
+          once: extras and run outs at league rates, each over&apos;s bowler chosen the way captains
+          used that bowler, and each match&apos;s pitch and conditions drawn at random and shared by
+          both innings. Backtested before a ball was bowled on every 2025 and 2026 match, its
+          first-innings totals are calibrated; its pick of the winner is no better than a coin flip,
+          and simulated chases run a little pessimistic.
+        </p>
+        <p>
+          So the replay&apos;s what-if starts from the win probability model at the real score and
+          adds only how much the simulations change when you edit it. Details are in{" "}
+          <A href="/models?tab=simulator">Model Insights</A>.
+        </p>
+      </Section>
+
       <Section id="matchups" title="Matchup Lab: three readings of a record">
         <p>
           Even the longest IPL rivalry is only about 160 balls, and the median pair has met for 5.
@@ -297,8 +313,9 @@ export default function AboutPage() {
             sudden jump, as in the Impact Player seasons.
           </li>
           <li>
-            Pre-match predictions and match simulation are not offered yet: before a ball is bowled,
-            a T20 match is close to a coin flip.
+            Before a ball is bowled, a T20 match is close to a coin flip: the simulator&apos;s
+            pre-match win shares scored no better than one in the backtest, so they are shown as a
+            model simulation, not a forecast.
           </li>
         </ul>
       </Section>

@@ -11,6 +11,7 @@ const PAGES = [
   "/compare",
   "/teams",
   "/teams/h2h",
+  "/simulator",
   "/lab",
   "/lab/momentum",
   "/lab/pressure",

@@ -27,7 +27,7 @@ describe("navigation", () => {
     expect(isAvailable(compare)).toBe(true);
     expect(isAvailable(lab)).toBe(true);
     expect(isAvailable(teams)).toBe(true);
-    expect(isAvailable(simulator)).toBe(false);
+    expect(isAvailable(simulator)).toBe(true);
   });
 
   it("matches the root route exactly", () => {

@@ -20,13 +20,19 @@ describe("NavList", () => {
     expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("does not link to pages that have not shipped", () => {
+  it("links every shipped page", () => {
     renderNav();
-    expect(screen.getByRole("link", { name: "Matches" })).toHaveAttribute("href", "/matches");
-    expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute("href", "/players");
-    expect(screen.getByRole("link", { name: "Matchups" })).toHaveAttribute("href", "/matchups");
-    expect(screen.getByRole("link", { name: "Compare" })).toHaveAttribute("href", "/compare");
-    expect(screen.queryByRole("link", { name: /Simulator/ })).not.toBeInTheDocument();
-    expect(screen.getByText("Simulator").closest("[aria-disabled]")).toBeInTheDocument();
+    for (const [name, href] of [
+      ["Matches", "/matches"],
+      ["Players", "/players"],
+      ["Matchups", "/matchups"],
+      ["Compare", "/compare"],
+      ["Teams", "/teams"],
+      ["Simulator", "/simulator"],
+      ["Analytics Lab", "/lab"],
+    ]) {
+      expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);
+    }
+    expect(document.querySelector("[aria-disabled]")).toBeNull();
   });
 });

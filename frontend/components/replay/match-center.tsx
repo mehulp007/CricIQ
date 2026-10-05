@@ -7,6 +7,7 @@ import { BallFeed } from "@/components/replay/ball-feed";
 import { CreasePanel } from "@/components/replay/crease-panel";
 import { ExplainPanel } from "@/components/replay/explain-panel";
 import { PressurePanel } from "@/components/replay/pressure-panel";
+import { WhatIfPanel } from "@/components/replay/what-if-panel";
 import { ProjectionPanel } from "@/components/replay/projection-panel";
 import { LiveScorecard } from "@/components/replay/live-scorecard";
 import { ReplayCharts } from "@/components/replay/replay-charts";
@@ -144,6 +145,7 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
             </div>
             <div className="flex flex-col gap-4 lg:col-span-5">
               <PressurePanel timeline={timeline} cursor={cursor} />
+              <WhatIfPanel timeline={timeline} cursor={cursor} />
               <ExplainPanel timeline={timeline} cursor={cursor} />
               <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
             </div>

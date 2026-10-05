@@ -22,6 +22,8 @@ const PAGES = [
   "/teams/MI",
   "/teams/h2h",
   "/teams/h2h?a=MI&b=CSK",
+  "/simulator",
+  "/models?tab=simulator",
   "/models",
   "/about",
 ];

@@ -99,6 +99,26 @@ await page.screenshot({ path: path.join(images, "pressure.png") });
 await page.getByRole("tab", { name: "Scorecard" }).click();
 await page.screenshot({ path: path.join(images, "scorecard.png") });
 
+// What if Chennai had ten more runs with nine balls left?
+await page.goto(`${baseUrl}/matches/1181768`, { waitUntil: "networkidle" });
+await page.locator("[data-replay-ready]").waitFor();
+await page.getByRole("button", { name: "Jump to end" }).click();
+for (let i = 0; i < 9; i++) await page.getByRole("button", { name: "Previous ball" }).click();
+const whatIf = page.getByRole("region", { name: "What if?" });
+await whatIf.getByRole("button", { name: "Add 10 runs" }).click();
+await whatIf.getByRole("button", { name: "Simulate the what-if" }).click();
+await whatIf.getByText(/win chance/).waitFor({ timeout: 60_000 });
+await scrollTo(whatIf, 120);
+await page.screenshot({ path: path.join(images, "whatif.png") });
+
+await page.goto(`${baseUrl}/simulator`, { waitUntil: "networkidle" });
+await page.getByRole("button", { name: /Simulate 10,000 matches/ }).click();
+await page.getByRole("heading", { name: "Who wins" }).waitFor({ timeout: 60_000 });
+await page.waitForTimeout(500);
+await scrollTo(page.getByRole("heading", { name: "Who wins" }));
+await page.mouse.move(5, 5);
+await page.screenshot({ path: path.join(images, "simulator.png") });
+
 await page.goto(`${baseUrl}/lab/pressure`, { waitUntil: "networkidle" });
 await scrollTo(page.getByRole("heading", { name: "Does leverage work?" }));
 await page.screenshot({ path: path.join(images, "lab.png") });

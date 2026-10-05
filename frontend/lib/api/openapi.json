@@ -1089,6 +1089,63 @@
         "title": "Dismissals",
         "type": "object"
       },
+      "Distribution": {
+        "properties": {
+          "bins": {
+            "description": "Share of simulations in each 10-run bin, keyed by the bin's lower edge.",
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Bins",
+            "type": "array"
+          },
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "p10": {
+            "title": "P10",
+            "type": "integer"
+          },
+          "p25": {
+            "title": "P25",
+            "type": "integer"
+          },
+          "p50": {
+            "title": "P50",
+            "type": "integer"
+          },
+          "p75": {
+            "title": "P75",
+            "type": "integer"
+          },
+          "p90": {
+            "title": "P90",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "mean",
+          "p10",
+          "p25",
+          "p50",
+          "p75",
+          "p90",
+          "bins"
+        ],
+        "title": "Distribution",
+        "type": "object"
+      },
       "Extras": {
         "properties": {
           "byes": {
@@ -4439,6 +4496,377 @@
         "title": "SeasonWindow",
         "type": "object"
       },
+      "SideRequest": {
+        "properties": {
+          "batters": {
+            "description": "The XI in batting order.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 11,
+            "minItems": 11,
+            "title": "Batters",
+            "type": "array"
+          },
+          "bowlers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 11,
+                "minItems": 5,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bowling options from the XI (default: its regular bowlers).",
+            "title": "Bowlers"
+          },
+          "franchise_id": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Franchise Id"
+          }
+        },
+        "required": [
+          "batters"
+        ],
+        "title": "SideRequest",
+        "type": "object"
+      },
+      "SideResult": {
+        "properties": {
+          "batters": {
+            "items": {
+              "$ref": "#/components/schemas/SimBatter"
+            },
+            "title": "Batters",
+            "type": "array"
+          },
+          "batting_first_pct": {
+            "title": "Batting First Pct",
+            "type": "number"
+          },
+          "bowlers": {
+            "items": {
+              "$ref": "#/components/schemas/SimBowler"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "chase_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Share of chases won when batting second.",
+            "title": "Chase Pct"
+          },
+          "first_innings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Distribution"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total when batting first."
+          },
+          "key": {
+            "enum": [
+              "a",
+              "b"
+            ],
+            "title": "Key",
+            "type": "string"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "win_pct": {
+            "title": "Win Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "team",
+          "win_pct",
+          "batting_first_pct",
+          "first_innings",
+          "chase_pct",
+          "batters",
+          "bowlers"
+        ],
+        "title": "SideResult",
+        "type": "object"
+      },
+      "SimBatter": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "number"
+          },
+          "batted_pct": {
+            "description": "Share of simulated innings in which they batted.",
+            "title": "Batted Pct",
+            "type": "number"
+          },
+          "fifty_pct": {
+            "title": "Fifty Pct",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "out_pct": {
+            "title": "Out Pct",
+            "type": "number"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "description": "Average runs per simulated innings.",
+            "title": "Runs",
+            "type": "number"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "batted_pct",
+          "runs",
+          "balls",
+          "strike_rate",
+          "fifty_pct",
+          "out_pct"
+        ],
+        "title": "SimBatter",
+        "type": "object"
+      },
+      "SimBowler": {
+        "properties": {
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "number"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "description": "Runs off the bat conceded per simulated innings.",
+            "title": "Runs",
+            "type": "number"
+          },
+          "three_wicket_pct": {
+            "title": "Three Wicket Pct",
+            "type": "number"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "number"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "overs",
+          "runs",
+          "wickets",
+          "economy",
+          "three_wicket_pct"
+        ],
+        "title": "SimBowler",
+        "type": "object"
+      },
+      "SimPlayer": {
+        "properties": {
+          "batting_hand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batting Hand"
+          },
+          "bowling_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Type"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Usual batting position in recent seasons.",
+            "title": "Position"
+          },
+          "recent_overs": {
+            "description": "Overs bowled in the player's last three seasons.",
+            "title": "Recent Overs",
+            "type": "number"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "role",
+          "batting_hand",
+          "bowling_type",
+          "position",
+          "recent_overs"
+        ],
+        "title": "SimPlayer",
+        "type": "object"
+      },
+      "SimXI": {
+        "properties": {
+          "bowlers": {
+            "description": "Default bowling options.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "from_match": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The match this XI is taken from, if any.",
+            "title": "From Match"
+          },
+          "match_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Date"
+          },
+          "players": {
+            "description": "In batting order.",
+            "items": {
+              "$ref": "#/components/schemas/SimPlayer"
+            },
+            "title": "Players",
+            "type": "array"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "team",
+          "from_match",
+          "match_date",
+          "players",
+          "bowlers"
+        ],
+        "title": "SimXI",
+        "type": "object"
+      },
       "SimilarPlayer": {
         "properties": {
           "balls": {
@@ -4532,6 +4960,154 @@
           "bowling"
         ],
         "title": "SimilarPlayers",
+        "type": "object"
+      },
+      "SimulationRequest": {
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/SideRequest"
+          },
+          "b": {
+            "$ref": "#/components/schemas/SideRequest"
+          },
+          "bat_first": {
+            "anyOf": [
+              {
+                "enum": [
+                  "a",
+                  "b"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who bats first; empty means the toss decides (half each).",
+            "title": "Bat First"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 2147483648.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "simulations": {
+            "default": 10000,
+            "maximum": 10000.0,
+            "minimum": 500.0,
+            "title": "Simulations",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ],
+        "title": "SimulationRequest",
+        "type": "object"
+      },
+      "SimulationResult": {
+        "properties": {
+          "a_win_pct": {
+            "title": "A Win Pct",
+            "type": "number"
+          },
+          "b_win_pct": {
+            "title": "B Win Pct",
+            "type": "number"
+          },
+          "ball_model_version": {
+            "title": "Ball Model Version",
+            "type": "string"
+          },
+          "bat_first": {
+            "anyOf": [
+              {
+                "enum": [
+                  "a",
+                  "b"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bat First"
+          },
+          "conditions_sd": {
+            "title": "Conditions Sd",
+            "type": "number"
+          },
+          "label": {
+            "const": "Model simulation",
+            "default": "Model simulation",
+            "title": "Label",
+            "type": "string"
+          },
+          "margin_runs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Distribution"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Winning margin when the side batting first wins."
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "number"
+          },
+          "sides": {
+            "items": {
+              "$ref": "#/components/schemas/SideResult"
+            },
+            "title": "Sides",
+            "type": "array"
+          },
+          "simulations": {
+            "title": "Simulations",
+            "type": "integer"
+          },
+          "simulator_version": {
+            "title": "Simulator Version",
+            "type": "string"
+          },
+          "standard_error": {
+            "description": "Monte Carlo standard error of the win shares (points).",
+            "title": "Standard Error",
+            "type": "number"
+          },
+          "tie_pct": {
+            "title": "Tie Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "simulations",
+          "bat_first",
+          "a_win_pct",
+          "b_win_pct",
+          "tie_pct",
+          "standard_error",
+          "sides",
+          "margin_runs",
+          "seconds",
+          "ball_model_version",
+          "simulator_version",
+          "conditions_sd"
+        ],
+        "title": "SimulationResult",
         "type": "object"
       },
       "StandingRow": {
@@ -4652,6 +5228,192 @@
           "abandoned"
         ],
         "title": "Standings",
+        "type": "object"
+      },
+      "StateOutcome": {
+        "properties": {
+          "score": {
+            "$ref": "#/components/schemas/StateScore"
+          },
+          "simulated_win_pct": {
+            "description": "Batting side's simulated chance of winning.",
+            "title": "Simulated Win Pct",
+            "type": "number"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Distribution",
+            "description": "Simulated final total of the current innings."
+          }
+        },
+        "required": [
+          "score",
+          "simulated_win_pct",
+          "total"
+        ],
+        "title": "StateOutcome",
+        "type": "object"
+      },
+      "StateRequest": {
+        "properties": {
+          "innings_no": {
+            "enum": [
+              1,
+              2
+            ],
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "runs": {
+            "anyOf": [
+              {
+                "maximum": 400.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Edited team total.",
+            "title": "Runs"
+          },
+          "seq_no": {
+            "description": "Replay position; 0 is before the first ball.",
+            "minimum": 0.0,
+            "title": "Seq No",
+            "type": "integer"
+          },
+          "simulations": {
+            "default": 4000,
+            "maximum": 10000.0,
+            "minimum": 500.0,
+            "title": "Simulations",
+            "type": "integer"
+          },
+          "wickets": {
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Edited wickets down.",
+            "title": "Wickets"
+          }
+        },
+        "required": [
+          "match_id",
+          "innings_no",
+          "seq_no"
+        ],
+        "title": "StateRequest",
+        "type": "object"
+      },
+      "StateResult": {
+        "properties": {
+          "actual": {
+            "$ref": "#/components/schemas/StateOutcome"
+          },
+          "batting": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "bowling": {
+            "$ref": "#/components/schemas/TeamTag"
+          },
+          "edited": {
+            "$ref": "#/components/schemas/StateOutcome"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "label": {
+            "const": "Model simulation",
+            "default": "Model simulation",
+            "title": "Label",
+            "type": "string"
+          },
+          "model_win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Batting side's chance from the win probability model at the real state.",
+            "title": "Model Win Pct"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "number"
+          },
+          "simulations": {
+            "title": "Simulations",
+            "type": "integer"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "whatif_win_pct": {
+            "description": "The model's chance moved by the simulated change on the log-odds scale; the simulated chance when the model has no value.",
+            "title": "Whatif Win Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "batting",
+          "bowling",
+          "innings_no",
+          "target",
+          "model_win_pct",
+          "actual",
+          "edited",
+          "whatif_win_pct",
+          "simulations",
+          "seconds"
+        ],
+        "title": "StateResult",
+        "type": "object"
+      },
+      "StateScore": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "runs",
+          "wickets",
+          "balls"
+        ],
+        "title": "StateScore",
         "type": "object"
       },
       "StyleGroup": {
@@ -6261,6 +7023,24 @@
         ],
         "title": "WinProbabilityModel",
         "type": "object"
+      },
+      "XIRequest": {
+        "properties": {
+          "player_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 11,
+            "minItems": 2,
+            "title": "Player Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "player_ids"
+        ],
+        "title": "XIRequest",
+        "type": "object"
       }
     }
   },
@@ -7235,6 +8015,175 @@
         "summary": "Predict Next Ball",
         "tags": [
           "matchups"
+        ]
+      }
+    },
+    "/api/v1/simulate/match": {
+      "post": {
+        "description": "Up to 10,000 Monte Carlo matches between two XIs (model simulation).",
+        "operationId": "simulate_match_api_v1_simulate_match_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Match",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v1/simulate/state": {
+      "post": {
+        "description": "What if a replay position were different: the rest of the match simulated from\nthe real and the edited score (model simulation).",
+        "operationId": "simulate_state_api_v1_simulate_state_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate State",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v1/simulate/xi": {
+      "post": {
+        "description": "Any players in their usual batting order, with default bowling options.",
+        "operationId": "order_xi_api_v1_simulate_xi_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/XIRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimXI"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Order Xi",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v1/simulate/xi/{franchise_id}": {
+      "get": {
+        "description": "A franchise's most recent playing XI, in batting order, with its bowling options.",
+        "operationId": "read_latest_xi_api_v1_simulate_xi__franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimXI"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Latest Xi",
+        "tags": [
+          "simulation"
         ]
       }
     },

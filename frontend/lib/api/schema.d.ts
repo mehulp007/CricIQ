@@ -228,6 +228,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/simulate/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate Match
+         * @description Up to 10,000 Monte Carlo matches between two XIs (model simulation).
+         */
+        post: operations["simulate_match_api_v1_simulate_match_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/simulate/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate State
+         * @description What if a replay position were different: the rest of the match simulated from
+         *     the real and the edited score (model simulation).
+         */
+        post: operations["simulate_state_api_v1_simulate_state_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/simulate/xi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Order Xi
+         * @description Any players in their usual batting order, with default bowling options.
+         */
+        post: operations["order_xi_api_v1_simulate_xi_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/simulate/xi/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Latest Xi
+         * @description A franchise's most recent playing XI, in batting order, with its bowling options.
+         */
+        get: operations["read_latest_xi_api_v1_simulate_xi__franchise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/teams": {
         parameters: {
             query?: never;
@@ -667,6 +748,29 @@ export interface components {
              * @description How the player took wickets.
              */
             bowling: components["schemas"]["DismissalCount"][];
+        };
+        /** Distribution */
+        Distribution: {
+            /**
+             * Bins
+             * @description Share of simulations in each 10-run bin, keyed by the bin's lower edge.
+             */
+            bins: [
+                number,
+                number
+            ][];
+            /** Mean */
+            mean: number;
+            /** P10 */
+            p10: number;
+            /** P25 */
+            p25: number;
+            /** P50 */
+            p50: number;
+            /** P75 */
+            p75: number;
+            /** P90 */
+            p90: number;
         };
         /** Extras */
         Extras: {
@@ -1761,6 +1865,134 @@ export interface components {
              */
             last: number;
         };
+        /** SideRequest */
+        SideRequest: {
+            /**
+             * Batters
+             * @description The XI in batting order.
+             */
+            batters: string[];
+            /**
+             * Bowlers
+             * @description Bowling options from the XI (default: its regular bowlers).
+             */
+            bowlers?: string[] | null;
+            /** Franchise Id */
+            franchise_id?: string | null;
+        };
+        /** SideResult */
+        SideResult: {
+            /** Batters */
+            batters: components["schemas"]["SimBatter"][];
+            /** Batting First Pct */
+            batting_first_pct: number;
+            /** Bowlers */
+            bowlers: components["schemas"]["SimBowler"][];
+            /**
+             * Chase Pct
+             * @description Share of chases won when batting second.
+             */
+            chase_pct: number | null;
+            /** @description Total when batting first. */
+            first_innings: components["schemas"]["Distribution"] | null;
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "a" | "b";
+            team: components["schemas"]["TeamTag"] | null;
+            /** Win Pct */
+            win_pct: number;
+        };
+        /** SimBatter */
+        SimBatter: {
+            /** Balls */
+            balls: number;
+            /**
+             * Batted Pct
+             * @description Share of simulated innings in which they batted.
+             */
+            batted_pct: number;
+            /** Fifty Pct */
+            fifty_pct: number;
+            /** Name */
+            name: string;
+            /** Out Pct */
+            out_pct: number;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Runs
+             * @description Average runs per simulated innings.
+             */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+        };
+        /** SimBowler */
+        SimBowler: {
+            /** Economy */
+            economy: number | null;
+            /** Name */
+            name: string;
+            /** Overs */
+            overs: number;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Runs
+             * @description Runs off the bat conceded per simulated innings.
+             */
+            runs: number;
+            /** Three Wicket Pct */
+            three_wicket_pct: number;
+            /** Wickets */
+            wickets: number;
+        };
+        /** SimPlayer */
+        SimPlayer: {
+            /** Batting Hand */
+            batting_hand: string | null;
+            /** Bowling Type */
+            bowling_type: string | null;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Position
+             * @description Usual batting position in recent seasons.
+             */
+            position: number | null;
+            /**
+             * Recent Overs
+             * @description Overs bowled in the player's last three seasons.
+             */
+            recent_overs: number;
+            /** Role */
+            role: string | null;
+        };
+        /** SimXI */
+        SimXI: {
+            /**
+             * Bowlers
+             * @description Default bowling options.
+             */
+            bowlers: string[];
+            /**
+             * From Match
+             * @description The match this XI is taken from, if any.
+             */
+            from_match: number | null;
+            /** Match Date */
+            match_date: string | null;
+            /**
+             * Players
+             * @description In batting order.
+             */
+            players: components["schemas"]["SimPlayer"][];
+            team: components["schemas"]["TeamTag"] | null;
+        };
         /** SimilarPlayer */
         SimilarPlayer: {
             /**
@@ -1795,6 +2027,59 @@ export interface components {
             batting: components["schemas"]["StyleGroup"] | null;
             bowling: components["schemas"]["StyleGroup"] | null;
             window: components["schemas"]["SeasonWindow"];
+        };
+        /** SimulationRequest */
+        SimulationRequest: {
+            a: components["schemas"]["SideRequest"];
+            b: components["schemas"]["SideRequest"];
+            /**
+             * Bat First
+             * @description Who bats first; empty means the toss decides (half each).
+             */
+            bat_first?: ("a" | "b") | null;
+            /** Seed */
+            seed?: number | null;
+            /**
+             * Simulations
+             * @default 10000
+             */
+            simulations: number;
+        };
+        /** SimulationResult */
+        SimulationResult: {
+            /** A Win Pct */
+            a_win_pct: number;
+            /** B Win Pct */
+            b_win_pct: number;
+            /** Ball Model Version */
+            ball_model_version: string;
+            /** Bat First */
+            bat_first: ("a" | "b") | null;
+            /** Conditions Sd */
+            conditions_sd: number;
+            /**
+             * Label
+             * @default Model simulation
+             * @constant
+             */
+            label: "Model simulation";
+            /** @description Winning margin when the side batting first wins. */
+            margin_runs: components["schemas"]["Distribution"] | null;
+            /** Seconds */
+            seconds: number;
+            /** Sides */
+            sides: components["schemas"]["SideResult"][];
+            /** Simulations */
+            simulations: number;
+            /** Simulator Version */
+            simulator_version: string;
+            /**
+             * Standard Error
+             * @description Monte Carlo standard error of the win shares (points).
+             */
+            standard_error: number;
+            /** Tie Pct */
+            tie_pct: number;
         };
         /** StandingRow */
         StandingRow: {
@@ -1845,6 +2130,87 @@ export interface components {
             rows: components["schemas"]["StandingRow"][];
             /** Season */
             season: number;
+        };
+        /** StateOutcome */
+        StateOutcome: {
+            score: components["schemas"]["StateScore"];
+            /**
+             * Simulated Win Pct
+             * @description Batting side's simulated chance of winning.
+             */
+            simulated_win_pct: number;
+            /** @description Simulated final total of the current innings. */
+            total: components["schemas"]["Distribution"];
+        };
+        /** StateRequest */
+        StateRequest: {
+            /**
+             * Innings No
+             * @enum {integer}
+             */
+            innings_no: 1 | 2;
+            /** Match Id */
+            match_id: number;
+            /**
+             * Runs
+             * @description Edited team total.
+             */
+            runs?: number | null;
+            /**
+             * Seq No
+             * @description Replay position; 0 is before the first ball.
+             */
+            seq_no: number;
+            /**
+             * Simulations
+             * @default 4000
+             */
+            simulations: number;
+            /**
+             * Wickets
+             * @description Edited wickets down.
+             */
+            wickets?: number | null;
+        };
+        /** StateResult */
+        StateResult: {
+            actual: components["schemas"]["StateOutcome"];
+            batting: components["schemas"]["TeamTag"];
+            bowling: components["schemas"]["TeamTag"];
+            edited: components["schemas"]["StateOutcome"];
+            /** Innings No */
+            innings_no: number;
+            /**
+             * Label
+             * @default Model simulation
+             * @constant
+             */
+            label: "Model simulation";
+            /**
+             * Model Win Pct
+             * @description Batting side's chance from the win probability model at the real state.
+             */
+            model_win_pct: number | null;
+            /** Seconds */
+            seconds: number;
+            /** Simulations */
+            simulations: number;
+            /** Target */
+            target: number | null;
+            /**
+             * Whatif Win Pct
+             * @description The model's chance moved by the simulated change on the log-odds scale; the simulated chance when the model has no value.
+             */
+            whatif_win_pct: number;
+        };
+        /** StateScore */
+        StateScore: {
+            /** Balls */
+            balls: number;
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
         };
         /** StyleGroup */
         StyleGroup: {
@@ -2409,6 +2775,11 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** XIRequest */
+        XIRequest: {
+            /** Player Ids */
+            player_ids: string[];
+        };
     };
     responses: never;
     parameters: never;
@@ -2785,6 +3156,136 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NextBallResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_match_api_v1_simulate_match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_state_api_v1_simulate_state_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    order_xi_api_v1_simulate_xi_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["XIRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimXI"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_latest_xi_api_v1_simulate_xi__franchise_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                franchise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimXI"];
                 };
             };
             /** @description Validation Error */

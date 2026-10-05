@@ -3,20 +3,20 @@ import Link from "next/link";
 
 import { SimulationChip } from "@/components/simulator/sim-results";
 import { SimulatorApp } from "@/components/simulator/simulator-app";
-import { getLatestXI, getTeams } from "@/lib/api/client";
-import type { SimXI } from "@/lib/api/types";
-import { parseTeamId } from "@/lib/teams";
+import { getSimSeasons, getSquad } from "@/lib/api/client";
+import type { SimSquad } from "@/lib/api/types";
+import { defaultTeams, pickSeason } from "@/lib/simulator";
 
 export const metadata: Metadata = {
   title: "Match Simulator",
   description:
-    "Play any two IPL XIs against each other 10,000 times, ball by ball, with the CricIQ ball-outcome model: the spread of scores, each player's likely contribution and the effect of every change. A model simulation, backtested.",
+    "Pick any IPL season, two sides and their XIs from that season's squads, and play the match 10,000 times, ball by ball, with the CricIQ ball-outcome model: the spread of scores, each player's likely contribution and the effect of every change. A model simulation, backtested.",
 };
 
-async function latest(team: string | undefined): Promise<SimXI | null> {
+async function squadOrNull(season: number, team: string | null): Promise<SimSquad | null> {
   if (!team) return null;
   try {
-    return await getLatestXI(team);
+    return await getSquad(season, team);
   } catch {
     return null;
   }
@@ -24,18 +24,12 @@ async function latest(team: string | undefined): Promise<SimXI | null> {
 
 export default async function SimulatorPage({ searchParams }: PageProps<"/simulator">) {
   const raw = await searchParams;
-  const a = parseTeamId(raw.a) ?? "MI";
-  const b = parseTeamId(raw.b) ?? "CSK";
-  const [overview, xiA, xiB] = await Promise.all([
-    getTeams(),
-    latest(a),
-    latest(b === a ? undefined : b),
-  ]);
-  const teams = overview.franchises.map((f) => ({
-    id: f.franchise_id,
-    name: f.name,
-    active: f.is_active,
-  }));
+  const seasons = await getSimSeasons();
+  const season = pickSeason(seasons, raw.season);
+  const [a, b] = season ? defaultTeams(season, raw.a, raw.b) : [null, null];
+  const [squadA, squadB] = season
+    ? await Promise.all([squadOrNull(season.season, a), squadOrNull(season.season, b)])
+    : [null, null];
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,7 +39,8 @@ export default async function SimulatorPage({ searchParams }: PageProps<"/simula
           <SimulationChip />
         </div>
         <p className="max-w-3xl text-muted-foreground">
-          Pick two XIs and play the match 10,000 times, ball by ball. Every ball comes from the{" "}
+          Pick a season and two sides, choose each XI from that season&apos;s squad, and play the
+          match 10,000 times, ball by ball. Every ball comes from the{" "}
           <Link
             href="/models?tab=ball-outcome"
             className="text-primary underline-offset-4 hover:underline"
@@ -53,11 +48,15 @@ export default async function SimulatorPage({ searchParams }: PageProps<"/simula
             ball-outcome model
           </Link>
           , who bowls each over from how captains used each bowler, and each match draws its own
-          pitch and conditions. Sides start from each team&apos;s latest XI, in today&apos;s scoring
-          era; change anything.
+          pitch and conditions. Scoring is as it was in the season you pick.
         </p>
       </header>
-      <SimulatorApp teams={teams} initialA={xiA} initialB={xiB} />
+      <SimulatorApp
+        seasons={seasons}
+        initialSeason={season?.season ?? null}
+        initialA={squadA}
+        initialB={squadB}
+      />
     </div>
   );
 }

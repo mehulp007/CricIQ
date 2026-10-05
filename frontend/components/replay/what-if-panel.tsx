@@ -2,7 +2,7 @@
 
 import { Dices, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { StateResult, Timeline } from "@/lib/api/types";
 import {
@@ -14,6 +14,7 @@ import {
   whatIfPosition,
 } from "@/lib/simulator";
 import { cn } from "@/lib/utils";
+import { fetchAwake, wakeSimulator } from "@/lib/wake";
 
 interface Score {
   runs: number;
@@ -70,6 +71,8 @@ function Stepper({
 export function WhatIfPanel({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
   const position = whatIfPosition(timeline, cursor);
   const key = position ? `${position.inningsNo}:${position.seqNo}` : "none";
+  // The API sleeps when idle: start waking it while the replay plays.
+  useEffect(() => wakeSimulator(), []);
   return <WhatIf key={key} timeline={timeline} cursor={cursor} position={position} />;
 }
 
@@ -85,7 +88,7 @@ function WhatIf({
   const [runs, setRuns] = useState(0);
   const [wickets, setWickets] = useState(0);
   const [result, setResult] = useState<StateResult | null>(null);
-  const [status, setStatus] = useState<"idle" | "running" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "running" | "waking" | "error">("idle");
 
   if (!position) {
     return (
@@ -108,18 +111,22 @@ function WhatIf({
     if (!position) return;
     setStatus("running");
     try {
-      const response = await fetch("/api/simulate/state", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          match_id: timeline.summary.match_id,
-          innings_no: position.inningsNo,
-          seq_no: position.seqNo,
-          runs: edited.runs,
-          wickets: edited.wickets,
-          simulations: WHATIF_SIMULATIONS,
-        }),
-      });
+      const response = await fetchAwake(
+        "/api/simulate/state",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            match_id: timeline.summary.match_id,
+            innings_no: position.inningsNo,
+            seq_no: position.seqNo,
+            runs: edited.runs,
+            wickets: edited.wickets,
+            simulations: WHATIF_SIMULATIONS,
+          }),
+        },
+        () => setStatus("waking"),
+      );
       if (!response.ok) throw new Error(String(response.status));
       setResult((await response.json()) as StateResult);
       setStatus("idle");
@@ -174,11 +181,11 @@ function WhatIf({
         <button
           type="button"
           onClick={simulate}
-          disabled={status === "running"}
+          disabled={status === "running" || status === "waking"}
           className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
           <Dices className="size-3.5" aria-hidden="true" />
-          {status === "running"
+          {status === "running" || status === "waking"
             ? "Simulating…"
             : changed
               ? "Simulate the what-if"
@@ -200,9 +207,15 @@ function WhatIf({
         )}
       </div>
       <div aria-live="polite" className="flex flex-col gap-2">
+        {status === "waking" && (
+          <p className="text-xs text-muted-foreground">
+            Waking the simulator. The free server sleeps when nobody is using it, so the first
+            what-if can take up to a minute…
+          </p>
+        )}
         {status === "error" && (
           <p className="text-xs text-negative">
-            The simulator is waking up. Try again in a moment.
+            The simulator did not respond. Try again in a moment.
           </p>
         )}
         {result && base !== null && (

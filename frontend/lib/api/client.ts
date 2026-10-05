@@ -10,9 +10,10 @@ import type {
   PlayerProfile,
   PlayerSplits,
   SimilarPlayers,
+  SimSeason,
+  SimSquad,
   SimulationRequest,
   SimulationResult,
-  SimXI,
   Standings,
   StateRequest,
   StateResult,
@@ -245,12 +246,25 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function getLatestXI(franchiseId: string): Promise<SimXI> {
-  return apiGet<SimXI>(`/api/v1/simulate/xi/${encodeURIComponent(franchiseId)}`);
+export function getSimSeasons(): Promise<SimSeason[]> {
+  return apiGet<SimSeason[]>("/api/v1/simulate/seasons");
 }
 
-export function orderXI(playerIds: string[]): Promise<SimXI> {
-  return apiPost<SimXI>("/api/v1/simulate/xi", { player_ids: playerIds });
+export function getSquad(season: number, franchiseId: string): Promise<SimSquad> {
+  return apiGet<SimSquad>(`/api/v1/simulate/squad/${season}/${encodeURIComponent(franchiseId)}`);
+}
+
+/** Ping the API so a sleeping free-tier instance starts waking before it is needed. */
+export async function wakeApi(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_URL}/healthz`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 export function simulateMatch(request: SimulationRequest): Promise<SimulationResult> {

@@ -248,6 +248,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/simulate/seasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Seasons
+         * @description Every season, newest first, with the sides that played in it.
+         */
+        get: operations["read_seasons_api_v1_simulate_seasons_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/simulate/squad/{season}/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Squad
+         * @description Everyone who played for a side in a season, with its last XI that season.
+         */
+        get: operations["read_squad_api_v1_simulate_squad__season___franchise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/simulate/state": {
         parameters: {
             query?: never;
@@ -1906,14 +1946,20 @@ export interface components {
         };
         /** SimBatter */
         SimBatter: {
-            /** Balls */
-            balls: number;
+            /**
+             * Balls
+             * @description Typical (median) balls faced in those innings.
+             */
+            balls: number | null;
             /**
              * Batted Pct
              * @description Share of simulated innings in which they batted.
              */
             batted_pct: number;
-            /** Fifty Pct */
+            /**
+             * Fifty Pct
+             * @description Share of all simulated innings with 50 or more.
+             */
             fifty_pct: number;
             /** Name */
             name: string;
@@ -1923,31 +1969,57 @@ export interface components {
             player_id: string;
             /**
              * Runs
-             * @description Average runs per simulated innings.
+             * @description Typical (median) score in the innings they batted.
              */
-            runs: number;
+            runs: number | null;
+            /**
+             * Runs High
+             * @description 75th percentile of those scores.
+             */
+            runs_high: number | null;
+            /**
+             * Runs Low
+             * @description 25th percentile of those scores.
+             */
+            runs_low: number | null;
             /** Strike Rate */
             strike_rate: number | null;
         };
         /** SimBowler */
         SimBowler: {
+            /**
+             * Balls
+             * @description Typical (median) legal balls bowled when bowling.
+             */
+            balls: number | null;
+            /**
+             * Bowled Pct
+             * @description Share of simulated innings in which they bowled.
+             */
+            bowled_pct: number;
             /** Economy */
             economy: number | null;
             /** Name */
             name: string;
-            /** Overs */
-            overs: number;
             /** Player Id */
             player_id: string;
             /**
              * Runs
-             * @description Runs off the bat conceded per simulated innings.
+             * @description Typical runs off the bat conceded when bowling.
              */
-            runs: number;
+            runs: number | null;
             /** Three Wicket Pct */
             three_wicket_pct: number;
-            /** Wickets */
-            wickets: number;
+            /**
+             * Wicket Pct
+             * @description Share of all simulated innings with a wicket.
+             */
+            wicket_pct: number;
+            /**
+             * Wickets
+             * @description Typical wickets when bowling.
+             */
+            wickets: number | null;
         };
         /** SimPlayer */
         SimPlayer: {
@@ -1971,6 +2043,52 @@ export interface components {
             recent_overs: number;
             /** Role */
             role: string | null;
+        };
+        /** SimSeason */
+        SimSeason: {
+            /** Season */
+            season: number;
+            /** Teams */
+            teams: components["schemas"]["SimSeasonTeam"][];
+        };
+        /** SimSeasonTeam */
+        SimSeasonTeam: {
+            /** Display Name */
+            display_name: string;
+            team: components["schemas"]["TeamTag"];
+        };
+        /**
+         * SimSquad
+         * @description A side's squad in one season: everyone who played for it, and its last XI.
+         */
+        SimSquad: {
+            /**
+             * Bowlers
+             * @description That XI's default bowling options.
+             */
+            bowlers: string[];
+            /**
+             * Display Name
+             * @description The side's name that season.
+             */
+            display_name: string;
+            /** From Match */
+            from_match: number | null;
+            /** Match Date */
+            match_date: string | null;
+            /**
+             * Players
+             * @description Most appearances first.
+             */
+            players: components["schemas"]["SquadPlayer"][];
+            /** Season */
+            season: number;
+            team: components["schemas"]["TeamTag"];
+            /**
+             * Xi
+             * @description The season's last playing XI, in batting order.
+             */
+            xi: string[];
         };
         /** SimXI */
         SimXI: {
@@ -2037,6 +2155,11 @@ export interface components {
              * @description Who bats first; empty means the toss decides (half each).
              */
             bat_first?: ("a" | "b") | null;
+            /**
+             * Season
+             * @description Play the match in this season: each side must come from its squad that season, and the scoring era, league rates and players' recent records are as of then. Empty means today's era with any players.
+             */
+            season?: number | null;
             /** Seed */
             seed?: number | null;
             /**
@@ -2080,6 +2203,34 @@ export interface components {
             standard_error: number;
             /** Tie Pct */
             tie_pct: number;
+        };
+        /** SquadPlayer */
+        SquadPlayer: {
+            /** Batting Hand */
+            batting_hand: string | null;
+            /** Bowling Type */
+            bowling_type: string | null;
+            /**
+             * Matches
+             * @description Matches played for the side that season.
+             */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Position
+             * @description Usual batting position in recent seasons.
+             */
+            position: number | null;
+            /**
+             * Recent Overs
+             * @description Overs bowled in the player's last three seasons.
+             */
+            recent_overs: number;
+            /** Role */
+            role: string | null;
         };
         /** StandingRow */
         StandingRow: {
@@ -3189,6 +3340,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_seasons_api_v1_simulate_seasons_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimSeason"][];
+                };
+            };
+        };
+    };
+    read_squad_api_v1_simulate_squad__season___franchise_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                season: number;
+                franchise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimSquad"];
                 };
             };
             /** @description Validation Error */

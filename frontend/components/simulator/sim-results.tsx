@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import type { SimDistribution, SimSideResult, SimulationResult } from "@/lib/api/types";
 import { scrollRegion } from "@/lib/a11y";
 import { rate } from "@/lib/players";
-import { SIM_SERIES, pct } from "@/lib/simulator";
+import { SIM_SERIES, bowlingOvers, pct } from "@/lib/simulator";
 import { cn } from "@/lib/utils";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
@@ -188,6 +188,16 @@ function Totals({ result, names }: { result: SimulationResult; names: [string, s
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2 text-right font-mono tabular-nums";
 
+function whole(value: number | null | undefined): string {
+  return value === null || value === undefined ? "—" : String(value);
+}
+
+function range(low: number | null | undefined, high: number | null | undefined): string {
+  return low === null || low === undefined || high === null || high === undefined
+    ? "—"
+    : `${low}–${high}`;
+}
+
 function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -204,7 +214,7 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
       </h3>
       <div className="overflow-x-auto" {...scrollRegion(`${name} simulated batting`)}>
         <table className="w-full min-w-[26rem] text-sm">
-          <caption className="sr-only">{name}: average simulated innings per batter</caption>
+          <caption className="sr-only">{name}: typical simulated innings per batter</caption>
           <thead className="border-b border-border">
             <tr>
               <th scope="col" className={cn(th, "text-left")}>
@@ -215,6 +225,11 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
               </th>
               <th scope="col" className={th}>
                 Balls
+              </th>
+              <th scope="col" className={th}>
+                <abbr title="The middle half of their simulated scores" className="no-underline">
+                  Range
+                </abbr>
               </th>
               <th scope="col" className={th}>
                 SR
@@ -238,8 +253,11 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
                     bats in {pct(b.batted_pct, 0)}
                   </span>
                 </th>
-                <td className={td}>{b.runs.toFixed(1)}</td>
-                <td className={td}>{b.balls.toFixed(1)}</td>
+                <td className={cn(td, "font-semibold")}>{whole(b.runs)}</td>
+                <td className={td}>{whole(b.balls)}</td>
+                <td className={cn(td, "text-muted-foreground")}>
+                  {range(b.runs_low, b.runs_high)}
+                </td>
                 <td className={td}>{rate(b.strike_rate, 1)}</td>
                 <td className={td}>{pct(b.fifty_pct, 0)}</td>
               </tr>
@@ -249,7 +267,7 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
       </div>
       <div className="overflow-x-auto" {...scrollRegion(`${name} simulated bowling`)}>
         <table className="w-full min-w-[26rem] text-sm">
-          <caption className="sr-only">{name}: average simulated figures per bowler</caption>
+          <caption className="sr-only">{name}: typical simulated figures per bowler</caption>
           <thead className="border-b border-border">
             <tr>
               <th scope="col" className={cn(th, "text-left")}>
@@ -259,10 +277,16 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
                 Overs
               </th>
               <th scope="col" className={th}>
+                Runs
+              </th>
+              <th scope="col" className={th}>
                 Wkts
               </th>
               <th scope="col" className={th}>
                 Econ
+              </th>
+              <th scope="col" className={th}>
+                1+ wkt
               </th>
               <th scope="col" className={th}>
                 3+ wkts
@@ -273,11 +297,21 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
             {side.bowlers.map((b) => (
               <tr key={b.player_id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  {b.name}
+                  <Link
+                    href={`/players/${b.player_id}`}
+                    className="underline-offset-4 hover:text-primary hover:underline"
+                  >
+                    {b.name}
+                  </Link>
+                  <span className="block text-[11px] text-muted-foreground">
+                    bowls in {pct(b.bowled_pct, 0)}
+                  </span>
                 </th>
-                <td className={td}>{b.overs.toFixed(1)}</td>
-                <td className={td}>{b.wickets.toFixed(2)}</td>
+                <td className={td}>{bowlingOvers(b.balls)}</td>
+                <td className={td}>{whole(b.runs)}</td>
+                <td className={cn(td, "font-semibold")}>{whole(b.wickets)}</td>
                 <td className={td}>{rate(b.economy)}</td>
+                <td className={td}>{pct(b.wicket_pct, 0)}</td>
                 <td className={td}>{pct(b.three_wicket_pct, 0)}</td>
               </tr>
             ))}
@@ -340,11 +374,14 @@ export function SimResults({ result }: { result: SimulationResult }) {
         className="flex flex-col gap-4 rounded-2xl border border-border bg-card/70 p-5 sm:p-6"
       >
         <h2 id="sim-cards" className="text-lg font-semibold tracking-tight">
-          The average simulated scorecard
+          The typical simulated scorecard
         </h2>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Each player&apos;s average across every simulated innings. Bowlers&apos; runs are off the
-          bat; extras are the team&apos;s.
+          Each player&apos;s typical (median) innings in the simulated matches where they batted or
+          bowled, so every score is in whole runs and wickets. Range is the middle half of their
+          simulated scores: one innings in four was lower, one in four higher. 50+, 1+ and 3+ are
+          shares of all simulated matches. Bowlers&apos; runs are off the bat; extras are the
+          team&apos;s.
         </p>
         <div className="grid gap-8 xl:grid-cols-2">
           <Scorecard side={a} name={names[0]} />

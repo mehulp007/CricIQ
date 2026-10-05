@@ -2,11 +2,19 @@
  * Match simulator and what-if helpers. The simulations themselves run in the
  * API (criciq_core.simulation); this module shapes requests and labels results.
  */
-import type { SimPlayer, SimulationRequest, Timeline } from "@/lib/api/types";
+import type {
+  SimSeason,
+  SimSquad,
+  SimulationRequest,
+  SquadPlayer,
+  Timeline,
+} from "@/lib/api/types";
 
 /** The engine needs this many bowling options: 20 overs at four each. */
 export const MIN_BOWLERS = 5;
 export const XI_SIZE = 11;
+/** A player added to the XI bowls by default with this many recent overs. */
+export const REGULAR_BOWLER_OVERS = 4;
 export const DEFAULT_SIMULATIONS = 10_000;
 export const WHATIF_SIMULATIONS = 4_000;
 
@@ -18,10 +26,81 @@ export const SIM_SERIES = {
 
 export type BatFirst = "a" | "b" | "toss";
 
+/** One side: its squad that season, the XI picked from it and its bowling options. */
 export interface XIState {
   team: string | null;
-  players: SimPlayer[];
+  squad: SquadPlayer[];
+  players: SquadPlayer[];
   bowlers: string[];
+}
+
+export const EMPTY_XI: XIState = { team: null, squad: [], players: [], bowlers: [] };
+
+type Param = string | string[] | undefined;
+
+function single(value: Param): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+/** The season asked for in the URL, or the latest one. */
+export function pickSeason(seasons: SimSeason[], raw: Param): SimSeason | null {
+  const year = Number(single(raw));
+  return seasons.find((s) => s.season === year) ?? seasons[0] ?? null;
+}
+
+const PREFERRED = ["MI", "CSK"];
+
+/**
+ * Two different sides from a season: the ones asked for when they played that
+ * season, otherwise MI and CSK, otherwise its first sides.
+ */
+export function defaultTeams(
+  season: SimSeason,
+  rawA?: Param,
+  rawB?: Param,
+): [string | null, string | null] {
+  const ids = season.teams.map((t) => t.team.franchise_id);
+  const chosen: string[] = [];
+  for (const want of [single(rawA)?.toUpperCase(), single(rawB)?.toUpperCase()]) {
+    const fallback = [...PREFERRED, ...ids].find((id) => ids.includes(id) && !chosen.includes(id));
+    const id = want && ids.includes(want) && !chosen.includes(want) ? want : fallback;
+    if (id) chosen.push(id);
+  }
+  return [chosen[0] ?? null, chosen[1] ?? null];
+}
+
+/** A side as the season left it: its last XI that season, in batting order. */
+export function fromSquad(squad: SimSquad | null): XIState {
+  if (!squad) return EMPTY_XI;
+  const byId = new Map(squad.players.map((p) => [p.player_id, p]));
+  const players = squad.xi.flatMap((id) => byId.get(id) ?? []);
+  return { team: squad.team.franchise_id, squad: squad.players, players, bowlers: squad.bowlers };
+}
+
+/** Squad players not in the XI, most appearances first. */
+export function bench(xi: XIState): SquadPlayer[] {
+  const picked = new Set(xi.players.map((p) => p.player_id));
+  return xi.squad.filter((p) => !picked.has(p.player_id));
+}
+
+/** Add a squad player at the end of the batting order; regular bowlers bowl. */
+export function addPlayer(xi: XIState, playerId: string): XIState {
+  const player = xi.squad.find((p) => p.player_id === playerId);
+  if (!player || xi.players.length >= XI_SIZE || xi.players.includes(player)) return xi;
+  return {
+    ...xi,
+    players: [...xi.players, player],
+    bowlers: player.recent_overs >= REGULAR_BOWLER_OVERS ? [...xi.bowlers, playerId] : xi.bowlers,
+  };
+}
+
+/** Move a player from the XI back to the bench. */
+export function removePlayer(xi: XIState, playerId: string): XIState {
+  return {
+    ...xi,
+    players: xi.players.filter((p) => p.player_id !== playerId),
+    bowlers: xi.bowlers.filter((id) => id !== playerId),
+  };
 }
 
 /** Why a side cannot be simulated yet, or null when it is ready. */
@@ -36,7 +115,12 @@ export function sideIssue(xi: XIState): string | null {
   return null;
 }
 
-export function simulationRequest(a: XIState, b: XIState, batFirst: BatFirst): SimulationRequest {
+export function simulationRequest(
+  a: XIState,
+  b: XIState,
+  batFirst: BatFirst,
+  season: number | null,
+): SimulationRequest {
   const side = (xi: XIState) => ({
     franchise_id: xi.team,
     batters: xi.players.map((p) => p.player_id),
@@ -46,6 +130,7 @@ export function simulationRequest(a: XIState, b: XIState, batFirst: BatFirst): S
     a: side(a),
     b: side(b),
     bat_first: batFirst === "toss" ? null : batFirst,
+    season,
     simulations: DEFAULT_SIMULATIONS,
   };
 }
@@ -66,6 +151,12 @@ export function pct(value: number | null | undefined, digits = 1): string {
 /** Legal balls as scoreboard overs: 57 -> "9.3". */
 export function oversText(balls: number): string {
   return `${Math.floor(balls / 6)}.${balls % 6}`;
+}
+
+/** Bowling overs as on a scorecard: 24 -> "4", 21 -> "3.3". */
+export function bowlingOvers(balls: number | null | undefined): string {
+  if (balls === null || balls === undefined) return "—";
+  return balls % 6 === 0 ? String(balls / 6) : oversText(balls);
 }
 
 export interface WhatIfPosition {

@@ -83,8 +83,11 @@ export type H2HRecord = Schemas["H2HRecord"];
 export type H2HExpectation = Schemas["H2HExpectation"];
 export type H2HPlayer = Schemas["H2HPlayer"];
 
-export type SimXI = Schemas["SimXI"];
 export type SimPlayer = Schemas["SimPlayer"];
+export type SquadPlayer = Schemas["SquadPlayer"];
+export type SimSquad = Schemas["SimSquad"];
+export type SimSeason = Schemas["SimSeason"];
+export type SimSeasonTeam = Schemas["SimSeasonTeam"];
 export type SimulationRequest = Schemas["SimulationRequest"];
 export type SimulationResult = Schemas["SimulationResult"];
 export type SimSideResult = Schemas["SideResult"];

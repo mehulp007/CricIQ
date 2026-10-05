@@ -23,7 +23,7 @@ test.describe("simulator", () => {
       "batting first: median",
     );
     await expect(
-      page.getByRole("region", { name: "The average simulated scorecard" }).getByRole("table"),
+      page.getByRole("region", { name: "The typical simulated scorecard" }).getByRole("table"),
     ).toHaveCount(4);
   });
 
@@ -40,6 +40,24 @@ test.describe("simulator", () => {
     const name = (await first.locator("span.truncate").first().textContent()) ?? "";
     await teamA.getByRole("button", { name: `Move ${name} down` }).click();
     await expect(teamA.getByRole("listitem").nth(1)).toContainText(name);
+  });
+
+  test("picks the XI from the season's squad", async ({ page }) => {
+    await page.goto("/simulator");
+    await expect(page.getByRole("combobox", { name: "Season" })).toContainText("IPL");
+    const teamA = page.getByRole("region", { name: "Team A" });
+    const xi = teamA.getByRole("list", { name: "Team A batting order" }).getByRole("listitem");
+    await expect(xi).toHaveCount(11);
+    const last = xi.last();
+    const name = (await last.locator("span.truncate").first().textContent()) ?? "";
+    await teamA.getByRole("button", { name: `Leave ${name} out` }).click();
+    await expect(xi).toHaveCount(10);
+    await expect(teamA).toContainText("Pick 11 players");
+    await expect(page.getByRole("button", { name: /Simulate 10,000 matches/ })).toBeDisabled();
+
+    await teamA.getByRole("button", { name: `Add ${name} to the XI` }).click();
+    await expect(xi).toHaveCount(11);
+    await expect(xi.last()).toContainText(name);
   });
 
   test("the replay's what-if moves the win probability", async ({ page }) => {

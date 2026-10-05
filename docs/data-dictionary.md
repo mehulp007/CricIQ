@@ -183,6 +183,16 @@ any season the data fully covers. Definitions are in [metrics.md](metrics.md).
 | `team_innings_phases` | innings × phase | Runs (including extras), legal balls, dismissals, fours, sixes and dots, with batting and bowling franchise |
 | `team_season_records` | franchise × season | League table: played, won, lost, no result, `abandoned`, points, net run rate (and its four sums), `position`, number of teams, `finish` (`champion`, `runner_up`, `playoffs`, `league`) and `exit_stage` |
 
+## Simulator (serving database only)
+
+Built by `criciq_pipelines.simulation` during export; the simulator's tuned settings are a row in
+`models` (name `simulator`), published by `criciq-ml score`.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `bowling_usage` | player × season × franchise × over number | Overs bowled at each over number (0-19); an over belongs to the bowler of most of its legal balls. Drives which bowler a simulated captain picks for each over |
+| `sim_league_rates` | season × innings × phase | Legal balls, run outs, and counts of legal balls by the extras that came with them (`x0` to `x5`, 5 meaning 5 or more): wides and no-balls before the ball, byes and leg byes on it |
+
 ## Model outputs (serving database only)
 
 Written by `criciq-ml score` with the committed models; the API never runs a model.

@@ -5,6 +5,23 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V1-d: match simulator and what-if sandbox**
+  - `criciq_core.simulation`: a vectorised Monte Carlo engine that plays matches ball by ball with
+    the ball-outcome model, league extras and run-out rates, a usage-based bowling policy that
+    respects the quota and never strands an innings, and per-match conditions shared by both
+    innings (ADR-0006: numpy in the API).
+  - Match Simulator (`/simulator`): any two XIs (each team's latest by default; reorder, swap
+    players, choose bowling options and who bats first), 10,000 simulations in about a second,
+    with win shares, first-innings distributions, the average simulated scorecard and margins.
+  - What-if sandbox in every replay: edit the runs or wickets at any ball and see the batting
+    side's chance, anchored on the win probability model and moved by the simulated change, with
+    the projected total.
+  - `criciq-ml train simulator`: tunes the conditions spread on 2023-2024 and backtests every
+    2025-2026 match pre-match (Brier against a coin flip, form and the batting-first rate; PIT
+    and coverage of first-innings totals; chases from the first ball), with a model card and a
+    Simulator tab on Model Insights.
+  - `GET /simulate/xi/{team}`, `POST /simulate/xi`, `POST /simulate/match`, `POST /simulate/state`;
+    tables `bowling_usage` and `sim_league_rates`.
 - **V1-c: team analytics and head-to-head**
   - League tables for every season rebuilt from the scorecards (points, wins, net run rate under
     the playing conditions' rules, abandoned fixtures, playoff finishes); the export fails unless

@@ -19,7 +19,7 @@
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, and read any batter-vs-bowler rivalry without over-reading small samples. Ratings, momentum and Monte Carlo match simulation come next, all behind a polished web interface.
+CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season's league table, and simulate any two XIs 10,000 times, all behind a polished web interface.
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
@@ -36,7 +36,8 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Ratings | 16 rating components shrunk by empirical Bayes: the shrunk record predicts a player's next season better than the raw record for all 16; year-to-year stability reported per component |
 | Pressure | Leverage of every ball from what-if win probabilities; expected and realised next-ball swings agree in every tenth, from 0.09× to 2.9× a typical ball |
 | League tables | Rebuilt from the balls for all 19 seasons and identical to the official tables, net run rate included; the build fails if they ever differ |
-| Quality | 250+ Python tests, 80+ frontend unit tests, 99 end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
+| Simulator | 10,000 complete matches in about a second; first-innings totals calibrated on 2025–2026 (PIT uniform); pre-match winners no better than a coin flip, reported as such |
+| Quality | 280+ Python tests, 90+ frontend unit tests, 100+ end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
 | Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
 
 ## Features
@@ -55,7 +56,8 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Pressure & momentum | Every replay shows the pressure on the next ball (how much it can move the match) and each side's momentum over the last 12 balls, with a pressure chart and the tensest moments | **Live** |
 | Teams | Every franchise's seasons, league tables that match the official ones, results by situation, phases against par, comebacks and collapses, and any head-to-head set against what form predicted | **Live** |
 | Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill, do rivalries repeat | **Live** |
-| Simulator | Monte Carlo simulation and a what-if sandbox | V1 |
+| Match Simulator | Any two XIs played 10,000 times, ball by ball: win shares, the spread of totals and each player's likely contribution, labelled as a model simulation and backtested | **Live** |
+| What-if sandbox | In any replay, change the score at any ball and see how the rest of the match changes | **Live** |
 
 ## The data
 
@@ -195,6 +197,27 @@ shows why: across every IPL rivalry, past head-to-head records add nothing to fo
 records do not carry over, and even form is a weak guide (the side in better form wins 53% of the
 time; a season's win rate predicts the next season's with r = 0.06).
 
+## Match simulator and what-if, backtested
+
+The [simulator](https://criciq-eight.vercel.app/simulator) plays any two XIs ball by ball with the
+ball-outcome model: extras and run outs at league rates, each over's bowler drawn from how that
+bowler was used (four overs each, never twice in a row, and only if the innings can still be
+finished), and match conditions drawn per match and shared by both innings. All 10,000
+simulations step forward together as numpy arrays, so a full simulation takes about a second
+([ADR-0006](docs/adr/0006-simulator-in-the-api-with-numpy.md)).
+
+Backtested on every 2025–2026 match before a ball was bowled, with a ball model that never saw
+those seasons ([model card](docs/model-cards/simulator.md)):
+
+| Check | Result |
+|---|---|
+| First-innings totals | PIT uniform (χ² 10.6, 5% threshold 16.9); 86% inside the simulated 80% range |
+| From the first ball of a chase | Brier 0.193 against 0.246 for the base chase rate, but chances run about 10 points low |
+| Winner, pre-match | Brier 0.256 against 0.250 for a coin flip: no better, and the page says so |
+
+Because simulated chases run low, the replay's **what-if** starts from the calibrated win
+probability at the real score and adds only the simulated change from your edit.
+
 ## Matchup Lab: small samples, honestly
 
 The longest IPL rivalry is about 160 balls; the median batter-bowler pair has met for 5. A ball-outcome
@@ -230,6 +253,8 @@ noise around what the players' overall records already say.
 | ![The 2019 final with two needed off the last ball: very high pressure and the pressure chart](docs/images/pressure.png) | ![Expected against realised next-ball swings by tenth of leverage](docs/images/lab.png) |
 | **Teams** | **Head to head** |
 | ![The 2019 league table rebuilt from the balls, identical to the official one](docs/images/teams.png) | ![Mumbai Indians against Kolkata Knight Riders, set against what form predicted](docs/images/h2h.png) |
+| **Match Simulator** | **What-if in the replay** |
+| ![Mumbai Indians against Chennai Super Kings simulated 10,000 times](docs/images/simulator.png) | ![The 2019 final with ten more runs for Chennai Super Kings](docs/images/whatif.png) |
 
 ## Architecture
 
@@ -328,7 +353,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 - [x] **V1-a** Compare page, CricIQ Ratings, similar players
 - [x] **V1-b** Momentum and pressure in the replay, Analytics Lab research notes
 - [x] **V1-c** Team analytics and head-to-head
-- [ ] **V1-d** Match simulator and what-if sandbox
+- [x] **V1-d** Match simulator and what-if sandbox
 
 ## Data & attribution
 

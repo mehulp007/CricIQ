@@ -7,6 +7,30 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **V2-3: pooled T20 models** (ADR-0010)
+  - Win probability, score projection and the ball-outcome model 2.0.0 train on every T20
+    competition at once (6,391 matches, `data/warehouse/t20.duckdb`), with splits by calendar year.
+    Players carry one record across competitions; each competition keeps its own scoring era and
+    chase tables. Forward selection on the pre-test rolling origin added the squads' and the
+    batters' career records and an international-cricket flag. Ratios are rounded so every CPU
+    agrees.
+  - Each pooled model is compared with v1 on the IPL's own 2025-26 test balls (v1's predictions
+    rebuilt exactly). Pooling does not help the IPL: win probability 0.524 against v1's 0.510,
+    the ball model 1.4922 against 1.4895, and the projection's 80% range covers 86% of IPL totals
+    (outside the 75-85% band). The IPL keeps v1 (`models/<name>/CURRENT.IPL`); the pooled models
+    serve the BBL, PSL, CPL, SA20 and T20Is and beat their baselines in every competition.
+  - CricIQ Ratings 2.0.0 are fitted for every competition and all T20 on their own records (small
+    competitions borrow the all-T20 shrinkage); the players database gets win probability added and
+    each scope's rating constants, and `/api/v2/{competition}/players/{id}/similar` serves similar
+    players. The IPL's constants are unchanged.
+  - The simulator 2.0.0 was backtested on T20Is with the pooled ball model and failed its gate
+    (first-innings totals 7 runs low, PIT chi-square 37.4 against 16.9; win chances too close to
+    even between unequal sides), so it is not served and every competition keeps 1.0.0. The
+    simulator card publishes that backtest under "Backtested, not served".
+  - Model cards and Model Insights data per competition: `docs/model-cards/<model>.md` for the
+    pooled versions (results by competition, against v1 on the IPL) and `<model>-ipl.md` for the
+    IPL's; `frontend/data/models/t20/` for V2-4. A "teams" explanation factor for the new features.
+  - `criciq-data export-competition`, and the ball model's independent fits run in parallel.
 - **V2-2: the T20 world** (ADR-0009)
   - A players database (`data/exports/players.duckdb`, `criciq-data export-players`) with the Player
     Lab tables of the IPL, BBL, PSL, CPL, SA20 and men's T20Is, and of all T20 cricket together. Par
@@ -67,6 +91,12 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
 
 ### Fixed
+- A chase without a recorded target (23 T20Is, a CPL match) chases the first-innings total plus one
+  in the models, and a T20 recorded as a 50-over match (11 T20Is) lasts 20 overs; the new check
+  `scheduled_overs_within_format` lists those matches in the data-quality reports.
+- The players loading skeleton gave two placeholders the same key.
+- The simulator failed on a side that names twelve under supersub rules (two 2026 T20Is); it now
+  bats the eleven who usually bat highest.
 - Fifteen grounds recorded under former or sponsors' names (Launceston's Aurora Stadium, Bloemfontein's
   four names, Rajkot's Niranjan Shah Stadium and others) are merged, and a sponsor's name for a
   ground whose plain name several grounds share resolves by city.

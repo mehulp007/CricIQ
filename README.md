@@ -86,7 +86,7 @@ Details: [data pipeline](docs/data-pipeline.md) · [data dictionary](docs/data-d
 ## The win probability model
 
 Two monotonic LightGBM models (first innings and chase), tested once on the 144 matches of 2025–2026
-that they never saw ([model card](docs/model-cards/win-probability.md)):
+that they never saw ([model card](docs/model-cards/win-probability-ipl.md)):
 
 | Test seasons 2025–2026 | Log loss | Brier | ECE | AUC |
 |---|---|---|---|---|
@@ -113,7 +113,7 @@ chase feature, the 2019 final explained).
 ## The score projection model
 
 Quantiles of the final first-innings total after every ball, predicted relative to the scoring era
-and conformally calibrated ([model card](docs/model-cards/score-projection.md)). Tested once on the
+and conformally calibrated ([model card](docs/model-cards/score-projection-ipl.md)). Tested once on the
 143 first innings of 2025–2026:
 
 | Test seasons 2025–2026 | 80% range covers | Median error (runs) | Pinball |
@@ -124,6 +124,33 @@ and conformally calibrated ([model card](docs/model-cards/score-projection.md)).
 
 The median error beats par in 11 of 11 backtest seasons. Season bias stays within a few
 runs either way, with no drift as totals rose by 30 runs across eras.
+
+## One model for all T20 cricket (v2)
+
+The v2 models train on every T20 competition at once: the IPL, BBL, PSL, CPL, SA20 and men's T20Is,
+6,391 matches. Players carry one record across all of them; each competition keeps its own scoring
+era. Pooling is only worth it for the IPL if it predicts the IPL at least as well as the IPL-only
+models, so each pooled model is compared with v1 on the IPL's own 2025–2026 test balls, v1's
+predictions rebuilt exactly ([ADR-0010](docs/adr/0010-pooled-t20-models.md)):
+
+| IPL test, 2025–2026 | IPL only (v1) | Pooled T20 (v2) | Pooled gain (95% CI) | The IPL is served by |
+|---|---|---|---|---|
+| Win probability, log loss | **0.510** | 0.524 | −0.015 (−0.035 to +0.006) | v1 |
+| Score projection, pinball (runs) | 4.87 | **4.86** | +0.02 (−0.09 to +0.12) | v1 (v2's 80% range covers 86%, outside the 75–85% band) |
+| Ball outcome, log loss | **1.4895** | 1.4922 | −0.003 (−0.004 to −0.001) | v1 |
+
+**Pooling does not help the IPL**, so the IPL keeps its own models. It helps everywhere else: the
+pooled models beat their baselines in every competition, and serve the BBL, PSL, CPL, SA20 and
+T20Is (win probability on 1,366 test matches: log loss 0.456 against 0.489; T20Is 0.432 against
+0.460). What made the difference outside the IPL is who is playing: the squads' and the batters'
+career records, and whether it is international cricket, matter in lopsided T20Is and add noise
+between balanced IPL sides. Model cards: [win probability](docs/model-cards/win-probability.md),
+[score projection](docs/model-cards/score-projection.md),
+[ball outcome](docs/model-cards/ball-outcome.md), [ratings](docs/model-cards/ratings.md) (fitted per
+competition). The simulator was backtested on T20Is with the pooled ball model and **failed its
+gate**: its simulated totals ran 7 runs low, and between unequal sides its win chances were too
+close to even (associate players with few balls look average). It is not served; the
+[simulator card](docs/model-cards/simulator.md) publishes that backtest after the IPL's.
 
 ## Player Lab: measured against par
 
@@ -224,7 +251,7 @@ probability at the real score and adds only the simulated change from your edit.
 
 The longest IPL rivalry is about 160 balls; the median batter-bowler pair has met for 5. A ball-outcome
 model (multinomial logistic regression with penalised batter and bowler effects,
-[model card](docs/model-cards/ball-outcome.md)) predicts dot, 1, 2, 3, 4, 6 or wicket for every ball, and
+[model card](docs/model-cards/ball-outcome-ipl.md)) predicts dot, 1, 2, 3, 4, 6 or wicket for every ball, and
 each head-to-head record is shrunk towards what it expects for those same balls. The prior's strength
 is fitted across all 31,000 pairs (empirical Bayes): **355 balls**, so history never carries
 more than about 31% of an estimate.
@@ -351,10 +378,12 @@ leak into a request.
 
 Read more in [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md),
 the [architecture decision records](docs/adr/) and the model cards for
-[win probability](docs/model-cards/win-probability.md),
-[score projection](docs/model-cards/score-projection.md),
-[ball outcome](docs/model-cards/ball-outcome.md),
-[CricIQ Ratings](docs/model-cards/ratings.md) and the [simulator](docs/model-cards/simulator.md),
+win probability ([IPL](docs/model-cards/win-probability-ipl.md),
+[all T20](docs/model-cards/win-probability.md)), score projection
+([IPL](docs/model-cards/score-projection-ipl.md), [all T20](docs/model-cards/score-projection.md)),
+ball outcome ([IPL](docs/model-cards/ball-outcome-ipl.md),
+[all T20](docs/model-cards/ball-outcome.md)), [CricIQ Ratings](docs/model-cards/ratings.md) and the
+[simulator](docs/model-cards/simulator.md),
 with every derived metric defined in [docs/metrics.md](docs/metrics.md). The site's
 [About & Methodology](https://criciq-eight.vercel.app/about) page explains every number in plain terms.
 

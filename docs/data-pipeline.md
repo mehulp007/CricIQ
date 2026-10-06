@@ -35,6 +35,8 @@ data/warehouse/cricket.duckdb       every competition (constraints enforced)
      ▼
 data/warehouse/ipl.duckdb           the IPL in the v1 shape: what the export,
      │                              the models and the reports read today
+data/warehouse/t20.duckdb           every T20 competition in the v1 shape and one
+     │                              time order: what the pooled models train on
      │  export
      ▼
 data/exports/serving.duckdb         what the API serves (the IPL), scored by the models
@@ -151,6 +153,12 @@ multi-competition, `criciq_pipelines.scope` copies the IPL out of the full wareh
 (`tests/pipelines/test_ipl_regression.py`) checks that the IPL warehouse and the scored serving
 database are unchanged, table by table.
 
+The same step writes the **pooled copy** `data/warehouse/t20.duckdb`: every selected T20
+competition in the v1 shape, with `match_order` running across all of them by date, which is what
+the pooled models train and score on (V2-3). `criciq-data export-competition <id> --out <path>`
+exports one competition's serving-shaped database the same way (the simulator's backtest reads a
+T20I one).
+
 Innings phases follow each match's own format. Data code (player, team and simulator tables, the
 API's splits) phases a delivery with `PhaseConfig.sql_case(over, format)`, which reads
 `competitions.format`, so T20, ODI and Test balls can sit in one query. Model code (win probability,
@@ -261,6 +269,16 @@ powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1 -Remove    # unre
 At the v2.0 launch the same sync runs in GitHub Actions (`.github/workflows/data-sync.yml`, written
 but switched off until V2-8; see [deployment.md](deployment.md)).
 
+### Model inputs (`criciq_ml.data`)
+
+The models read the IPL copy or the pooled copy. Two Cricsheet quirks are handled there, where
+the format is known, rather than in the warehouse, which keeps the source as recorded:
+
+- **A chase without a recorded target** (23 T20Is and a CPL match) chases the first-innings total
+  plus one, the rule when no rain rule applied.
+- **A T20 recorded as a 50-over match** (11 T20Is) lasts 20 overs. The check
+  `scheduled_overs_within_format` lists these matches in the data-quality reports.
+
 ## Rebuilding from scratch
 
 ```bash
@@ -286,11 +304,13 @@ The site is at http://localhost:3000 (use `localhost`: the dev server does not h
 competition is under `/api/v2`). The data-quality reports of a local run go to
 `data/data-quality-report.md` and `data/data-quality/`, leaving the committed ones alone.
 
-Measured on the development laptop with all eight competitions (2026-10-06): the data step takes
-about 70 seconds after download (extract 20, build 40, validate and export the rest) and scoring
-about 50; the dev servers are ready within a minute. Everything under `data/` takes about 0.8 GB:
-raw archives 0.07 GB, interim Parquet 0.02 GB, warehouses 0.66 GB (the full `cricket.duckdb` is
-about 0.6 GB) and the serving database 0.03 GB.
+Measured on the development laptop with all eight competitions (2026-10-07): the data step takes
+about 85 seconds after download (extract 20, build 40, validate, the IPL and pooled copies, and the
+serving and players exports the rest) and scoring about 3.5 minutes (the IPL's serving database,
+then win probability for every T20 match from the pooled copy for the players database); the dev
+servers are ready within a minute. Everything under `data/` takes about 0.9 GB: raw archives
+0.07 GB, interim Parquet 0.02 GB, warehouses 0.66 GB (the full `cricket.duckdb` is about 0.6 GB,
+the pooled `t20.duckdb` 0.03 GB) and the serving and players databases 0.03 GB each.
 
 ## Testing
 

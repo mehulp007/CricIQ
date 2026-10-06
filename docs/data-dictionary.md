@@ -219,6 +219,13 @@ any of them through `search_path`. In `t20` the competitions' rows are put toget
 own par; `player_index` (role, career span, latest team) is computed over all of them, and the
 innings views' `match_order` is the order across every competition.
 
+`criciq-ml score` adds the model outputs (`criciq_ml.players_scoring`):
+
+| Table | Notes |
+|---|---|
+| `main.player_wpa` | Win probability added per player, innings and role, with `competition_id`, credited as in the serving database, from the win probability model serving each competition; each scope has a `player_wpa` view |
+| `<scope>.models` | The scope's rating constants (`name = 'ratings'`, `info.components`), fitted on that scope's own records (`criciq-ml train ratings`) |
+
 ## Team Analytics (serving database only)
 
 Built by `criciq_pipelines.teams` during export, with `config/league_tables.yaml` (abandoned and

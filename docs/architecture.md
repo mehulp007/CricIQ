@@ -19,9 +19,13 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
-       score every historical ball with the current models → serving.duckdb
+       v2 versions train on every T20 competition at once (the pooled copy t20.duckdb) and
+       are compared with v1 on the IPL's own test balls; each competition is served by its
+       pointer (CURRENT, or CURRENT.IPL where the IPL keeps v1; ADR-0010)
+       score every historical ball with the models serving each competition → serving.duckdb
        (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
-        rating constants, simulator settings)
+        rating constants, simulator settings) and players.duckdb (player_wpa, each scope's
+        rating constants)
                         ▼
   [backend] FastAPI /api/v1: reads serving.duckdb only; next-ball odds are computed
             from the stored ball-model terms with plain arithmetic (ADR-0005)
@@ -64,14 +68,16 @@ database, which the API reads. Production code never imports notebooks.
 | `model.py` | The served model: prediction, TreeSHAP explanations grouped into concepts, rule layer |
 | `projection.py` | Score projection: era-relative target, quantile models, conformal shifts, CDF |
 | `projection_training.py` | Its protocol: tuning, calibration, test, feature selection, backtest |
-| `registry.py` | Versioned models on disk, `CURRENT` pointer, promotion gate |
+| `registry.py` | Versioned models on disk, `CURRENT` pointer (and `CURRENT.<competition>`), promotion gate |
+| `comparison.py` | A pooled version against the IPL's own on the IPL's test balls (v1 rebuilt exactly) |
 | `scoring.py` | Score every ball and publish into `serving.duckdb` atomically |
+| `players_scoring.py` | Win probability added and each scope's rating constants in `players.duckdb` |
 | `ball_outcome.py` | Ball-outcome model: outcomes, situation, penalised player effects, head-to-head prior (kappa) |
 | `ball_outcome_training.py` | Its protocol: tuning, feature selection, test, calibration, head-to-head check, backtest |
 | `leverage.py` | Pressure (leverage) for every state from what-if next balls, and momentum |
 | `lab.py` | Analytics Lab research notes: momentum, pressure and clutch tests |
 | `ratings.py` | CricIQ Ratings: shrinkage per component (k, noise), next-season validation, stability, similar-player retrieval test |
-| `report.py`, `projection_report.py`, `ball_outcome_report.py`, `ratings_report.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app |
+| `report.py`, `projection_report.py`, `ball_outcome_report.py`, `ratings_report.py`, `simulator_report.py`, `report_common.py` | Model cards (`docs/model-cards/`) and the Model Insights data bundled with the web app (the IPL's, and the pooled versions' under `t20/`) |
 
 The full protocols and results are in the model cards for [win probability](model-cards/win-probability.md), [score projection](model-cards/score-projection.md), [ball outcome](model-cards/ball-outcome.md) and [CricIQ Ratings](model-cards/ratings.md); derived metrics are defined in [metrics.md](metrics.md).
 
@@ -92,6 +98,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0007](adr/0007-one-warehouse-for-every-competition.md): one warehouse for every competition, with v1-shaped scopes
 - [ADR-0008](adr/0008-incremental-sync.md): incremental data sync with an ingest log
 - [ADR-0009](adr/0009-players-database-per-competition.md): a players database with one schema per competition
+- [ADR-0010](adr/0010-pooled-t20-models.md): pooled T20 models, served per competition
 
 ## Precompute vs live
 

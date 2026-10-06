@@ -112,15 +112,24 @@ def test_model_outputs_allow_machine_noise_only(tmp_path: Path) -> None:
 
     moved = list(base)
     moved[500] = (500, 0.6, base[500][2], base[500][3])
-    (moved_diff,) = diff(moved)
-    assert moved_diff.startswith("wp_predictions.wp_team_a: values differ in 1 of 1000 rows")
+    (only,) = diff(moved)
+    assert only.startswith("wp_predictions.wp_team_a: values differ beyond machine variation")
 
     shifted = [(s, wp, m, (p + 1) % 256) for s, wp, m, p in base]  # every percentile moved
-    assert diff(shifted) == ["wp_predictions.pressure: integers differ beyond rounding"]
+    (only,) = diff(shifted)
+    assert only.startswith("wp_predictions.pressure: values differ: 1000 of 1000")
 
     jumped = list(base)
     jumped[3] = (3, base[3][1], base[3][2], base[3][3] + 5)
-    assert diff(jumped) == ["wp_predictions.pressure: integers differ beyond rounding"]
+    (only,) = diff(jumped)
+    assert only.startswith("wp_predictions.pressure: values differ beyond machine variation")
+
+    # Measured between Windows and Linux: a few leverage-like values move by under 1%.
+    os_maths = list(base)
+    for k in (40, 103, 110):
+        s, wp, m, p = base[k]
+        os_maths[k] = (s, wp * 1.005, m, p)
+    assert diff(os_maths) == []
 
 
 def test_explanations_may_resplit_a_total_on_a_few_balls(tmp_path: Path) -> None:
@@ -146,11 +155,9 @@ def test_explanations_may_resplit_a_total_on_a_few_balls(tmp_path: Path) -> None
 
     moved_total = list(base)
     moved_total[46] = (46, [-30.0, 0.2, 0.3])
-    assert diff("total.duckdb", moved_total) == [
-        "wp_predictions.factors: shares differ beyond re-splitting a total"
-    ]
+    (only,) = diff("total.duckdb", moved_total)
+    assert only.startswith("wp_predictions.factors: values differ beyond machine variation")
 
     many = [(i, [-33.9, 0.6, 0.3]) for i in range(1000)]
-    assert diff("many.duckdb", many) == [
-        "wp_predictions.factors: shares differ beyond re-splitting a total"
-    ]
+    (only,) = diff("many.duckdb", many)
+    assert only.startswith("wp_predictions.factors: values differ: 1000 of 1000")

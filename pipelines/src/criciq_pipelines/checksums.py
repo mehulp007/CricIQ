@@ -24,18 +24,29 @@ import duckdb
 
 SKIP = frozenset({"meta"})
 
-# Integers computed from model floats (a percentile, rounded quantiles) may move
-# by one on a few rows between machines.
+# Model outputs agree across machines to these tolerances...
+DOUBLE_TOLERANCE = 1e-6
+FLOAT32_TOLERANCE = 1e-5
+# ...except on a few rows, where the operating system's maths library (glibc on
+# Linux, the UCRT on Windows) rounds a chase feature's log1p differently and a
+# tree split goes the other way. Measured between Windows and Linux: leverage
+# moved on 14 of 3,199 balls by at most 0.5%, the pressure percentile by one on
+# 4, one ball's explanation split its total differently, and the top pressure
+# quantiles by under 0.1%. Up to MACHINE_ROWS_SHARE of a column (at least
+# MACHINE_ROWS_MIN values; MACHINE_JSON_SHARE of the numbers in a JSON column)
+# may move that much; anything more is a change.
+MACHINE_ROWS_SHARE = 0.01
+MACHINE_JSON_SHARE = 0.05
+MACHINE_ROWS_MIN = 3
+MACHINE_RELATIVE = 0.02
+MACHINE_ABSOLUTE = 0.002  # leverage is stored to 3 decimals
+# Integers computed from model floats (a percentile, rounded quantiles).
 ROUNDED_FROM_FLOATS = frozenset(
     {("wp_predictions", "pressure"), ("score_projections", "quantiles")}
 )
-# Shares of a total, each rounded to 0.1 (a ball's explanation points): where two
-# shares are nearly tied, a machine may split the same total differently.
-SHARES_OF_A_TOTAL = frozenset({("wp_predictions", "factors")})
+# Shares of a total, each rounded to SHARE_STEP (a ball's explanation points).
+SHARES = frozenset({("wp_predictions", "factors")})
 SHARE_STEP = 0.1
-DOUBLE_TOLERANCE = 1e-6
-FLOAT32_TOLERANCE = 1e-5
-MAX_ROUNDING_FLIPS = 0.002  # share of values (or of rows, for shares of a total)
 
 TableChecksum = dict[str, object]
 
@@ -175,40 +186,75 @@ def _compare_rows(
     table: str, columns: list[str], kinds: list[str], expected: list[Any], actual: list[Any]
 ) -> list[str]:
     out = []
+    allowed = max(MACHINE_ROWS_MIN, math.floor(MACHINE_ROWS_SHARE * len(expected)))
     for i, (column, kind) in enumerate(zip(columns, kinds, strict=True)):
         old = [row[i] for row in expected]
         new = [row[i] for row in actual]
-        if (table, column) in SHARES_OF_A_TOTAL:
-            resplit = _count_resplits(old, new)
-            if resplit is None or resplit > max(2, MAX_ROUNDING_FLIPS * len(old)):
-                out.append(f"{table}.{column}: shares differ beyond re-splitting a total")
-        elif (table, column) in ROUNDED_FROM_FLOATS:
-            flips, total = _count_flips(old, new)
-            if flips is None or flips > max(2, MAX_ROUNDING_FLIPS * total):
-                out.append(f"{table}.{column}: integers differ beyond rounding")
-        elif kind == "JSON":
-            if not all(
-                _close(json.loads(a), json.loads(b), DOUBLE_TOLERANCE)
-                for a, b in zip(old, new, strict=True)
-            ):
-                out.append(f"{table}.{column}: values differ")
-        elif kind.startswith(("DOUBLE", "FLOAT")):
-            tolerance = FLOAT32_TOLERANCE if kind.startswith("FLOAT") else DOUBLE_TOLERANCE
-            bad = [
-                k
-                for k, (a, b) in enumerate(zip(old, new, strict=True))
-                if not _close(a, b, tolerance)
-            ]
-            if bad:
-                gap = max(_gap(old[k], new[k]) for k in bad)
-                out.append(
-                    f"{table}.{column}: values differ in {len(bad)} of {len(old)} rows "
-                    f"(largest gap {gap:.3g}; first: row {expected[bad[0]][:3]} "
-                    f"{old[bad[0]]} -> {new[bad[0]]})"
-                )
-        elif old != new:
-            out.append(f"{table}.{column}: rows differ")
+        if _is_key(table, column, kind):
+            if old != new:
+                out.append(f"{table}.{column}: rows differ")
+            continue
+        if kind == "JSON":
+            old_numbers = _flatten([_numbers(json.loads(v)) for v in old])
+            new_numbers = _flatten([_numbers(json.loads(v)) for v in new])
+            shapes = [_shape(json.loads(v)) for v in old] == [_shape(json.loads(v)) for v in new]
+            budget = max(MACHINE_ROWS_MIN, math.floor(MACHINE_JSON_SHARE * len(old_numbers)))
+            problem = None if shapes else "structure differs"
+            problem = problem or _judge(old_numbers, new_numbers, DOUBLE_TOLERANCE, budget, False)
+        else:
+            tight = FLOAT32_TOLERANCE if kind.startswith("FLOAT") else DOUBLE_TOLERANCE
+            integers = (table, column) in ROUNDED_FROM_FLOATS
+            problem = _judge(old, new, tight, allowed, integers, (table, column) in SHARES)
+        if problem:
+            out.append(f"{table}.{column}: {problem}")
     return out
+
+
+def _judge(
+    old: list[Any],
+    new: list[Any],
+    tight: float,
+    allowed: int,
+    integers: bool,
+    shares: bool = False,
+) -> str | None:
+    """None if ``new`` matches ``old`` up to machine variation, else what is wrong.
+
+    Every value must agree within ``tight``, except that up to ``allowed`` of them
+    may move a little: integers by one, numbers by MACHINE_RELATIVE (or
+    MACHINE_ABSOLUTE for small ones), and shares may be split differently as long
+    as their total is unchanged.
+    """
+    moved = [k for k, (a, b) in enumerate(zip(old, new, strict=True)) if not _close(a, b, tight)]
+    if not moved:
+        return None
+    gap = max(_gap(old[k], new[k]) for k in moved)
+    first = moved[0]
+    detail = (
+        f"{len(moved)} of {len(old)} differ "
+        f"(largest gap {gap:.3g}; first {old[first]} -> {new[first]})"
+    )
+    if len(moved) > allowed:
+        return f"values differ: {detail}"
+    for k in moved:
+        a, b = old[k], new[k]
+        if integers:
+            ok = all(
+                x is not None and y is not None and abs(x - y) <= 1
+                for x, y in zip(_flatten([a]), _flatten([b]), strict=True)
+            )
+        elif shares:
+            ok = (
+                isinstance(a, list)
+                and isinstance(b, list)
+                and len(a) == len(b)
+                and abs(sum(a) - sum(b)) <= SHARE_STEP / 2 * len(a) + FLOAT32_TOLERANCE
+            )
+        else:
+            ok = _close(a, b, MACHINE_RELATIVE, MACHINE_ABSOLUTE)
+        if not ok:
+            return f"values differ beyond machine variation: {detail}"
+    return None
 
 
 def _gap(a: Any, b: Any) -> float:
@@ -220,46 +266,34 @@ def _gap(a: Any, b: Any) -> float:
     return math.inf
 
 
-def _close(a: Any, b: Any, tolerance: float) -> bool:
-    if isinstance(a, float) or isinstance(b, float):
-        if a is None or b is None:
-            return a is b
-        return math.isclose(a, b, rel_tol=tolerance, abs_tol=tolerance)
+def _close(a: Any, b: Any, tolerance: float, absolute: float | None = None) -> bool:
     if isinstance(a, list) and isinstance(b, list):
-        return len(a) == len(b) and all(_close(x, y, tolerance) for x, y in zip(a, b, strict=True))
-    if isinstance(a, dict) and isinstance(b, dict):
-        return a.keys() == b.keys() and all(_close(a[k], b[k], tolerance) for k in a)
+        return len(a) == len(b) and all(
+            _close(x, y, tolerance, absolute) for x, y in zip(a, b, strict=True)
+        )
+    if isinstance(a, int | float) and isinstance(b, int | float):
+        return math.isclose(
+            a, b, rel_tol=tolerance, abs_tol=tolerance if absolute is None else absolute
+        )
     return bool(a == b)
 
 
-def _count_resplits(old: list[Any], new: list[Any]) -> int | None:
-    """Rows whose shares were split differently (None if any row's total moved)."""
-    resplit = 0
-    for a, b in zip(old, new, strict=True):
-        if _close(a, b, FLOAT32_TOLERANCE):
-            continue
-        if not (isinstance(a, list) and isinstance(b, list) and len(a) == len(b)):
-            return None
-        # Each share is rounded to SHARE_STEP, so totals agree to half a step per share.
-        if abs(sum(a) - sum(b)) > SHARE_STEP / 2 * len(a) + FLOAT32_TOLERANCE:
-            return None
-        resplit += 1
-    return resplit
+def _numbers(value: Any) -> list[Any]:
+    """Every number in a JSON value, in document order."""
+    if isinstance(value, dict):
+        return _flatten([_numbers(value[k]) for k in sorted(value)])
+    if isinstance(value, list):
+        return _flatten([_numbers(v) for v in value])
+    return [value] if isinstance(value, int | float) and not isinstance(value, bool) else []
 
 
-def _count_flips(old: list[Any], new: list[Any]) -> tuple[int | None, int]:
-    """How many integers moved by exactly one (None if any moved further)."""
-    flat_old, flat_new = _flatten(old), _flatten(new)
-    if len(flat_old) != len(flat_new):
-        return None, len(flat_old)
-    flips = 0
-    for a, b in zip(flat_old, flat_new, strict=True):
-        if a == b:
-            continue
-        if a is None or b is None or abs(a - b) > 1:
-            return None, len(flat_old)
-        flips += 1
-    return flips, len(flat_old)
+def _shape(value: Any) -> Any:
+    """A JSON value with every number replaced, to compare structure and text."""
+    if isinstance(value, dict):
+        return {k: _shape(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_shape(v) for v in value]
+    return "#" if isinstance(value, int | float) and not isinstance(value, bool) else value
 
 
 def _flatten(values: list[Any]) -> list[Any]:

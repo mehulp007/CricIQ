@@ -1,13 +1,5 @@
 {
   "serving": {
-    "ball_model_terms": {
-      "columns": [
-        "term",
-        "coefs"
-      ],
-      "md5": "41b99dfad6f9ba4f7ff082978029d096",
-      "rows": 1337
-    },
     "bowling_usage": {
       "columns": [
         "player_id",
@@ -201,43 +193,6 @@
       "md5": "2eff397f45114035885f8cf271d48590",
       "rows": 14
     },
-    "matchup_cells": {
-      "columns": [
-        "batter_id",
-        "bowler_id",
-        "season",
-        "phase",
-        "balls",
-        "runs",
-        "n_dot",
-        "n_one",
-        "n_two",
-        "n_three",
-        "n_four",
-        "n_six",
-        "n_out",
-        "e_dot",
-        "e_one",
-        "e_two",
-        "e_three",
-        "e_four",
-        "e_six",
-        "e_out"
-      ],
-      "md5": "3f128af38d01f5228db3bef18c437265",
-      "rows": 770
-    },
-    "models": {
-      "columns": [
-        "name",
-        "version",
-        "trained_from",
-        "trained_through",
-        "info"
-      ],
-      "md5": "eba41aee9cef3034e4d2d0445117fdba",
-      "rows": 5
-    },
     "player_batting_cells": {
       "columns": [
         "player_id",
@@ -416,17 +371,6 @@
       "md5": "54943fc50c78deec558ed1e996917dce",
       "rows": 292
     },
-    "player_wpa": {
-      "columns": [
-        "player_id",
-        "match_id",
-        "innings_no",
-        "role",
-        "wpa"
-      ],
-      "md5": "d0d64bac9082ebb5c6e0ebffadd23688",
-      "rows": 375
-    },
     "players": {
       "columns": [
         "player_id",
@@ -441,15 +385,6 @@
       ],
       "md5": "da25cad2b68c39be4e9824ba9ec2cc6f",
       "rows": 204
-    },
-    "score_projections": {
-      "columns": [
-        "match_id",
-        "seq_no",
-        "quantiles"
-      ],
-      "md5": "10344798dbd583d4eee24df5dc538bb0",
-      "rows": 1624
     },
     "seasons": {
       "columns": [
@@ -618,20 +553,6 @@
       ],
       "md5": "96bb10231f12441d50c54fcf95e5c84f",
       "rows": 181
-    },
-    "wp_predictions": {
-      "columns": [
-        "match_id",
-        "innings_no",
-        "seq_no",
-        "wp_team_a",
-        "factors",
-        "leverage",
-        "pressure",
-        "momentum"
-      ],
-      "md5": "d97f5ec666107bf9e73680d0f4ccc3f9",
-      "rows": 3199
     }
   },
   "warehouse": {

@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 
+import duckdb
 import pytest
 
 from criciq_pipelines.checksums import differences, table_checksums
@@ -38,3 +39,20 @@ def test_ipl_warehouse_unchanged(fixture_warehouse: Path) -> None:
 
 def test_ipl_serving_unchanged(fixture_scored_serving_db: Path) -> None:
     _check("serving", fixture_scored_serving_db)
+
+
+def test_checksums_ignore_last_bit_float_noise(tmp_path: Path) -> None:
+    # numpy's last bits differ between platforms, also inside JSON columns.
+    def build(name: str, x: float, info: str) -> Path:
+        db = tmp_path / name
+        con = duckdb.connect(str(db))
+        con.execute("CREATE TABLE t (x DOUBLE, info JSON)")
+        con.execute("INSERT INTO t VALUES (?, ?)", [x, info])
+        con.close()
+        return db
+
+    a = build("a.duckdb", 0.1 + 0.2, '{"q": [0.30000000000000004, -1e-12], "k": 2}')
+    b = build("b.duckdb", 0.3, '{"k": 2, "q": [0.3, 0.0]}')
+    c = build("c.duckdb", 0.3, '{"k": 2, "q": [0.31, 0.0]}')
+    assert differences(table_checksums(a), table_checksums(b)) == []
+    assert differences(table_checksums(a), table_checksums(c)) == ["t: md5 differs"]

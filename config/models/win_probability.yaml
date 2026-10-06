@@ -1,24 +1,40 @@
 # Win probability model: training configuration.
 #
 # Hyperparameters are not hand-picked: `criciq-ml train` searches the grid
-# below on the validation seasons only, and records the winner in the model's
-# manifest. The test seasons are touched exactly once, for the final report.
+# below on the validation years only, and records the winner in the model's
+# manifest. The test years are touched exactly once, for the final report.
+#
+# v2 trains on every T20 competition at once (the pooled copy, `scope: T20`).
+# Splits are calendar years of the match date (date cut-offs on 1 January), so
+# a BBL season that spans the new year falls on both sides of a cut-off. For
+# the IPL a year is a season. v1 (1.0.0) trained on the IPL alone.
 
 name: win_probability
-version: 1.0.0
+version: 2.0.0
+scope: T20
 
 splits:
-  train_through: 2022        # headline evaluation: fit on 2008-2022
+  train_through: 2022        # headline evaluation: fit on matches up to 2022
   validation: [2023, 2024]   # tuning, early stopping and calibration
   test: [2025, 2026]         # reported once; never used for any choice
-  backtest_from: 2016        # rolling-origin: for each season s, fit < s-1, calibrate s-1, test s
+  backtest_from: 2016        # rolling-origin: for each year y, fit < y-1, calibrate y-1, test y
 
 features:
   bat_prior_balls: 100       # empirical-Bayes shrinkage toward the league average
   bowl_prior_balls: 120
   venue_prior_balls: 1500
   player_decay: 0.97         # per match played: a half-life of about 23 matches
-  env_window_matches: 60     # rolling league scoring rate ("era")
+  env_window_matches: 60     # rolling scoring rate of the competition ("era")
+  stable: true               # derived ratios rounded so every CPU agrees (see features.py)
+
+# Candidate groups served on top of the core features (features.CANDIDATES), per
+# innings, chosen by forward selection on the pre-test rolling origin: the
+# squads' records and international cricket in the first step, the batters at
+# the crease (first innings only) in the second. The venue, the era and the
+# target's size made predictions worse.
+served_extras:
+  1: [squads, international, crease]
+  2: [international]
 
 lightgbm:
   base:
@@ -31,13 +47,15 @@ lightgbm:
     monotone_constraints_method: intermediate
     max_rounds: 2000
     early_stopping_rounds: 100
+    num_threads: 12
     seed: 7
   grid:
-    num_leaves: [7, 15]
+    num_leaves: [15, 31]
     # Rows are balls, but the outcome is shared by a whole match (~240 rows):
     # leaves must span many matches or the trees memorise individual games.
-    min_data_in_leaf: [2000, 6000]
-    recency_half_life: [0, 6]  # seasons; 0 = every season weighted equally
+    # The pooled data has about five times the IPL's matches.
+    min_data_in_leaf: [3000, 10000]
+    recency_half_life: [0, 6]  # years; 0 = every year weighted equally
 
 # Calibration (none, or Platt scaling on the log-odds) is chosen per training run
 # with the rolling origin on pre-test seasons. If Platt wins, the served model is

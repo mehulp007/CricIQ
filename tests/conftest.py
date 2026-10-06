@@ -14,8 +14,7 @@ import pandas as pd
 import pytest
 
 from criciq_core import paths
-from criciq_ml import registry, scoring
-from criciq_ml.ball_outcome import load_balls
+from criciq_ml import cli as ml_cli
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
@@ -27,6 +26,8 @@ from criciq_pipelines.warehouse import BuildInputs, build_warehouse
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "cricsheet"
 MATCHES_DIR = FIXTURES / "matches"
+# The T20 competitions in config/competitions.yaml, in config order.
+T20_COMPETITIONS = ("IPL", "BBL", "PSL", "CPL", "SA20", "T20I")
 PEOPLE_CSV = FIXTURES / "people.csv"
 
 
@@ -112,32 +113,40 @@ def fixture_states(fixture_warehouse: Path) -> pd.DataFrame:
 
 
 @pytest.fixture(scope="session")
+def fixture_pooled_warehouse(
+    fixture_full_warehouse: Path, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """Every T20 competition in the fixtures, in one time order (what pooled models read)."""
+    target = tmp_path_factory.mktemp("pooled") / "t20.duckdb"
+    build_scope(fixture_full_warehouse, list(T20_COMPETITIONS), target)
+    return target
+
+
+@pytest.fixture(scope="session")
 def fixture_scored_serving_db(
     fixture_serving_db: Path,
     fixture_warehouse: Path,
-    fixture_states: pd.DataFrame,
+    fixture_pooled_warehouse: Path,
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
-    """The fixture serving database scored with the committed (current) model."""
+    """The fixture serving database scored as `criciq-ml score` scores the IPL's: with the
+    committed models serving the IPL, each from the data it was trained on."""
     target = tmp_path_factory.mktemp("scored") / "serving.duckdb"
     shutil.copyfile(fixture_serving_db, target)
-    model = registry.load_current()
-    predictions, scale = scoring.add_pressure(
-        model,
-        fixture_states,
-        scoring.score_states(model, fixture_states),
-        load_inputs(fixture_warehouse),
-    )
-    scoring.publish(target, predictions, model, scale)
-    projection = registry.load_current_projection()
-    scoring.publish_projections(
-        target, scoring.score_projections(projection, fixture_states), projection
-    )
-    ball_model = registry.load_current_ball_outcome()
-    balls = load_balls(fixture_serving_db)
-    scoring.publish_ball_model(
-        target, scoring.score_matchups(ball_model, balls), ball_model, scoring.current_env(balls)
-    )
-    scoring.publish_ratings(target, registry.load_current_ratings())
-    scoring.publish_simulator(target, registry.load_current_simulator())
+    ml_cli._score_serving(target, ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse))
+    return target
+
+
+@pytest.fixture(scope="session")
+def fixture_scored_players_db(
+    fixture_players_db: Path,
+    fixture_warehouse: Path,
+    fixture_pooled_warehouse: Path,
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
+    """The fixture players database with win probability added and rating constants,
+    as `criciq-ml score` writes them."""
+    target = tmp_path_factory.mktemp("scored-players") / "players.duckdb"
+    shutil.copyfile(fixture_players_db, target)
+    ml_cli._score_players(target, ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse))
     return target

@@ -1,20 +1,28 @@
 # Ball-outcome model: training configuration.
 #
-# The model is tuned on one pair of seasons and tested once on the latest
-# pair. The served version is refit on every season with the tuned settings.
+# The model is tuned on one pair of years and tested once on the latest pair.
+# The served version is refit on every year with the tuned settings.
+#
+# v2 trains on every T20 competition at once (the pooled copy, `scope: T20`):
+# one effect per player across all of them, each competition's own scoring era
+# and its own term. Splits are calendar years of the match (see
+# win_probability.yaml). v1 (1.0.0) trained on the IPL alone.
 
 name: ball_outcome
-version: 1.0.0
+version: 2.0.0
+scope: T20
 
 splits:
-  tune_train_through: 2022   # candidates are fit on 2008-2022 ...
+  tune_train_through: 2022   # candidates are fit on matches up to 2022 ...
   tune_valid: [2023, 2024]   # ... and compared here
   test: [2025, 2026]         # reported once; never used for any choice
-  backtest_from: 2016        # rolling origin: fit on every season before s, test on s
+  backtest_from: 2016        # rolling origin: fit on every year before y, test on y
 
 model:
   c: 1.0             # inverse L2 strength for the situation terms
   max_iter: 3000
+  competition_terms: true
+  n_jobs: 12         # independent fits (grid, test, backtest seasons) run in parallel
   # Player one-hots are multiplied by this before fitting, so their effective
   # penalty is 1 / (c * scale^2): the smaller the scale, the harder player
   # effects are shrunk towards an average player.

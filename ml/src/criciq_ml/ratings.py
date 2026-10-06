@@ -21,6 +21,11 @@ stability.
 The similar-players method is tested by retrieval: from a player's style in
 one season, how often is the nearest profile among next season's players the
 same player?
+
+v2 fits every scope of the players database (each T20 competition, and all T20
+together) on its own records. A component of a competition with too few
+players followed from one season to the next to tune its ``k``
+(``min_pairs``) borrows the all-T20 ``k`` and stability, and says so.
 """
 
 from __future__ import annotations
@@ -74,6 +79,11 @@ class KGrid(BaseModel):
 class RatingsConfig(BaseModel):
     name: str
     version: str
+    # "serving": the IPL's serving database (v1); "players": every scope of the
+    # players database (v2).
+    source: str = "serving"
+    # Fewer next-season pairs than this, and a competition borrows the all-T20 k.
+    min_pairs: int = 100
     splits: Splits
     k_grid: KGrid
     stability: dict[str, float]  # label -> minimum year-to-year r, highest first
@@ -99,6 +109,18 @@ class RatingsModel:
     def version(self) -> str:
         return str(self.manifest["version"])
 
+    def for_scope(self, scope_id: str) -> dict[str, Any] | None:
+        """``{"trained_on", "components"}`` fitted for one scope (a competition, or ``T20``).
+
+        v1 was fitted on the IPL alone, with its constants at the top level.
+        """
+        if "scopes" in self.manifest:
+            found: dict[str, Any] | None = self.manifest["scopes"].get(scope_id)
+            return found
+        if scope_id == "IPL":
+            return {k: self.manifest[k] for k in ("trained_on", "components")}
+        return None
+
     def save(self, target: Path) -> None:
         target.mkdir(parents=True, exist_ok=True)
         (target / "manifest.json").write_text(
@@ -115,14 +137,25 @@ class RatingsModel:
 # --------------------------------------------------------------------------- estimation
 
 
-def load_units(con: duckdb.DuckDBPyConnection, role: Role) -> pd.DataFrame:
+def load_units(
+    con: duckdb.DuckDBPyConnection, role: Role, schema: str | None = None
+) -> pd.DataFrame:
     """Per-innings evidence for every component of a role."""
-    frame: pd.DataFrame = con.execute(units_sql(role, _tables(con))).df()
+    frame: pd.DataFrame = con.execute(units_sql(role, _tables(con, schema))).df()
     return frame
 
 
-def _tables(con: duckdb.DuckDBPyConnection) -> set[str]:
-    return {name for (name,) in con.execute("SHOW TABLES").fetchall()}
+def _tables(con: duckdb.DuckDBPyConnection, schema: str | None = None) -> set[str]:
+    """Tables (and, in a scope of the players database, its views) the queries can read."""
+    if schema is None:
+        return {name for (name,) in con.execute("SHOW TABLES").fetchall()}
+    return {
+        name
+        for (name,) in con.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema IN (?, 'main')",
+            [schema],
+        ).fetchall()
+    }
 
 
 def noise_variance(units: pd.DataFrame) -> float:
@@ -282,6 +315,7 @@ def fit_component(
     )
     served = {"k": round(k, 2), "sigma2": round(sigma2, 8), "stability": stability}
     evaluation = {
+        "pairs": len(pairs),
         "key": component.key,
         "role": component.role,
         "label": component.label,
@@ -357,18 +391,26 @@ def style_retrieval(con: duckdb.DuckDBPyConnection, role: Role, min_balls: int) 
 
 
 def train_ratings(
-    serving: Path, cfg: RatingsConfig, *, data_version: str, log: Log = _quiet
+    serving: Path,
+    cfg: RatingsConfig,
+    *,
+    data_version: str,
+    log: Log = _quiet,
+    schema: str | None = None,
 ) -> tuple[RatingsModel, dict[str, Any]]:
+    """Fit every component on one database (or one scope of the players database)."""
     con = duckdb.connect(str(serving), read_only=True)
     try:
+        if schema is not None:
+            con.execute(f"SET search_path = '{schema},main'")
         components: dict[str, dict[str, Any]] = {}
         evaluations: list[dict[str, Any]] = []
         similarity: dict[str, Any] = {}
         first, last = con.execute("SELECT min(year), max(year) FROM seasons").fetchone()  # type: ignore[misc]
         for role in ROLES:
-            units = load_units(con, role)
+            units = load_units(con, role, schema)
             components[role] = {}
-            for component in role_components(role, _tables(con)):
+            for component in role_components(role, _tables(con, schema)):
                 served, evaluation = fit_component(units, component, cfg, log)
                 components[role][component.key] = served
                 evaluations.append(evaluation)
@@ -402,16 +444,82 @@ def train_ratings(
     return RatingsModel(manifest), evaluation
 
 
-def gate(evaluation: dict[str, Any]) -> list[str]:
+ALL_T20 = "T20"
+
+
+def train_scopes(
+    players: Path,
+    scopes: list[tuple[str, str]],
+    cfg: RatingsConfig,
+    *,
+    data_version: str,
+    log: Log = _quiet,
+) -> tuple[RatingsModel, dict[str, Any]]:
+    """Fit every scope of the players database: ``scopes`` are (scope id, schema)."""
+    fitted: dict[str, tuple[RatingsModel, dict[str, Any]]] = {}
+    order = sorted(scopes, key=lambda s: s[0] != ALL_T20)  # all T20 first: others borrow
+    for scope_id, schema in order:
+        log(f"> {scope_id}")
+        fitted[scope_id] = train_ratings(
+            players, cfg, data_version=data_version, log=log, schema=schema
+        )
+    pooled_model = fitted[ALL_T20][0]
+    manifest_scopes: dict[str, Any] = {}
+    evaluation_scopes: dict[str, Any] = {}
+    for scope_id, (model, evaluation) in fitted.items():
+        components = model.manifest["components"]
+        for line in evaluation["components"]:
+            if scope_id == ALL_T20 or line["pairs"] >= cfg.min_pairs:
+                continue
+            pooled = pooled_model.manifest["components"][line["role"]][line["key"]]
+            served = components[line["role"]][line["key"]]
+            served.update(k=pooled["k"], stability=pooled["stability"], borrowed=ALL_T20)
+            line["borrowed"] = ALL_T20
+            log(
+                f"  {scope_id} {line['role']} {line['key']}: {line['pairs']} pairs, "
+                f"borrows the all-T20 k={pooled['k']:.0f}"
+            )
+        manifest_scopes[scope_id] = {
+            "trained_on": model.manifest["trained_on"],
+            "components": components,
+        }
+        evaluation_scopes[scope_id] = evaluation
+    manifest = {
+        "name": cfg.name,
+        "version": cfg.version,
+        "data_version": data_version,
+        "scopes": manifest_scopes,
+    }
+    evaluation = {
+        "version": cfg.version,
+        "data_version": data_version,
+        "splits": cfg.splits.model_dump(),
+        "min_pairs": cfg.min_pairs,
+        "scopes": evaluation_scopes,
+    }
+    return RatingsModel(manifest), evaluation
+
+
+def gate(evaluation: dict[str, Any], min_pairs: int = 0) -> list[str]:
     """Reasons a version must not be promoted: shrunk records must beat raw ones.
 
     Beating par is reported, not required: a component with little
-    persistent signal is labelled as such instead of being hidden.
+    persistent signal is labelled as such instead of being hidden. With
+    several scopes, every component whose constants are its scope's own must
+    pass where its validation follows at least ``min_pairs`` players (a smaller
+    one is too noisy to gate on, and is reported).
     """
+    if "scopes" in evaluation:
+        return [
+            f"{scope_id}: {problem}"
+            for scope_id, part in evaluation["scopes"].items()
+            for problem in gate(part, int(evaluation.get("min_pairs", 0)))
+        ]
     problems = []
     for c in evaluation["components"]:
         mse = c["next_season"].get("mse")
-        if mse is not None and mse["shrunk"] >= mse["raw"]:
+        enough = c["next_season"].get("pairs", 0) >= min_pairs
+        if c.get("borrowed") is None and enough and mse is not None and mse["shrunk"] >= mse["raw"]:
             problems.append(
                 f"{c['role']} {c['key']}: the shrunk record does not predict the next season "
                 "better than the raw record"

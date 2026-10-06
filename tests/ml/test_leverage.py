@@ -80,7 +80,7 @@ def test_outcome_rates_are_distributions(states: pd.DataFrame, inputs: Inputs) -
 
 
 def test_swing_is_defined_while_play_goes_on(states: pd.DataFrame, inputs: Inputs) -> None:
-    model = registry.load_current()
+    model = registry.load_current(registry.NAME, "IPL")
     swing = leverage.expected_swing(model, states, inputs)
     over = (states["legal_balls"] >= states["max_balls"]) | (states["wickets"] >= 10)
     over |= (states["innings_no"] == 2) & (states["runs"] >= states["target"])
@@ -125,7 +125,7 @@ def test_pressure_is_a_percentile() -> None:
 
 
 def test_scoring_adds_pressure_columns(states: pd.DataFrame, inputs: Inputs) -> None:
-    model = registry.load_current()
+    model = registry.load_current(registry.NAME, "IPL")
     predictions, scale = scoring.add_pressure(
         model, states, scoring.score_states(model, states), inputs
     )

@@ -16,23 +16,37 @@ artifacts are committed under ``models/``.
 
 from __future__ import annotations
 
+import functools
+import os
 import shutil
+import subprocess
+import tempfile
 import time
 from collections.abc import Callable
+from dataclasses import asdict
 from enum import StrEnum
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import pandas as pd
 import typer
 
 from criciq_core import paths
 from criciq_core.publish import current, publish
-from criciq_ml import ball_outcome_training, ratings, registry, report, scoring, simulator
+from criciq_ml import (
+    ball_outcome_training,
+    comparison,
+    players_scoring,
+    ratings,
+    registry,
+    report,
+    scoring,
+    simulator,
+)
 from criciq_ml.ball_outcome import BallOutcomeModel, load_balls
 from criciq_ml.config import load_config
-from criciq_ml.data import load_inputs
-from criciq_ml.features import build_states
+from criciq_ml.data import Inputs, load_inputs
+from criciq_ml.features import FeatureConfig, build_states
 from criciq_ml.projection_training import load_projection_config, train_projection
 from criciq_ml.training import train_model
 
@@ -52,14 +66,43 @@ def _serving_path() -> Path:
     return current(paths.serving_path())
 
 
-def _states(warehouse: Path) -> tuple[pd.DataFrame, str]:
+# The competition whose v1 models the pooled versions are compared with.
+IPL = "IPL"
+# The pooled T20 copy of the warehouse (criciq_pipelines.pipeline.POOLED).
+POOLED = "T20"
+
+
+def _states(
+    warehouse: Path, feature_config: FeatureConfig | None = None
+) -> tuple[pd.DataFrame, str]:
     """Features for every match state (also saved for notebooks and debugging)."""
     inputs = load_inputs(warehouse)
-    states = build_states(inputs, load_config().feature_config())
-    target = paths.data_dir() / "features" / inputs.data_version / "wp_states.parquet"
+    states = build_states(inputs, feature_config or load_config().feature_config())
+    name = f"{warehouse.stem}_states.parquet"
+    target = paths.data_dir() / "features" / inputs.data_version / name
     target.parent.mkdir(parents=True, exist_ok=True)
     states.to_parquet(target, index=False)
     return states, inputs.data_version
+
+
+def _for_training(states: pd.DataFrame) -> pd.DataFrame:
+    """The training protocols split by ``season``: here the match's calendar year,
+    so splits are date cut-offs (a BBL season spans two years). For the IPL the
+    two are the same."""
+    return states.assign(season=states["year"])
+
+
+def _compare_ipl_win_probability(predictions: pd.DataFrame, version: str) -> dict[str, Any]:
+    """The pooled version against the IPL's current one on the IPL's test balls."""
+    ipl_version = registry.current_version(registry.NAME, IPL)
+    assert ipl_version is not None
+    ipl_model = registry.load_current(registry.NAME, IPL)
+    recorded = registry.load_evaluation(ipl_version)
+    ipl_states, _ = _states(paths.warehouse_path(IPL), ipl_model.feature_config)
+    rebuilt = comparison.v1_win_probability(_for_training(ipl_states), load_config(), recorded)
+    comparison.check_reproduced(rebuilt, recorded)
+    mine = predictions[predictions["competition_id"] == IPL]
+    return comparison.compare(rebuilt, mine, v1_version=ipl_version, v2_version=version)
 
 
 @app.command()
@@ -67,8 +110,10 @@ def features(
     warehouse: Annotated[Path | None, typer.Option(help="Warehouse to read.")] = None,
 ) -> None:
     """Build the leak-free match-state feature table."""
+    cfg = load_config()
     states, version = _timed(
-        "building features", lambda: _states(warehouse or paths.warehouse_path())
+        "building features",
+        lambda: _states(warehouse or paths.warehouse_path(cfg.scope), cfg.feature_config()),
     )
     typer.echo(f"  {len(states):,} match states for data version {version}")
 
@@ -87,10 +132,22 @@ def _train_win_probability(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    states, data_version = _timed("building features", lambda: _states(paths.warehouse_path()))
-    result = _timed(
-        "training", lambda: train_model(states, cfg, data_version=data_version, log=typer.echo)
+    states, data_version = _timed(
+        "building features",
+        lambda: _states(paths.warehouse_path(cfg.scope), cfg.feature_config()),
     )
+    result = _timed(
+        "training",
+        lambda: train_model(_for_training(states), cfg, data_version=data_version, log=typer.echo),
+    )
+    pooled = cfg.scope != IPL and IPL in set(states["competition_id"])
+    if pooled:
+        assert result.predictions is not None
+        predictions = result.predictions
+        result.evaluation["ipl_comparison"] = _timed(
+            "comparing with the IPL's current model on its test seasons",
+            lambda: _compare_ipl_win_probability(predictions, cfg.version),
+        )
     registry.save(result.model, result.evaluation)
     test = result.evaluation["test"]
     typer.echo(
@@ -98,12 +155,35 @@ def _train_win_probability(force: bool, promote: bool) -> None:
         f"(baseline {test['baseline']['log_loss']:.4f}), brier {test['model']['brier']:.4f}, "
         f"ECE {test['model']['ece']:.4f}"
     )
+    for line in test.get("by_competition", []):
+        typer.echo(
+            f"    {line['competition']:5} log loss {line['model']['log_loss']:.4f} "
+            f"(baseline {line['baseline']['log_loss']:.4f}, {line['matches']} matches)"
+        )
     typer.echo(f"  wrote {target}")
 
     current = registry.current_version()
     previous = registry.load_evaluation(current) if current and current != cfg.version else None
     problems = registry.gate(result.evaluation, previous, cfg.gate.max_log_loss_regression)
+    ipl_version = registry.current_version(registry.NAME, IPL)
     _finish(problems, promote, cfg.version, registry.NAME)
+    if pooled and promote:
+        _serve_ipl(result.evaluation["ipl_comparison"], registry.NAME, ipl_version)
+
+
+def _serve_ipl(result: dict[str, Any], name: str, ipl_version: str | None) -> None:
+    """After promoting a pooled version: the IPL takes it only if it is no worse there."""
+    v1, v2 = result["v1"], result["v2"]
+    typer.echo(
+        f"  IPL test log loss: {v2['log_loss']:.4f} pooled vs {v1['log_loss']:.4f} "
+        f"({v1['version']})"
+    )
+    if comparison.serves_ipl(result):
+        registry.release(name, IPL)
+        typer.echo("  the pooled version serves the IPL too")
+    elif ipl_version is not None:
+        registry.promote(ipl_version, name, IPL)
+        typer.echo(f"  the IPL keeps {ipl_version}")
 
 
 def _train_score_projection(force: bool, promote: bool) -> None:
@@ -112,20 +192,73 @@ def _train_score_projection(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    states, data_version = _timed("building features", lambda: _states(paths.warehouse_path()))
-    model, evaluation = _timed(
-        "training",
-        lambda: train_projection(states, cfg, data_version=data_version, log=typer.echo),
+    feature_config = load_config().feature_config()
+    states, data_version = _timed(
+        "building features", lambda: _states(paths.warehouse_path(cfg.scope), feature_config)
     )
+    model, evaluation, predictions = _timed(
+        "training",
+        lambda: train_projection(
+            _for_training(states), cfg, data_version=data_version, log=typer.echo
+        ),
+    )
+    model.manifest["feature_config"] = asdict(feature_config)
+    pooled = cfg.scope != IPL and IPL in set(states["competition_id"])
+    if pooled:
+        evaluation["ipl_comparison"] = _timed(
+            "comparing with the IPL's current projection on its test seasons",
+            lambda: _compare_ipl_projection(predictions, cfg.version),
+        )
     registry.save(model, evaluation, registry.PROJECTION)
     test = evaluation["test"]
     typer.echo(
         f"  test 80% coverage {test['model']['coverage80']:.1%}, MAE {test['model']['mae']:.2f} "
         f"(par {test['par_baseline']['mae']:.2f}), pinball {test['model']['pinball']:.3f}"
     )
+    for line in test.get("by_competition", []):
+        typer.echo(
+            f"    {line['competition']:5} pinball {line['model']['pinball']:.3f} "
+            f"(par {line['par_baseline']['pinball']:.3f}), "
+            f"coverage {line['model']['coverage80']:.1%}"
+        )
     typer.echo(f"  wrote {target}")
     problems = registry.projection_gate(evaluation, cfg.gate["coverage_band"])
+    ipl_version = registry.current_version(registry.PROJECTION, IPL)
     _finish(problems, promote, cfg.version, registry.PROJECTION)
+    if pooled and promote:
+        _serve_ipl_projection(evaluation["ipl_comparison"], ipl_version)
+
+
+def _compare_ipl_projection(predictions: pd.DataFrame, version: str) -> dict[str, Any]:
+    """The pooled projection against the IPL's current one on the IPL's test balls."""
+    ipl_version = registry.current_version(registry.PROJECTION, IPL)
+    assert ipl_version is not None
+    ipl_model = registry.load_current_projection(IPL)
+    recorded = registry.load_evaluation(ipl_version, registry.PROJECTION)
+    ipl_states, _ = _states(paths.warehouse_path(IPL), ipl_model.feature_config)
+    rebuilt = comparison.v1_projection(
+        _for_training(ipl_states), load_projection_config(), recorded
+    )
+    comparison.check_projection_reproduced(rebuilt, recorded)
+    mine = predictions[predictions["competition_id"] == IPL]
+    band = load_projection_config().gate["coverage_band"]
+    return comparison.compare_projection(
+        rebuilt, mine, v1_version=ipl_version, v2_version=version, band=(band[0], band[1])
+    )
+
+
+def _serve_ipl_projection(result: dict[str, Any], ipl_version: str | None) -> None:
+    v1, v2 = result["v1"], result["v2"]
+    typer.echo(
+        f"  IPL test pinball: {v2['pinball']:.3f} pooled vs {v1['pinball']:.3f} "
+        f"({v1['version']}); 80% coverage {v2['coverage80']:.1%} vs {v1['coverage80']:.1%}"
+    )
+    if result["no_worse"]:
+        registry.release(registry.PROJECTION, IPL)
+        typer.echo("  the pooled projection serves the IPL too")
+    elif ipl_version is not None:
+        registry.promote(ipl_version, registry.PROJECTION, IPL)
+        typer.echo(f"  the IPL keeps {ipl_version}")
 
 
 def _train_ball_outcome(force: bool, promote: bool) -> None:
@@ -134,15 +267,21 @@ def _train_ball_outcome(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    warehouse = paths.warehouse_path()
-    balls = _timed("loading balls", lambda: load_balls(warehouse))
+    warehouse = paths.warehouse_path(cfg.scope)
+    balls = _timed("loading balls", lambda: _for_training(load_balls(warehouse)))
     data_version = load_inputs(warehouse).data_version
-    model, evaluation = _timed(
+    model, evaluation, predictions = _timed(
         "training",
         lambda: ball_outcome_training.train_ball_outcome(
             balls, cfg, data_version=data_version, log=typer.echo
         ),
     )
+    pooled = cfg.scope != IPL and IPL in set(balls["competition_id"])
+    if pooled:
+        evaluation["ipl_comparison"] = _timed(
+            "comparing with the IPL's current ball model on its test seasons",
+            lambda: _compare_ipl_ball_outcome(predictions, cfg.version, cfg.model.max_iter),
+        )
     registry.save(model, evaluation, registry.BALL_OUTCOME)
     test = evaluation["test"]
     typer.echo(
@@ -150,8 +289,48 @@ def _train_ball_outcome(force: bool, promote: bool) -> None:
         f"(baseline {test['baseline']['log_loss']:.4f}); "
         f"head-to-head prior {evaluation['matchups']['served_kappa']:.0f} balls"
     )
+    for line in test.get("by_competition", []):
+        typer.echo(
+            f"    {line['competition']:5} log loss {line['model']['log_loss']:.4f} "
+            f"(baseline {line['baseline']['log_loss']:.4f})"
+        )
     typer.echo(f"  wrote {target}")
+    ipl_version = registry.current_version(registry.BALL_OUTCOME, IPL)
     _finish(ball_outcome_training.gate(evaluation), promote, cfg.version, registry.BALL_OUTCOME)
+    if pooled and promote:
+        _serve_ipl_generic(evaluation["ipl_comparison"], registry.BALL_OUTCOME, ipl_version)
+
+
+def _compare_ipl_ball_outcome(
+    predictions: pd.DataFrame, version: str, max_iter: int
+) -> dict[str, Any]:
+    """The pooled ball model against the IPL's current one on the IPL's test balls."""
+    ipl_version = registry.current_version(registry.BALL_OUTCOME, IPL)
+    assert ipl_version is not None
+    recorded = registry.load_evaluation(ipl_version, registry.BALL_OUTCOME)
+    manifest = registry.load_current_ball_outcome(IPL).manifest
+    ipl_balls = _for_training(load_balls(paths.warehouse_path(IPL)))
+    rebuilt = comparison.v1_ball_outcome(ipl_balls, recorded, manifest, max_iter)
+    comparison.check_ball_reproduced(rebuilt, recorded)
+    mine = predictions[predictions["competition_id"] == IPL]
+    return comparison.compare_ball_outcome(
+        rebuilt, mine, v1_version=ipl_version, v2_version=version
+    )
+
+
+def _serve_ipl_generic(result: dict[str, Any], name: str, ipl_version: str | None) -> None:
+    """After promoting a pooled version: the IPL takes it only if it is no worse there."""
+    v1, v2 = result["v1"], result["v2"]
+    typer.echo(
+        f"  IPL test log loss: {v2['log_loss']:.4f} pooled vs {v1['log_loss']:.4f} "
+        f"({v1['version']})"
+    )
+    if result["no_worse"]:
+        registry.release(name, IPL)
+        typer.echo("  the pooled version serves the IPL too")
+    elif ipl_version is not None:
+        registry.promote(ipl_version, name, IPL)
+        typer.echo(f"  the IPL keeps {ipl_version}")
 
 
 def _train_ratings(force: bool, promote: bool) -> None:
@@ -160,14 +339,26 @@ def _train_ratings(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    serving = _serving_path()
     data_version = load_inputs(paths.warehouse_path()).data_version
-    model, evaluation = _timed(
-        "fitting ratings",
-        lambda: ratings.train_ratings(serving, cfg, data_version=data_version, log=typer.echo),
-    )
+    if cfg.source == "players":
+        players = current(paths.players_path())
+        scopes = [(s["scope_id"], s["schema_name"]) for s in players_scoring.scopes(players)]
+        model, evaluation = _timed(
+            "fitting ratings for every scope",
+            lambda: ratings.train_scopes(
+                players, scopes, cfg, data_version=data_version, log=typer.echo
+            ),
+        )
+        parts = list(evaluation["scopes"].values())
+    else:
+        serving = _serving_path()
+        model, evaluation = _timed(
+            "fitting ratings",
+            lambda: ratings.train_ratings(serving, cfg, data_version=data_version, log=typer.echo),
+        )
+        parts = [evaluation]
     registry.save(model, evaluation, registry.RATINGS)
-    levels = [c["stability"] for c in evaluation["components"]]
+    levels = [c["stability"] for part in parts for c in part["components"]]
     typer.echo(
         "  stability: " + ", ".join(f"{levels.count(s)} {s}" for s in ("high", "moderate", "low"))
     )
@@ -181,29 +372,89 @@ def _train_simulator(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    warehouse = paths.warehouse_path()
-    balls = _timed("loading balls", lambda: load_balls(warehouse))
-    data_version = load_inputs(warehouse).data_version
-    served = registry.load_current_ball_outcome().manifest
     ball_cfg = ball_outcome_training.load_ball_outcome_config()
-
-    def fit(train: pd.DataFrame) -> BallOutcomeModel:
-        return BallOutcomeModel.fit(
-            train,
-            player_scale=float(served["player_scale"]),
-            c=float(served["c"]),
-            max_iter=ball_cfg.model.max_iter,
+    data_version = load_inputs(paths.warehouse_path()).data_version
+    settings: dict[str, Any] = {}
+    evaluations: dict[str, Any] = {}
+    for competition in cfg.competitions:
+        served = registry.load_current_ball_outcome(competition).manifest
+        warehouse = (
+            paths.warehouse_path(POOLED)
+            if len(served.get("trained_on", {}).get("competitions", [])) > 1
+            else paths.warehouse_path(competition)
+        )
+        balls = _timed(
+            f"loading balls for {competition}",
+            functools.partial(_training_balls, warehouse),
         )
 
-    settings, evaluation = _timed(
-        "backtesting",
-        lambda: simulator.run(
-            _serving_path(), balls, fit, cfg, data_version=data_version, log=typer.echo
-        ),
-    )
-    registry.save(settings, evaluation, registry.SIMULATOR)
+        def fit(
+            train: pd.DataFrame, served: dict[str, Any] = served, competition: str = competition
+        ) -> BallOutcomeModel:
+            return BallOutcomeModel.fit(
+                train,
+                player_scale=float(served["player_scale"]),
+                c=float(served["c"]),
+                max_iter=ball_cfg.model.max_iter,
+                competition_terms="competition" in served.get("extra_groups", []),
+            ).for_competition(competition)
+
+        with tempfile.TemporaryDirectory(prefix="criciq-simulator-") as work:
+            serving = _simulation_database(competition, Path(work))
+            part, evaluation = _timed(
+                f"backtesting {competition}",
+                functools.partial(
+                    simulator.run,
+                    serving,
+                    balls,
+                    fit,
+                    cfg,
+                    data_version=data_version,
+                    log=typer.echo,
+                ),
+            )
+        settings[competition] = part.manifest
+        evaluations[competition] = evaluation
+    if cfg.competitions == [IPL]:  # v1 layout
+        model, evaluation = simulator.SimulatorSettings(settings[IPL]), evaluations[IPL]
+    else:
+        common = {"name": cfg.name, "version": cfg.version, "data_version": data_version}
+        model = simulator.SimulatorSettings({**common, "competitions": settings})
+        evaluation = {**common, "competitions": evaluations}
+    registry.save(model, evaluation, registry.SIMULATOR)
     typer.echo(f"  wrote {target}")
-    _finish(simulator.gate(evaluation), promote, cfg.version, registry.SIMULATOR)
+    problems = [
+        f"{competition}: {problem}"
+        for competition, part in evaluations.items()
+        for problem in simulator.gate(part)
+    ]
+    ipl_version = registry.current_version(registry.SIMULATOR, IPL)
+    _finish(problems, promote, cfg.version, registry.SIMULATOR)
+    if promote and IPL not in cfg.competitions and ipl_version is not None:
+        # Not backtested here: the IPL keeps the settings it has.
+        registry.promote(ipl_version, registry.SIMULATOR, IPL)
+        typer.echo(f"  the IPL keeps simulator {ipl_version}")
+
+
+def _training_balls(warehouse: Path) -> pd.DataFrame:
+    return _for_training(load_balls(warehouse))
+
+
+def _simulation_database(competition: str, work: Path) -> Path:
+    """A serving-shaped database of one competition: the IPL's own, or one exported by
+    the pipeline (``criciq-data export-competition``; this package never imports it)."""
+    if competition == IPL:
+        return _serving_path()
+    command = shutil.which("criciq-data")
+    if command is None:
+        raise typer.BadParameter("criciq-data is not installed; run `uv sync --all-packages`")
+    target = work / f"{competition.lower()}-serving.duckdb"
+    subprocess.run(
+        [command, "export-competition", competition, "--out", str(target)],
+        check=True,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+    )
+    return target
 
 
 def _finish(problems: list[str], promote: bool, version: str, name: str) -> None:
@@ -235,25 +486,82 @@ def train(
         _train_ratings(force, promote)
 
 
+class _Sources:
+    """Inputs, match states and balls, each built once per warehouse and settings.
+
+    A model fitted on several competitions (its manifest lists them) scores from
+    the pooled copy; a model of one competition from that competition's copy.
+    """
+
+    def __init__(self, ipl: Path, pooled: Path) -> None:
+        self.ipl = ipl
+        self.pooled = pooled
+        self._inputs: dict[Path, Inputs] = {}
+        self._states: dict[tuple[Path, FeatureConfig], pd.DataFrame] = {}
+        self._balls: dict[Path, pd.DataFrame] = {}
+
+    def warehouse(self, manifest: dict[str, Any]) -> Path:
+        competitions = manifest.get("trained_on", {}).get("competitions", [])
+        return self.pooled if len(competitions) > 1 else self.ipl
+
+    def inputs(self, warehouse: Path) -> Inputs:
+        if warehouse not in self._inputs:
+            self._inputs[warehouse] = _timed(
+                f"loading {warehouse.stem}", lambda: load_inputs(warehouse)
+            )
+        return self._inputs[warehouse]
+
+    def states(self, warehouse: Path, cfg: FeatureConfig) -> pd.DataFrame:
+        key = (warehouse, cfg)
+        if key not in self._states:
+            inputs = self.inputs(warehouse)
+            self._states[key] = _timed(
+                f"building {warehouse.stem} features", lambda: build_states(inputs, cfg)
+            )
+        return self._states[key]
+
+    def balls(self, warehouse: Path) -> pd.DataFrame:
+        if warehouse not in self._balls:
+            self._balls[warehouse] = _timed(
+                f"loading {warehouse.stem} balls", lambda: load_balls(warehouse)
+            )
+        return self._balls[warehouse]
+
+
+def _of(frame: pd.DataFrame, competitions: set[str]) -> pd.DataFrame:
+    return frame[frame["competition_id"].isin(competitions)].reset_index(drop=True)
+
+
 @app.command()
 def score(
     serving: Annotated[Path | None, typer.Option(help="Serving database to update.")] = None,
-    warehouse: Annotated[Path | None, typer.Option(help="Warehouse to read.")] = None,
+    warehouse: Annotated[Path | None, typer.Option(help="The IPL's warehouse copy.")] = None,
+    pooled: Annotated[Path | None, typer.Option(help="The pooled T20 warehouse copy.")] = None,
+    players: Annotated[Path | None, typer.Option(help="Players database to update.")] = None,
 ) -> None:
-    """Score every historical ball with the current models into the serving database."""
-    wp_model = registry.load_current()
-    projection_model = registry.load_current_projection()
-    inputs = _timed("loading", lambda: load_inputs(warehouse or paths.warehouse_path()))
-    states = _timed(
-        "building features", lambda: build_states(inputs, load_config().feature_config())
+    """Score every historical ball with the models serving each competition: the IPL's
+    serving database, then the players database of every T20 competition."""
+    sources = _Sources(
+        warehouse or paths.warehouse_path(IPL), pooled or paths.warehouse_path(POOLED)
     )
+    _score_serving(serving, sources)
+    target = players or paths.players_path()
+    if current(target).exists() and sources.pooled.exists():
+        _score_players(target, sources)
+
+
+def _score_serving(serving: Path | None, sources: _Sources) -> None:
     final = serving or paths.serving_path()
     # Score one working copy and put it in place at the end, so a failure leaves
     # nothing half-scored and the running API can keep its database open.
     target = final.with_name(final.name + ".scoring")
     shutil.copyfile(serving or _serving_path(), target)
-
+    ipl = {IPL}
     try:
+        wp_model = registry.load_current(registry.NAME, IPL)
+        wp_source = sources.warehouse(wp_model.manifest)
+        states = _of(sources.states(wp_source, wp_model.feature_config), ipl)
+        inputs = sources.inputs(wp_source)
         predictions = _timed("win probability", lambda: scoring.score_states(wp_model, states))
         predictions, scale = _timed(
             "pressure and momentum",
@@ -262,8 +570,16 @@ def score(
         count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model, scale))
         typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
 
+        projection_model = registry.load_current_projection(IPL)
+        projection_states = _of(
+            sources.states(
+                sources.warehouse(projection_model.manifest), projection_model.feature_config
+            ),
+            ipl,
+        )
         projections = _timed(
-            "score projection", lambda: scoring.score_projections(projection_model, states)
+            "score projection",
+            lambda: scoring.score_projections(projection_model, projection_states),
         )
         count = _timed(
             "publishing",
@@ -271,22 +587,24 @@ def score(
         )
         typer.echo(f"  {count:,} score projections from model {projection_model.version}")
 
-        ball_model = registry.load_current_ball_outcome()
-        balls = _timed("loading balls", lambda: load_balls(warehouse or paths.warehouse_path()))
-        cells = _timed("ball outcomes", lambda: scoring.score_matchups(ball_model, balls))
+        ball_model = registry.load_current_ball_outcome(IPL)
+        balls = _of(sources.balls(sources.warehouse(ball_model.manifest)), ipl)
+        served = ball_model.for_competition(IPL)
+        cells = _timed("ball outcomes", lambda: scoring.score_matchups(served, balls))
         count = _timed(
             "publishing",
-            lambda: scoring.publish_ball_model(
-                target, cells, ball_model, scoring.current_env(balls)
-            ),
+            lambda: scoring.publish_ball_model(target, cells, served, scoring.current_env(balls)),
         )
         typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
 
         rating_constants = registry.load_current_ratings()
-        _timed("publishing ratings", lambda: scoring.publish_ratings(target, rating_constants))
+        _timed(
+            "publishing ratings",
+            lambda: scoring.publish_ratings(target, rating_constants, IPL),
+        )
         typer.echo(f"  rating constants {rating_constants.version} -> {target}")
 
-        settings = registry.load_current_simulator()
+        settings = registry.load_current_simulator(IPL).for_competition(IPL)
         _timed("publishing simulator settings", lambda: scoring.publish_simulator(target, settings))
         typer.echo(f"  simulator settings {settings.version} -> {target}")
     except BaseException:
@@ -294,6 +612,43 @@ def score(
         raise
     placed = publish(target, final)
     typer.echo(f"  scored database -> {placed}")
+
+
+def _score_players(players: Path, sources: _Sources) -> None:
+    """Win probability added and rating constants for every competition's scope."""
+    competitions = [
+        s["scope_id"]
+        for s in players_scoring.scopes(current(players))
+        if len(s["competition_ids"]) == 1
+    ]
+    by_version: dict[str, list[str]] = {}
+    for competition in competitions:
+        version = registry.current_version(registry.NAME, competition)
+        assert version is not None
+        by_version.setdefault(version, []).append(competition)
+    frames = []
+    for version, members in by_version.items():
+        model = registry.load_current(registry.NAME, members[0])
+        source = sources.warehouse(model.manifest)
+        states = _of(sources.states(source, model.feature_config), set(members))
+        if states.empty:
+            typer.echo(f"  model {version} cannot score {', '.join(members)}: not in its data")
+            continue
+        predictions = _timed(
+            f"win probability for {', '.join(members)}",
+            functools.partial(scoring.score_states, model, states),
+        )
+        wpa = players_scoring.player_wpa(predictions, sources.inputs(source).deliveries)
+        competition_of = states.drop_duplicates("match_id").set_index("match_id")["competition_id"]
+        frames.append(wpa.assign(competition_id=wpa["match_id"].map(competition_of)))
+    ratings_model = registry.load_current_ratings()
+    placed = _timed(
+        "publishing to the players database",
+        lambda: players_scoring.publish(
+            current(players), pd.concat(frames) if frames else None, ratings_model
+        ),
+    )
+    typer.echo(f"  win probability added and rating constants -> {placed}")
 
 
 @app.command("report")

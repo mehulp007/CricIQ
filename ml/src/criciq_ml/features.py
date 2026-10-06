@@ -10,6 +10,10 @@ before its first ball, ``seq_no = 0``). Rows combine:
   processed in order and history is updated only after a match's rows are
   emitted, so no row can see its own match's result or any later match.
 
+Several competitions can be built together (the pooled T20 copy): players and
+grounds carry their history across competitions, while the scoring era and the
+chase tables are each competition's own.
+
 Team identity is deliberately not a feature: squads turn over every season.
 Player strength enters through the actual XI's records instead.
 """
@@ -60,6 +64,9 @@ CANDIDATES: dict[str, dict[int, list[str]]] = {
     "squads": {1: ["opp_bat_strength", "own_bowl_strength"], 2: []},
     "venue": {1: ["venue_idx"], 2: ["venue_idx"]},
     "target_size": {1: [], 2: ["target_vs_par"]},
+    # Pooled data: the competition's scoring level, and international cricket.
+    "era": {1: ["env_rpb"], 2: ["env_rpb"]},
+    "international": {1: ["international"], 2: ["international"]},
 }
 
 # Match state only, without the era adjustment (ablation).
@@ -107,10 +114,26 @@ GROUPS: dict[str, dict[int, list[str]]] = {
     },
     "wickets": {1: ["wickets"], 2: ["wickets"]},
     "recent": {1: ["runs_last_12", "wickets_last_12"], 2: ["runs_last_12", "wickets_last_12"]},
+    # Who is playing: the XIs' records, and international cricket.
+    "teams": {
+        1: ["opp_bat_strength", "own_bowl_strength", "international"],
+        2: ["international"],
+    },
 }
 GROUP_KEYS = list(GROUPS)
 
-KEY_COLUMNS = ["match_id", "innings_no", "seq_no", "match_order", "season"]
+
+def group_keys(features: dict[int, list[str]]) -> list[str]:
+    """The concepts a model's features cover, in GROUP_KEYS order (the situation always)."""
+    return [
+        key
+        for key in GROUP_KEYS
+        if key == GROUP_KEYS[0]
+        or any(f in features.get(n, []) for n, members in GROUPS[key].items() for f in members)
+    ]
+
+
+KEY_COLUMNS = ["match_id", "innings_no", "seq_no", "match_order", "season", "year"]
 LABEL = "label"
 
 # Columns that describe how a match *ended*. They must never be features.
@@ -128,6 +151,15 @@ class FeatureConfig:
     env_window_matches: int = 60
     # Prior run environment before any history exists (7.8 runs an over).
     initial_rpb: float = 1.30
+    # Round derived ratios so values that are equal in exact arithmetic are equal
+    # on every CPU (a tree split can otherwise fall between two copies of one
+    # value, as log1p(needed) - log1p(left) did between Windows and Linux).
+    stable: bool = False
+
+    @classmethod
+    def of(cls, settings: dict[str, Any] | None) -> FeatureConfig:
+        """From a model manifest's ``feature_config``; v1 models predate it (defaults)."""
+        return cls(**(settings or {}))
 
 
 # ---------------------------------------------------------------- history
@@ -290,12 +322,18 @@ class _Squads:
 # ---------------------------------------------------------------- builder
 
 
+# Competitions of international sides (the others are club leagues).
+INTERNATIONAL = frozenset({"T20I"})
+# Decimals kept by stable features.
+STABLE_DECIMALS = 9
+
+
 def build_states(inputs: Inputs, cfg: FeatureConfig | None = None) -> pd.DataFrame:
     """Every match state of every main innings (super overs excluded), with features."""
     cfg = cfg or FeatureConfig()
     players: dict[str, _PlayerHistory] = {}
     venues: dict[str, list[float]] = defaultdict(lambda: [0.0, 0.0])  # runs, expected runs
-    league = _League(window=cfg.env_window_matches, initial_rpb=cfg.initial_rpb)
+    leagues: dict[str, _League] = {}
     rows: list[dict[str, Any]] = []
 
     deliveries = {mid: df for mid, df in inputs.deliveries.groupby("match_id", sort=False)}
@@ -303,11 +341,19 @@ def build_states(inputs: Inputs, cfg: FeatureConfig | None = None) -> pd.DataFra
     squads = {mid: df for mid, df in inputs.squads.groupby("match_id", sort=False)}
     subs = {mid: df for mid, df in inputs.substitutions.groupby("match_id", sort=False)}
     empty_subs = inputs.substitutions.iloc[0:0]
-    season_of = inputs.matches.set_index("match_id")["season"]
-    tables = chase.SeasonTables(inputs.deliveries, inputs.deliveries["match_id"].map(season_of))
+    by_match = inputs.matches.set_index("match_id")
+    tables = chase.SeasonTables(
+        inputs.deliveries,
+        inputs.deliveries["match_id"].map(by_match["year"]),
+        inputs.deliveries["match_id"].map(by_match["competition_id"]),
+    )
 
     for match in inputs.matches.sort_values("match_order").itertuples(index=False):
         mid = int(match.match_id)
+        competition = str(match.competition_id)
+        league = leagues.setdefault(
+            competition, _League(window=cfg.env_window_matches, initial_rpb=cfg.initial_rpb)
+        )
         rates = league.rates()
         venue_runs, venue_expected = venues[match.venue_id]
         venue_idx = (venue_runs + cfg.venue_prior_balls * rates["rpb"]) / (
@@ -339,8 +385,13 @@ def build_states(inputs: Inputs, cfg: FeatureConfig | None = None) -> pd.DataFra
                 "innings_no": int(inn.innings_no),
                 "match_order": int(match.match_order),
                 "season": int(match.season),
+                "year": int(match.year),
+                "competition_id": competition,
+                "international": float(competition in INTERNATIONAL),
                 "venue_idx": venue_idx,
-                "dp_table": tables.for_season(int(match.season)) if inn.innings_no == 2 else None,
+                "dp_table": (
+                    tables.for_season(int(match.year), competition) if inn.innings_no == 2 else None
+                ),
                 "env_rpb": rates["rpb"],
                 LABEL: label_for(inn.batting_team_id),
             }
@@ -353,7 +404,29 @@ def build_states(inputs: Inputs, cfg: FeatureConfig | None = None) -> pd.DataFra
         _update_history(match_dels, match_inns, venues[match.venue_id], players, league, rates, cfg)
 
     frame = pd.DataFrame(rows)
+    if cfg.stable:
+        for column in STABLE_COLUMNS:
+            if column in frame:
+                frame[column] = frame[column].round(STABLE_DECIMALS)
     return frame.sort_values(["match_order", "innings_no", "seq_no"]).reset_index(drop=True)
+
+
+# Features computed with floating-point maths (rounded when ``stable``).
+STABLE_COLUMNS = (
+    "chase_ratio",
+    "required_rate",
+    "required_rate_rel",
+    "runs_vs_par",
+    "target_vs_par",
+    "env_rpb",
+    "venue_idx",
+    "crease_sr_idx",
+    "crease_avg_idx",
+    "depth_avg_sum",
+    "bowl_left_econ_idx",
+    "opp_bat_strength",
+    "own_bowl_strength",
+)
 
 
 def _labeller(match: Any) -> Any:

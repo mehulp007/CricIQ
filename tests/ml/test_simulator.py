@@ -64,7 +64,7 @@ def test_engine_logits_equal_the_model(model: BallOutcomeModel, balls: pd.DataFr
 def test_backtest_pieces(
     model: BallOutcomeModel, balls: pd.DataFrame, fixture_scored_serving_db: Path
 ) -> None:
-    envs = balls.groupby("match_order")["env"].first().to_dict()
+    envs = balls.groupby("match_id")["env"].first().to_dict()
     con = duckdb.connect(str(fixture_scored_serving_db), read_only=True)
     try:
         matches = simulator.test_matches(con, [2019, 2023])
@@ -82,6 +82,20 @@ def test_backtest_pieces(
     assert done["p_first"].between(0, 1).all()
     assert done["pit"].between(0, 1).all()
     assert (done["crps"] >= 0).all()
+
+
+def test_supersub_side_bats_eleven() -> None:
+    def cand(pid: str, position: float | None, overs: float) -> sim.Candidate:
+        by_over = np.zeros(sim.OVERS)
+        by_over[0] = overs
+        return sim.Candidate(sim.Player(pid), position, by_over)
+
+    # Twelve named (supersub rules): the one who usually bats lowest drops out.
+    twelve = [cand(f"p{i}", float(i + 1), 30.0 if i >= 6 else 0.0) for i in range(11)]
+    twelve.append(cand("extra", 12.0, 40.0))
+    side = simulator.side_for("x", twelve, sim.usage_priors([("any", 0, 1)]))
+    assert len(side.batters) == 11
+    assert "extra" not in {p.player_id for p in side.batters + side.bowlers}
 
 
 def test_crps_and_pit() -> None:
@@ -109,7 +123,7 @@ def test_gate() -> None:
 
 
 def test_committed_settings_are_published(fixture_scored_serving_db: Path) -> None:
-    settings = registry.load_current_simulator()
+    settings = registry.load_current_simulator("IPL").for_competition("IPL")
     con = duckdb.connect(str(fixture_scored_serving_db), read_only=True)
     try:
         row = con.execute("SELECT version, info FROM models WHERE name = 'simulator'").fetchone()
@@ -118,3 +132,18 @@ def test_committed_settings_are_published(fixture_scored_serving_db: Path) -> No
     assert row is not None
     assert row[0] == settings.version
     assert '"conditions_sd"' in row[1]
+
+
+def test_unserved_version_is_found(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from criciq_ml import simulator_report
+
+    monkeypatch.setenv("CRICIQ_MODELS_DIR", str(tmp_path))
+    for version in ("1.0.0", "2.0.0", "10.0.0"):
+        (tmp_path / "simulator" / version).mkdir(parents=True)
+    (tmp_path / "simulator" / "1.0.0" / "evaluation.json").write_text("{}")
+    assert simulator_report.unserved({"1.0.0"}) is None
+    # Only trained versions count, compared as versions (10 after 2).
+    (tmp_path / "simulator" / "2.0.0" / "evaluation.json").write_text("{}")
+    (tmp_path / "simulator" / "10.0.0" / "evaluation.json").write_text("{}")
+    assert simulator_report.unserved({"1.0.0"}) == "10.0.0"
+    assert simulator_report.unserved({"10.0.0", "1.0.0"}) is None

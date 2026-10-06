@@ -13,6 +13,10 @@
    seasons whether shrunk head-to-head records predict better than the model
    alone and than raw head-to-head rates.
 5. Serve: refit on every season and refit ``kappa``.
+
+The fits within a step are independent (grid points, the test fits, every
+backtest season), so they run in parallel processes (``n_jobs``); each fit is
+deterministic, so the results do not depend on how many run at once.
 """
 
 from __future__ import annotations
@@ -24,6 +28,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import yaml
+from joblib import Parallel, delayed
 from pydantic import BaseModel
 
 from criciq_core import paths
@@ -62,11 +67,17 @@ class ModelSettings(BaseModel):
     c: float
     max_iter: int
     player_scale_grid: list[float]
+    # One term per competition (a model fitted on several).
+    competition_terms: bool = False
+    # Independent fits run in this many processes at once.
+    n_jobs: int = 1
 
 
 class BallOutcomeConfig(BaseModel):
     name: str
     version: str
+    # The warehouse copy trained on: a competition ("IPL") or the pooled T20 copy ("T20").
+    scope: str = "IPL"
     splits: Splits
     model: ModelSettings
     gate: dict[str, Any]
@@ -149,7 +160,20 @@ def _fit(
         c=cfg.model.c,
         max_iter=cfg.model.max_iter,
         phase_players=phase_players,
+        competition_terms=cfg.model.competition_terms,
     )
+
+
+def _fit_many(
+    jobs: list[tuple[pd.DataFrame, float, bool]], cfg: BallOutcomeConfig
+) -> list[BallOutcomeModel]:
+    """Fit (balls, player scale, phase players) jobs, in parallel processes."""
+    if cfg.model.n_jobs <= 1 or len(jobs) == 1:
+        return [_fit(balls, cfg, scale, phase) for balls, scale, phase in jobs]
+    models: list[BallOutcomeModel] = Parallel(
+        n_jobs=min(cfg.model.n_jobs, len(jobs)), backend="loky"
+    )(delayed(_fit)(balls, cfg, scale, phase) for balls, scale, phase in jobs)
+    return models
 
 
 def _tune(
@@ -158,9 +182,13 @@ def _tune(
     s = cfg.splits
     train = balls[balls["season"] <= s.tune_train_through]
     valid = balls[balls["season"].isin(s.tune_valid)]
+    scales = cfg.model.player_scale_grid
+    *fitted, situation = _fit_many(
+        [(train, scale, False) for scale in scales] + [(train, 1e-6, False)], cfg
+    )
     grid = []
-    for scale in cfg.model.player_scale_grid:
-        loss = log_loss(_fit(train, cfg, scale).predict(valid), valid["outcome"])
+    for scale, model in zip(scales, fitted, strict=True):
+        loss = log_loss(model.predict(valid), valid["outcome"])
         grid.append({"player_scale": scale, "log_loss": loss})
         log(f"    player scale {scale}: valid log loss {loss:.5f}")
     best = min(grid, key=lambda r: r["log_loss"])
@@ -176,7 +204,7 @@ def _tune(
         {
             "variant": "situation",
             "label": "Match situation, no players",
-            "log_loss": log_loss(_fit(train, cfg, 1e-6).predict(valid), valid["outcome"]),
+            "log_loss": log_loss(situation.predict(valid), valid["outcome"]),
         },
         {"variant": "served", "label": "+ batter and bowler", "log_loss": best["log_loss"]},
         {
@@ -244,12 +272,13 @@ def _backtest(
     balls: pd.DataFrame, cfg: BallOutcomeConfig, scale: float, phase_players: bool, log: Log
 ) -> list[dict[str, Any]]:
     rows = []
-    for season in sorted(balls["season"].unique()):
-        if season < cfg.splits.backtest_from:
-            continue
+    seasons = [s for s in sorted(balls["season"].unique()) if s >= cfg.splits.backtest_from]
+    models = _fit_many(
+        [(balls[balls["season"] < season], scale, phase_players) for season in seasons], cfg
+    )
+    for season, model in zip(seasons, models, strict=True):
         train = balls[balls["season"] < season]
         test = balls[balls["season"] == season]
-        model = _fit(train, cfg, scale, phase_players)
         baseline = MarginalBaseline(train[train["season"] >= season - 2])
         row = {
             "season": int(season),
@@ -272,9 +301,28 @@ def served_kappa(model: BallOutcomeModel, balls: pd.DataFrame) -> float:
     return fit_kappa(n, e / n.sum(axis=1, keepdims=True))
 
 
+def by_competition(
+    p_model: FloatArray, p_base: FloatArray, test: pd.DataFrame
+) -> list[dict[str, Any]]:
+    """Test metrics in each competition (pooled models), against the baseline."""
+    if "competition_id" not in test or test["competition_id"].nunique() < 2:
+        return []
+    competitions = test["competition_id"].to_numpy()
+    return [
+        {
+            "competition": str(competition),
+            "model": metrics(p_model[mask], test[mask]),
+            "baseline": metrics(p_base[mask], test[mask]),
+        }
+        for competition in sorted(set(competitions))
+        if (mask := competitions == competition).any()
+    ]
+
+
 def train_ball_outcome(
     balls: pd.DataFrame, cfg: BallOutcomeConfig, *, data_version: str, log: Log = _quiet
-) -> tuple[BallOutcomeModel, dict[str, Any]]:
+) -> tuple[BallOutcomeModel, dict[str, Any], pd.DataFrame]:
+    """Model, evaluation, and the headline model's test probabilities ball by ball."""
     s = cfg.splits
     log("  tuning the player penalty")
     scale, grid, selection = _tune(balls, cfg, log)
@@ -285,9 +333,9 @@ def train_ball_outcome(
     log("  test seasons")
     train = balls[balls["season"] < min(s.test)]
     test = balls[balls["season"].isin(s.test)]
-    model = _fit(train, cfg, scale, phase_players)
+    model, situation = _fit_many([(train, scale, phase_players), (train, 1e-6, False)], cfg)
     p_model = model.predict(test)
-    p_situation = _fit(train, cfg, 1e-6).predict(test)
+    p_situation = situation.predict(test)
     baseline = MarginalBaseline(train[train["season"] >= min(s.test) - 2])
     p_base = baseline.predict(test)
     by_phase = []
@@ -306,6 +354,7 @@ def train_ball_outcome(
         "situation_only": metrics(p_situation, test),
         "baseline": metrics(p_base, test),
         "by_phase": by_phase,
+        "by_competition": by_competition(p_model, p_base, test),
         "calibration": class_calibration(p_model, test),
         "runs_calibration": runs_calibration(p_model, test),
     }
@@ -336,7 +385,15 @@ def train_ball_outcome(
             "version": cfg.version,
             "data_version": data_version,
             "kappa": kappa,
-            "trained_on": {"seasons": seasons, "balls": len(balls)},
+            "trained_on": {
+                "seasons": seasons,
+                "balls": len(balls),
+                **(
+                    {"competitions": sorted(balls["competition_id"].unique().tolist())}
+                    if balls["competition_id"].nunique() > 1
+                    else {}
+                ),
+            },
         }
     )
     log(f"    served kappa {kappa:.0f} balls")
@@ -363,7 +420,9 @@ def train_ball_outcome(
         "matchups": {**matchups, "served_kappa": kappa},
         "backtest": backtest,
     }
-    return served, evaluation
+    keys = [c for c in ("match_id", "innings_no", "seq_no", "competition_id") if c in test]
+    predictions = test[[*keys, "outcome"]].assign(probs=list(p_model))
+    return served, evaluation, predictions
 
 
 def gate(evaluation: dict[str, Any]) -> list[str]:
@@ -371,4 +430,7 @@ def gate(evaluation: dict[str, Any]) -> list[str]:
     problems = []
     if test["model"]["log_loss"] >= test["baseline"]["log_loss"]:
         problems.append("does not beat the phase-and-wickets baseline on test log loss")
+    for line in test.get("by_competition", []):
+        if line["model"]["log_loss"] >= line["baseline"]["log_loss"]:
+            problems.append(f"does not beat the baseline on {line['competition']} test log loss")
     return problems

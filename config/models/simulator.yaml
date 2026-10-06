@@ -6,11 +6,18 @@
 # model on the seasons before each period and simulates every match before a
 # ball is bowled.
 
+#
+# v2 backtests each competition below on its own serving-shaped database, with
+# the pooled ball model (every T20 competition) refit before the validation and
+# test years and folded for that competition. The IPL is backtested only when
+# it is served by the pooled ball model; otherwise it keeps v1 (1.0.0).
+
 name: simulator
-version: 1.0.0
+version: 2.0.0
+competitions: [T20I]
 
 valid: [2023, 2024]      # the conditions spread is tuned here ...
-conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
 tuning_simulations: 2000
 test: [2025, 2026]       # ... and every match with a result here is simulated once
 simulations: 2000        # per test match

@@ -18,6 +18,10 @@ side batting first wins, against a coin flip, the base rate of batting first and
 the two sides' recent form, and checks the simulated first-innings totals with a
 probability integral transform (PIT): if the simulated distributions are right,
 the actual total's percentile within its simulated distribution is uniform.
+
+v2 backtests each competition in ``competitions`` on that competition's own
+serving-shaped database, with the pooled ball model refit on every T20
+competition before the test years and folded for it.
 """
 
 from __future__ import annotations
@@ -43,6 +47,7 @@ from criciq_ml.ball_outcome import BallOutcomeModel
 
 Log = Callable[[str], None]
 PIT_BINS = 10
+XI = 11
 
 
 def _quiet(_: str) -> None:
@@ -52,6 +57,8 @@ def _quiet(_: str) -> None:
 class SimulatorConfig(BaseModel):
     name: str = "simulator"
     version: str
+    # Competitions backtested (v2); v1 backtested the IPL alone.
+    competitions: list[str] = ["IPL"]
     valid: list[int]
     test: list[int]
     conditions_grid: list[float]
@@ -77,6 +84,13 @@ class SimulatorSettings:
     @property
     def version(self) -> str:
         return str(self.manifest["version"])
+
+    def for_competition(self, competition: str) -> SimulatorSettings:
+        """One competition's settings (v2 tunes them per competition; v1 is the IPL's)."""
+        if "competitions" not in self.manifest:
+            return self
+        base = {k: v for k, v in self.manifest.items() if k != "competitions"}
+        return SimulatorSettings({**base, **self.manifest["competitions"][competition]})
 
     def save(self, directory: Path) -> None:
         directory.mkdir(parents=True, exist_ok=True)
@@ -195,7 +209,10 @@ def rates(con: duckdb.DuckDBPyConnection, first: int, last: int, env: float) -> 
 
 
 def side_for(name: str, xi: list[sim.Candidate], shapes: dict[str, Any]) -> sim.Side:
-    return sim.build_side(name, sim.typical_order(xi), sim.default_bowlers(xi), shapes)
+    # Under supersub rules (2005-06 T20Is, the BBL's X-factor, some associate T20Is) twelve are
+    # named; the side is the eleven who usually bat highest.
+    side = sim.typical_order(xi)[:XI]
+    return sim.build_side(name, side, sim.default_bowlers(side), shapes)
 
 
 # --------------------------------------------------------------------------- metrics
@@ -281,13 +298,14 @@ def prepare(
     envs: dict[int, float],
     history: int,
 ) -> list[Setup]:
+    """Every test match ready to simulate; ``envs`` is the scoring era by match id."""
     setups = []
     matches = test_matches(con, seasons)
     for season in sorted(matches["season"].unique()):
         first, last = int(season) - history, int(season) - 1
         shapes = priors(con, first, last)
         for m in matches[matches["season"] == season].itertuples():
-            env = envs[int(m.match_order)]
+            env = envs[int(m.match_id)]
             a = candidates(con, m.match_id, m.first_id, m.match_order, int(season), history)
             b = candidates(con, m.match_id, m.second_id, m.match_order, int(season), history)
             if len(a) < 11 or len(b) < 11:
@@ -542,8 +560,12 @@ def run(
     log: Log = _quiet,
 ) -> tuple[SimulatorSettings, dict[str, Any]]:
     """Tune the conditions spread on the validation seasons, then simulate every
-    test match with a ball model that has never seen the test seasons."""
-    envs = balls.groupby("match_order")["env"].first().to_dict()
+    test match with a ball model that has never seen the test seasons.
+
+    ``balls`` are what ``fit`` trains on (every T20 competition, for a pooled
+    model); ``serving`` holds the competition being simulated.
+    """
+    envs = balls.groupby("match_id")["env"].first().to_dict()
     con = duckdb.connect(str(serving), read_only=True)
     try:
         log(f"  validation {cfg.valid}: ball model refit on earlier seasons")

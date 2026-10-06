@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from importlib.metadata import version as package_version
 from typing import Any, Literal, cast
 
@@ -32,7 +32,7 @@ from sklearn.preprocessing import StandardScaler
 from criciq_core.phases import model_phases
 from criciq_ml import metrics
 from criciq_ml.config import WinProbabilityConfig
-from criciq_ml.features import CANDIDATES, FEATURES, GROUP_KEYS, LABEL, MONOTONE, STATE_FEATURES
+from criciq_ml.features import CANDIDATES, LABEL, MONOTONE, STATE_FEATURES, group_keys
 from criciq_ml.model import InningsModel, Platt, WinProbabilityModel, sigmoid
 
 Log = Callable[[str], None]
@@ -91,7 +91,7 @@ def _params(
     base = {
         k: v
         for k, v in cfg.lightgbm.base.items()
-        if k not in {"max_rounds", "early_stopping_rounds"}
+        if k not in {"max_rounds", "early_stopping_rounds", "num_threads"}
     }
     tree = {k: v for k, v in choice.items() if k != "recency_half_life"}
     monotone = MONOTONE[innings_no]
@@ -101,7 +101,8 @@ def _params(
         "monotone_constraints": [monotone.get(f, 0) for f in features],
         "deterministic": True,
         "force_row_wise": True,
-        "num_threads": 4,
+        # Results are reproducible for a given thread count (v1 used 4).
+        "num_threads": int(cfg.lightgbm.base.get("num_threads", 4)),
         "verbosity": -1,
     }
 
@@ -122,7 +123,7 @@ def fit_booster(
     valid: pd.DataFrame | None = None,
     rounds: int | None = None,
 ) -> Fitted:
-    features = features or FEATURES[innings_no]
+    features = features or cfg.served_features()[innings_no]
     params = _params(cfg, innings_no, choice, features)
     data = lgb.Dataset(
         train[features].to_numpy(dtype=np.float64),
@@ -213,6 +214,8 @@ IDENTITY = Platt(1.0, 0.0)
 class TrainResult:
     model: WinProbabilityModel
     evaluation: dict[str, Any]
+    # The headline model's test predictions, ball by ball (for comparisons).
+    predictions: pd.DataFrame | None = None
 
 
 def _tune(
@@ -220,7 +223,7 @@ def _tune(
 ) -> tuple[dict[str, Any], int, list[dict[str, Any]]]:
     tr = train[train["innings_no"] == innings_no]
     va = valid[valid["innings_no"] == innings_no]
-    features = FEATURES[innings_no]
+    features = cfg.served_features()[innings_no]
     results = []
     best: tuple[float, dict[str, Any], int] | None = None
     for choice in cfg.lightgbm.candidates():
@@ -325,11 +328,34 @@ def _choose_calibration(
     table: list[dict[str, Any]] = []
     methods: tuple[Method, ...] = ("none", "platt")
     for method in methods:
-        loss, brier = _rolling_score(cfg, labelled, choices, rounds, method, FEATURES)
+        loss, brier = _rolling_score(cfg, labelled, choices, rounds, method, cfg.served_features())
         table.append({"method": method, "log_loss": loss, "brier": brier})
         log(f"    {method:5} log loss {loss:.4f}, brier {brier:.4f}")
     best = min(table, key=lambda r: float(r["log_loss"]))
     return cast(Method, best["method"]), table
+
+
+def by_competition(
+    frame: pd.DataFrame, y: np.ndarray, p: np.ndarray, base: np.ndarray
+) -> list[dict[str, Any]]:
+    """Test metrics in each competition (pooled models), against the baseline."""
+    if "competition_id" not in frame or frame["competition_id"].nunique() < 2:
+        return []
+    out = []
+    competitions = frame["competition_id"].to_numpy()
+    groups = frame["match_id"].to_numpy()
+    for competition in sorted(set(competitions)):
+        mask = competitions == competition
+        out.append(
+            {
+                "competition": str(competition),
+                "matches": int(frame.loc[mask, "match_id"].nunique()),
+                "model": metrics.summarize(y[mask], p[mask]),
+                "baseline": metrics.summarize(y[mask], base[mask]),
+                "vs_baseline": metrics.paired_bootstrap(groups[mask], y[mask], p[mask], base[mask]),
+            }
+        )
+    return out
 
 
 def _by_phase(frame: pd.DataFrame, p: np.ndarray, base: np.ndarray) -> list[dict[str, Any]]:
@@ -381,13 +407,14 @@ def train_model(
     log("> scoring the test seasons")
     preds: dict[str, list[np.ndarray]] = {k: [] for k in ("model", "other", "iso", "base", "state")}
     frames = []
-    importance: dict[str, float] = dict.fromkeys(GROUP_KEYS, 0.0)
+    keys = group_keys(cfg.served_features())
+    importance: dict[str, float] = dict.fromkeys(keys, 0.0)
     per_innings = []
     for number in (1, 2):
         data = labelled[labelled["innings_no"] == number]
         te = test[test["innings_no"] == number]
         y = te[LABEL].to_numpy()
-        features, state_features = FEATURES[number], STATE_FEATURES[number]
+        features, state_features = cfg.served_features()[number], STATE_FEATURES[number]
         args = (cfg, data, number, choices[number], rounds[number])
 
         fitted, platt = _fit_for(*args, features, before=first_test, method=method)
@@ -425,8 +452,8 @@ def train_model(
                 "state_only": metrics.summarize(y, p_state),
             }
         )
-        _, grouped = InningsModel(number, fitted.booster, platt).explain(te)
-        for g, key in enumerate(GROUP_KEYS):
+        _, grouped = InningsModel(number, fitted.booster, platt, tuple(features)).explain(te, keys)
+        for g, key in enumerate(keys):
             importance[key] += float(np.abs(grouped[:, g]).sum())
 
     frame = pd.concat(frames)
@@ -470,6 +497,7 @@ def train_model(
             "baseline_reliability": metrics.reliability(y, p["base"]),
             "by_innings": per_innings,
             "by_phase": _by_phase(frame, p["model"], p["base"]),
+            "by_competition": by_competition(frame, y, p["model"], p["base"]),
         },
         "importance": {k: v / total_importance for k, v in importance.items()},
         "feature_selection": selection,
@@ -486,7 +514,9 @@ def train_model(
         "test_brier": evaluation["test"]["model"]["brier"],
         "test_seasons": splits.test,
     }
-    return TrainResult(model=model, evaluation=evaluation)
+    keys = [c for c in ("match_id", "innings_no", "seq_no", "competition_id") if c in frame]
+    predictions = frame[keys].assign(y=y, p=p["model"], baseline=p["base"])
+    return TrainResult(model=model, evaluation=evaluation, predictions=predictions)
 
 
 def _feature_selection(
@@ -505,10 +535,11 @@ def _feature_selection(
     seasons = _pretest_seasons(cfg, labelled)
     table = []
     for number in (1, 2):
-        variants = {"served": FEATURES[number]} | {
-            f"+{key}": FEATURES[number] + extra
+        served = cfg.served_features()[number]
+        variants = {"served": served} | {
+            f"+{key}": served + extra
             for key, groups in CANDIDATES.items()
-            if (extra := groups[number])
+            if key not in cfg.served_extras.get(number, []) and (extra := groups[number])
         }
         for name, features in variants.items():
             loss, brier = _rolling_score(cfg, labelled, choices, rounds, method, {number: features})
@@ -541,7 +572,14 @@ def _backtest(
         for number in (1, 2):
             data = labelled[labelled["innings_no"] == number]
             y, p = _rolling(
-                cfg, data, number, choices[number], rounds[number], FEATURES[number], season, method
+                cfg,
+                data,
+                number,
+                choices[number],
+                rounds[number],
+                cfg.served_features()[number],
+                season,
+                method,
             )
             te = evaluable(data[data["season"] == season])
             base = fit_baseline(data[data["season"] < season], number)
@@ -580,7 +618,7 @@ def _fit_served(
     innings: dict[int, InningsModel] = {}
     for number in (1, 2):
         data = labelled[labelled["innings_no"] == number]
-        features = FEATURES[number]
+        features = cfg.served_features()[number]
         platt = IDENTITY
         if method == "platt":
             # Out-of-fold predictions by season, calibrated on the most recent seasons.
@@ -595,7 +633,7 @@ def _fit_served(
             recent = (data["season"] > seasons[-1] - cfg.calibration_recent_seasons).to_numpy()
             platt = Platt.fit(oof[recent], data.loc[recent, LABEL].to_numpy())
         final = fit_booster(cfg, data, number, choices[number], rounds=rounds[number])
-        innings[number] = InningsModel(number, final.booster, platt)
+        innings[number] = InningsModel(number, final.booster, platt, tuple(features))
         log(
             f"    innings {number}: {rounds[number]} rounds, "
             f"calibration a={platt.a:.3f} b={platt.b:.3f}"
@@ -603,9 +641,10 @@ def _fit_served(
 
     manifest: dict[str, Any] = {
         "name": cfg.name,
-        "features": {str(k): FEATURES[k] for k in (1, 2)},
+        "features": {str(k): v for k, v in cfg.served_features().items()},
+        "feature_config": asdict(cfg.feature_config()),
         "monotone": {str(k): MONOTONE[k] for k in (1, 2)},
-        "groups": GROUP_KEYS,
+        "groups": group_keys(cfg.served_features()),
         "params": {str(k): choices[k] for k in (1, 2)},
         "rounds": {str(k): rounds[k] for k in (1, 2)},
         "calibration_method": method,
@@ -613,6 +652,11 @@ def _fit_served(
             "seasons": [seasons[0], seasons[-1]],
             "matches": int(labelled["match_id"].nunique()),
             "rows": len(labelled),
+            **(
+                {"competitions": sorted(labelled["competition_id"].unique().tolist())}
+                if "competition_id" in labelled
+                else {}
+            ),
         },
         "lightgbm": package_version("lightgbm"),
     }

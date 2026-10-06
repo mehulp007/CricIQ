@@ -15,7 +15,7 @@ ERA_RPB = 1.45  # runs per ball, roughly the 2024-26 scoring rate
 
 @pytest.fixture(scope="module")
 def model() -> WinProbabilityModel:
-    return registry.load_current()
+    return registry.load_current(registry.NAME, "IPL")
 
 
 @pytest.fixture(scope="module")

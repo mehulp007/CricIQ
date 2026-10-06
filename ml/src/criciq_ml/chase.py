@@ -9,7 +9,9 @@ last few balls, where data is thin) and it knows that 13 off the last ball is
 impossible.
 
 The outcome rates come from the death overs (16-20) of the previous seasons
-only, so the table used for a season never sees that season.
+only, so the table used for a season never sees that season. With several
+competitions, each uses its own death overs while it has enough of them, and
+the pooled ones otherwise.
 """
 
 from __future__ import annotations
@@ -116,21 +118,38 @@ def lookup(table: Table, runs_needed: int, balls_left: int, wickets_lost: int) -
     return float(table[w, b, r])
 
 
+# Deliveries (all overs) a history needs before its death overs are trusted.
+MIN_HISTORY = 5_000
+
+
 class SeasonTables:
-    """One DP table per season, from the death overs of the previous three seasons."""
+    """One DP table per season (and competition), from the death overs of the
+    previous three seasons: the competition's own, else every competition's."""
 
-    def __init__(self, deliveries: pd.DataFrame, seasons: pd.Series, window: int = 3) -> None:
-        self._deliveries = deliveries.assign(season=seasons.to_numpy())
+    def __init__(
+        self,
+        deliveries: pd.DataFrame,
+        seasons: pd.Series,
+        competitions: pd.Series | None = None,
+        window: int = 3,
+    ) -> None:
+        self._deliveries = deliveries.assign(
+            season=seasons.to_numpy(),
+            competition=competitions.to_numpy() if competitions is not None else "",
+        )
         self._window = window
-        self._cache: dict[int, Table] = {}
+        self._cache: dict[tuple[int, str], Table] = {}
 
-    def for_season(self, season: int) -> Table:
-        if season not in self._cache:
+    def for_season(self, season: int, competition: str = "") -> Table:
+        key = (season, competition)
+        if key not in self._cache:
             d = self._deliveries
-            history = d[(d["season"] < season) & (d["season"] >= season - self._window)]
-            if len(history) < 5_000:
+            recent = d[(d["season"] < season) & (d["season"] >= season - self._window)]
+            own = recent[recent["competition"] == competition]
+            history = own if len(own) >= MIN_HISTORY else recent
+            if len(history) < MIN_HISTORY:
                 rates = {low: PRIOR for low, _ in BUCKETS}
             else:
                 rates = estimate_rates(history)
-            self._cache[season] = solve(rates)
-        return self._cache[season]
+            self._cache[key] = solve(rates)
+        return self._cache[key]

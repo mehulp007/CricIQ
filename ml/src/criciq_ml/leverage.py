@@ -37,6 +37,7 @@ import pandas as pd
 from criciq_core.phases import model_phases
 from criciq_ml import chase
 from criciq_ml.data import Inputs
+from criciq_ml.features import STABLE_COLUMNS, STABLE_DECIMALS
 from criciq_ml.model import InningsModel, WinProbabilityModel
 
 # (label, runs added, wickets added, legal balls added)
@@ -139,6 +140,22 @@ def _dropping_out(states: pd.DataFrame, inputs: Inputs) -> tuple[np.ndarray, np.
     )
 
 
+# Columns of a state that the next ball does not change (the match context).
+_CARRIED = (
+    "innings_no",
+    "season",
+    "year",
+    "competition_id",
+    "max_balls",
+    "env_rpb",
+    "target",
+    "international",
+    "venue_idx",
+    "opp_bat_strength",
+    "own_bowl_strength",
+)
+
+
 def _after(
     states: pd.DataFrame,
     runs: int,
@@ -147,11 +164,12 @@ def _after(
     drop: tuple[np.ndarray, np.ndarray],
     tables: chase.SeasonTables,
     chasing: bool,
+    stable: bool = False,
 ) -> pd.DataFrame:
     """The states that would follow one outcome, with every model feature rebuilt."""
     s = states
     nxt = pd.DataFrame(index=s.index)
-    for column in ("innings_no", "season", "max_balls", "env_rpb", "target"):
+    for column in _CARRIED:
         if column in s:
             nxt[column] = s[column]
     nxt["legal_balls"] = s["legal_balls"] + legal
@@ -171,26 +189,41 @@ def _after(
         nxt["chase_ratio"] = np.log1p(needed) - np.log1p(left)
         nxt["required_rate_rel"] = nxt["required_rate"] / (6 * s["env_rpb"])
         dp = np.full(len(s), np.nan)
-        seasons = s["season"].to_numpy()
+        # Chase tables by calendar year and competition, as the features build them.
+        years = s["year"].to_numpy() if "year" in s else s["season"].to_numpy()
+        competitions = (
+            s["competition_id"].to_numpy() if "competition_id" in s else np.full(len(s), "")
+        )
         w = (10 - nxt["wickets"].to_numpy()).clip(0, 10).astype(int)
         b = left.to_numpy().clip(0, chase.MAX_BALLS).astype(int)
         r = needed.fillna(0).to_numpy().clip(0, chase.MAX_RUNS).astype(int)
-        for season in np.unique(seasons):
-            mask = seasons == season
-            table = tables.for_season(int(season))
+        cells = {(int(y), str(c)) for y, c in zip(years, competitions, strict=True)}
+        for year, competition in cells:
+            mask = (years == year) & (competitions == competition)
+            table = tables.for_season(year, competition)
             dp[mask] = table[w[mask], b[mask], r[mask]]
         nxt["chase_dp"] = dp
+    if stable:
+        for column in STABLE_COLUMNS:
+            if column in nxt:
+                nxt[column] = nxt[column].round(STABLE_DECIMALS)
     return nxt
 
 
 def _smoothed(
-    inn_model: InningsModel, states: pd.DataFrame, tables: chase.SeasonTables, chasing: bool
+    inn_model: InningsModel,
+    states: pd.DataFrame,
+    tables: chase.SeasonTables,
+    chasing: bool,
+    stable: bool = False,
 ) -> np.ndarray:
     """Win probability averaged over scores within a few runs (see SMOOTHING)."""
     still = (np.zeros(len(states)), np.zeros(len(states)))
     out = np.zeros(len(states))
     for delta, weight in SMOOTHING:
-        out += weight * inn_model.predict(_after(states, delta, 0, 0, still, tables, chasing))
+        out += weight * inn_model.predict(
+            _after(states, delta, 0, 0, still, tables, chasing, stable)
+        )
     return out
 
 
@@ -205,8 +238,13 @@ def expected_swing(
     NaN where the innings is already over (no next ball).
     """
     rates = rates or OutcomeRates.estimate(inputs)
-    season_of = inputs.matches.set_index("match_id")["season"]
-    tables = chase.SeasonTables(inputs.deliveries, inputs.deliveries["match_id"].map(season_of))
+    by_match = inputs.matches.set_index("match_id")
+    tables = chase.SeasonTables(
+        inputs.deliveries,
+        inputs.deliveries["match_id"].map(by_match["year"]),
+        inputs.deliveries["match_id"].map(by_match["competition_id"]),
+    )
+    stable = model.feature_config.stable
     swing = np.full(len(states), np.nan)
     states = states.reset_index(drop=True)
     for number, inn_model in model.innings.items():
@@ -224,11 +262,11 @@ def expected_swing(
         probs = rates.for_states(s)
         drop = _dropping_out(s, inputs)
         chasing = number == 2
-        now = _smoothed(inn_model, s, tables, chasing)
+        now = _smoothed(inn_model, s, tables, chasing, stable)
         total = np.zeros(len(s))
         for k, (_, runs, wickets, legal) in enumerate(OUTCOMES):
-            nxt = _after(s, runs, wickets, legal, drop, tables, chasing)
-            p = _smoothed(inn_model, nxt, tables, chasing)
+            nxt = _after(s, runs, wickets, legal, drop, tables, chasing, stable)
+            p = _smoothed(inn_model, nxt, tables, chasing, stable)
             if number == 2:
                 won = (nxt["runs"] >= s["target"]).to_numpy()
                 over = ((nxt["wickets"] >= 10) | (nxt["legal_balls"] >= s["max_balls"])).to_numpy()

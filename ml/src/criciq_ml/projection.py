@@ -28,6 +28,8 @@ import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
+from criciq_ml.features import FeatureConfig
+
 FloatArray = NDArray[np.float64]
 
 LEVELS: tuple[float, ...] = (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
@@ -50,6 +52,9 @@ CANDIDATES: dict[str, list[str]] = {
     "depth": ["depth_avg_sum"],
     "bowling": ["bowl_left_econ_idx"],
     "venue": ["venue_idx"],
+    # Pooled data: the competition's scoring level, and international cricket.
+    "era": ["env_rpb"],
+    "international": ["international"],
 }
 
 TARGET = "remaining_ratio"
@@ -89,13 +94,18 @@ def _params(
     base: dict[str, Any], choice: dict[str, Any], level: float, features: list[str]
 ) -> dict[str, Any]:
     return {
-        **{k: v for k, v in base.items() if k not in {"max_rounds", "early_stopping_rounds"}},
+        **{
+            k: v
+            for k, v in base.items()
+            if k not in {"max_rounds", "early_stopping_rounds", "num_threads"}
+        },
         **choice,
         "objective": "quantile",
         "alpha": level,
         "deterministic": True,
         "force_row_wise": True,
-        "num_threads": 4,
+        # Results are reproducible for a given thread count (v1 used 4).
+        "num_threads": int(base.get("num_threads", 4)),
         "verbosity": -1,
     }
 
@@ -171,6 +181,11 @@ class ScoreProjectionModel:
     @property
     def features(self) -> list[str]:
         return list(self.manifest.get("features", FEATURES))
+
+    @property
+    def feature_config(self) -> FeatureConfig:
+        """The match-state settings the model was trained with (v1: the defaults)."""
+        return FeatureConfig.of(self.manifest.get("feature_config"))
 
     def predict(self, frame: pd.DataFrame) -> FloatArray:
         return to_totals(raw_ratios(self.boosters, frame, self.features), frame, self.shifts)

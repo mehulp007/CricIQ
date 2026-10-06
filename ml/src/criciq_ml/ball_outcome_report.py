@@ -9,6 +9,18 @@ from typing import Any
 from criciq_core import paths
 from criciq_ml import registry
 from criciq_ml.ball_outcome_training import CANDIDATE_MIN_GAIN
+from criciq_ml.report_common import (
+    IPL,
+    by_competition,
+    comparison_section,
+    competitions_of,
+    ipl_card_path,
+    pooled,
+    pooled_path,
+    write_json,
+    write_text,
+)
+from criciq_ml.report_common import label as competition_label
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "ball-outcome.json"
 MODEL_CARD_PATH = paths.repo_root() / "docs" / "model-cards" / "ball-outcome.md"
@@ -55,11 +67,18 @@ def insights(version: str) -> dict[str, Any]:
             "situation_only": test["situation_only"],
             "baseline": test["baseline"],
             "by_phase": test["by_phase"],
+            "by_competition": test.get("by_competition", []),
             "calibration": test["calibration"],
             "runs_calibration": test["runs_calibration"],
         },
         "matchups": evaluation["matchups"],
         "backtest": evaluation["backtest"],
+        "competition_terms": "competition" in manifest.get("extra_groups", []),
+        **(
+            {"ipl_comparison": evaluation["ipl_comparison"]}
+            if "ipl_comparison" in evaluation
+            else {}
+        ),
     }
 
 
@@ -85,6 +104,8 @@ def model_card(data: dict[str, Any]) -> str:
     mu = data["matchups"]
     splits = data["splits"]
     wins = sum(r["model_log_loss"] < r["baseline_log_loss"] for r in data["backtest"])
+    is_pooled = pooled(data)
+    period = "years" if is_pooled else "seasons"
     lines = [
         "# Model card: ball outcome and matchup shrinkage",
         "",
@@ -98,6 +119,16 @@ def model_card(data: dict[str, Any]) -> str:
         "The chance of each outcome on the next ball a batter faces from a bowler, and the",
         "baseline that batter-vs-bowler records in the Matchup Lab are shrunk towards. It is an",
         "estimate for analysis and education. It is not for betting.",
+        *(
+            [
+                "",
+                "One model is fitted on every T20 competition at once ("
+                + ", ".join(competition_label(c) for c in competitions_of(data))
+                + "), so a player who has played in several has one record across them.",
+            ]
+            if is_pooled
+            else []
+        ),
         "",
         "## Outcomes and model",
         "",
@@ -109,7 +140,15 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "- the situation: phase and innings, wickets down, balls the batter has faced, batter hand",
         "  against bowler type, and the required rate against par in a chase;",
-        "- the scoring era: league runs per ball over the previous 60 matches;",
+        "- the scoring era: runs per ball over the competition's previous 60 matches;",
+        *(
+            [
+                "- a term per competition, for what the era does not capture (how the",
+                "  competition plays); serving one competition folds its term into the intercept;",
+            ]
+            if data.get("competition_terms")
+            else []
+        ),
         "- a coefficient per outcome for every batter and every bowler, penalised towards zero",
         f"  (player one-hots scaled by {data['player_scale']}, so their L2 penalty is"
         f" {1 / data['player_scale'] ** 2:.0f} times the situation terms'). A newcomer starts at",
@@ -120,11 +159,16 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "## Protocol",
         "",
-        f"- **Tuning:** fit on seasons up to {splits['tune_train_through']}, compared on"
+        f"- **Tuning:** fit on {period} up to {splits['tune_train_through']}, compared on"
         f" {_seasons(splits['tune_valid'])}.",
-        f"- **Test:** refit on every season before {splits['test'][0]}, scored once on"
+        f"- **Test:** refit on every {period[:-1]} before {splits['test'][0]}, scored once on"
         f" {_seasons(splits['test'])}.",
-        "- **Backtest:** for each season, fit on every earlier season and score that season.",
+        f"- **Backtest:** for each {period[:-1]}, fit on every earlier {period[:-1]} and score it.",
+        *(
+            ["- Splits are calendar years of the match date (cut-offs on 1 January)."]
+            if is_pooled
+            else []
+        ),
         f"- **Served model:** refit on {_seasons(data['trained_on']['seasons'])} with the tuned"
         " penalty.",
         "",
@@ -136,7 +180,7 @@ def model_card(data: dict[str, Any]) -> str:
         f" **{_gain(m['log_loss'], b['log_loss'])}** |",
         f"| Situation only (no players) | {_f(s['log_loss'])} | {_f(s['brier'])} |"
         f" {_gain(s['log_loss'], b['log_loss'])} |",
-        f"| Phase and wickets frequencies (last two seasons) | {_f(b['log_loss'])} |"
+        f"| Phase and wickets frequencies (last two {period}) | {_f(b['log_loss'])} |"
         f" {_f(b['brier'])} | - |",
         "",
         "Single balls are noisy: the gains are small in absolute terms, as they are for any",
@@ -168,13 +212,29 @@ def model_card(data: dict[str, Any]) -> str:
             f"| {PHASE_LABELS[r['phase']]} | {r['balls']:,} | {_f(r['model_log_loss'])} |"
             f" {_f(r['baseline_log_loss'])} |"
         )
+    if test.get("by_competition"):
+        lines += [
+            "",
+            "### By competition (test)",
+            "",
+            "| Competition | Balls | Model | Baseline | Gain vs baseline |",
+            "|---|---|---|---|---|",
+        ]
+        for r in by_competition(test["by_competition"]):
+            mm, bb = r["model"], r["baseline"]
+            lines.append(
+                f"| {competition_label(r['competition'])} | {mm['balls']:,} | "
+                f"{_f(mm['log_loss'])} | {_f(bb['log_loss'])} | "
+                f"{_gain(mm['log_loss'], bb['log_loss'])} |"
+            )
+        lines += comparison_section(data, "log_loss")
     lines += [
         "",
         "## Backtest",
         "",
-        f"Lower log loss than the baseline in {wins} of {len(data['backtest'])} seasons.",
+        f"Lower log loss than the baseline in {wins} of {len(data['backtest'])} {period}.",
         "",
-        "| Season | Balls | Model | Baseline |",
+        f"| {period[:-1].capitalize()} | Balls | Model | Baseline |",
         "|---|---|---|---|",
     ]
     for r in data["backtest"]:
@@ -191,10 +251,10 @@ def model_card(data: dict[str, Any]) -> str:
         "likelihood of every pair's outcome counts (empirical Bayes). History gets weight",
         "`balls / (balls + kappa)`.",
         "",
-        f"- **Served kappa:** {data['kappa']:,.0f} balls. The longest IPL rivalry is about 160",
+        f"- **Served kappa:** {data['kappa']:,.0f} balls. A long rivalry is about 160",
         f"  balls, so head-to-head history never carries more than"
         f" {160 / (160 + data['kappa']) * 100:.0f}% of an estimate.",
-        f"- **Check on {_seasons(splits['test'])}:** with kappa fitted on earlier seasons"
+        f"- **Check on {_seasons(splits['test'])}:** with kappa fitted on earlier {period}"
         f" ({mu['kappa']:,.0f} balls), {mu['all']['balls']:,} test balls between"
         f" {mu['test_pairs']:,} pairs who had met before:",
         "",
@@ -229,6 +289,14 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "- No ball tracking: line, length, pace and field settings are not in the data.",
         "- Player effects are career-long: a player's form within a season moves them only slowly.",
+        *(
+            [
+                "- A player's effect is the same in every competition; only the era and the",
+                "  competition's term differ between them.",
+            ]
+            if is_pooled
+            else []
+        ),
         "- Venue, pitch and dew are not modelled.",
         "- The next-ball odds in the Matchup Lab assume a typical situation (first innings, two or",
         "  three wickets down, a set batter, the current scoring era).",
@@ -238,12 +306,15 @@ def model_card(data: dict[str, Any]) -> str:
 
 
 def write_all() -> list[Path]:
-    version = registry.current_version(registry.BALL_OUTCOME)
-    if version is None:
+    default = registry.current_version(registry.BALL_OUTCOME)
+    ipl = registry.current_version(registry.BALL_OUTCOME, IPL)
+    if default is None or ipl is None:
         return []
-    data = insights(version)
-    INSIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    INSIGHTS_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-    MODEL_CARD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    MODEL_CARD_PATH.write_text(model_card(data), encoding="utf-8", newline="\n")
-    return [INSIGHTS_PATH, MODEL_CARD_PATH]
+    ipl_data = insights(ipl)
+    data = ipl_data if default == ipl else insights(default)
+    out = [write_json(INSIGHTS_PATH, ipl_data), write_text(MODEL_CARD_PATH, model_card(data))]
+    if default != ipl:
+        out.append(write_text(ipl_card_path(MODEL_CARD_PATH), model_card(ipl_data)))
+    if pooled(data):
+        out.append(write_json(pooled_path(INSIGHTS_PATH), data))
+    return out

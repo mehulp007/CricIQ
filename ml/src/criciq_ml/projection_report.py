@@ -8,6 +8,18 @@ from typing import Any
 
 from criciq_core import paths
 from criciq_ml import registry
+from criciq_ml.report_common import (
+    IPL,
+    by_competition,
+    comparison_section,
+    competitions_of,
+    ipl_card_path,
+    pooled,
+    pooled_path,
+    write_json,
+    write_text,
+)
+from criciq_ml.report_common import label as competition_label
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "score-projection.json"
 MODEL_CARD_PATH = paths.repo_root() / "docs" / "model-cards" / "score-projection.md"
@@ -20,6 +32,14 @@ FEATURE_LABELS = {
     "run_rate_rel": "Run rate relative to the era's scoring rate",
     "runs_last_12": "Runs in the last 12 legal balls",
     "wickets_last_12": "Wickets in the last 12 legal balls",
+    "crease_sr_idx": "Batters at the crease: career strike rate",
+    "crease_avg_idx": "Batters at the crease: career average",
+    "crease_balls": "Batters at the crease: balls faced so far",
+    "depth_avg_sum": "Batting still to come (career averages)",
+    "bowl_left_econ_idx": "Bowling still to come (career economy)",
+    "venue_idx": "Venue scoring index",
+    "env_rpb": "The competition's scoring rate (the era)",
+    "international": "International cricket (rather than a league)",
 }
 
 CANDIDATE_LABELS = {
@@ -28,6 +48,8 @@ CANDIDATE_LABELS = {
     "+depth": "+ Batting still to come (career averages)",
     "+bowling": "+ Bowling still to come (career economy, 4-over quotas)",
     "+venue": "+ Venue scoring index",
+    "+era": "+ The competition's scoring rate",
+    "+international": "+ International cricket",
 }
 
 PHASE_LABELS = {
@@ -59,6 +81,11 @@ def insights(version: str) -> dict[str, Any]:
             for row in evaluation["feature_selection"]
         ],
         "backtest": evaluation["backtest"],
+        **(
+            {"ipl_comparison": evaluation["ipl_comparison"]}
+            if "ipl_comparison" in evaluation
+            else {}
+        ),
     }
 
 
@@ -84,6 +111,8 @@ def model_card(data: dict[str, Any]) -> str:
         if r["variant"] != "served" and r["pinball"] < served["pinball"] - 0.01
     ]
     trained = data["trained_on"]
+    is_pooled = pooled(data)
+    period = "years" if is_pooled else "seasons"
     lines = [
         "# Model card: score projection",
         "",
@@ -95,7 +124,15 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "## What it does",
         "",
-        "During a first innings, estimates the distribution of the final total after every ball: "
+        "During a first innings"
+        + (
+            " of a T20 match ("
+            + ", ".join(competition_label(c) for c in competitions_of(data))
+            + "; one model fitted on all of them at once)"
+            if is_pooled
+            else ""
+        )
+        + ", estimates the distribution of the final total after every ball: "
         "the median, an 80% range and the chance of passing any total. Chases are not projected, "
         "because a chase stops at its target (the win probability covers them). Outputs are "
         "model estimates of historical patterns, not predictions of live matches, and not for "
@@ -104,12 +141,14 @@ def model_card(data: dict[str, Any]) -> str:
         "## How it works",
         "",
         "- **Target:** the runs still to come, divided by what the scoring era would expect from "
-        "the balls left (a rolling league scoring rate). One model then stays valid from 2008 to "
-        "2026, while average first-innings totals rose by about 30 runs.",
+        "the balls left (a rolling scoring rate of the competition). One model then stays valid "
+        f"from {trained['seasons'][0]} to {trained['seasons'][-1]}, while average "
+        "first-innings totals rose by about 30 runs"
+        + (", and across competitions that score at different rates." if is_pooled else "."),
         "- **Model:** LightGBM quantile regression at the 5, 10, 25, 50, 75, 90 and 95% levels. "
         "Crossing quantiles are sorted.",
         "- **Calibration:** conformal, per level. Each level is shifted by the matching quantile of "
-        "its errors on held-out seasons, so that about that share of totals falls below it. The "
+        f"its errors on held-out {period}, so that about that share of totals falls below it. The "
         f"served model is calibrated on out-of-fold predictions for {', '.join(map(str, data['calibrated_on']))}.",
         "- **P(total ≥ X)** is read off a piecewise-linear CDF through the quantiles. The CDF starts "
         "at the current score and ends a little beyond the 95% quantile.",
@@ -119,11 +158,19 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "## Evaluation protocol",
         "",
-        f"- **Tune** on {_seasons(splits['tune_valid'])}, with candidates trained on seasons up to "
-        f"{splits['tune_train_through']}.",
+        f"- **Tune** on {_seasons(splits['tune_valid'])}, with candidates trained on {period} "
+        f"up to {splits['tune_train_through']}.",
         f"- **Calibrate** on {_seasons(splits['calibrate'])}.",
         f"- **Test** on {_seasons(splits['test'])}, touched once.",
-        "- No season does two jobs.",
+        f"- No {period[:-1]} does two jobs.",
+        *(
+            [
+                "- Splits are calendar years of the match date (cut-offs on 1 January), so a "
+                "BBL season that spans the new year falls on both sides of one."
+            ]
+            if is_pooled
+            else []
+        ),
         "",
         f"## Test results ({model['innings']} first innings, {model['rows']:,} match states)",
         "",
@@ -165,15 +212,33 @@ def model_card(data: dict[str, Any]) -> str:
             f"| {PHASE_LABELS[r['phase']]} | {r['rows']:,} | {_f(r['model_mae'])} | {_f(r['par_mae'])} | "
             f"{_f(r['run_rate_mae'])} | {_pct(r['model_coverage80'])} | {_f(r['model_width80'], 1)} |"
         )
+    if test.get("by_competition"):
+        lines += [
+            "",
+            "### By competition (test)",
+            "",
+            "| Competition | Innings | 80% coverage | Median error | Par median error | Pinball | "
+            "Par pinball |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for r in by_competition(test["by_competition"]):
+            m, b = r["model"], r["par_baseline"]
+            lines.append(
+                f"| {competition_label(r['competition'])} | {m['innings']} | "
+                f"{_pct(m['coverage80'])} | {_f(m['mae'])} | {_f(b['mae'])} | "
+                f"{_f(m['pinball'], 3)} | {_f(b['pinball'], 3)} |"
+            )
+        lines += comparison_section(data, "pinball", 3)
     lines += [
         "",
         "## Rolling-origin backtest",
         "",
-        "For each season *s*: fit on seasons before *s - 2*, calibrate on *s - 2* and *s - 1*, "
-        "test on *s*. This doubles as the **season-bias check**, a watch on the drift in scoring "
-        "across the IPL's eras.",
+        f"For each {period[:-1]} *s*: fit on {period} before *s - 2*, calibrate on *s - 2* and "
+        f"*s - 1*, test on *s*. This doubles as the **bias check**, a watch on the drift in "
+        "scoring across eras.",
         "",
-        "| Season | Innings | Mean total | 80% coverage | Median error | Par median error | Bias |",
+        f"| {period[:-1].capitalize()} | Innings | Mean total | 80% coverage | Median error | "
+        "Par median error | Bias |",
         "|---|---|---|---|---|---|---|",
     ]
     for r in data["backtest"]:
@@ -185,18 +250,18 @@ def model_card(data: dict[str, Any]) -> str:
     biases = [r["bias"] for r in data["backtest"]]
     lines += [
         "",
-        f"The projection beats par on median error in {wins} of {len(data['backtest'])} seasons. "
-        f"Season bias ranges from {min(biases):+.1f} to {max(biases):+.1f} runs. The scoring-era "
-        "adjustment keeps it from drifting in one direction, but a single season can run a few runs "
-        "high or low.",
+        f"The projection beats par on median error in {wins} of {len(data['backtest'])} {period}. "
+        f"Bias ranges from {min(biases):+.1f} to {max(biases):+.1f} runs. The scoring-era "
+        f"adjustment keeps it from drifting in one direction, but a single {period[:-1]} can run "
+        "a few runs high or low.",
         "",
         "## Feature selection",
         "",
         "Each candidate group was added to the served features and scored by rolling origin on "
-        f"{_seasons(served['seasons'])}, never on the test seasons.",
+        f"{_seasons(served['seasons'])}, never on the test {period}.",
         "",
         (
-            "None improved the pinball loss by more than 0.01 runs (well inside season-to-season "
+            "None improved the pinball loss by more than 0.01 runs (well inside year-to-year "
             "noise), so the served model leaves them out."
             if not better
             else "Groups that improved the pinball loss by more than 0.01 runs: "
@@ -218,7 +283,7 @@ def model_card(data: dict[str, Any]) -> str:
         + ", ".join(
             f"{PHASE_LABELS[k].split(' (')[0].lower()} {_pct(v)}" for k, v in coverage.items()
         )
-        + " on the test seasons.",
+        + f" on the test {period}.",
         "- Weather, pitch and team news are not in the data. The model knows the era, not the venue "
         "or the day.",
         "- Innings reduced by rain are not projected.",
@@ -228,12 +293,15 @@ def model_card(data: dict[str, Any]) -> str:
 
 
 def write_all() -> list[Path]:
-    version = registry.current_version(registry.PROJECTION)
-    if version is None:
+    default = registry.current_version(registry.PROJECTION)
+    ipl = registry.current_version(registry.PROJECTION, IPL)
+    if default is None or ipl is None:
         return []
-    data = insights(version)
-    INSIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    INSIGHTS_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-    MODEL_CARD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    MODEL_CARD_PATH.write_text(model_card(data), encoding="utf-8", newline="\n")
-    return [INSIGHTS_PATH, MODEL_CARD_PATH]
+    ipl_data = insights(ipl)
+    data = ipl_data if default == ipl else insights(default)
+    out = [write_json(INSIGHTS_PATH, ipl_data), write_text(MODEL_CARD_PATH, model_card(data))]
+    if default != ipl:
+        out.append(write_text(ipl_card_path(MODEL_CARD_PATH), model_card(ipl_data)))
+    if pooled(data):
+        out.append(write_json(pooled_path(INSIGHTS_PATH), data))
+    return out

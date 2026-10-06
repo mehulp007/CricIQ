@@ -27,7 +27,7 @@ ERA_RPB = 1.45
 
 @pytest.fixture(scope="module")
 def model() -> ScoreProjectionModel:
-    return registry.load_current_projection()
+    return registry.load_current_projection("IPL")
 
 
 def test_target_is_the_rest_of_the_innings(fixture_states: pd.DataFrame) -> None:
@@ -106,7 +106,7 @@ def test_training_protocol_runs_end_to_end(fixture_states: pd.DataFrame) -> None
     cfg.splits.backtest_from = 2023
     cfg.lightgbm["base"].update(max_rounds=20, early_stopping_rounds=5)
     cfg.lightgbm["grid"] = {"num_leaves": [4], "min_data_in_leaf": [10]}
-    trained, evaluation = train_projection(fixture_states, cfg, data_version="fixture")
+    trained, evaluation, _ = train_projection(fixture_states, cfg, data_version="fixture")
     test = evaluation["test"]
     assert 0 <= test["model"]["coverage80"] <= 1
     assert test["model"]["mae"] > 0
@@ -131,7 +131,7 @@ def test_projection_gate() -> None:
 
 def test_bundled_projection_insights_match_the_registry() -> None:
     bundled = json.loads(projection_report.INSIGHTS_PATH.read_text(encoding="utf-8"))
-    version = registry.current_version(registry.PROJECTION)
+    version = registry.current_version(registry.PROJECTION, "IPL")
     assert version is not None
     evaluation = registry.load_evaluation(version, registry.PROJECTION)
     assert bundled["version"] == version

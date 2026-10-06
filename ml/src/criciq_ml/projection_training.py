@@ -23,7 +23,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from criciq_core.paths import config_dir
 from criciq_core.phases import model_phases
@@ -67,10 +67,17 @@ class Splits(BaseModel):
 class ProjectionConfig(BaseModel):
     name: str
     version: str
+    # The warehouse copy trained on: a competition ("IPL") or the pooled T20 copy ("T20").
+    scope: str = "IPL"
     splits: Splits
+    # Candidate groups (``projection.CANDIDATES``) served on top of the core features.
+    served_extras: list[str] = Field(default_factory=list)
     lightgbm: dict[str, dict[str, Any]]
     thresholds: list[int]
     gate: dict[str, list[float]]
+
+    def served_features(self) -> list[str]:
+        return FEATURES + [f for group in self.served_extras for f in CANDIDATES[group]]
 
     def candidates(self) -> list[dict[str, Any]]:
         grid = self.lightgbm["grid"]
@@ -198,10 +205,11 @@ def _tune(
     table = []
     best: tuple[float, dict[str, Any], dict[float, int]] | None = None
     for choice in cfg.candidates():
+        features = cfg.served_features()
         boosters, rounds = fit_quantiles(
-            cfg.lightgbm["base"], choice, train, features=FEATURES, valid=valid
+            cfg.lightgbm["base"], choice, train, features=features, valid=valid
         )
-        loss = pinball(to_totals(raw_ratios(boosters, valid, FEATURES), valid), y)
+        loss = pinball(to_totals(raw_ratios(boosters, valid, features), valid), y)
         table.append(
             {**choice, "rounds": {str(k): v for k, v in rounds.items()}, "valid_pinball": loss}
         )
@@ -220,10 +228,30 @@ def _phase(frame: pd.DataFrame) -> np.ndarray:
     return np.asarray(overs.map(lambda o: phases.phase_for_over_index(int(o)).key).to_numpy())
 
 
+def by_competition(
+    q_model: FloatArray, q_par: FloatArray, test: pd.DataFrame, thresholds: list[int]
+) -> list[dict[str, Any]]:
+    """Test metrics in each competition (pooled models), against the par baseline."""
+    if "competition_id" not in test or test["competition_id"].nunique() < 2:
+        return []
+    competitions = test["competition_id"].to_numpy()
+    return [
+        {
+            "competition": str(competition),
+            "model": summarize(q_model[mask], test[mask], thresholds),
+            "par_baseline": summarize(q_par[mask], test[mask], thresholds),
+        }
+        for competition in sorted(set(competitions))
+        if (mask := competitions == competition).any()
+    ]
+
+
 def train_projection(
     states: pd.DataFrame, cfg: ProjectionConfig, *, data_version: str, log: Log = _quiet
-) -> tuple[ScoreProjectionModel, dict[str, Any]]:
+) -> tuple[ScoreProjectionModel, dict[str, Any], pd.DataFrame]:
+    """Model, evaluation, and the headline model's test quantiles row by row."""
     started = time.perf_counter()
+    features = cfg.served_features()
     frame = projection_frame(states)
     data = trainable(frame)
     first_test = min(cfg.splits.test)
@@ -233,9 +261,9 @@ def train_projection(
     choice, rounds, grid = _tune(cfg, data, log)
 
     log("> scoring the test seasons")
-    boosters, shifts = _fit_and_calibrate(cfg, data, choice, rounds, FEATURES, before=first_test)
-    q_model = to_totals(raw_ratios(boosters, test, FEATURES), test, shifts)
-    q_uncal = to_totals(raw_ratios(boosters, test, FEATURES), test)
+    boosters, shifts = _fit_and_calibrate(cfg, data, choice, rounds, features, before=first_test)
+    q_model = to_totals(raw_ratios(boosters, test, features), test, shifts)
+    q_uncal = to_totals(raw_ratios(boosters, test, features), test)
     calibration = data[data["season"].isin([first_test - 2, first_test - 1])]
     q_par = ParBaseline(calibration).predict(test)
     rr = run_rate_projection(test)
@@ -278,6 +306,7 @@ def train_projection(
             "par_baseline": summarize(q_par, test, cfg.thresholds),
             "run_rate": point_summary(rr, test),
             "by_phase": by_phase,
+            "by_competition": by_competition(q_model, q_par, test, cfg.thresholds),
             "thresholds": cfg.thresholds,
         },
         "feature_selection": selection,
@@ -293,7 +322,9 @@ def train_projection(
         "test_coverage80": evaluation["test"]["model"]["coverage80"],
         "test_mae": evaluation["test"]["model"]["mae"],
     }
-    return model, evaluation
+    keys = [c for c in ("match_id", "seq_no", "competition_id") if c in test]
+    predictions = test[keys].assign(quantiles=list(q_model))
+    return model, evaluation, predictions
 
 
 def _rolling_quantiles(
@@ -322,7 +353,10 @@ def _feature_selection(
         if cfg.splits.backtest_from <= s < min(cfg.splits.test)
     ]
     table = []
-    variants = {"served": FEATURES} | {f"+{k}": FEATURES + v for k, v in CANDIDATES.items()}
+    served = cfg.served_features()
+    variants = {"served": served} | {
+        f"+{k}": served + v for k, v in CANDIDATES.items() if k not in cfg.served_extras
+    }
     for name, features in variants.items():
         frames, quantiles = [], []
         for season in seasons:
@@ -352,7 +386,7 @@ def _backtest(
 ) -> list[dict[str, Any]]:
     table = []
     for season in sorted(int(s) for s in data["season"].unique() if s >= cfg.splits.backtest_from):
-        frame, q = _rolling_quantiles(cfg, data, choice, rounds, FEATURES, season)
+        frame, q = _rolling_quantiles(cfg, data, choice, rounds, cfg.served_features(), season)
         m = summarize(q, frame, cfg.thresholds)
         par = ParBaseline(data[data["season"].isin([season - 2, season - 1])]).predict(frame)
         row = {
@@ -381,26 +415,27 @@ def _fit_served(
 ) -> ScoreProjectionModel:
     seasons = sorted(int(s) for s in data["season"].unique())
     recent = seasons[-2:]
+    features = cfg.served_features()
     raws, targets = [], []
     for season in recent:
         boosters, _ = fit_quantiles(
             cfg.lightgbm["base"],
             choice,
             data[data["season"] != season],
-            features=FEATURES,
+            features=features,
             rounds=rounds,
         )
         held = data[data["season"] == season]
-        raws.append(raw_ratios(boosters, held, FEATURES))
+        raws.append(raw_ratios(boosters, held, features))
         targets.append(held[TARGET].to_numpy())
     shifts = conformal_shifts(np.vstack(raws), np.concatenate(targets))
     boosters, _ = fit_quantiles(
-        cfg.lightgbm["base"], choice, data, features=FEATURES, rounds=rounds
+        cfg.lightgbm["base"], choice, data, features=features, rounds=rounds
     )
     log(f"    shifts {np.round(shifts, 3).tolist()}")
     manifest = {
         "name": cfg.name,
-        "features": FEATURES,
+        "features": features,
         "params": choice,
         "rounds": {str(k): v for k, v in rounds.items()},
         "calibrated_on": recent,
@@ -408,6 +443,11 @@ def _fit_served(
             "seasons": [seasons[0], seasons[-1]],
             "innings": int(data["match_id"].nunique()),
             "rows": len(data),
+            **(
+                {"competitions": sorted(data["competition_id"].unique().tolist())}
+                if "competition_id" in data
+                else {}
+            ),
         },
         "lightgbm": package_version("lightgbm"),
     }

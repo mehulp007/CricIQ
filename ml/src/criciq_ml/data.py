@@ -13,19 +13,39 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from criciq_core.phases import check_model_format
+from criciq_core.phases import check_model_format, model_phases
 
+# ``season`` is the competition's season; ``year`` the calendar year of the
+# match, which the training splits use (date cut-offs on 1 January).
 MATCHES_SQL = """
 SELECT m.match_id, m.match_order, s.year AS season, m.match_date, m.venue_id,
-       m.outcome_type, m.winner_id, m.scheduled_overs, m.balls_per_over
+       m.outcome_type, m.winner_id, m.scheduled_overs, m.balls_per_over,
+       m.competition_id, year(m.match_date)::INTEGER AS year
 FROM matches m JOIN seasons s USING (season_id)
 ORDER BY m.match_order
 """
 
-INNINGS_SQL = """
+# A chase's target, where Cricsheet omits it (some T20Is), is the first-innings
+# total plus one: the rule when no rain rule applied.
+TARGET_SQL = """
+coalesce(i.target_runs,
+         CASE WHEN i.innings_no = 2 AND NOT i.is_super_over
+              THEN (SELECT f.runs + 1 FROM innings f
+                    WHERE f.match_id = i.match_id AND f.innings_no = 1) END)
+"""
+
+# The balls an innings could last: its revised allocation, else the scheduled
+# overs, never more than the models' format allows (Cricsheet records a few
+# T20Is as 50-over matches).
+MAX_BALLS_SQL = f"""
+least(coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over),
+      {model_phases().limit} * m.balls_per_over)
+"""
+
+INNINGS_SQL = f"""
 SELECT i.match_id, i.innings_no, i.batting_team_id, i.bowling_team_id, i.is_super_over,
-       i.target_runs,
-       coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over) AS max_balls
+       {TARGET_SQL} AS target_runs,
+       {MAX_BALLS_SQL} AS max_balls
 FROM innings i JOIN matches m USING (match_id)
 ORDER BY m.match_order, i.innings_no
 """
@@ -80,6 +100,19 @@ class Inputs:
     squads: pd.DataFrame
     substitutions: pd.DataFrame
     data_version: str
+
+    def only(self, competitions: set[str] | frozenset[str]) -> Inputs:
+        """The matches of some competitions (of a pooled copy)."""
+        kept = self.matches[self.matches["competition_id"].isin(competitions)]
+        ids = set(kept["match_id"])
+        return replace(
+            self,
+            matches=kept,
+            innings=self.innings[self.innings["match_id"].isin(ids)],
+            deliveries=self.deliveries[self.deliveries["match_id"].isin(ids)],
+            squads=self.squads[self.squads["match_id"].isin(ids)],
+            substitutions=self.substitutions[self.substitutions["match_id"].isin(ids)],
+        )
 
     def up_to(self, match_order: int) -> Inputs:
         """History as it stood after ``match_order`` (later matches removed)."""

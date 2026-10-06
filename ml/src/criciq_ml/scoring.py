@@ -21,7 +21,7 @@ import pandas as pd
 from criciq_ml import leverage
 from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, GROUPS, RUNS, BallOutcomeModel
 from criciq_ml.data import Inputs
-from criciq_ml.features import GROUP_KEYS, LABEL
+from criciq_ml.features import LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
 from criciq_ml.projection import LEVELS, ScoreProjectionModel, projection_frame
 from criciq_ml.ratings import RatingsModel
@@ -36,7 +36,7 @@ def score_states(model: WinProbabilityModel, states: pd.DataFrame) -> pd.DataFra
     """
     scored = model.score(states)
     wp = scored["wp_batting"].to_numpy(dtype=float).copy()
-    points = scored[[f"pts_{k}" for k in GROUP_KEYS]].to_numpy(dtype=float)
+    points = scored[[f"pts_{k}" for k in model.group_keys]].to_numpy(dtype=float)
     explained = np.ones(len(states), dtype=bool)
 
     last = states.groupby(["match_id", "innings_no"])["seq_no"].transform("max").to_numpy()
@@ -83,7 +83,11 @@ def add_pressure(
     first = (states["innings_no"] == 1).to_numpy()
     wp_a = predictions["wp_team_a"].to_numpy(dtype=float)
     wp_batting = np.where(first, wp_a, 1 - wp_a)
-    swing = leverage.expected_swing(model, states, inputs)
+    # The next ball's chances come from the competitions being scored (of a pooled copy).
+    own = inputs.only(set(states["competition_id"])) if "competition_id" in states else inputs
+    swing = leverage.expected_swing(
+        model, states, inputs, rates=leverage.OutcomeRates.estimate(own)
+    )
     scale = leverage.pressure_scale(swing)
     out = predictions.reset_index(drop=True).copy()
     out["leverage"] = np.round(swing / scale["mean_swing"], 3)
@@ -157,8 +161,7 @@ def _register_model(
 # Win probability added: every ball's change in the batting side's win
 # probability is credited to the batter on strike and, with the opposite sign,
 # to the bowler. Changes between innings belong to nobody.
-PLAYER_WPA_SQL = """
-CREATE TABLE player_wpa AS
+PLAYER_WPA_QUERY = """
 WITH batting_side AS (
     SELECT match_id, innings_no, seq_no,
            CASE WHEN innings_no = 1 THEN wp_team_a ELSE 1 - wp_team_a END AS wp
@@ -181,6 +184,7 @@ SELECT bowler_id, match_id, innings_no, 'bowling', -sum(delta)
 FROM credited GROUP BY ALL
 ORDER BY player_id, match_id, innings_no, role
 """
+PLAYER_WPA_SQL = "CREATE TABLE player_wpa AS" + PLAYER_WPA_QUERY
 
 
 def publish(
@@ -222,7 +226,7 @@ def publish(
             model.version,
             manifest["trained_on"]["seasons"],
             {
-                "factor_keys": GROUP_KEYS,
+                "factor_keys": model.group_keys,
                 "base_innings1": manifest["base_probability"]["1"],
                 "base_innings2": manifest["base_probability"]["2"],
                 **({"pressure": pressure_scale} if pressure_scale else {}),
@@ -356,18 +360,20 @@ def publish_simulator(serving: Path, settings: SimulatorSettings) -> None:
     _publish(serving, write)
 
 
-def publish_ratings(serving: Path, model: RatingsModel) -> int:
-    """Register the rating constants (shrinkage per component) in the serving database."""
+def publish_ratings(serving: Path, model: RatingsModel, competition: str = "IPL") -> int:
+    """Register one competition's rating constants (shrinkage per component)."""
+    fitted = model.for_scope(competition)
+    if fitted is None:
+        raise ValueError(f"ratings {model.version} have no constants for {competition}")
 
     def write(con: duckdb.DuckDBPyConnection) -> int:
-        manifest = model.manifest
         _register_model(
             con,
-            manifest["name"],
+            model.manifest["name"],
             model.version,
-            manifest["trained_on"]["seasons"],
-            {"components": manifest["components"]},
+            fitted["trained_on"]["seasons"],
+            {"components": fitted["components"]},
         )
-        return sum(len(v) for v in manifest["components"].values())
+        return sum(len(v) for v in fitted["components"].values())
 
     return _publish(serving, write)

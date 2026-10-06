@@ -2,6 +2,10 @@
 
 Model files are small text artifacts and are committed, so every deployment
 scores with a reviewed, versioned model instead of retraining on the fly.
+
+``CURRENT`` names the version every competition is scored with. A competition
+can keep another version with its own pointer, ``CURRENT.<competition>``: the
+IPL keeps v1 if the pooled T20 model is worse on the IPL's test seasons.
 """
 
 from __future__ import annotations
@@ -32,27 +36,34 @@ def version_dir(version: str, name: str = NAME) -> Path:
     return root(name) / version
 
 
-def current_version(name: str = NAME) -> str | None:
-    pointer = root(name) / "CURRENT"
-    return pointer.read_text(encoding="utf-8").strip() if pointer.exists() else None
+def _pointer(name: str, competition: str | None) -> Path:
+    return root(name) / ("CURRENT" if competition is None else f"CURRENT.{competition}")
 
 
-def load_current(name: str = NAME) -> WinProbabilityModel:
-    version = current_version(name)
+def current_version(name: str = NAME, competition: str | None = None) -> str | None:
+    """The version serving ``competition`` (its own pointer, else ``CURRENT``)."""
+    for pointer in (_pointer(name, competition), _pointer(name, None)):
+        if pointer.exists():
+            return pointer.read_text(encoding="utf-8").strip()
+    return None
+
+
+def load_current(name: str = NAME, competition: str | None = None) -> WinProbabilityModel:
+    version = current_version(name, competition)
     if version is None:
         raise FileNotFoundError(f"no current {name} model; run `criciq-ml train`")
     return WinProbabilityModel.load(version_dir(version, name))
 
 
-def load_current_projection() -> ScoreProjectionModel:
-    version = current_version(PROJECTION)
+def load_current_projection(competition: str | None = None) -> ScoreProjectionModel:
+    version = current_version(PROJECTION, competition)
     if version is None:
         raise FileNotFoundError("no current score projection model; run `criciq-ml train`")
     return ScoreProjectionModel.load(version_dir(version, PROJECTION))
 
 
-def load_current_ball_outcome() -> BallOutcomeModel:
-    version = current_version(BALL_OUTCOME)
+def load_current_ball_outcome(competition: str | None = None) -> BallOutcomeModel:
+    version = current_version(BALL_OUTCOME, competition)
     if version is None:
         raise FileNotFoundError("no current ball-outcome model; run `criciq-ml train`")
     return BallOutcomeModel.load(version_dir(version, BALL_OUTCOME))
@@ -65,8 +76,8 @@ def load_current_ratings() -> RatingsModel:
     return RatingsModel.load(version_dir(version, RATINGS))
 
 
-def load_current_simulator() -> SimulatorSettings:
-    version = current_version(SIMULATOR)
+def load_current_simulator(competition: str | None = None) -> SimulatorSettings:
+    version = current_version(SIMULATOR, competition)
     if version is None:
         raise FileNotFoundError("no current simulator; run `criciq-ml train simulator`")
     manifest = json.loads((version_dir(version, SIMULATOR) / "manifest.json").read_text("utf-8"))
@@ -97,8 +108,13 @@ def save(
     return target
 
 
-def promote(version: str, name: str = NAME) -> None:
-    (root(name) / "CURRENT").write_text(version + "\n", encoding="utf-8", newline="\n")
+def promote(version: str, name: str = NAME, competition: str | None = None) -> None:
+    _pointer(name, competition).write_text(version + "\n", encoding="utf-8", newline="\n")
+
+
+def release(name: str, competition: str) -> None:
+    """Drop a competition's own pointer: it is then scored with ``CURRENT``."""
+    _pointer(name, competition).unlink(missing_ok=True)
 
 
 def gate(new: dict[str, Any], current: dict[str, Any] | None, tolerance: float) -> list[str]:
@@ -108,7 +124,18 @@ def gate(new: dict[str, Any], current: dict[str, Any] | None, tolerance: float) 
     for metric in ("log_loss", "brier"):
         if test["model"][metric] >= test["baseline"][metric]:
             problems.append(f"does not beat the baseline on test {metric}")
-    if current is not None and current["splits"]["test"] == new["splits"]["test"]:
+    # Within one competition the test set can be small (60 SA20 matches), so only a
+    # competition where the model is clearly worse than the baseline fails it.
+    for line in test.get("by_competition", []):
+        if line["vs_baseline"]["ci_high"] < 0:
+            problems.append(
+                f"clearly worse than the baseline on {line['competition']} test log loss"
+            )
+    # A pooled version is compared with the IPL's on the IPL's own test balls
+    # (``ipl_comparison``), which decides whether it serves the IPL; its whole
+    # test set is not comparable with an IPL-only version's.
+    pooled = "ipl_comparison" in new
+    if not pooled and current is not None and current["splits"]["test"] == new["splits"]["test"]:
         regression = test["model"]["log_loss"] - current["test"]["model"]["log_loss"]
         if regression > tolerance:
             problems.append(

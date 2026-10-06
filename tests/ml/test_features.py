@@ -60,8 +60,9 @@ def test_served_features_are_allowlisted_and_explained(fixture_states: pd.DataFr
     for number, features in FEATURES.items():
         assert set(features) <= set(fixture_states.columns)
         assert not set(features) & FORBIDDEN
-        explained = [f for group in GROUPS.values() for f in group[number]]
-        assert sorted(explained) == sorted(features), "every feature in exactly one group"
+        grouped = [f for group in GROUPS.values() for f in group[number]]
+        assert len(grouped) == len(set(grouped)), "no feature in two groups"
+        assert set(features) <= set(grouped), "every served feature explained"
         assert set(MONOTONE[number]) <= set(features)
         for candidate in CANDIDATES.values():
             assert set(candidate[number]) <= set(fixture_states.columns)

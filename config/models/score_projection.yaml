@@ -1,18 +1,29 @@
 # Score projection: training configuration.
 #
-# Seasons never do two jobs: hyperparameters are tuned on one pair of seasons,
-# the conformal calibration uses the next pair, and the test seasons are
-# touched once, for the report.
+# Years never do two jobs: hyperparameters are tuned on one pair of years, the
+# conformal calibration uses the next pair, and the test years are touched
+# once, for the report.
+#
+# v2 trains on every T20 competition at once (the pooled copy, `scope: T20`),
+# with splits by the calendar year of the match (see win_probability.yaml).
+# v1 (1.0.0) trained on the IPL alone.
 
 name: score_projection
-version: 1.0.0
+version: 2.0.0
+scope: T20
+
+# Candidate groups served on top of the core features (projection.CANDIDATES),
+# chosen by forward selection on the pre-test rolling origin: the batters at the
+# crease and international cricket each cut the pinball loss by over 0.05 runs.
+# The venue and the era made it worse.
+served_extras: [crease, international]
 
 splits:
-  tune_train_through: 2020   # grid candidates are fit on 2008-2020 ...
+  tune_train_through: 2020   # grid candidates are fit on matches up to 2020 ...
   tune_valid: [2021, 2022]   # ... with early stopping and selection here
   calibrate: [2023, 2024]    # conformal shifts for the headline model
   test: [2025, 2026]         # reported once; never used for any choice
-  backtest_from: 2016        # rolling origin: fit < s-2, calibrate s-2 and s-1, test s
+  backtest_from: 2016        # rolling origin: fit < y-2, calibrate y-2 and y-1, test y
 
 lightgbm:
   base:
@@ -24,11 +35,13 @@ lightgbm:
     max_rounds: 1500
     early_stopping_rounds: 100
     seed: 7
+    num_threads: 12
   grid:
-    num_leaves: [7, 15]
+    num_leaves: [15, 31]
     # Rows are balls, but a total is shared by a whole innings (~120 rows):
     # leaves must span many innings or the trees memorise individual games.
-    min_data_in_leaf: [1000, 3000]
+    # The pooled data has about five times the IPL's innings.
+    min_data_in_leaf: [2000, 6000]
 
 # Totals used to evaluate "P(total >= X)".
 thresholds: [160, 180, 200, 220]

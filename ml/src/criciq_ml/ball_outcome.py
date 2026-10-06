@@ -13,6 +13,11 @@ their skill: a newcomer starts at average and earns an effect ball by ball.
 
 The fitted model is a table of additive terms, so the API can evaluate it with
 plain arithmetic and never imports an ML library (ADR-0004).
+
+Fitted on several competitions at once (v2), players keep one effect across
+all of them, the scoring era is each competition's own, and each competition
+gets its own term (``competition=<id>``). Serving one competition folds its
+term into the intercept (``for_competition``), so the API needs nothing new.
 """
 
 from __future__ import annotations
@@ -30,7 +35,7 @@ from scipy import sparse
 from sklearn.linear_model import LogisticRegression
 
 from criciq_core.phases import model_phases
-from criciq_ml.data import check_formats
+from criciq_ml.data import MAX_BALLS_SQL, TARGET_SQL, check_formats
 
 FloatArray = npt.NDArray[np.float64]
 
@@ -45,6 +50,10 @@ ENV_WINDOW = 60
 ENV_DEFAULT = 1.2
 
 PHASES = tuple(p.key for p in sorted(model_phases().phases, key=lambda p: p.first_over))
+
+# Optional group of a model fitted on several competitions (its levels are the
+# competitions in the data).
+COMPETITION = "competition"
 
 # One-hot groups describing the situation; each row belongs to one level per group.
 GROUPS: dict[str, tuple[str, ...]] = {
@@ -66,6 +75,7 @@ def _balls_sql() -> str:
         FROM wickets GROUP BY ALL
     )
     SELECT d.match_id, d.innings_no, d.seq_no, m.match_order, s.year AS season,
+           year(m.match_date)::INTEGER AS year, m.competition_id,
            {phase} AS phase, d.batter_id, d.bowler_id,
            coalesce(pb.batting_hand, 'unknown') AS batting_hand,
            coalesce(pw.bowling_type, 'unknown') AS bowling_type,
@@ -73,8 +83,8 @@ def _balls_sql() -> str:
            d.team_runs - d.runs_total AS runs_before,
            d.team_wickets - coalesce(o.dismissals, 0) AS wickets_before,
            d.legal_ball_no - d.is_legal::INTEGER AS balls_before,
-           i.target_runs,
-           coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over) AS max_balls,
+           {TARGET_SQL} AS target_runs,
+           {MAX_BALLS_SQL} AS max_balls,
            (row_number() OVER (PARTITION BY d.match_id, d.innings_no, d.batter_id
                                ORDER BY d.seq_no) - 1)::INTEGER AS batter_balls
     FROM deliveries d
@@ -121,15 +131,27 @@ def add_situation(balls: pd.DataFrame) -> pd.DataFrame:
     """Outcome, scoring era (as of the previous matches) and situation levels."""
     balls = balls.copy()
     balls["outcome"] = outcome_index(balls["runs_batter"], balls["bowler_out"])
+    if "competition_id" not in balls:
+        balls["competition_id"] = ""
 
+    # The scoring era: each competition's own previous ENV_WINDOW matches.
     per_match = (
-        balls.groupby("match_order")
+        balls.groupby(["competition_id", "match_order"], sort=True)
         .agg(runs=("runs_batter", "sum"), balls=("runs_batter", "size"))
-        .sort_index()
+        .reset_index()
     )
-    rolled = per_match.rolling(ENV_WINDOW, min_periods=1).sum().shift(1)
-    env = (rolled["runs"] / rolled["balls"]).fillna(ENV_DEFAULT)
-    balls["env"] = balls["match_order"].map(env).astype(float)
+    by_competition = per_match.groupby("competition_id", sort=False)
+    previous = {
+        column: by_competition[column].transform(
+            lambda s: s.rolling(ENV_WINDOW, min_periods=1).sum().shift(1)
+        )
+        for column in ("runs", "balls")
+    }
+    per_match["env"] = (previous["runs"] / previous["balls"]).fillna(ENV_DEFAULT)
+    env = per_match.set_index(["competition_id", "match_order"])["env"]
+    keys = pd.MultiIndex.from_frame(balls[["competition_id", "match_order"]])
+    balls["env"] = env.reindex(keys).to_numpy(dtype=float)
+    balls["g_competition"] = balls["competition_id"].astype(str)
 
     balls["g_phase"] = balls["phase"] + "_" + balls["innings_no"].astype(str)
     balls["g_wickets"] = _bucket(balls["wickets_before"], [2, 4, 6], GROUPS["wickets"])
@@ -158,12 +180,24 @@ class Design:
     env_std: float
     # Candidate: a separate effect per player and phase on top of the overall one.
     phase_players: bool = False
+    # Groups beyond GROUPS (``COMPETITION`` for a model of several competitions).
+    extra_groups: tuple[str, ...] = ()
 
     @classmethod
     def from_training(
-        cls, balls: pd.DataFrame, min_balls: int = 1, phase_players: bool = False
+        cls,
+        balls: pd.DataFrame,
+        min_balls: int = 1,
+        phase_players: bool = False,
+        competition_terms: bool = False,
     ) -> Design:
         context = tuple(f"{g}={level}" for g, levels in GROUPS.items() for level in levels)
+        extra: tuple[str, ...] = ()
+        if competition_terms:
+            extra = (COMPETITION,)
+            context += tuple(
+                f"{COMPETITION}={c}" for c in sorted(balls["g_competition"].astype(str).unique())
+            )
         bat = balls["batter_id"].value_counts()
         bowl = balls["bowler_id"].value_counts()
         log_env = np.log(balls["env"].to_numpy())
@@ -174,6 +208,7 @@ class Design:
             env_mean=float(log_env.mean()),
             env_std=float(log_env.std() or 1.0),
             phase_players=phase_players,
+            extra_groups=extra,
         )
 
     def player_blocks(self) -> list[tuple[str, str, tuple[str, ...], str | None]]:
@@ -194,7 +229,7 @@ class Design:
         cols: list[npt.NDArray[np.int64]] = []
         vals: list[FloatArray] = []
         index = {name: i for i, name in enumerate(self.context)}
-        for group in GROUPS:
+        for group in (*GROUPS, *self.extra_groups):
             keys = (group + "=" + balls[f"g_{group}"].astype(str)).map(index)
             known = keys.notna().to_numpy()
             rows.append(np.arange(n)[known])
@@ -249,8 +284,11 @@ class BallOutcomeModel:
         max_iter: int,
         manifest: dict[str, Any] | None = None,
         phase_players: bool = False,
+        competition_terms: bool = False,
     ) -> BallOutcomeModel:
-        design = Design.from_training(balls, phase_players=phase_players)
+        design = Design.from_training(
+            balls, phase_players=phase_players, competition_terms=competition_terms
+        )
         x = design.matrix(balls, player_scale)
         clf = LogisticRegression(C=c, max_iter=max_iter, tol=1e-6)
         clf.fit(x, balls["outcome"].to_numpy())
@@ -275,13 +313,27 @@ class BallOutcomeModel:
             "env_std": design.env_std,
             "player_scale": player_scale,
             "c": c,
+            **({"extra_groups": list(design.extra_groups)} if design.extra_groups else {}),
             **(manifest or {}),
         }
         return cls(terms, info)
 
+    def for_competition(self, competition: str) -> BallOutcomeModel:
+        """The model for one competition: its term folded into the intercept, so it
+        is evaluated with the situation groups alone (as the API and simulator do)."""
+        if COMPETITION not in self.manifest.get("extra_groups", []):
+            return self
+        prefix = f"{COMPETITION}="
+        terms = {k: v for k, v in self.terms.items() if not k.startswith(prefix)}
+        own = self.terms.get(prefix + competition, np.zeros(len(CLASSES)))
+        terms["intercept"] = self.terms["intercept"] + own
+        extra = [g for g in self.manifest["extra_groups"] if g != COMPETITION]
+        manifest = {k: v for k, v in self.manifest.items() if k != "extra_groups"}
+        return BallOutcomeModel(terms, {**manifest, **({"extra_groups": extra} if extra else {})})
+
     def logits(self, balls: pd.DataFrame) -> FloatArray:
         out = np.tile(self.terms["intercept"], (len(balls), 1))
-        for group in GROUPS:
+        for group in (*GROUPS, *self.manifest.get("extra_groups", [])):
             keys = group + "=" + balls[f"g_{group}"].astype(str)
             out += np.stack([self.terms.get(k, np.zeros(len(CLASSES))) for k in keys])
         era = (np.log(balls["env"].to_numpy()) - self.manifest["env_mean"]) / self.manifest[

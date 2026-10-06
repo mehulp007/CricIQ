@@ -7,7 +7,14 @@
 # tested once on later seasons, as for the models.
 
 name: ratings
-version: 1.0.0
+version: 2.0.0
+
+# v2 fits every scope of the players database (each T20 competition, and all T20
+# together) on its own records. v1 (1.0.0) was fitted on the IPL alone.
+source: players
+# A competition with fewer players followed from one season to the next than
+# this borrows the all-T20 k (and stability) for that component.
+min_pairs: 100
 
 splits:
   # k for the validation is tuned on seasons before this one; predictions of

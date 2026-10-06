@@ -38,11 +38,11 @@ def test_every_state_is_scored_and_published(
     assert count == (len(fixture_states),)
     assert starts == (fixture_states.groupby(["match_id", "innings_no"]).ngroups,)
     assert models == {
-        "win_probability": registry.current_version(),
-        "score_projection": registry.current_version(registry.PROJECTION),
-        "ball_outcome": registry.current_version(registry.BALL_OUTCOME),
-        "ratings": registry.current_version(registry.RATINGS),
-        "simulator": registry.current_version(registry.SIMULATOR),
+        "win_probability": registry.current_version(registry.NAME, "IPL"),
+        "score_projection": registry.current_version(registry.PROJECTION, "IPL"),
+        "ball_outcome": registry.current_version(registry.BALL_OUTCOME, "IPL"),
+        "ratings": registry.current_version(registry.RATINGS, "IPL"),
+        "simulator": registry.current_version(registry.SIMULATOR, "IPL"),
     }
     assert info is not None
     assert '"factor_keys": ["situation", "wickets", "recent"]' in info[0]
@@ -93,7 +93,7 @@ def test_player_wpa_conserves_each_innings_swing(fixture_scored_serving_db: Path
 
 
 def test_model_card_renders_from_the_registry(fixture_scored_serving_db: Path) -> None:
-    version = registry.current_version()
+    version = registry.current_version(registry.NAME, "IPL")
     assert version is not None
     data = report.insights(version, fixture_scored_serving_db)
     card = report.model_card(data)
@@ -106,7 +106,7 @@ def test_model_card_renders_from_the_registry(fixture_scored_serving_db: Path) -
 def test_bundled_insights_match_the_current_model() -> None:
     """The web app's Model Insights page ships this file; it must describe the served model."""
     bundled = json.loads(report.INSIGHTS_PATH.read_text(encoding="utf-8"))
-    version = registry.current_version()
+    version = registry.current_version(registry.NAME, "IPL")
     assert version is not None
     evaluation = registry.load_evaluation(version)
     assert bundled["version"] == version

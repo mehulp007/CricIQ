@@ -1,4 +1,9 @@
-"""Model card and Model Insights data for CricIQ Ratings and similar players."""
+"""Model card and Model Insights data for CricIQ Ratings and similar players.
+
+v2 fits every scope of the players database. The card describes the IPL's
+ratings (what the site shows) and adds a table of every competition's
+constants; ``t20/ratings.json`` holds every scope's Model Insights data.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +15,8 @@ from criciq_core import paths
 from criciq_core.ratings import MIN_BALLS, MIN_INNINGS, MIN_RATED_BALLS, MIN_SUBSET_BALLS
 from criciq_core.style import MIN_PROFILE_BALLS
 from criciq_ml import registry
+from criciq_ml.report_common import IPL, pooled_path, write_json, write_text
+from criciq_ml.report_common import label as competition_label
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "ratings.json"
 MODEL_CARD_PATH = paths.repo_root() / "docs" / "model-cards" / "ratings.md"
@@ -24,18 +31,29 @@ UNIT_LABELS = {
 }
 
 
-def insights(version: str) -> dict[str, Any]:
+def scopes_of(version: str) -> list[str]:
+    """The scopes a version was fitted on (the IPL alone for v1)."""
+    evaluation = registry.load_evaluation(version, registry.RATINGS)
+    return list(evaluation.get("scopes", {IPL: None}))
+
+
+def insights(version: str, scope: str = IPL) -> dict[str, Any]:
     evaluation = registry.load_evaluation(version, registry.RATINGS)
     manifest = json.loads(
         (registry.version_dir(version, registry.RATINGS) / "manifest.json").read_text(
             encoding="utf-8"
         )
     )
+    trained_on = manifest["trained_on"] if "scopes" not in manifest else None
+    if "scopes" in evaluation:
+        evaluation = {**evaluation["scopes"][scope], "data_version": evaluation["data_version"]}
+        trained_on = manifest["scopes"][scope]["trained_on"]
     return {
         "name": manifest["name"],
         "version": version,
+        "scope": scope,
         "data_version": evaluation["data_version"],
-        "trained_on": manifest["trained_on"],
+        "trained_on": trained_on,
         "splits": evaluation["splits"],
         "stability": evaluation["stability"],
         "season_factor": evaluation["season_factor"],
@@ -67,7 +85,45 @@ def _weight(c: dict[str, Any]) -> str:
     return ", ".join(f"{100 * c['weight_at'][s]:.0f}% at {s}" for s in sizes)
 
 
-def model_card(data: dict[str, Any]) -> str:
+def scopes_section(scopes: dict[str, dict[str, Any]]) -> list[str]:
+    """Markdown: every competition's shrinkage constant and stability per component."""
+    if len(scopes) < 2:
+        return []
+    names = list(scopes)
+    first = scopes[names[0]]
+    lines = [
+        "## Every competition",
+        "",
+        "Each competition's ratings are fitted on its own players' records, against its own par.",
+        "A component of a competition with too few players followed from one season to the next",
+        "borrows the all-T20 k and stability (marked *). Cells show k and stability.",
+        "",
+        "| Role | Component | " + " | ".join(competition_label(n) for n in names) + " |",
+        "|---|---|" + "---|" * len(names),
+    ]
+    for c in first["components"]:
+        cells = []
+        for name in names:
+            found = next(
+                (
+                    x
+                    for x in scopes[name]["components"]
+                    if (x["role"], x["key"]) == (c["role"], c["key"])
+                ),
+                None,
+            )
+            cells.append(
+                "n/a"
+                if found is None
+                else f"{found['k']:,.0f}{'*' if found.get('borrowed') else ''} "
+                f"({found['stability']})"
+            )
+        lines.append(f"| {c['role']} | {c['label']} | " + " | ".join(cells) + " |")
+    lines.append("")
+    return lines
+
+
+def model_card(data: dict[str, Any], scopes: dict[str, dict[str, Any]] | None = None) -> str:
     t = data["thresholds"]
     test_from = data["splits"]["test_from"]
     levels = data["stability"]
@@ -170,6 +226,7 @@ def model_card(data: dict[str, Any]) -> str:
         "Wicket rate against par was left out of the bowling profile: it barely persists (above),",
         "so it adds noise to the match.",
         "",
+        *scopes_section(scopes or {}),
         "## Limitations",
         "",
         "- Par adjusts for season and phase only, not venue, match situation or opposition.",
@@ -188,9 +245,12 @@ def write_all() -> list[Path]:
     version = registry.current_version(registry.RATINGS)
     if version is None:
         return []
-    data = insights(version)
-    INSIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    INSIGHTS_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-    MODEL_CARD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    MODEL_CARD_PATH.write_text(model_card(data), encoding="utf-8", newline="\n")
-    return [INSIGHTS_PATH, MODEL_CARD_PATH]
+    scopes = {scope: insights(version, scope) for scope in scopes_of(version)}
+    data = scopes[IPL]
+    out = [
+        write_json(INSIGHTS_PATH, data),
+        write_text(MODEL_CARD_PATH, model_card(data, scopes)),
+    ]
+    if len(scopes) > 1:
+        out.append(write_json(pooled_path(INSIGHTS_PATH), {"version": version, "scopes": scopes}))
+    return out

@@ -226,6 +226,19 @@ Written by `criciq-ml score` with the committed models; the API never runs a mod
 | `score_projections` | first-innings state | Quantiles of the final total |
 | `models` | model name | Version, training seasons and served settings as JSON `info`; the win probability row also stores the pressure scale (mean swing and percentiles) |
 
+## Data updates
+
+The ingest database `data/sync/ingest.duckdb` (written by `criciq-data sync` and `run`, ADR-0008):
+
+| Table | Grain | Notes |
+|---|---|---|
+| `ingest_log` | match | `competition_id`, `match_date`, `sha256` of the match file in use, `status` (`active`, `quarantined`, `withdrawn`), `source` (the archive holding that version, under `data/raw/`), `detail` (why a match, or its latest correction, is quarantined), `first_seen`, `updated_at` |
+| `sync_runs` | run | `kind` (`initial`, `sync`, `full`, `rebuild`), `feed`, `status` (`updated`, `up_to_date`, `failed`), `data_version`, counts checked, new, corrected, withdrawn and quarantined, `seconds`, `detail` (why a run failed) |
+| `data_updates` | run × competition | What a run changed in each competition: `new_matches`, `corrected_matches`, `withdrawn_matches`, `quarantined_matches`, `kind`, `updated_at` |
+
+The serving database carries `data_updates` for its competition (empty until the first load is
+recorded); the API's `/meta` reports the latest non-initial update as `last_update`.
+
 ## `meta`
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,
 `player_attributes`.

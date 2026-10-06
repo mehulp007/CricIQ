@@ -173,10 +173,58 @@ IPL players with a meaningful sample).
   record of earlier internationals is not available.
 - **Pitch, weather and session times** are not in the data.
 
-## Refreshing data
+## Keeping data up to date (sync)
+
+Cricsheet publishes each match one to three days after it is played. A sync takes in only what
+changed (ADR-0008):
 
 ```bash
-just data run                    # fetch new matches and rebuild
+just sync                        # new, corrected (and, on a full check, withdrawn) matches
+just sync --feed full            # check every archive, which also finds withdrawn matches
+just sync --retry-quarantined    # try quarantined matches again after a config fix
+just sync-status                 # data version, recent runs, quarantined matches
+```
+
+1. **Feed.** The shortest one that reaches back to the last successful sync: Cricsheet's 7-day
+   additions within 6 days, the 30-day ones within 28, else the full archives. Downloads retry a
+   dropped connection three times (after 5, 20 and 60 seconds).
+2. **Diff.** Each match of a selected competition is compared with the **ingest log**
+   (`data/sync/ingest.duckdb`) by the SHA-256 of its file: new, corrected, unchanged or withdrawn.
+3. **Apply.** Only those matches' rows change in the interim tables; the warehouse, validation, the
+   IPL copy and the serving database are rebuilt and every ball is scored, all into staging files.
+4. **Quarantine.** A new match that cannot be built (an unknown ground or team in the strict IPL)
+   or fails validation is set aside with its reason and the rest go in; a bad correction keeps the
+   previous version. Fix the config (e.g. add the ground to `config/venues.yaml`), then
+   `just sync --retry-quarantined`. A failure no incoming match explains stops the sync and changes
+   nothing.
+5. **Publish.** The staging files replace the current ones, the files the sync took in are kept
+   under `data/raw/feeds/`, and the run is recorded (`sync_runs`, `data_updates`). The API and the
+   site's freshness badge report the update.
+
+While the local API runs, Windows will not let the serving database be replaced; the sync leaves it
+as `serving.duckdb.next` and the API swaps it in on its next request (or at startup).
+
+Measured on real Cricsheet data (2026-10-06): a sync with nothing new takes a few seconds (the first
+one also records the ingest log, about 35 seconds); 31 new matches from the 7-day feed took 1 min
+39 s end to end; a full check of all eight archives took 4 minutes. On a deliberately stale copy,
+two syncs produced warehouses and model outputs identical to a full rebuild.
+
+**On a schedule (local).** `scripts/sync_task.ps1` registers a Windows scheduled task that runs the
+sync every six hours while you are logged in and appends to `data/sync/sync.log`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1            # register
+powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1 -RunOnce   # run the task's command now
+powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1 -Remove    # unregister
+```
+
+At the v2.0 launch the same sync runs in GitHub Actions (`.github/workflows/data-sync.yml`, written
+but switched off until V2-8; see [deployment.md](deployment.md)).
+
+## Rebuilding from scratch
+
+```bash
+just data run                    # download every archive and rebuild (also records the ingest log)
 just data enrich-players         # only when new players appear
 just data build && just data report
 uv run python scripts/make_fixtures.py   # only if fixture matches should change

@@ -8,6 +8,8 @@ CricIQ is a **modular monolith**: one data pipeline, one ML package, one API ser
 Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
                         ▼
   [pipelines] download → raw (immutable, versioned by data_version)
+              or sync: only new/corrected/withdrawn matches since the last run, against an
+              ingest log (ADR-0008), applied to the interim tables and rebuilt in staging
               extract/normalize → warehouse.duckdb (core tables)
               validate (schemas + invariants + golden matches)
               export → serving.duckdb (slim, read-only, plus Player Lab tables with par

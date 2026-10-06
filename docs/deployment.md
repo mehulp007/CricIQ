@@ -21,9 +21,12 @@ browser ──► Vercel (Next.js server components, cached for 24h)
 The service builds [`docker/backend.Dockerfile`](../docker/backend.Dockerfile) from the repository root.
 The image build **is** the data pipeline:
 
-1. The `data` stage downloads the latest Cricsheet archive, then builds, validates and exports the
-   serving database (`criciq-data run`). If any validation check or golden scorecard fails, the image
-   build fails, so invalid data can never go live.
+1. The `data` stage fetches the latest Cricsheet IPL archive and register with `ADD`, then builds,
+   validates and exports the serving database (`criciq-data snapshot` + `criciq-data run
+   --no-download`). Docker checks `ADD` URLs again on every build, so when Cricsheet has new data the
+   layer is rebuilt instead of reused from the cache (a `RUN` step that downloads could ship stale
+   data from a cached layer). If any validation check or golden scorecard fails, the image build
+   fails, so invalid data can never go live.
 2. The same stage scores every ball with the committed models (`criciq-ml score`), adding win
    probabilities, explanations and first-innings score projections to the serving database. It
    never retrains (ADR-0004).
@@ -41,9 +44,18 @@ The image build **is** the data pipeline:
 manual deploy from the Render dashboard or the Render API. The new image picks up the latest Cricsheet
 data automatically.
 
-The web app caches API responses for 24 hours, and that cache survives web deployments. Once the new
-API is live, **invalidate the `criciq-api` cache tag** on the Vercel project (dashboard, CLI or API)
-so pages pick up the new responses immediately.
+The web app caches API responses for 24 hours, keyed by the data version, and re-reads the metadata
+that carries the version every five minutes; new data therefore shows within minutes of the new API
+going live. To refresh at once, **invalidate the `criciq-api` and `_N_T_/layout` cache tags** on the
+Vercel project (dashboard, CLI or API).
+
+**Automatic data sync (from the v2.0 launch).** `.github/workflows/data-sync.yml` runs
+`criciq-data sync` every six hours (ADR-0008), keeps the data between runs in the Actions cache,
+redeploys the API through a Render deploy hook, invalidates the Vercel cache tags and opens an issue
+when a match is quarantined. It is written but switched off until V2-8: it runs only when started
+by hand **and** the repository variable `CRICIQ_SYNC_ENABLED` is `true`. To turn it on, uncomment
+its schedule, set that variable and add the secrets `RENDER_DEPLOY_HOOK_URL`, `VERCEL_TOKEN` and
+`VERCEL_PROJECT_ID`.
 
 **Cold starts.** Free Render services sleep after 15 minutes idle and take about 30 seconds to wake. The
 web app is designed around this:

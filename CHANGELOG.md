@@ -7,6 +7,18 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **V2-1: incremental sync** (ADR-0008)
+  - `criciq-data sync` takes in only what Cricsheet changed: it picks the 7-day, 30-day or full feed
+    by the time since the last sync, compares every match file with an ingest log (new, corrected,
+    withdrawn), applies those changes, then rebuilds, validates, exports and scores in staging so a
+    failed sync changes nothing.
+  - Matches that cannot be built or fail validation are quarantined with the reason while the rest
+    go in; a bad correction keeps the previous version; `--retry-quarantined` tries them again.
+  - `criciq-data sync-status`, `just sync`, `just sync-status`, and `scripts/sync_task.ps1` to run
+    the sync every six hours with Windows Task Scheduler.
+  - The site shows how fresh the data is ("Data updated 6 Oct 2026 · 2 new matches") and leads the
+    overview with the latest matches; `/api/v1/meta` reports `last_update` and `latest_match_date`.
+  - `.github/workflows/data-sync.yml` for the launch (switched off until V2-8).
 - **V2-0: multi-competition foundation**
   - One warehouse for every competition (ADR-0007): the IPL, BBL, PSL, CPL and SA20, and men's
     T20Is, ODIs and Tests, about 9,900 matches and 4.6 million deliveries, registered in
@@ -28,6 +40,13 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     API and the web app together.
 
 ### Changed
+- The running API swaps in a newly published serving database between requests, and new data
+  waits beside the open file (`serving.duckdb.next`) instead of failing to replace it on Windows.
+  `criciq-ml score` scores one working copy and puts it in place once at the end.
+- The web app keys its cached API responses by the data version and re-reads it every five
+  minutes, so new data shows within minutes rather than after the day-long cache.
+- The API image fetches Cricsheet's files with `ADD`, so a changed archive rebuilds the data layer
+  instead of shipping a cached copy.
 - `criciq-data download` and `run` fetch every selected competition (`CRICIQ_COMPETITIONS`, default
   all); `snapshot` takes several archives. The API image builds the IPL only.
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.

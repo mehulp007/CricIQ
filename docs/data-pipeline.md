@@ -182,6 +182,27 @@ just data build && just data report
 uv run python scripts/make_fixtures.py   # only if fixture matches should change
 ```
 
+## Local v2 runtime
+
+v2 is built and checked on one PC before it goes live. One command builds every competition,
+scores every ball and serves the API and the web app together:
+
+```bash
+just v2-up                  # download, build, validate, score, then serve (Ctrl+C stops)
+just v2-up --no-download    # rebuild from the latest local snapshot
+just v2-up --serve-only     # serve what is already built
+```
+
+The site is at http://localhost:3000 (use `localhost`: the dev server does not hydrate on
+`127.0.0.1`) and the API docs at http://localhost:8000/docs. The data-quality report of a local run
+goes to `data/data-quality-report.md`, leaving the committed one alone.
+
+Measured on the development laptop with all eight competitions (2026-10-06): the data step takes
+about 70 seconds after download (extract 20, build 40, validate and export the rest) and scoring
+about 50; the dev servers are ready within a minute. Everything under `data/` takes about 0.8 GB:
+raw archives 0.07 GB, interim Parquet 0.02 GB, warehouses 0.66 GB (the full `cricket.duckdb` is
+about 0.6 GB) and the serving database 0.03 GB.
+
 ## Testing
 
 `tests/fixtures/cricsheet/` holds 31 real matches chosen for edge cases: every golden scorecard, a

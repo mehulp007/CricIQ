@@ -72,3 +72,8 @@ featured:
 # End-to-end tests against running servers (E2E_BASE_URL overrides the target)
 e2e:
     pnpm --dir frontend e2e
+
+# v2 local runtime: build every competition, score, then serve API + web (Ctrl+C stops)
+# e.g. `just v2-up`, `just v2-up --no-download` or `just v2-up --serve-only`
+v2-up *args:
+    uv run python scripts/v2_up.py {{args}}

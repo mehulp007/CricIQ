@@ -153,6 +153,7 @@ def report(
     target.write_text(
         render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
         encoding="utf-8",
+        newline="\n",
     )
     typer.echo(f"wrote {target}")
 
@@ -184,6 +185,7 @@ def run(
     target.write_text(
         render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
         encoding="utf-8",
+        newline="\n",
     )
     typer.echo(f"> wrote {target}")
     if not validation.passed:

@@ -69,8 +69,7 @@ def test_seasons_follow_labels_or_the_calendar(con: duckdb.DuckDBPyConnection) -
     # The PSL plays within a calendar year: its November 2020 playoffs, labelled
     # "2020/21" by Cricsheet, belong to PSL 2020; PSL 2021 resumed in June.
     seasons = con.execute(
-        "SELECT match_id, season_id FROM matches WHERE match_id IN (1211672, 1247044) "
-        "ORDER BY 1"
+        "SELECT match_id, season_id FROM matches WHERE match_id IN (1211672, 1247044) ORDER BY 1"
     ).fetchall()
     assert seasons == [(1211672, "PSL-2020"), (1247044, "PSL-2021")]
     # Internationals use the calendar year of the first day.

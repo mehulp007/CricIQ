@@ -45,6 +45,8 @@ class CheckResult:
     # Violations in the other competitions, by competition: reported, not failed.
     notes: dict[str, int] = field(default_factory=dict)
     notes_sample: list[dict[str, Any]] = field(default_factory=list)
+    # Every match behind a counted violation (a data sync quarantines new ones).
+    match_ids: list[int] = field(default_factory=list)
 
     @property
     def passed(self) -> bool:
@@ -350,6 +352,7 @@ def run_checks(
                 sample=strict[:sample_size],
                 notes=dict(sorted(notes.items())),
                 notes_sample=noted[:sample_size],
+                match_ids=sorted({int(r["match_id"]) for r in strict if r.get("match_id")}),
             )
         )
     return results
@@ -435,6 +438,15 @@ class ValidationReport:
         return all(c.passed for c in self.checks if c.severity == "error") and all(
             g.passed for g in self.golden
         )
+
+    def failing_match_ids(self) -> set[int]:
+        """Matches behind every failure; a failure tied to no match is reported as -1."""
+        ids: set[int] = set()
+        for check in self.checks:
+            if check.severity == "error" and not check.passed:
+                ids.update(check.match_ids or [-1])
+        ids.update(g.match_id for g in self.golden if not g.passed)
+        return ids
 
 
 def validate(

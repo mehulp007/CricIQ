@@ -55,12 +55,15 @@ class RawSnapshot:
         return data
 
 
-def _sha256(path: Path) -> str:
+def file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as fh:
         for block in iter(lambda: fh.read(1 << 20), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+_sha256 = file_sha256
 
 
 def latest_match_date(archive: Path) -> dt.date:

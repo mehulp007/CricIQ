@@ -24,6 +24,20 @@
       "md5": "c39ee7a54aeacabb7b75166e1ed47ed7",
       "rows": 1
     },
+    "data_updates": {
+      "columns": [
+        "run_id",
+        "updated_at",
+        "kind",
+        "competition_id",
+        "new_matches",
+        "corrected_matches",
+        "withdrawn_matches",
+        "quarantined_matches"
+      ],
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "rows": 0
+    },
     "deliveries": {
       "columns": [
         "match_id",

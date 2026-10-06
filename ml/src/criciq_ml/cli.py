@@ -16,6 +16,7 @@ artifacts are committed under ``models/``.
 
 from __future__ import annotations
 
+import shutil
 import time
 from collections.abc import Callable
 from enum import StrEnum
@@ -26,6 +27,7 @@ import pandas as pd
 import typer
 
 from criciq_core import paths
+from criciq_core.publish import current, publish
 from criciq_ml import ball_outcome_training, ratings, registry, report, scoring, simulator
 from criciq_ml.ball_outcome import BallOutcomeModel, load_balls
 from criciq_ml.config import load_config
@@ -46,7 +48,8 @@ def _timed[T](label: str, step: Callable[[], T]) -> T:
 
 
 def _serving_path() -> Path:
-    return paths.exports_dir() / "serving.duckdb"
+    """The newest serving database (one waiting for the running API to swap it in, if any)."""
+    return current(paths.serving_path())
 
 
 def _states(warehouse: Path) -> tuple[pd.DataFrame, str]:
@@ -244,41 +247,53 @@ def score(
     states = _timed(
         "building features", lambda: build_states(inputs, load_config().feature_config())
     )
-    target = serving or _serving_path()
+    final = serving or paths.serving_path()
+    # Score one working copy and put it in place at the end, so a failure leaves
+    # nothing half-scored and the running API can keep its database open.
+    target = final.with_name(final.name + ".scoring")
+    shutil.copyfile(serving or _serving_path(), target)
 
-    predictions = _timed("win probability", lambda: scoring.score_states(wp_model, states))
-    predictions, scale = _timed(
-        "pressure and momentum",
-        lambda: scoring.add_pressure(wp_model, states, predictions, inputs),
-    )
-    count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model, scale))
-    typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
+    try:
+        predictions = _timed("win probability", lambda: scoring.score_states(wp_model, states))
+        predictions, scale = _timed(
+            "pressure and momentum",
+            lambda: scoring.add_pressure(wp_model, states, predictions, inputs),
+        )
+        count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model, scale))
+        typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
 
-    projections = _timed(
-        "score projection", lambda: scoring.score_projections(projection_model, states)
-    )
-    count = _timed(
-        "publishing",
-        lambda: scoring.publish_projections(target, projections, projection_model),
-    )
-    typer.echo(f"  {count:,} score projections from model {projection_model.version} -> {target}")
+        projections = _timed(
+            "score projection", lambda: scoring.score_projections(projection_model, states)
+        )
+        count = _timed(
+            "publishing",
+            lambda: scoring.publish_projections(target, projections, projection_model),
+        )
+        typer.echo(f"  {count:,} score projections from model {projection_model.version}")
 
-    ball_model = registry.load_current_ball_outcome()
-    balls = _timed("loading balls", lambda: load_balls(warehouse or paths.warehouse_path()))
-    cells = _timed("ball outcomes", lambda: scoring.score_matchups(ball_model, balls))
-    count = _timed(
-        "publishing",
-        lambda: scoring.publish_ball_model(target, cells, ball_model, scoring.current_env(balls)),
-    )
-    typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
+        ball_model = registry.load_current_ball_outcome()
+        balls = _timed("loading balls", lambda: load_balls(warehouse or paths.warehouse_path()))
+        cells = _timed("ball outcomes", lambda: scoring.score_matchups(ball_model, balls))
+        count = _timed(
+            "publishing",
+            lambda: scoring.publish_ball_model(
+                target, cells, ball_model, scoring.current_env(balls)
+            ),
+        )
+        typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
 
-    rating_constants = registry.load_current_ratings()
-    _timed("publishing ratings", lambda: scoring.publish_ratings(target, rating_constants))
-    typer.echo(f"  rating constants {rating_constants.version} -> {target}")
+        rating_constants = registry.load_current_ratings()
+        _timed("publishing ratings", lambda: scoring.publish_ratings(target, rating_constants))
+        typer.echo(f"  rating constants {rating_constants.version} -> {target}")
 
-    settings = registry.load_current_simulator()
-    _timed("publishing simulator settings", lambda: scoring.publish_simulator(target, settings))
-    typer.echo(f"  simulator settings {settings.version} -> {target}")
+        settings = registry.load_current_simulator()
+        _timed("publishing simulator settings", lambda: scoring.publish_simulator(target, settings))
+        typer.echo(f"  simulator settings {settings.version} -> {target}")
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
+    placed = publish(target, final)
+    typer.echo(f"  scored database -> {placed}")
 
 
 @app.command("report")

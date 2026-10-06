@@ -33,6 +33,20 @@ COPIED_TABLES = (
     "substitutions",
 )
 
+# Every data update (criciq_pipelines.sync) of the served competitions, newest first.
+DATA_UPDATES_SQL = """
+CREATE TABLE data_updates (
+    run_id              INTEGER NOT NULL,
+    updated_at          TIMESTAMP NOT NULL,
+    kind                VARCHAR NOT NULL,
+    competition_id      VARCHAR NOT NULL,
+    new_matches         INTEGER NOT NULL,
+    corrected_matches   INTEGER NOT NULL,
+    withdrawn_matches   INTEGER NOT NULL,
+    quarantined_matches INTEGER NOT NULL
+)
+"""
+
 _OVERS = "floor({b} / 6)::INTEGER::VARCHAR || '.' || ({b} % 6)::VARCHAR"
 
 MATCH_SUMMARIES_SQL = f"""
@@ -132,11 +146,12 @@ class LeagueTableMismatchError(RuntimeError):
     pass
 
 
-def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
+def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -> dict[str, int]:
     """Write the serving database to ``target`` atomically; return row counts.
 
     Fails if a computed league table differs from the official one for any season
-    the data fully covers.
+    the data fully covers. ``updates`` is the sync's ingest database: its record of
+    data updates for the served competitions goes into ``data_updates``.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
     staging = target.with_name(target.name + ".building")
@@ -157,6 +172,20 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
         )
         con.execute(MATCH_SUMMARIES_SQL)
         con.execute("DETACH wh")
+        con.execute(DATA_UPDATES_SQL)
+        if updates is not None:
+            con.execute(f"ATTACH '{updates.as_posix()}' AS ingest (READ_ONLY)")
+            con.execute(
+                """
+                INSERT INTO data_updates
+                SELECT run_id, updated_at, kind, competition_id, new_matches,
+                       corrected_matches, withdrawn_matches, quarantined_matches
+                FROM ingest.data_updates
+                WHERE competition_id IN (SELECT competition_id FROM competitions)
+                ORDER BY run_id DESC, competition_id
+                """
+            )
+            con.execute("DETACH ingest")
         build_player_tables(con)
         league_tables = load_league_tables()
         build_team_tables(con, league_tables)
@@ -173,6 +202,7 @@ def export_serving(warehouse: Path, target: Path) -> dict[str, int]:
                 *COPIED_TABLES,
                 "players",
                 "match_summaries",
+                "data_updates",
                 *PLAYER_TABLES,
                 *TEAM_TABLES,
                 *SIMULATION_TABLES,

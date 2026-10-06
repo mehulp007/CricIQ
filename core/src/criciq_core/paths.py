@@ -54,6 +54,16 @@ def exports_dir() -> Path:
     return data_dir() / "exports"
 
 
+def serving_path() -> Path:
+    """The read-only database the API serves."""
+    return exports_dir() / "serving.duckdb"
+
+
+def sync_dir() -> Path:
+    """The ingest log and the record of every data update (criciq_pipelines.sync)."""
+    return data_dir() / "sync"
+
+
 def models_dir() -> Path:
     override = os.environ.get("CRICIQ_MODELS_DIR")
     return Path(override).resolve() if override else repo_root() / "models"

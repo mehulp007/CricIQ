@@ -52,6 +52,15 @@ dev-web:
 data *args:
     uv run criciq-data {{args}}
 
+# Bring every competition up to date from Cricsheet (new, corrected and withdrawn matches),
+# e.g. `just sync`, `just sync --feed full` or `just sync --retry-quarantined`
+sync *args:
+    uv run criciq-data sync {{args}}
+
+# The data version, recent syncs and quarantined matches
+sync-status:
+    uv run criciq-data sync-status
+
 # Models CLI, e.g. `just ml train score_projection`, `just ml score` or `just ml report`
 ml *args:
     uv run criciq-ml {{args}}

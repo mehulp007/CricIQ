@@ -18,6 +18,7 @@ import datetime as dt
 import os
 import re
 import unicodedata
+from collections.abc import Iterable
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -57,7 +58,15 @@ ACTIVE_WINDOW = 3
 
 
 class WarehouseBuildError(RuntimeError):
-    """Raised when inputs cannot be mapped onto the warehouse model."""
+    """Raised when inputs cannot be mapped onto the warehouse model.
+
+    ``match_ids`` names the matches at fault where they are known (an unknown team
+    or ground in a curated competition), so a data sync can set them aside.
+    """
+
+    def __init__(self, message: str, match_ids: Iterable[int] = ()) -> None:
+        super().__init__(message)
+        self.match_ids = frozenset(match_ids)
 
 
 def _insert_many(con: duckdb.DuckDBPyConnection, sql: str, rows: list[Any]) -> None:
@@ -234,7 +243,9 @@ def _quarantine(
         [strict or [""]],
     ).fetchall()
     if failures:
-        raise WarehouseBuildError(f"source errors in curated competitions: {failures[:5]}")
+        raise WarehouseBuildError(
+            f"source errors in curated competitions: {failures[:5]}", (f[0] for f in failures)
+        )
     con.execute("DELETE FROM match_competition WHERE match_id IN (SELECT match_id FROM quarantine)")
 
 
@@ -361,7 +372,14 @@ def _load_teams(
                 team_id = config.resolve(raw_name, year).id
             except LookupError as exc:
                 if c.strict:
-                    raise WarehouseBuildError(str(exc)) from None
+                    culprits = con.execute(
+                        """
+                        SELECT match_id FROM match_season JOIN raw_matches USING (match_id)
+                        WHERE competition_id = ? AND year = ? AND ? IN (team1, team2)
+                        """,
+                        [c.id, year, raw_name],
+                    ).fetchall()
+                    raise WarehouseBuildError(str(exc), (m for (m,) in culprits)) from None
                 team_id = _slug_id(raw_name)
                 if team_id not in team_rows:
                     team_type = "national" if c.team_type == "national" else "club"
@@ -457,7 +475,16 @@ def _load_venues(
     )
     if unmapped_strict:
         names = ", ".join(repr(u) for u in unmapped_strict)
-        raise WarehouseBuildError(f"unmapped venues (add to config/venues.yaml): {names}")
+        culprits = con.execute(
+            """
+            SELECT m.match_id FROM raw_matches m JOIN match_competition mc USING (match_id)
+            WHERE list_contains(?, m.venue_raw) AND list_contains(?, mc.competition_id)
+            """,
+            [unmapped_strict, strict],
+        ).fetchall()
+        raise WarehouseBuildError(
+            f"unmapped venues (add to config/venues.yaml): {names}", (m for (m,) in culprits)
+        )
 
     # A name that only ever means one ground takes the city most of its matches give.
     usual_city: dict[str, str | None] = {}

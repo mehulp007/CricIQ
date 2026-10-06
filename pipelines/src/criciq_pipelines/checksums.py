@@ -186,11 +186,30 @@ def _compare_rows(
                 out.append(f"{table}.{column}: values differ")
         elif kind.startswith(("DOUBLE", "FLOAT")):
             tolerance = FLOAT32_TOLERANCE if kind.startswith("FLOAT") else DOUBLE_TOLERANCE
-            if not all(_close(a, b, tolerance) for a, b in zip(old, new, strict=True)):
-                out.append(f"{table}.{column}: values differ")
+            bad = [
+                k
+                for k, (a, b) in enumerate(zip(old, new, strict=True))
+                if not _close(a, b, tolerance)
+            ]
+            if bad:
+                gap = max(_gap(old[k], new[k]) for k in bad)
+                out.append(
+                    f"{table}.{column}: values differ in {len(bad)} of {len(old)} rows "
+                    f"(largest gap {gap:.3g}; first: row {expected[bad[0]][:3]} "
+                    f"{old[bad[0]]} -> {new[bad[0]]})"
+                )
         elif old != new:
             out.append(f"{table}.{column}: rows differ")
     return out
+
+
+def _gap(a: Any, b: Any) -> float:
+    """Largest absolute difference between two numbers or lists of numbers."""
+    if isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        return max((_gap(x, y) for x, y in zip(a, b, strict=True)), default=0.0)
+    if isinstance(a, int | float) and isinstance(b, int | float):
+        return abs(a - b)
+    return math.inf
 
 
 def _close(a: Any, b: Any, tolerance: float) -> bool:

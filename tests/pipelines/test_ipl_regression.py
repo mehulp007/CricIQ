@@ -112,7 +112,8 @@ def test_model_outputs_allow_machine_noise_only(tmp_path: Path) -> None:
 
     moved = list(base)
     moved[500] = (500, 0.6, base[500][2], base[500][3])
-    assert diff(moved) == ["wp_predictions.wp_team_a: values differ"]
+    (moved_diff,) = diff(moved)
+    assert moved_diff.startswith("wp_predictions.wp_team_a: values differ in 1 of 1000 rows")
 
     shifted = [(s, wp, m, (p + 1) % 256) for s, wp, m, p in base]  # every percentile moved
     assert diff(shifted) == ["wp_predictions.pressure: integers differ beyond rounding"]

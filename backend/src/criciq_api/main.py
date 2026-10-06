@@ -15,12 +15,14 @@ from starlette.concurrency import run_in_threadpool
 
 from criciq_api import __version__
 from criciq_api.api.v1.router import api_router
+from criciq_api.api.v2.router import api_router as api_v2_router
 from criciq_api.core.config import Settings, get_settings
 from criciq_api.db import Database
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
 from criciq_api.services import players as players_service
 from criciq_api.services import simulation as simulation_service
+from criciq_core.publish import pending
 
 
 def _warm_up(db: Database) -> None:
@@ -44,11 +46,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.db = Database(settings.serving_db)
+        # The players database is optional: without it /api/v2 answers 503.
+        players = settings.players_db
+        app.state.players_db = (
+            Database(players) if players.exists() or pending(players).exists() else None
+        )
         _warm_up(app.state.db)
         try:
             yield
         finally:
             app.state.db.close()
+            if app.state.players_db is not None:
+                app.state.players_db.close()
 
     app = FastAPI(
         title="CricIQ API",
@@ -72,9 +81,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> Response:
         # A sync may have published new data while the API runs (see criciq_api.db).
         await run_in_threadpool(request.app.state.db.refresh)
+        players: Database | None = request.app.state.players_db
+        if players is not None:
+            await run_in_threadpool(players.refresh)
         response = await call_next(request)
         if request.url.path.startswith("/api/") and request.method == "GET":
-            response.headers["X-Data-Version"] = request.app.state.db.data_version
+            source = players if request.url.path.startswith("/api/v2/") else None
+            response.headers["X-Data-Version"] = (source or request.app.state.db).data_version
             if response.status_code == 200:
                 response.headers["Cache-Control"] = (
                     f"public, max-age={settings.cache_max_age}, "
@@ -87,6 +100,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Health(status="ok", version=__version__)
 
     app.include_router(api_router)
+    app.include_router(api_v2_router)
     return app
 
 

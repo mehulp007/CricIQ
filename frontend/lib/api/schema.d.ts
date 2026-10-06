@@ -429,6 +429,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/competitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Competitions
+         * @description The competitions with Player Lab data, with their season labels.
+         */
+        get: operations["list_competitions_api_v2_competitions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/players/{player_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Careers
+         * @description A player's headline numbers in every competition, then all T20 cricket together.
+         */
+        get: operations["read_careers_api_v2_players__player_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/players": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Players
+         * @description Player directory of one competition; season and team filters scope the numbers.
+         */
+        get: operations["list_players_api_v2__competition__players_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/players/{player_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Player
+         * @description Profile in one competition: batting and bowling against par, seasons, phases, form.
+         */
+        get: operations["read_player_api_v2__competition__players__player_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/players/{player_id}/splits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Splits
+         * @description Batting and bowling in one competition by phase, opponent type, position and more.
+         */
+        get: operations["read_splits_api_v2__competition__players__player_id__splits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -768,6 +868,83 @@ export interface components {
             wpa: number | null;
             /** Wpa Innings */
             wpa_innings: number;
+        };
+        /** CareerLine */
+        CareerLine: {
+            /** Batting Average */
+            batting_average: number | null;
+            /**
+             * Competition
+             * @description The scope's id (path segment).
+             */
+            competition: string;
+            /** Economy */
+            economy: number | null;
+            /**
+             * First Season
+             * @description Season label of the debut.
+             */
+            first_season: string;
+            /**
+             * Last Season
+             * @description Season label of the latest season.
+             */
+            last_season: string;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Par Economy */
+            par_economy: number | null;
+            /**
+             * Par Strike Rate
+             * @description An average batter's strike rate on the same balls in that competition.
+             */
+            par_strike_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            /** Wickets */
+            wickets: number;
+        };
+        /** CompetitionList */
+        CompetitionList: {
+            /** Data Version */
+            data_version: string;
+            /** Items */
+            items: components["schemas"]["CompetitionScope"][];
+        };
+        /** CompetitionScope */
+        CompetitionScope: {
+            /**
+             * Competitions
+             * @description Competition ids it covers: one, or every T20 competition for t20.
+             */
+            competitions: string[];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /**
+             * Id
+             * @description Path segment for /api/v2/{competition}/..., e.g. bbl or t20.
+             */
+            id: string;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Players */
+            players: number;
+            /**
+             * Seasons
+             * @description Seasons played; for t20 the calendar years of every competition.
+             */
+            seasons: components["schemas"]["SeasonLabel"][];
+            /** Short Name */
+            short_name: string;
         };
         /**
          * DataUpdate
@@ -1535,6 +1712,22 @@ export interface components {
              */
             teams: components["schemas"]["TeamStint"][];
         };
+        /** PlayerCareers */
+        PlayerCareers: {
+            /**
+             * Careers
+             * @description One line per competition played, then all T20 cricket together.
+             */
+            careers: components["schemas"]["CareerLine"][];
+            /** Country */
+            country: string | null;
+            /** Full Name */
+            full_name: string | null;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+        };
         /** PlayerListItem */
         PlayerListItem: {
             /** Batting Average */
@@ -1873,6 +2066,19 @@ export interface components {
             /** Matches */
             matches: number;
             /** Year */
+            year: number;
+        };
+        /** SeasonLabel */
+        SeasonLabel: {
+            /**
+             * Label
+             * @description How the competition names it: "2023/24" for the BBL.
+             */
+            label: string;
+            /**
+             * Year
+             * @description The season as the API's season filters take it.
+             */
             year: number;
         };
         /** SeasonLine */
@@ -3634,6 +3840,175 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TeamProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_competitions_api_v2_competitions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompetitionList"];
+                };
+            };
+        };
+    };
+    read_careers_api_v2_players__player_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerCareers"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_players_api_v2__competition__players_get: {
+        parameters: {
+            query?: {
+                /** @description Name search */
+                q?: string | null;
+                role?: ("batter" | "bowler" | "all_rounder" | "keeper") | null;
+                season?: number | null;
+                /** @description Team id, e.g. MI or IND */
+                team?: string | null;
+                sort?: "matches" | "runs" | "wickets" | "recent" | "name";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_player_api_v2__competition__players__player_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_splits_api_v2__competition__players__player_id__splits_get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerSplits"];
                 };
             };
             /** @description Validation Error */

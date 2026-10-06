@@ -1045,6 +1045,196 @@
         "title": "BowlingSummary",
         "type": "object"
       },
+      "CareerLine": {
+        "properties": {
+          "batting_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batting Average"
+          },
+          "competition": {
+            "description": "The scope's id (path segment).",
+            "title": "Competition",
+            "type": "string"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "first_season": {
+            "description": "Season label of the debut.",
+            "title": "First Season",
+            "type": "string"
+          },
+          "last_season": {
+            "description": "Season label of the latest season.",
+            "title": "Last Season",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "par_economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Par Economy"
+          },
+          "par_strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "An average batter's strike rate on the same balls in that competition.",
+            "title": "Par Strike Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "competition",
+          "name",
+          "matches",
+          "first_season",
+          "last_season",
+          "runs",
+          "batting_average",
+          "strike_rate",
+          "par_strike_rate",
+          "wickets",
+          "economy",
+          "par_economy"
+        ],
+        "title": "CareerLine",
+        "type": "object"
+      },
+      "CompetitionList": {
+        "properties": {
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CompetitionScope"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_version",
+          "items"
+        ],
+        "title": "CompetitionList",
+        "type": "object"
+      },
+      "CompetitionScope": {
+        "properties": {
+          "competitions": {
+            "description": "Competition ids it covers: one, or every T20 competition for t20.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Competitions",
+            "type": "array"
+          },
+          "format": {
+            "enum": [
+              "T20",
+              "ODI",
+              "Test"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "description": "Path segment for /api/v2/{competition}/..., e.g. bbl or t20.",
+            "title": "Id",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "players": {
+            "title": "Players",
+            "type": "integer"
+          },
+          "seasons": {
+            "description": "Seasons played; for t20 the calendar years of every competition.",
+            "items": {
+              "$ref": "#/components/schemas/SeasonLabel"
+            },
+            "title": "Seasons",
+            "type": "array"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "short_name",
+          "format",
+          "competitions",
+          "matches",
+          "players",
+          "seasons"
+        ],
+        "title": "CompetitionScope",
+        "type": "object"
+      },
       "DataUpdate": {
         "description": "The latest data sync that changed this competition's matches.",
         "properties": {
@@ -3435,6 +3625,57 @@
         "title": "PlayerBio",
         "type": "object"
       },
+      "PlayerCareers": {
+        "properties": {
+          "careers": {
+            "description": "One line per competition played, then all T20 cricket together.",
+            "items": {
+              "$ref": "#/components/schemas/CareerLine"
+            },
+            "title": "Careers",
+            "type": "array"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "full_name",
+          "country",
+          "careers"
+        ],
+        "title": "PlayerCareers",
+        "type": "object"
+      },
       "PlayerListItem": {
         "properties": {
           "batting_average": {
@@ -4399,6 +4640,26 @@
           "impact_player_rule"
         ],
         "title": "SeasonInfo",
+        "type": "object"
+      },
+      "SeasonLabel": {
+        "properties": {
+          "label": {
+            "description": "How the competition names it: \"2023/24\" for the BBL.",
+            "title": "Label",
+            "type": "string"
+          },
+          "year": {
+            "description": "The season as the API's season filters take it.",
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "label"
+        ],
+        "title": "SeasonLabel",
         "type": "object"
       },
       "SeasonLine": {
@@ -8850,6 +9111,425 @@
         "summary": "Read Team",
         "tags": [
           "teams"
+        ]
+      }
+    },
+    "/api/v2/competitions": {
+      "get": {
+        "description": "The competitions with Player Lab data, with their season labels.",
+        "operationId": "list_competitions_api_v2_competitions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Competitions",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/players/{player_id}": {
+      "get": {
+        "description": "A player's headline numbers in every competition, then all T20 cricket together.",
+        "operationId": "read_careers_api_v2_players__player_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCareers"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Careers",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/{competition}/players": {
+      "get": {
+        "description": "Player directory of one competition; season and team filters scope the numbers.",
+        "operationId": "list_players_api_v2__competition__players_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name search",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name search",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "batter",
+                    "bowler",
+                    "all_rounder",
+                    "keeper"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role"
+            }
+          },
+          {
+            "in": "query",
+            "name": "season",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Season"
+            }
+          },
+          {
+            "description": "Team id, e.g. MI or IND",
+            "in": "query",
+            "name": "team",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Team id, e.g. MI or IND",
+              "title": "Team"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "matches",
+              "enum": [
+                "matches",
+                "runs",
+                "wickets",
+                "recent",
+                "name"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Players",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/{competition}/players/{player_id}": {
+      "get": {
+        "description": "Profile in one competition: batting and bowling against par, seasons, phases, form.",
+        "operationId": "read_player_api_v2__competition__players__player_id__get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Player",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/{competition}/players/{player_id}/splits": {
+      "get": {
+        "description": "Batting and bowling in one competition by phase, opponent type, position and more.",
+        "operationId": "read_splits_api_v2__competition__players__player_id__splits_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSplits"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Splits",
+        "tags": [
+          "competitions"
         ]
       }
     },

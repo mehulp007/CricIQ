@@ -1,7 +1,12 @@
-"""Read-only access to the serving database.
+"""Read-only access to the serving database and the players database.
 
-One DuckDB connection is opened at startup; each query runs on its own cursor,
-which DuckDB makes safe to use from FastAPI's worker threads.
+One DuckDB connection is opened per database at startup; each query runs on its
+own cursor, which DuckDB makes safe to use from FastAPI's worker threads.
+
+The players database (``criciq_pipelines.player_db``) holds several competitions,
+each a schema of views named like the serving database's tables. A
+``ScopedDatabase`` runs queries with ``search_path`` set to one of them, so the
+Player Lab code serves any competition unchanged.
 
 A data sync that finishes while the API is running cannot replace the open file
 on Windows, so it leaves the new database beside it as ``serving.duckdb.next``
@@ -60,19 +65,34 @@ class Database:
         meta = dict(self._con.execute("SELECT key, value FROM meta").fetchall())
         self.data_version: str = meta["data_version"]
         # The serving database holds one competition; its format (T20, ODI or Test)
-        # decides the innings phases.
-        found = self._con.execute(
-            "SELECT format FROM competitions WHERE competition_id = ?", [meta["competition_id"]]
-        ).fetchone()
-        if found is None:
-            competition = meta["competition_id"]
-            raise ServingDataMissingError(f"no competition {competition!r} in {self.path}")
-        self.match_format: str = found[0]
+        # decides the innings phases. The players database holds several.
+        self._format: str | None = None
+        competition = meta.get("competition_id")
+        if competition is not None:
+            found = self._con.execute(
+                "SELECT format FROM competitions WHERE competition_id = ?", [competition]
+            ).fetchone()
+            if found is None:
+                raise ServingDataMissingError(f"no competition {competition!r} in {self.path}")
+            self._format = found[0]
         self.tables: frozenset[str] = frozenset(
             name for (name,) in self._con.execute("SHOW TABLES").fetchall()
         )
+        # Tables and views of every schema (the players database's scopes).
+        schemas: dict[str, set[str]] = {}
+        for schema, name in self._con.execute(
+            "SELECT table_schema, table_name FROM information_schema.tables"
+        ).fetchall():
+            schemas.setdefault(schema, set()).add(name)
+        self.schemas: dict[str, frozenset[str]] = {k: frozenset(v) for k, v in schemas.items()}
         # Small derived objects built once per dataset (e.g. model terms).
         self.cache: dict[str, Any] = {}
+
+    @property
+    def match_format(self) -> str:
+        if self._format is None:
+            raise ServingDataMissingError(f"{self.path} holds several competitions")
+        return self._format
 
     def has_table(self, name: str) -> bool:
         return name in self.tables
@@ -91,10 +111,13 @@ class Database:
                 self._readers -= 1
                 self._lock.notify_all()
 
-    def rows(self, sql: str, params: Sequence[Any] = ()) -> list[Row]:
+    def rows(self, sql: str, params: Sequence[Any] = (), *, schema: str | None = None) -> list[Row]:
+        """Rows of ``sql``; unqualified names resolve in ``schema`` first when given."""
         with self._reading() as con:
             cursor = con.cursor()
             try:
+                if schema is not None:
+                    cursor.execute(f"SET search_path = '{schema},main'")
                 cursor.execute(sql, list(params))
                 columns = [d[0] for d in cursor.description or []]
                 return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -141,6 +164,34 @@ class Database:
 
     def close(self) -> None:
         self._con.close()
+
+
+class ScopedDatabase(Database):
+    """One scope (schema) of the players database, read like a serving database."""
+
+    def __init__(self, base: Database, schema: str, match_format: str) -> None:
+        # Shares the base connection: nothing of Database.__init__ runs here.
+        self.base = base
+        self.schema = schema
+        self.path = base.path
+        self.data_version = base.data_version
+        self._format = match_format
+        self.tables = base.schemas.get(schema, frozenset()) | base.tables
+
+    @property
+    def cache(self) -> dict[str, Any]:  # type: ignore[override]
+        # Kept on the base so a swapped-in database starts with empty caches.
+        found: dict[str, Any] = self.base.cache.setdefault(f"scope:{self.schema}", {})
+        return found
+
+    def rows(self, sql: str, params: Sequence[Any] = (), *, schema: str | None = None) -> list[Row]:
+        return self.base.rows(sql, params, schema=schema or self.schema)
+
+    def refresh(self, *, force: bool = False) -> bool:
+        return self.base.refresh(force=force)
+
+    def close(self) -> None:
+        pass
 
 
 def get_db(request: Request) -> Database:

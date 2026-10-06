@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     # Also allow Vercel preview deployments of the frontend.
     cors_origin_regex: str | None = r"https://.*\.vercel\.app"
     serving_db: Path = paths.exports_dir() / "serving.duckdb"
+    # Player Lab tables for every T20 competition (/api/v2); optional.
+    players_db: Path = paths.exports_dir() / "players.duckdb"
     # Historical data only changes on redeploy, so responses are safe to cache.
     cache_max_age: int = 300
     cache_s_maxage: int = 86_400

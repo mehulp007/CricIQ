@@ -500,15 +500,18 @@ def _load_venues(
     for raw, city_raw, _, _, competition_id in rows:
         base = _venue_base(raw)
         suffix = raw.split(",", 1)[1].split(",")[0].strip() if "," in raw else None
-        if base in places.shared:
+        # A sponsor's name for a ground whose plain name several grounds share
+        # ("The Cooper Associates County Ground") is resolved like the plain name.
+        merged = places.merges.get(base, base)
+        if merged in places.shared:
             city = city_raw or suffix
-            ground = places.shared[base].get(city or "")
+            ground = places.shared[merged].get(city or "")
             if ground is None:
                 raise WarehouseBuildError(
                     f"venue {raw!r} in {city!r}: several grounds share this name; add the city "
                     "under `shared` in config/venue_countries.yaml"
                 )
-            venue_id, name = ground.id, ground.name or base
+            venue_id, name = ground.id, ground.name or merged
             country = ground.country or places.cities.get(city or "")
         elif raw in resolved:
             venue_map.append((raw, city_raw, resolved[raw]))

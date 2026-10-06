@@ -50,7 +50,7 @@ def test_store_snapshot_is_idempotent_and_updates_latest(
     assert latest_snapshot(tmp_path) == first
     manifest = first.manifest
     assert manifest["data_version"] == first.version
-    assert manifest["match_files"] == {"fixtures_json.zip": 31}
+    assert manifest["match_files"] == {"fixtures_json.zip": 33}
     files = manifest["files"]
     assert isinstance(files, dict)
     assert set(files) == {"fixtures_json.zip", "people.csv"}

@@ -120,3 +120,21 @@ matches:
       - { team: PC, runs: 135, wickets: 10 }
       - { team: SEC, runs: 137, wickets: 6 }
     result: { winner: SEC, by_wickets: 4 }
+
+  - match_id: 1354957
+    competition: PSL
+    description: PSL 2023 final — Lahore Qalandars by one run
+    date: 2023-03-18
+    innings:
+      - { team: LHQ, runs: 200, wickets: 6 }
+      - { team: MS, runs: 199, wickets: 8 }
+    result: { winner: LHQ, by_runs: 1 }
+
+  - match_id: 1369591
+    competition: CPL
+    description: CPL 2023 final — Trinbago bowled out for 94, Guyana by nine wickets
+    date: 2023-09-24
+    innings:
+      - { team: TKR, runs: 94, wickets: 10 }
+      - { team: GAW, runs: 99, wickets: 1 }
+    result: { winner: GAW, by_wickets: 9 }

@@ -39,7 +39,9 @@ FIXTURE_MATCHES: dict[int, str] = {
     1386128: "BBL match with penalty runs awarded outside the deliveries",
     1211672: "PSL 2020 playoff played in November 2020, labelled 2020/21 by Cricsheet",
     1247044: "PSL 2021 after the break, labelled 2021",
+    1354957: "PSL 2023 final, won by one run (golden)",
     635216: "CPL 2013: Trinidad & Tobago Red Steel, later Trinbago Knight Riders",
+    1369591: "CPL 2023 final, a side bowled out inside 20 overs (golden)",
     1343973: "SA20 2023 final (golden)",
     # Men's T20 internationals
     951373: "2016 World T20 final (golden)",

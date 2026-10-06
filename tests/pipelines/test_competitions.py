@@ -47,7 +47,7 @@ def test_matches_join_their_competition(con: duckdb.DuckDBPyConnection) -> None:
         con.execute("SELECT competition_id, count(*) FROM matches GROUP BY ALL").fetchall()
     )
     assert counts["IPL"] == 14
-    assert sum(counts.values()) == 30  # 31 fixtures, one quarantined
+    assert sum(counts.values()) == 32  # 33 fixtures, one quarantined
 
 
 def test_classification_rules() -> None:
@@ -199,6 +199,31 @@ def test_shared_names_follow_the_config(
             "WHERE m.match_id IN (1223871, 1386137)"
         ).fetchall()
         assert rows == [("scg-sydney", "Australia")]
+    finally:
+        connection.close()
+
+
+def test_a_merged_name_resolves_like_the_shared_name_it_joins(
+    fixture_snapshot: RawSnapshot, fixture_interim: Path, tmp_path: Path
+) -> None:
+    # As "The Cooper Associates County Ground" joins Taunton's "County Ground".
+    config = _config_with_shared(tmp_path, "  SCG:\n    Sydney: { id: scg-sydney }\n")
+    places = config / "venue_countries.yaml"
+    places.write_text(
+        places.read_text("utf-8").replace("merges:\n", "merges:\n  Sydney Cricket Ground: SCG\n"),
+        "utf-8",
+    )
+    target = tmp_path / "w.duckdb"
+    build_warehouse(
+        BuildInputs(fixture_interim, fixture_snapshot.people, "test", None, config), target
+    )
+    connection = duckdb.connect(str(target), read_only=True)
+    try:
+        rows = connection.execute(
+            "SELECT DISTINCT m.venue_id, v.name FROM matches m JOIN venues v USING (venue_id) "
+            "WHERE m.match_id IN (1223871, 1386137)"
+        ).fetchall()
+        assert rows == [("scg-sydney", "SCG")]
     finally:
         connection.close()
 

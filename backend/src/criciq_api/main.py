@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from starlette.concurrency import run_in_threadpool
 
 from criciq_api import __version__
 from criciq_api.api.v1.router import api_router
@@ -69,6 +70,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def cache_headers(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        # A sync may have published new data while the API runs (see criciq_api.db).
+        await run_in_threadpool(request.app.state.db.refresh)
         response = await call_next(request)
         if request.url.path.startswith("/api/") and request.method == "GET":
             response.headers["X-Data-Version"] = request.app.state.db.data_version

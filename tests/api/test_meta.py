@@ -1,5 +1,7 @@
+import shutil
 from pathlib import Path
 
+import duckdb
 import pytest
 from fastapi.testclient import TestClient
 
@@ -7,6 +9,7 @@ from criciq_api import __version__
 from criciq_api.core.config import Settings
 from criciq_api.db import Database, ServingDataMissingError
 from criciq_api.main import create_app
+from criciq_core import publish
 
 
 def test_healthz(client: TestClient) -> None:
@@ -65,3 +68,74 @@ def test_database_knows_its_format(fixture_serving_db: Path) -> None:
 
 def test_meta_has_no_model_versions_before_scoring(unscored_client: TestClient) -> None:
     assert unscored_client.get("/api/v1/meta").json()["model_versions"] == {}
+
+
+def test_meta_reports_the_latest_data_update(
+    fixture_scored_serving_db: Path, tmp_path: Path
+) -> None:
+    serving = tmp_path / "serving.duckdb"
+    shutil.copyfile(fixture_scored_serving_db, serving)
+    con = duckdb.connect(str(serving))
+    con.execute(
+        """
+        INSERT INTO data_updates VALUES
+            (1, '2026-10-01 06:00', 'initial', 'IPL', 14, 0, 0, 0),
+            (3, '2027-04-02 06:00', 'sync', 'IPL', 2, 1, 0, 1),
+            (4, '2027-04-03 06:00', 'sync', 'IPL', 0, 0, 0, 1)
+        """
+    )
+    con.close()
+    with TestClient(create_app(Settings(environment="test", serving_db=serving))) as client:
+        body = client.get("/api/v1/meta").json()
+    assert body["last_update"] == {
+        "updated_at": "2027-04-02T06:00:00",
+        "new_matches": 2,
+        "corrected_matches": 1,
+        "withdrawn_matches": 0,
+    }
+    assert body["latest_match_date"] == "2025-06-03"
+
+
+def test_meta_has_no_update_after_only_the_first_load(client: TestClient) -> None:
+    assert client.get("/api/v1/meta").json()["last_update"] is None
+
+
+def test_the_api_swaps_in_newly_published_data(
+    fixture_scored_serving_db: Path, tmp_path: Path
+) -> None:
+    serving = tmp_path / "serving.duckdb"
+    shutil.copyfile(fixture_scored_serving_db, serving)
+    db = Database(serving)
+    try:
+        db.cache["stale"] = object()
+        assert db.refresh(force=True) is False  # nothing waiting
+        newer = publish.pending(serving)
+        shutil.copyfile(fixture_scored_serving_db, newer)
+        con = duckdb.connect(str(newer))
+        con.execute("UPDATE meta SET value = 'newer' WHERE key = 'data_version'")
+        con.close()
+        assert db.refresh(force=True) is True
+        assert db.data_version == "newer"
+        assert db.cache == {}
+        assert not newer.exists()
+        assert db.scalar("SELECT count(*) FROM matches") > 0
+    finally:
+        db.close()
+
+
+def test_data_published_while_the_api_was_down_is_used_at_startup(
+    fixture_scored_serving_db: Path, tmp_path: Path
+) -> None:
+    serving = tmp_path / "serving.duckdb"
+    shutil.copyfile(fixture_scored_serving_db, serving)
+    newer = publish.pending(serving)
+    shutil.copyfile(fixture_scored_serving_db, newer)
+    con = duckdb.connect(str(newer))
+    con.execute("UPDATE meta SET value = 'newer' WHERE key = 'data_version'")
+    con.close()
+    db = Database(serving)
+    try:
+        assert db.data_version == "newer"
+        assert not newer.exists()
+    finally:
+        db.close()

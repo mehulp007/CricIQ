@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 from typing import Literal
 
 from pydantic import BaseModel
@@ -36,6 +37,15 @@ class VenueInfo(BaseModel):
     matches: int
 
 
+class DataUpdate(BaseModel):
+    """The latest data sync that changed this competition's matches."""
+
+    updated_at: dt.datetime
+    new_matches: int
+    corrected_matches: int
+    withdrawn_matches: int
+
+
 class Meta(BaseModel):
     api_version: Literal["v1"]
     app_version: str
@@ -43,6 +53,10 @@ class Meta(BaseModel):
     """Version of the loaded serving dataset (latest match date + content hash)."""
     model_versions: dict[str, str]
     """Model name -> semantic version of the models that scored this data."""
+    latest_match_date: dt.date | None
+    """Date of the newest match in the data."""
+    last_update: DataUpdate | None
+    """The latest sync that brought new, corrected or withdrawn matches (none until one has)."""
     seasons: list[SeasonInfo]
     franchises: list[FranchiseInfo]
     venues: list[VenueInfo]

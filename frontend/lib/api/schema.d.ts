@@ -769,6 +769,23 @@ export interface components {
             /** Wpa Innings */
             wpa_innings: number;
         };
+        /**
+         * DataUpdate
+         * @description The latest data sync that changed this competition's matches.
+         */
+        DataUpdate: {
+            /** Corrected Matches */
+            corrected_matches: number;
+            /** New Matches */
+            new_matches: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Withdrawn Matches */
+            withdrawn_matches: number;
+        };
         /** DismissalCount */
         DismissalCount: {
             /** Count */
@@ -1278,6 +1295,9 @@ export interface components {
             data_version: string;
             /** Franchises */
             franchises: components["schemas"]["FranchiseInfo"][];
+            last_update: components["schemas"]["DataUpdate"] | null;
+            /** Latest Match Date */
+            latest_match_date: string | null;
             /** Model Versions */
             model_versions: {
                 [key: string]: string;

@@ -1045,6 +1045,36 @@
         "title": "BowlingSummary",
         "type": "object"
       },
+      "DataUpdate": {
+        "description": "The latest data sync that changed this competition's matches.",
+        "properties": {
+          "corrected_matches": {
+            "title": "Corrected Matches",
+            "type": "integer"
+          },
+          "new_matches": {
+            "title": "New Matches",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "withdrawn_matches": {
+            "title": "Withdrawn Matches",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "updated_at",
+          "new_matches",
+          "corrected_matches",
+          "withdrawn_matches"
+        ],
+        "title": "DataUpdate",
+        "type": "object"
+      },
       "DismissalCount": {
         "properties": {
           "count": {
@@ -2588,6 +2618,28 @@
             "title": "Franchises",
             "type": "array"
           },
+          "last_update": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataUpdate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest_match_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Match Date"
+          },
           "model_versions": {
             "additionalProperties": {
               "type": "string"
@@ -2615,6 +2667,8 @@
           "app_version",
           "data_version",
           "model_versions",
+          "latest_match_date",
+          "last_update",
           "seasons",
           "franchises",
           "venues"

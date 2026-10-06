@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from criciq_api import __version__
 from criciq_api.db import Database
-from criciq_api.schemas.meta import FranchiseInfo, Meta, SeasonInfo, VenueInfo
+from criciq_api.schemas.meta import DataUpdate, FranchiseInfo, Meta, SeasonInfo, VenueInfo
 
 
 def get_meta(db: Database) -> Meta:
@@ -32,11 +32,29 @@ def get_meta(db: Database) -> Meta:
     models = (
         db.rows("SELECT name, version FROM models ORDER BY name") if db.has_table("models") else []
     )
+    # The first full load is not an update: everything in it is "new".
+    update = (
+        db.row(
+            """
+            SELECT updated_at, sum(new_matches) AS new_matches,
+                   sum(corrected_matches) AS corrected_matches,
+                   sum(withdrawn_matches) AS withdrawn_matches
+            FROM data_updates
+            WHERE kind <> 'initial'
+              AND new_matches + corrected_matches + withdrawn_matches > 0
+            GROUP BY run_id, updated_at ORDER BY run_id DESC LIMIT 1
+            """
+        )
+        if db.has_table("data_updates")
+        else None
+    )
     return Meta(
         api_version="v1",
         app_version=__version__,
         data_version=db.data_version,
         model_versions={r["name"]: r["version"] for r in models},
+        latest_match_date=db.scalar("SELECT max(match_date) FROM matches"),
+        last_update=DataUpdate(**update) if update else None,
         seasons=[SeasonInfo(**r) for r in seasons],
         franchises=[FranchiseInfo(**r) for r in franchises],
         venues=[VenueInfo(**r) for r in venues],

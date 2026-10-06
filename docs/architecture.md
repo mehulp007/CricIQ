@@ -14,6 +14,8 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
               validate (schemas + invariants + golden matches)
               export → serving.duckdb (slim, read-only, plus Player Lab tables with par
                        and Team Analytics tables checked against the official league tables)
+                     → players.duckdb (Player Lab tables of every T20 competition, par per
+                       competition, and all T20 together; one schema per scope, ADR-0009)
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
@@ -23,6 +25,8 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
                         ▼
   [backend] FastAPI /api/v1: reads serving.duckdb only; next-ball odds are computed
             from the stored ball-model terms with plain arithmetic (ADR-0005)
+            /api/v2/{competition}/players: the same Player Lab code over one scope of
+            players.duckdb (search_path), for every T20 competition and all T20
                         ▼
   [frontend] Next.js on Vercel: server components + client-side replay engine
              (featured replays bundled; see deployment.md)
@@ -84,6 +88,10 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0003](adr/0003-hosting-vercel-and-render.md): Vercel for the web app, Render for the API
 - [ADR-0004](adr/0004-committed-models-precomputed-predictions.md): committed model versions, precomputed predictions
 - [ADR-0005](adr/0005-ball-model-as-additive-terms.md): the ball-outcome model served as additive terms
+- [ADR-0006](adr/0006-simulator-in-the-api-with-numpy.md): the simulator runs in the API with numpy
+- [ADR-0007](adr/0007-one-warehouse-for-every-competition.md): one warehouse for every competition, with v1-shaped scopes
+- [ADR-0008](adr/0008-incremental-sync.md): incremental data sync with an ingest log
+- [ADR-0009](adr/0009-players-database-per-competition.md): a players database with one schema per competition
 
 ## Precompute vs live
 

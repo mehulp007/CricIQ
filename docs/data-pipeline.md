@@ -12,8 +12,9 @@ just data run --no-download   # rebuild from the latest local snapshot
 `CRICIQ_COMPETITIONS` (comma separated, e.g. `IPL`) limits a run to some competitions; by default
 every competition in `config/competitions.yaml` is downloaded and built. All of them (about 9,900
 matches and 4.6 million deliveries) extract in about 20 seconds and build in about 40 after
-download. The run ends with the validation summary and regenerates
-[data-quality-report.md](data-quality-report.md).
+download. The run ends with the validation summary, regenerates
+[data-quality-report.md](data-quality-report.md) and a report per other T20 competition
+([data-quality/](data-quality/)), and exports the serving and players databases.
 
 ## Layers
 
@@ -33,7 +34,11 @@ data/warehouse/cricket.duckdb       every competition (constraints enforced)
      │  scope
      ▼
 data/warehouse/ipl.duckdb           the IPL in the v1 shape: what the export,
-                                    the models and the reports read today
+     │                              the models and the reports read today
+     │  export
+     ▼
+data/exports/serving.duckdb         what the API serves (the IPL), scored by the models
+data/exports/players.duckdb         Player Lab tables for every T20 competition and all T20
 ```
 
 Everything under `data/` is generated and gitignored. Curated knowledge lives in version-controlled
@@ -160,15 +165,49 @@ Cricsheet has no biographical attributes. This step links players through their 
 cricketer infobox (batting hand, bowling style, international side; CC BY-SA 4.0). Parsing is
 defensive: wiki links and list templates are unwrapped, styles are normalized to arm plus pace/spin,
 and the infobox's international side is preferred over Wikidata citizenship, which proved unreliable.
+A player Cricsheet knows by two ESPNcricinfo ids is matched on whichever Wikidata records; requests
+the server drops or throttles are retried.
 
-The result is committed as `reference/player_attributes.csv`, so normal builds never touch the
-network. Values that are still missing stay empty unless a correction is certain, in which case it
-goes in the overrides file with a note. Coverage is reported in the data-quality report (about 98% for
-IPL players with a meaningful sample).
+The step covers every player in the full warehouse (6,233 with an ESPNcricinfo id). Players already
+in the file keep their row, so adding players never changes the attributes the committed models were
+trained on; `--refresh` reads everyone again. The result is committed as
+`reference/player_attributes.csv`, so normal builds never touch the network. Values that are still
+missing stay empty unless a correction is certain, in which case it goes in the overrides file with a
+note.
+
+Coverage of players with a meaningful sample (100 balls faced or 120 bowled), from the reports:
+batting hand for 99.7% in the BBL, 97.8% in the IPL, 97.7% in the PSL, 95.5% in the CPL and 93.2% in
+the SA20, but 46.8% in T20Is, where most associate nations' players have no Wikipedia article.
+Everything that uses an attribute treats a missing one as its own "unknown" category (a split,
+a matchup term, a simulator prior) rather than dropping the ball.
+
+### 7. Players database (`criciq-data export-players`)
+
+The Player Lab tables (innings, ball-level cells, phases, fielding, seasons, the directory) for every
+T20 competition, and for all T20 cricket together, go to `data/exports/players.duckdb` (ADR-0009).
+Each competition's tables are built by the serving database's code from that competition's own
+v1-shaped copy, so **par is the competition's own rate for the season and phase**: a PSL strike rate
+is judged against the PSL. The IPL's tables are identical to the serving database's. "All T20" puts a
+player's rows from every competition together, each with its own par. One schema of views per scope
+(`ipl`, `bbl`, ..., `t20`) lets the API serve any of them with the same queries
+(`/api/v2/{competition}/players`). It takes about 10 seconds; `run` and every sync build it.
+
+Seasons are named the way the competition names them: "2023/24" where seasons span the new year (the
+BBL, `season_spans_new_year` in `config/competitions.yaml`), else the year.
+
+### Data-quality reports (`criciq-data report`)
+
+[data-quality-report.md](data-quality-report.md) covers the IPL in detail and every competition in
+summary. Each other T20 competition has its own report in [data-quality/](data-quality/) with the
+same sections (contents, coverage by season, every check with the matches behind its notes, golden
+scorecards, recorded anomalies, attribute coverage) plus its teams (curated or added, with attribute
+coverage per team), quarantined matches and grounds added automatically, for review.
 
 ## Known gaps in the source
 
 - **Afghanistan.** Cricsheet holds no matches involving Afghanistan, in any format.
+- **Some T20Is are missing**: Cricsheet's archive does not hold every match (it has 118 of Virat
+  Kohli's 125 T20Is), so T20I career totals can fall short of official ones.
 - **Coverage starts** in 2001 (Tests), 2002 (ODIs) and 2005 (T20Is): Cricsheet's ball-by-ball
   record of earlier internationals is not available.
 - **Pitch, weather and session times** are not in the data.
@@ -191,7 +230,8 @@ just sync-status                 # data version, recent runs, quarantined matche
 2. **Diff.** Each match of a selected competition is compared with the **ingest log**
    (`data/sync/ingest.duckdb`) by the SHA-256 of its file: new, corrected, unchanged or withdrawn.
 3. **Apply.** Only those matches' rows change in the interim tables; the warehouse, validation, the
-   IPL copy and the serving database are rebuilt and every ball is scored, all into staging files.
+   IPL copy, the serving database (every ball scored) and the players database are rebuilt, all into
+   staging files.
 4. **Quarantine.** A new match that cannot be built (an unknown ground or team in the strict IPL)
    or fails validation is set aside with its reason and the rest go in; a bad correction keeps the
    previous version. Fix the config (e.g. add the ground to `config/venues.yaml`), then
@@ -225,8 +265,8 @@ but switched off until V2-8; see [deployment.md](deployment.md)).
 
 ```bash
 just data run                    # download every archive and rebuild (also records the ingest log)
-just data enrich-players         # only when new players appear
-just data build && just data report
+just data enrich-players         # look up players new to the file (--refresh: everyone)
+just data build && just data report   # the main report and one per T20 competition
 uv run python scripts/make_fixtures.py   # only if fixture matches should change
 ```
 
@@ -242,8 +282,9 @@ just v2-up --serve-only     # serve what is already built
 ```
 
 The site is at http://localhost:3000 (use `localhost`: the dev server does not hydrate on
-`127.0.0.1`) and the API docs at http://localhost:8000/docs. The data-quality report of a local run
-goes to `data/data-quality-report.md`, leaving the committed one alone.
+`127.0.0.1`) and the API docs at http://localhost:8000/docs (the Player Lab of every T20
+competition is under `/api/v2`). The data-quality reports of a local run go to
+`data/data-quality-report.md` and `data/data-quality/`, leaving the committed ones alone.
 
 Measured on the development laptop with all eight competitions (2026-10-06): the data step takes
 about 70 seconds after download (extract 20, build 40, validate and export the rest) and scoring
@@ -253,10 +294,10 @@ about 0.6 GB) and the serving database 0.03 GB.
 
 ## Testing
 
-`tests/fixtures/cricsheet/` holds 31 real matches chosen for edge cases: every golden scorecard, a
+`tests/fixtures/cricsheet/` holds 33 real matches chosen for edge cases: every golden scorecard, a
 double super over, a no-result, D/L chases, umpire miscounts, penalty runs, substitutions and
 retirements in the IPL; and from the other competitions a BBL season spanning two years, the PSL's
-inconsistent labels, a renamed CPL franchise, a bowl-out, a quarantined source error, a side of ten,
+inconsistent labels, the PSL and CPL 2023 finals (golden), a renamed CPL franchise, a bowl-out, a quarantined source error, a side of ten,
 the 2019 World Cup final, supersubs, and Tests with a draw, a declaration, a follow-on and an
 innings win. The test suite builds a complete warehouse from them, and includes negative tests that
 corrupt data to prove the checks catch it. `tests/pipelines/test_full_dataset.py` validates the full

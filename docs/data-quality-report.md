@@ -99,6 +99,8 @@ Independently known scorecards that the warehouse must reproduce exactly
 | 1223871 | 2021 Sydney Test — India bat out the last day for a draw | pass |
 | 1386137 | BBL 2023/24 final — Brisbane Heat by 54 runs | pass |
 | 1343973 | SA20 2023 final — Sunrisers Eastern Cape by four wickets | pass |
+| 1354957 | PSL 2023 final — Lahore Qalandars by one run | pass |
+| 1369591 | CPL 2023 final — Trinbago bowled out for 94, Guyana by nine wickets | pass |
 
 ## Recorded anomalies
 
@@ -153,6 +155,8 @@ involving Afghanistan, in any format, so Afghanistan's record is absent.
 | T20I | Men's T20 Internationals | T20 | 2005-2026 | 3,557 | 802,124 | 108 | 1 | 35 |
 | TEST | Men's Test cricket | Test | 2001-2026 | 895 | 1,722,675 | 12 | 0 | 5 |
 
+Each T20 competition has a detailed report of its own: [BBL](data-quality/bbl.md), [CPL](data-quality/cpl.md), [PSL](data-quality/psl.md), [SA20](data-quality/sa20.md), [T20I](data-quality/t20i.md).
+
 **Quarantined matches** have a source error that would break the warehouse's keys
 and are left out:
 
@@ -160,6 +164,6 @@ and are left out:
 |---|---|---|---|
 | 1229824 | T20I | player_on_both_sides | player efcb778e is listed for both sides |
 
-**Grounds added automatically:** 265 grounds outside the curated
+**Grounds added automatically:** 250 grounds outside the curated
 `config/venues.yaml`, named from Cricsheet and placed with
 `config/venue_countries.yaml`; 0 without a country.

@@ -166,12 +166,14 @@ is built from it by `criciq_pipelines.scope`, which keeps only v1 columns and ca
 | `auto_added` | Teams and grounds added automatically outside the curated config, for review |
 | `quarantine` | Matches set aside for a source error, with the rule and the detail |
 
-## Player Lab (serving database only)
+## Player Lab (serving and players databases)
 
 Built by `criciq_pipelines.players` during export. Super-over innings are excluded throughout.
-**Par** columns hold what an average IPL player would have produced from the same balls: the sum,
-over the player's balls, of the league rate for that ball's season and phase. Summed over all
-players they equal the league's actual totals.
+**Par** columns hold what an average player of the same competition would have produced from the
+same balls: the sum, over the player's balls, of the league rate for that ball's season and phase.
+Summed over all players they equal the league's actual totals. The serving database holds the IPL's;
+the [players database](#players-database-playersduckdb) holds every T20 competition's (the first
+ten tables below).
 
 | Table | Grain | Notes |
 |---|---|---|
@@ -193,6 +195,29 @@ CricIQ Ratings and similar players have no tables of their own: they are aggrega
 tables above for the requested seasons (definitions in [metrics.md](metrics.md)). Their fitted
 constants (`k`, `sigma2` and the stability label per component) are stored in `models` under the
 name `ratings`, published by `criciq-ml score` from `models/ratings/<version>/manifest.json`.
+
+## Players database (`players.duckdb`)
+
+`data/exports/players.duckdb` (`criciq_pipelines.player_db`, ADR-0009): the Player Lab tables for
+every T20 competition (the IPL, BBL, PSL, CPL, SA20 and T20Is) and for all T20 cricket together.
+
+In schema `main`, every Player Lab table above has a leading `competition_id`, and the innings tables
+also carry `global_order` (a match's order across every competition); `player_index` has `scope_id`
+instead (a competition, or `T20`). Shared tables:
+
+| Table | Notes |
+|---|---|
+| `scopes` | One row per scope: `scope_id` (`IPL` ... `T20I`, and `T20` for all of them), `schema_name` (its schema and API path segment, e.g. `sa20`), `name`, `short_name`, `format`, `competition_ids`, `display_order` |
+| `competitions`, `matches`, `innings`, `wickets`, `players`, `venues` | The full warehouse's rows for the included competitions (slim columns) |
+| `seasons` | As in the warehouse, plus `label`: "2023/24" where seasons span the new year (the BBL), else the year |
+| `franchises` | Each competition's teams in the v1 shape; teams without curated colours (most associate nations) get neutral grey `#7A7A7A` |
+| `meta` | `data_version`, `pipeline_version`, `built_at`, `competitions` |
+
+One schema per scope (`ipl`, `bbl`, `psl`, `cpl`, `sa20`, `t20i`, `t20`) holds views with the serving
+database's table names and columns, restricted to the scope, so the API's Player Lab queries run on
+any of them through `search_path`. In `t20` the competitions' rows are put together, each with its
+own par; `player_index` (role, career span, latest team) is computed over all of them, and the
+innings views' `match_order` is the order across every competition.
 
 ## Team Analytics (serving database only)
 

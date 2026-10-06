@@ -32,6 +32,8 @@ The image build **is** the data pipeline:
    never retrains (ADR-0004).
 3. The `runtime` stage installs only the API package (no ML libraries) and copies in the serving
    database (about 28 MB for the IPL). It runs as a non-root user with a container health check.
+   The image builds the IPL only and does not ship the players database, so its `/api/v2` routes
+   answer 503; V2-8 replaces this build with published serving data for every competition.
 
 | Setting | Value |
 |---|---|

@@ -7,6 +7,21 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **V2-2: the T20 world** (ADR-0009)
+  - A players database (`data/exports/players.duckdb`, `criciq-data export-players`) with the Player
+    Lab tables of the IPL, BBL, PSL, CPL, SA20 and men's T20Is, and of all T20 cricket together. Par
+    is each competition's own rate for the season and phase, so a PSL strike rate is judged against
+    the PSL; the IPL's tables are identical to the serving database's. `run` and every sync build it.
+  - `/api/v2/competitions` (with season names such as "2023/24" for the BBL),
+    `/api/v2/{competition}/players`, `/players/{id}` and `/players/{id}/splits` for any T20
+    competition or `t20`, and `/api/v2/players/{id}` with a player's line in every competition.
+  - A data-quality report per T20 competition (`docs/data-quality/`): coverage by season, every check
+    with the matches behind its notes, golden scorecards, teams with attribute coverage, quarantined
+    matches and grounds added automatically.
+  - Batting hand, bowling style and biography for 5,417 more players from Wikidata and Wikipedia
+    (`enrich-players` now covers every competition, keeps existing rows unless `--refresh`, tries
+    alternate ESPNcricinfo ids and retries dropped requests).
+  - Golden scorecards for the PSL 2023 and CPL 2023 finals, and both matches as fixtures.
 - **V2-1: incremental sync** (ADR-0008)
   - `criciq-data sync` takes in only what Cricsheet changed: it picks the 7-day, 30-day or full feed
     by the time since the last sync, compares every match file with an ingest log (new, corrected,
@@ -52,6 +67,9 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
 
 ### Fixed
+- Fifteen grounds recorded under former or sponsors' names (Launceston's Aurora Stadium, Bloemfontein's
+  four names, Rajkot's Niranjan Shah Stadium and others) are merged, and a sponsor's name for a
+  ground whose plain name several grounds share resolves by city.
 - An over split between two bowlers (three balls each) is credited to the bowler who started it;
   before, the choice depended on row order.
 - Grounds that share a name are told apart by city: Karachi's National Stadium (about 150 matches)

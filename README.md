@@ -390,7 +390,7 @@ just setup      # install Python + frontend deps and git hooks
 just dev-api    # API on http://localhost:8000 (OpenAPI docs at /docs)
 just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
-just data run   # download Cricsheet data, rebuild, validate and export the serving database
+just data run   # download Cricsheet data, rebuild, validate, export the serving and players databases
 just sync       # take in Cricsheet's new and corrected matches only (just sync-status: what changed)
 just ml score   # add every ball's win probability from the committed model
 just ml train win_probability   # or score_projection, ball_outcome: retrain, evaluate, backtest

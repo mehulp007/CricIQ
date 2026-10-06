@@ -20,9 +20,10 @@ import csv
 import json
 import re
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -179,10 +180,29 @@ def _describe(arm: str | None, style: str) -> str:
 # --------------------------------------------------------------------------- fetching (network)
 
 
-def _get_json(url: str, timeout: float = 120.0) -> Any:
+# Wait before each retry of a request the server dropped, throttled or failed.
+RETRY_DELAYS_SECONDS = (10.0, 30.0, 90.0)
+
+
+def _get_json(
+    url: str,
+    timeout: float = 120.0,
+    delays: Sequence[float] = RETRY_DELAYS_SECONDS,
+    sleep: Callable[[float], None] = time.sleep,
+) -> Any:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.load(response)
+    for attempt in range(len(delays) + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return json.load(response)
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
+            # Client errors other than throttling (429) will not go away on a retry.
+            status = getattr(error, "code", None)
+            permanent = status is not None and 400 <= status < 500 and status != 429
+            if permanent or attempt == len(delays):
+                raise
+            sleep(delays[attempt])
+    raise AssertionError("unreachable")
 
 
 def _chunks(items: Sequence[str], size: int) -> Iterable[Sequence[str]]:
@@ -332,6 +352,14 @@ def apply_overrides(rows: list[dict[str, str]], overrides_csv: Path) -> int:
                 row["source"] = (row["source"] + " | manual").strip(" |")
             applied += 1
     return applied
+
+
+def read_rows(path: Path) -> dict[str, dict[str, str]]:
+    """Rows of an attributes file keyed by player id (empty if there is none)."""
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8", newline="") as fh:
+        return {row["player_id"]: row for row in csv.DictReader(fh)}
 
 
 def write_rows(rows: Sequence[dict[str, str]], path: Path) -> None:

@@ -45,6 +45,8 @@ class CheckResult:
     # Violations in the other competitions, by competition: reported, not failed.
     notes: dict[str, int] = field(default_factory=dict)
     notes_sample: list[dict[str, Any]] = field(default_factory=list)
+    # The matches behind the notes, by competition.
+    notes_match_ids: dict[str, list[int]] = field(default_factory=dict)
     # Every match behind a counted violation (a data sync quarantines new ones).
     match_ids: list[int] = field(default_factory=list)
 
@@ -341,8 +343,11 @@ def run_checks(
         strict = [r for r in rows if r.get("competition_id") not in lenient]
         noted = [r for r in rows if r.get("competition_id") in lenient]
         notes: dict[str, int] = {}
+        noted_ids: dict[str, set[int]] = {}
         for r in noted:
             notes[str(r["competition_id"])] = notes.get(str(r["competition_id"]), 0) + 1
+            if r.get("match_id"):
+                noted_ids.setdefault(str(r["competition_id"]), set()).add(int(r["match_id"]))
         results.append(
             CheckResult(
                 id=check.id,
@@ -352,6 +357,7 @@ def run_checks(
                 sample=strict[:sample_size],
                 notes=dict(sorted(notes.items())),
                 notes_sample=noted[:sample_size],
+                notes_match_ids={k: sorted(v) for k, v in sorted(noted_ids.items())},
                 match_ids=sorted({int(r["match_id"]) for r in strict if r.get("match_id")}),
             )
         )

@@ -63,12 +63,14 @@ jobs:
           path: data
           key: criciq-data-${{ github.run_id }}
 
-      - name: Publish the serving database
+      - name: Publish the serving and players databases
         if: steps.sync.outputs.changed == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: serving-duckdb
-          path: data/exports/serving.duckdb
+          path: |
+            data/exports/serving.duckdb
+            data/exports/players.duckdb
           retention-days: 7
 
       - name: Redeploy the API

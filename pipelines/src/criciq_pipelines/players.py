@@ -366,8 +366,9 @@ GROUP BY ALL
 ORDER BY mp.player_id, season
 """
 
-INDEX_SQL = f"""
-CREATE TABLE player_index AS
+# The player directory from the other player tables (also run over several
+# competitions' tables at once by criciq_pipelines.player_db).
+INDEX_QUERY = f"""
 WITH apps AS (
     SELECT player_id, min(season) AS first_season, max(season) AS last_season,
            sum(matches)::INTEGER AS matches,
@@ -405,6 +406,7 @@ JOIN apps a USING (player_id)
 JOIN rates r USING (player_id)
 ORDER BY p.player_id
 """
+INDEX_SQL = "CREATE TABLE player_index AS" + INDEX_QUERY
 
 
 def build_player_tables(con: duckdb.DuckDBPyConnection) -> None:

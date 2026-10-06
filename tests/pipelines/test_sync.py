@@ -76,6 +76,7 @@ def built(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     first = sync.record_snapshot(snapshot, warehouse=paths.cricket_warehouse_path())
     assert first.kind == "initial"
     pipeline.run_export()
+    pipeline.run_export_players()
     return tmp_path
 
 
@@ -126,6 +127,12 @@ def test_a_sync_adds_new_matches_and_equals_a_full_build(built: Path) -> None:
     )
     assert rows[0] == ("sync", "IPL", 1)
     assert ("initial", "IPL", 13) in rows
+    # ...and the players database has the new IPL match's innings.
+    assert _query(
+        paths.players_path(),
+        "SELECT count(*) > 0 FROM ipl.player_batting_innings WHERE match_id = ?",
+        [HELD[0]],
+    ) == [(True,)]
 
     again = _sync(feed, feed=sync.WEEK_FEED)
     assert (again.status, again.new, again.unchanged) == ("up_to_date", 0, 3)

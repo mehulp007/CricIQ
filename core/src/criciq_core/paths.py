@@ -59,6 +59,11 @@ def serving_path() -> Path:
     return exports_dir() / "serving.duckdb"
 
 
+def players_path() -> Path:
+    """Player Lab tables for every T20 competition and all T20 (criciq_pipelines.player_db)."""
+    return exports_dir() / "players.duckdb"
+
+
 def sync_dir() -> Path:
     """The ingest log and the record of every data update (criciq_pipelines.sync)."""
     return data_dir() / "sync"

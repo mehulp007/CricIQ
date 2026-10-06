@@ -18,7 +18,6 @@ import typer
 from criciq_core import paths
 from criciq_pipelines import pipeline, raw
 from criciq_pipelines import sync as sync_engine
-from criciq_pipelines.report import render_report
 from criciq_pipelines.validation import ValidationReport
 
 app = typer.Typer(help="CricIQ data pipeline.", no_args_is_help=True, add_completion=False)
@@ -128,6 +127,13 @@ def export() -> None:
     typer.echo(f"  wrote {pipeline.serving_path()}")
 
 
+@app.command("export-players")
+def export_players() -> None:
+    """Export the players database: Player Lab tables for every T20 competition and all T20."""
+    _print_counts(_timed("exporting players database", pipeline.run_export_players))
+    typer.echo(f"  wrote {paths.players_path()}")
+
+
 @app.command("validate")
 def validate_cmd(
     allow_missing_golden: Annotated[
@@ -148,21 +154,27 @@ def validate_cmd(
 def report(
     output: Annotated[Path | None, typer.Option(help="Markdown file to write.")] = None,
 ) -> None:
-    """Write the data-quality report (docs/data-quality-report.md)."""
+    """Write the data-quality reports (docs/data-quality-report.md and one per T20
+    competition in docs/data-quality/)."""
     target = output or paths.repo_root() / "docs" / "data-quality-report.md"
     validation = pipeline.run_validate()
-    target.write_text(
-        render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
-        encoding="utf-8",
-        newline="\n",
-    )
-    typer.echo(f"wrote {target}")
+    for written in pipeline.write_reports(target, validation):
+        typer.echo(f"wrote {written}")
 
 
 @app.command("enrich-players")
-def enrich_players() -> None:
-    """Refresh reference/player_attributes.csv from Wikidata + Wikipedia (needs network)."""
-    _print_counts(_timed("enriching player attributes", pipeline.run_enrich_players))
+def enrich_players(
+    refresh: Annotated[
+        bool, typer.Option("--refresh", help="Look up players already in the file again too.")
+    ] = False,
+) -> None:
+    """Add player attributes from Wikidata + Wikipedia to reference/ (needs network)."""
+    _print_counts(
+        _timed(
+            "enriching player attributes",
+            lambda: pipeline.run_enrich_players(refresh=refresh),
+        )
+    )
     typer.echo("  rebuild the warehouse to pick up the new attributes: criciq-data build")
 
 
@@ -183,12 +195,8 @@ def run(
     validation = _timed("validating", pipeline.run_validate)
     _print_validation(validation)
     target = report_path or paths.repo_root() / "docs" / "data-quality-report.md"
-    target.write_text(
-        render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
-        encoding="utf-8",
-        newline="\n",
-    )
-    typer.echo(f"> wrote {target}")
+    written = pipeline.write_reports(target, validation)
+    typer.echo(f"> wrote {target} and {len(written) - 1} competition reports beside it")
     if not validation.passed:
         raise typer.Exit(code=1)
     recorded = _timed(
@@ -201,6 +209,7 @@ def run(
     )
     _print_changes(recorded)
     _print_counts(_timed("exporting serving database", pipeline.run_export))
+    _print_counts(_timed("exporting players database", pipeline.run_export_players))
 
 
 _FEEDS = {

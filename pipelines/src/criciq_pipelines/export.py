@@ -146,6 +146,20 @@ class LeagueTableMismatchError(RuntimeError):
     pass
 
 
+def copy_core_tables(con: duckdb.DuckDBPyConnection) -> None:
+    """Copy the tables the serving database keeps from the attached warehouse ``wh``."""
+    for table in COPIED_TABLES:
+        con.execute(f"CREATE TABLE {table} AS SELECT * FROM wh.{table}")
+    con.execute(
+        """
+        CREATE TABLE players AS
+        SELECT player_id, name, full_name, country, date_of_birth, batting_hand,
+               bowling_arm, bowling_type, bowling_style
+        FROM wh.players
+        """
+    )
+
+
 def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -> dict[str, int]:
     """Write the serving database to ``target`` atomically; return row counts.
 
@@ -160,16 +174,7 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
     con = duckdb.connect(str(staging))
     try:
         con.execute(f"ATTACH '{warehouse.as_posix()}' AS wh (READ_ONLY)")
-        for table in COPIED_TABLES:
-            con.execute(f"CREATE TABLE {table} AS SELECT * FROM wh.{table}")
-        con.execute(
-            """
-            CREATE TABLE players AS
-            SELECT player_id, name, full_name, country, date_of_birth, batting_hand,
-                   bowling_arm, bowling_type, bowling_style
-            FROM wh.players
-            """
-        )
+        copy_core_tables(con)
         con.execute(MATCH_SUMMARIES_SQL)
         con.execute("DETACH wh")
         con.execute(DATA_UPDATES_SQL)

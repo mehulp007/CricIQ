@@ -20,14 +20,24 @@ from criciq_core.publish import publish
 from criciq_pipelines import enrich
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
+from criciq_pipelines.player_db import FORMATS as PLAYER_FORMATS
+from criciq_pipelines.player_db import export_players
 from criciq_pipelines.raw import RawSnapshot, latest_snapshot
 from criciq_pipelines.reference import Competition, load_competitions
+from criciq_pipelines.report import (
+    REPORTED_FORMATS,
+    render_competition_report,
+    render_report,
+    report_path_for,
+)
 from criciq_pipelines.scope import build_scope
 from criciq_pipelines.validation import ValidationReport, validate
 from criciq_pipelines.warehouse import BuildInputs, build_warehouse
 
 ATTRIBUTES_FILE = "player_attributes.csv"
 OVERRIDES_FILE = "player_attributes_overrides.csv"
+# Cricsheet's register ids for ESPNcricinfo (a few players have two or three).
+CRICINFO_SOURCES = ("cricinfo", "cricinfo_2", "cricinfo_3")
 
 
 # Competitions whose v1-shaped warehouse the export and the models read.
@@ -162,6 +172,49 @@ def run_export(
     return counts
 
 
+def player_competitions() -> list[str]:
+    """The selected competitions the players database covers."""
+    return [c.id for c in selected_competitions() if c.format in PLAYER_FORMATS]
+
+
+def run_export_players(
+    *, warehouse: Path | None = None, target: Path | None = None
+) -> dict[str, int]:
+    """Export the players database and put it in place (beside it while the API has it
+    open). Nothing to do when no T20 competition is selected."""
+    competitions = player_competitions()
+    if not competitions:
+        return {}
+    final = target or paths.players_path()
+    staging = final.with_name(final.name + ".export")
+    counts = export_players(warehouse or paths.cricket_warehouse_path(), staging, competitions)
+    publish(staging, final)
+    return counts
+
+
+def write_reports(main_report: Path, validation: ValidationReport) -> list[Path]:
+    """The main data-quality report and one per reported competition; the files written."""
+    main_report.parent.mkdir(parents=True, exist_ok=True)
+    main_report.write_text(
+        render_report(paths.warehouse_path(), validation, paths.cricket_warehouse_path()),
+        encoding="utf-8",
+        newline="\n",
+    )
+    written = [main_report]
+    for competition in selected_competitions():
+        if competition.format not in REPORTED_FORMATS or competition.id in SCOPED:
+            continue
+        target = report_path_for(main_report, competition.id)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            render_competition_report(paths.cricket_warehouse_path(), validation, competition),
+            encoding="utf-8",
+            newline="\n",
+        )
+        written.append(target)
+    return written
+
+
 def run_validate(
     *, warehouse: Path | None = None, require_all_golden: bool = True
 ) -> ValidationReport:
@@ -183,26 +236,43 @@ def save_validation(report: ValidationReport, warehouse: Path) -> None:
     )
 
 
-def run_enrich_players(*, warehouse: Path | None = None) -> dict[str, int]:
-    """Refresh reference/player_attributes.csv from Wikidata + Wikipedia (network)."""
-    con = duckdb.connect(str(warehouse or paths.warehouse_path()), read_only=True)
+def run_enrich_players(*, warehouse: Path | None = None, refresh: bool = False) -> dict[str, int]:
+    """Add Wikidata + Wikipedia attributes to reference/player_attributes.csv (network).
+
+    Covers every player in the full warehouse with an ESPNcricinfo id; a player
+    Cricsheet knows by several ids is matched on whichever Wikidata records. Players
+    already in the file keep their row unless ``refresh``: re-reading Wikipedia can
+    change an existing player's attributes, and with them the inputs of the
+    committed models.
+    """
+    con = duckdb.connect(str(warehouse or paths.cricket_warehouse_path()), read_only=True)
     try:
-        players = [
-            (str(pid), str(value))
-            for pid, value in con.execute(
-                "SELECT player_id, value FROM player_identifiers WHERE source = 'cricinfo'"
-            ).fetchall()
-        ]
+        ids: dict[str, list[str]] = {}
+        for pid, value in con.execute(
+            f"""
+            SELECT player_id, value FROM player_identifiers
+            WHERE source IN {CRICINFO_SOURCES!r} ORDER BY player_id, source
+            """
+        ).fetchall():
+            ids.setdefault(str(pid), []).append(str(value))
     finally:
         con.close()
-    facts = enrich.fetch_wikidata([cricinfo for _, cricinfo in players])
+    target = paths.reference_dir() / ATTRIBUTES_FILE
+    kept = {} if refresh else enrich.read_rows(target)
+    todo = {pid: found for pid, found in ids.items() if pid not in kept}
+    facts = enrich.fetch_wikidata([ci for found in todo.values() for ci in found])
+    players = [
+        (pid, next((ci for ci in found if ci in facts), found[0])) for pid, found in todo.items()
+    ]
     titles = [record["enwiki"] for record in facts.values() if "enwiki" in record]
-    rows = enrich.build_rows(players, facts, enrich.fetch_wikitext(titles))
+    fetched = enrich.build_rows(players, facts, enrich.fetch_wikitext(titles))
+    rows = sorted([*kept.values(), *fetched], key=lambda row: row["player_id"])
     applied = enrich.apply_overrides(rows, paths.reference_dir() / OVERRIDES_FILE)
-    enrich.write_rows(rows, paths.reference_dir() / ATTRIBUTES_FILE)
+    enrich.write_rows(rows, target)
     return {
         "players": len(rows),
-        "with_wikidata": sum(1 for _, ci in players if ci in facts),
+        "looked_up": len(todo),
+        "found_on_wikidata": sum(1 for _, ci in players if ci in facts),
         "with_batting_hand": sum(1 for r in rows if r["batting_hand"]),
         "with_bowling_type": sum(1 for r in rows if r["bowling_type"]),
         "overrides_applied": applied,

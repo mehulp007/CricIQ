@@ -1,5 +1,6 @@
-"""Shared fixtures: a Cricsheet archive, raw snapshot, warehouse and serving
-database built from the committed edge-case matches in tests/fixtures/cricsheet."""
+"""Shared fixtures: a Cricsheet archive, raw snapshot, warehouse, serving
+database and players database built from the committed edge-case matches in
+tests/fixtures/cricsheet."""
 
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
+from criciq_pipelines.player_db import export_players
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
 from criciq_pipelines.scope import build_scope
 from criciq_pipelines.warehouse import BuildInputs, build_warehouse
@@ -90,6 +92,16 @@ def fixture_warehouse(
 def fixture_serving_db(fixture_warehouse: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
     target = tmp_path_factory.mktemp("exports") / "serving.duckdb"
     export_serving(fixture_warehouse, target)
+    return target
+
+
+@pytest.fixture(scope="session")
+def fixture_players_db(
+    fixture_full_warehouse: Path, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """Player Lab tables for every T20 competition in the fixtures, and all T20."""
+    target = tmp_path_factory.mktemp("players") / "players.duckdb"
+    export_players(fixture_full_warehouse, target)
     return target
 
 

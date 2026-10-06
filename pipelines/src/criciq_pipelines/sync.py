@@ -10,8 +10,9 @@ played, in small "recently added" feeds as well as in the full archives. A sync:
    SHA-256 with the **ingest log**: new, corrected (a different file for a known
    match), unchanged, or withdrawn;
 3. applies only those changes to the interim tables, then rebuilds the
-   warehouse, validates it, exports and scores the serving database, all into
-   staging files, so nothing current changes until everything has worked;
+   warehouse, validates it, exports and scores the serving database and exports
+   the players database, all into staging files, so nothing current changes until
+   everything has worked;
 4. sets aside (**quarantines**) a match that cannot be built or fails
    validation, keeping the previous version of a corrected one, and goes on with
    the rest; a failure that no incoming match explains stops the sync instead;
@@ -51,6 +52,7 @@ from criciq_core.publish import publish
 from criciq_pipelines import pipeline, raw
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import SCHEMAS, ExtractError, parse_match
+from criciq_pipelines.player_db import export_players
 from criciq_pipelines.reference import CompetitionsConfig, load_competitions
 from criciq_pipelines.scope import build_scope
 from criciq_pipelines.validation import ValidationReport, validate
@@ -386,6 +388,7 @@ class _Workspace:
     warehouse: Path
     scopes: dict[str, Path]
     serving: Path
+    players: Path
     report: ValidationReport | None = None
 
     @classmethod
@@ -396,11 +399,12 @@ class _Workspace:
             warehouse=_beside(paths.cricket_warehouse_path(), ".sync"),
             scopes={c: _beside(paths.warehouse_path(c), ".sync") for c in pipeline.SCOPED},
             serving=_beside(paths.serving_path(), ".sync"),
+            players=_beside(paths.players_path(), ".sync"),
         )
 
     def clean(self) -> None:
         shutil.rmtree(self.interim, ignore_errors=True)
-        for path in (self.warehouse, *self.scopes.values(), self.serving):
+        for path in (self.warehouse, *self.scopes.values(), self.serving, self.players):
             path.unlink(missing_ok=True)
 
 
@@ -585,6 +589,10 @@ def _apply(
         if score:
             log("> scoring every ball with the committed models ...")
             _score(workspace.serving, workspace.scopes[scoped[0]])
+    players = pipeline.player_competitions()
+    if players:
+        log("> exporting the players database ...")
+        export_players(workspace.warehouse, workspace.players, players)
 
 
 def _files_in_use(
@@ -752,6 +760,8 @@ def _commit(
             os.replace(path, paths.warehouse_path(competition))
     if workspace.serving.exists():
         result.serving = publish(workspace.serving, paths.serving_path())
+    if workspace.players.exists():
+        publish(workspace.players, paths.players_path())
 
     source = (store / "matches.zip").relative_to(paths.raw_dir()).as_posix()
     quarantined = {q.match_id: q for q in result.quarantined}

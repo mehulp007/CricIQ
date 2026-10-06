@@ -12,6 +12,8 @@
 #              PSL labels are inconsistent (the PSL 2020 playoffs, played in
 #              November 2020, are labelled "2020/21"), so leagues played within
 #              a calendar year use it.
+# season_spans_new_year: seasons are named by the two years they span ("2023/24");
+#   otherwise by their year (Cricsheet labels even IPL 2008 "2007/08").
 # strict: an unknown team or venue fails the build (curated competitions);
 #   otherwise new teams and venues are added automatically and reported.
 # switcher: shown in the site's competition switcher; the other leagues feed
@@ -43,6 +45,7 @@ competitions:
     team_type: club
     teams: bbl
     season_basis: label
+    season_spans_new_year: true
     cricsheet:
       archive: bbl_json.zip
       match: { event_name: Big Bash League }

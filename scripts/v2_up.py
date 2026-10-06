@@ -4,14 +4,15 @@ Usage:  uv run python scripts/v2_up.py [--no-download] [--serve-only]   (or `jus
 
 1. ``criciq-data run`` downloads the Cricsheet archives of every competition in
    config/competitions.yaml, builds and validates the full warehouse, and exports
-   the IPL serving database (the site serves IPL until the switcher lands).
+   the IPL serving database (the site serves IPL until the switcher lands) and the
+   players database (every T20 competition's Player Lab, under /api/v2).
 2. ``criciq-ml score`` adds every ball's predictions with the committed models.
 3. The API (port 8000) and the Next.js dev server (port 3000) start together;
    Ctrl+C stops both. Open http://localhost:3000 (not 127.0.0.1: the dev server
    only hydrates on localhost).
 
-The data-quality report goes to data/data-quality-report.md so local runs never
-touch the committed docs/data-quality-report.md.
+The data-quality reports go to data/data-quality-report.md and data/data-quality/
+so local runs never touch the committed ones in docs/.
 """
 
 from __future__ import annotations

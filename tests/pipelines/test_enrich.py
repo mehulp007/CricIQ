@@ -1,14 +1,27 @@
+from __future__ import annotations
+
+import io
+import urllib.error
+import urllib.request
+from collections.abc import Callable
+from email.message import Message
 from pathlib import Path
 
+import duckdb
 import pytest
 
+from criciq_core import paths
+from criciq_pipelines import enrich, pipeline
 from criciq_pipelines.enrich import (
+    _get_json,
     apply_overrides,
     build_rows,
     infobox_field,
     normalize_batting,
     normalize_bowling,
     normalize_country,
+    read_rows,
+    write_rows,
 )
 
 WIKITEXT = """{{Infobox cricketer
@@ -113,3 +126,90 @@ def test_apply_overrides(tmp_path: Path) -> None:
     overrides.write_text("player_id,field,value,note\nzzz,country,India,x\n", "utf-8")
     with pytest.raises(ValueError, match="invalid override"):
         apply_overrides(rows, overrides)
+
+
+def test_rows_round_trip(tmp_path: Path) -> None:
+    rows = build_rows([("p2", "2"), ("p1", "1")], {"1": {"label": "One Player"}}, {})
+    path = tmp_path / "attributes.csv"
+    write_rows(rows, path)
+    assert read_rows(path) == {row["player_id"]: row for row in rows}
+    assert read_rows(tmp_path / "missing.csv") == {}
+
+
+class _Response(io.BytesIO):
+    def __enter__(self) -> _Response:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
+
+
+def _flaky(failures: list[Exception]) -> Callable[..., _Response]:
+    def urlopen(*_: object, **__: object) -> _Response:
+        if failures:
+            raise failures.pop(0)
+        return _Response(b'{"ok": true}')
+
+    return urlopen
+
+
+def test_requests_are_retried_when_dropped_or_throttled(monkeypatch: pytest.MonkeyPatch) -> None:
+    throttled = urllib.error.HTTPError("u", 429, "Too Many Requests", Message(), None)
+    monkeypatch.setattr(
+        urllib.request, "urlopen", _flaky([urllib.error.URLError("reset"), throttled])
+    )
+    waits: list[float] = []
+    assert _get_json("https://example.org", delays=(1.0, 2.0, 3.0), sleep=waits.append) == {
+        "ok": True
+    }
+    assert waits == [1.0, 2.0]
+
+
+def test_a_missing_page_is_not_retried(monkeypatch: pytest.MonkeyPatch) -> None:
+    missing = urllib.error.HTTPError("u", 404, "Not Found", Message(), None)
+    monkeypatch.setattr(urllib.request, "urlopen", _flaky([missing]))
+    waits: list[float] = []
+    with pytest.raises(urllib.error.HTTPError):
+        _get_json("https://example.org", delays=(1.0,), sleep=waits.append)
+    assert waits == []
+
+
+def test_enrichment_keeps_existing_rows_and_looks_up_the_rest(
+    fixture_full_warehouse: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    con = duckdb.connect(str(fixture_full_warehouse), read_only=True)
+    try:
+        ids = dict(
+            con.execute(
+                "SELECT player_id, value FROM player_identifiers WHERE source = 'cricinfo' "
+                "ORDER BY player_id LIMIT 2"
+            ).fetchall()
+        )
+    finally:
+        con.close()
+    (kept_id, kept_ci), (new_id, new_ci) = sorted(ids.items())
+    reference = tmp_path / "reference"
+    reference.mkdir()
+    existing = build_rows([(kept_id, kept_ci)], {kept_ci: {"label": "Kept As Is"}}, {})
+    write_rows(existing, reference / "player_attributes.csv")
+    monkeypatch.setattr(paths, "reference_dir", lambda: reference)
+
+    asked: list[str] = []
+
+    def wikidata(cricinfo_ids: list[str]) -> dict[str, dict[str, str]]:
+        asked.extend(cricinfo_ids)
+        return {new_ci: {"label": "Found Player", "enwiki": "Found Player"}}
+
+    monkeypatch.setattr(enrich, "fetch_wikidata", wikidata)
+    monkeypatch.setattr(
+        enrich, "fetch_wikitext", lambda titles: {"Found Player": WIKITEXT} if titles else {}
+    )
+    counts = pipeline.run_enrich_players(warehouse=fixture_full_warehouse)
+
+    rows = read_rows(reference / "player_attributes.csv")
+    assert rows[kept_id] == existing[0]  # untouched
+    assert kept_ci not in asked
+    assert rows[new_id]["full_name"] == "Found Player"
+    assert rows[new_id]["batting_hand"] == "right"
+    assert counts["looked_up"] == len(rows) - 1
+    assert counts["found_on_wikidata"] == 1

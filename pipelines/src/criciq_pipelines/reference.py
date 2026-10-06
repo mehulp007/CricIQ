@@ -59,6 +59,7 @@ class Competition(BaseModel):
     teams: str
     strict: bool = False
     season_basis: Literal["label", "calendar"]
+    season_spans_new_year: bool = False
     switcher: bool = False
     cricsheet: CricsheetSource
     rules: CompetitionRules = CompetitionRules()

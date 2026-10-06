@@ -397,7 +397,10 @@ class _Workspace:
             stamp=stamp,
             interim=paths.interim_dir() / f".sync-{stamp}",
             warehouse=_beside(paths.cricket_warehouse_path(), ".sync"),
-            scopes={c: _beside(paths.warehouse_path(c), ".sync") for c in pipeline.SCOPED},
+            scopes={
+                c: _beside(paths.warehouse_path(c), ".sync")
+                for c in (*pipeline.SCOPED, pipeline.POOLED)
+            },
             serving=_beside(paths.serving_path(), ".sync"),
             players=_beside(paths.players_path(), ".sync"),
         )
@@ -579,6 +582,8 @@ def _apply(
     scoped = pipeline.scoped_competitions()
     for competition in scoped:
         build_scope(workspace.warehouse, competition, workspace.scopes[competition])
+    if pooled := pipeline.pooled_competitions():
+        build_scope(workspace.warehouse, pooled, workspace.scopes[pipeline.POOLED])
     if scoped:
         log("> exporting the serving database ...")
         updates = _updates_with(con, result, started)
@@ -586,13 +591,13 @@ def _apply(
             export_serving(workspace.scopes[scoped[0]], workspace.serving, updates=updates)
         finally:
             updates.unlink(missing_ok=True)
-        if score:
-            log("> scoring every ball with the committed models ...")
-            _score(workspace.serving, workspace.scopes[scoped[0]])
     players = pipeline.player_competitions()
     if players:
         log("> exporting the players database ...")
         export_players(workspace.warehouse, workspace.players, players)
+    if scoped and score:
+        log("> scoring every ball with the committed models ...")
+        _score(workspace, scoped[0])
 
 
 def _files_in_use(
@@ -708,15 +713,24 @@ def _updates_with(con: duckdb.DuckDBPyConnection, result: SyncResult, started: d
     return copy
 
 
-def _score(serving: Path, warehouse: Path) -> None:
+def _score(workspace: _Workspace, competition: str) -> None:
+    """Score the staging serving and players databases (criciq-ml runs in its own process)."""
     command = shutil.which("criciq-ml")
     if command is None:
         raise SyncError("criciq-ml is not installed; run `uv sync --all-packages`")
-    subprocess.run(
-        [command, "score", "--serving", str(serving), "--warehouse", str(warehouse)],
-        check=True,
-        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
-    )
+    arguments = [
+        command,
+        "score",
+        "--serving",
+        str(workspace.serving),
+        "--warehouse",
+        str(workspace.scopes[competition]),
+        "--pooled",
+        str(workspace.scopes[pipeline.POOLED]),
+    ]
+    if workspace.players.exists():
+        arguments += ["--players", str(workspace.players)]
+    subprocess.run(arguments, check=True, env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
 
 def _commit(

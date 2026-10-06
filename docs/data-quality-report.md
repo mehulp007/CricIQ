@@ -59,6 +59,7 @@ the source has known quirks, reported as notes (see All competitions below).
 | Check | Severity | Status | Violations | Notes elsewhere | Rule |
 |---|---|---|---|---|---|
 | `innings_legal_balls_within_limit` | error | pass | 0 |  | An innings never has more legal balls than its format allows (beyond balls from umpire-miscounted overs, reported separately). |
+| `scheduled_overs_within_format` | error | pass | 0 | T20I 11 | A limited-overs match is scheduled for no more overs than its format allows (20 in T20 cricket, 50 in ODIs). |
 | `innings_wickets_within_limit` | error | pass | 0 |  | At most 10 wickets fall in an innings (2 in a super over). |
 | `innings_totals_match_ball_by_ball` | error | pass | 0 |  | Innings totals equal the running score after the final delivery (plus any penalty runs awarded outside it). |
 | `chase_target_is_first_innings_plus_one` | error | pass | 0 | CPL 1, ODI 3, T20I 23 | In limited-overs cricket without a rain rule, the chase target is the first-innings total plus one. |
@@ -152,7 +153,7 @@ involving Afghanistan, in any format, so Afghanistan's record is absent.
 | CPL | Caribbean Premier League | T20 | 2013-2026 | 442 | 103,105 | 9 | 0 | 1 |
 | PSL | Pakistan Super League | T20 | 2016-2026 | 357 | 83,799 | 8 | 0 | 0 |
 | SA20 | SA20 | T20 | 2023-2026 | 130 | 29,020 | 6 | 0 | 0 |
-| T20I | Men's T20 Internationals | T20 | 2005-2026 | 3,557 | 802,124 | 108 | 1 | 35 |
+| T20I | Men's T20 Internationals | T20 | 2005-2026 | 3,557 | 802,124 | 108 | 1 | 46 |
 | TEST | Men's Test cricket | Test | 2001-2026 | 895 | 1,722,675 | 12 | 0 | 5 |
 
 Each T20 competition has a detailed report of its own: [BBL](data-quality/bbl.md), [CPL](data-quality/cpl.md), [PSL](data-quality/psl.md), [SA20](data-quality/sa20.md), [T20I](data-quality/t20i.md).

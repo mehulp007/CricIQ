@@ -6,12 +6,17 @@ whose tables have exactly the v1 columns: ``franchises`` rather than ``teams``,
 and no Test-only columns. This module writes that copy for one competition, so
 those consumers keep producing identical output while they are made
 multi-competition one by one.
+
+A copy can also hold several competitions (the pooled T20 copy the models train
+on): ``match_order`` is then the order across all of them, and every other
+table keeps each competition's rows unchanged.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import os
+from collections.abc import Sequence
 from pathlib import Path
 
 import duckdb
@@ -36,37 +41,55 @@ class ScopeError(RuntimeError):
     pass
 
 
-def build_scope(warehouse: Path, competition_id: str, target: Path) -> dict[str, int]:
-    """Copy one competition from the full warehouse into ``target`` (v1 shape)."""
+def build_scope(
+    warehouse: Path, competition_id: str | Sequence[str], target: Path
+) -> dict[str, int]:
+    """Copy one competition (or several) from the full warehouse into ``target`` (v1 shape)."""
+    ids = [competition_id] if isinstance(competition_id, str) else list(competition_id)
+    if not ids:
+        raise ScopeError("no competition to copy")
     target.parent.mkdir(parents=True, exist_ok=True)
     staging = target.with_name(target.name + ".building")
     staging.unlink(missing_ok=True)
     con = duckdb.connect(str(staging))
     try:
         con.execute(f"ATTACH '{warehouse.as_posix()}' AS w (READ_ONLY)")
-        found = con.execute(
-            "SELECT count(*) FROM w.competitions WHERE competition_id = ?", [competition_id]
-        ).fetchone()
-        if not found or not found[0]:
-            raise ScopeError(f"competition {competition_id!r} is not in {warehouse}")
-        con.execute("SET VARIABLE competition = ?", [competition_id])
+        found = {
+            cid
+            for (cid,) in con.execute(
+                "SELECT competition_id FROM w.competitions WHERE list_contains(?, competition_id)",
+                [ids],
+            ).fetchall()
+        }
+        if missing := [c for c in ids if c not in found]:
+            raise ScopeError(f"competition {missing[0]!r} is not in {warehouse}")
+        con.execute("SET VARIABLE competitions = ?", [ids])
+        # One competition keeps its own match order; several are ordered across all of them.
+        order = (
+            "match_order"
+            if len(ids) == 1
+            else "(row_number() OVER (ORDER BY global_order))::INTEGER AS match_order"
+        )
+        columns = _MATCH_COLUMNS.replace("match_order", order, 1)
         con.execute(
             f"""
             CREATE TABLE competitions AS
             SELECT competition_id, name, short_name, format, gender, team_type
-            FROM w.competitions WHERE competition_id = getvariable('competition');
+            FROM w.competitions WHERE list_contains(getvariable('competitions'), competition_id)
+            ORDER BY competition_id;
 
             CREATE TABLE seasons AS
             SELECT season_id, competition_id, year, cricsheet_label, impact_player_rule
-            FROM w.seasons WHERE competition_id = getvariable('competition') ORDER BY year;
+            FROM w.seasons WHERE list_contains(getvariable('competitions'), competition_id)
+            ORDER BY year, competition_id;
 
             CREATE TABLE franchises AS
             SELECT t.team_id AS franchise_id, ct.competition_id, t.name,
                    t.primary_color, t.secondary_color,
                    ct.first_season, ct.last_season, ct.is_active
             FROM w.competition_teams ct JOIN w.teams t USING (team_id)
-            WHERE ct.competition_id = getvariable('competition')
-            ORDER BY t.team_id;
+            WHERE list_contains(getvariable('competitions'), ct.competition_id)
+            ORDER BY t.team_id, ct.competition_id;
 
             CREATE TABLE team_seasons AS
             SELECT ts.team_season_id, ts.team_id AS franchise_id, ts.season_id, ts.display_name
@@ -74,8 +97,8 @@ def build_scope(warehouse: Path, competition_id: str, target: Path) -> dict[str,
             ORDER BY ts.team_season_id;
 
             CREATE TABLE matches AS
-            SELECT {_MATCH_COLUMNS} FROM w.matches
-            WHERE competition_id = getvariable('competition') ORDER BY match_id;
+            SELECT {columns} FROM w.matches
+            WHERE list_contains(getvariable('competitions'), competition_id) ORDER BY match_id;
 
             CREATE TABLE venues AS
             SELECT venue_id, name, city, country, notes FROM w.venues
@@ -136,7 +159,7 @@ def build_scope(warehouse: Path, competition_id: str, target: Path) -> dict[str,
         con.executemany(
             "INSERT INTO meta VALUES (?, ?)",
             [
-                ["competition_id", competition_id],
+                ["competition_id", ",".join(ids)],
                 ["pipeline_version", __version__],
                 ["built_at", dt.datetime.now(dt.UTC).isoformat(timespec="seconds")],
             ],

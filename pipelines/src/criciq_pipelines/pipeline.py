@@ -42,6 +42,9 @@ CRICINFO_SOURCES = ("cricinfo", "cricinfo_2", "cricinfo_3")
 
 # Competitions whose v1-shaped warehouse the export and the models read.
 SCOPED = ("IPL",)
+# The pooled copy of every selected T20 competition, in one time order: what the
+# models train on and score from (criciq_ml).
+POOLED = "T20"
 
 
 def selected_competitions() -> list[Competition]:
@@ -112,10 +115,12 @@ def run_build(
     warehouse: Path | None = None,
     scopes: dict[str, Path] | None = None,
 ) -> dict[str, int]:
-    """Build the full warehouse, then the v1-shaped copy of each scoped competition.
+    """Build the full warehouse, then the v1-shaped copy of each scoped competition
+    and the pooled T20 copy.
 
     Without arguments this builds the current data state. ``scopes`` maps a scoped
-    competition to where its copy goes (default: its usual warehouse path).
+    competition (or ``POOLED``) to where its copy goes (default: its usual warehouse
+    path).
     """
     if isinstance(snapshot, RawSnapshot):
         if not (interim_dir_for(snapshot) / "matches.parquet").exists():
@@ -138,6 +143,9 @@ def run_build(
     for competition in scoped_competitions():
         out = (scopes or {}).get(competition) or paths.warehouse_path(competition)
         build_scope(target, competition, out)
+    if pooled := pooled_competitions():
+        out = (scopes or {}).get(POOLED) or paths.warehouse_path(POOLED)
+        build_scope(target, pooled, out)
     return counts
 
 
@@ -145,6 +153,11 @@ def scoped_competitions() -> list[str]:
     """The scoped competitions among the selected ones."""
     selected = {c.id for c in selected_competitions()}
     return [c for c in SCOPED if c in selected]
+
+
+def pooled_competitions() -> list[str]:
+    """The selected T20 competitions, which the pooled copy holds."""
+    return [c.id for c in selected_competitions() if c.format == "T20"]
 
 
 def serving_path() -> Path:
@@ -170,6 +183,17 @@ def run_export(
     )
     publish(staging, final)
     return counts
+
+
+def run_export_competition(competition: str, target: Path) -> dict[str, int]:
+    """One competition's serving-shaped database, from its v1-shaped copy of the full
+    warehouse (written beside ``target`` and removed afterwards)."""
+    scoped = target.with_name(target.stem + "-scope.duckdb")
+    build_scope(paths.cricket_warehouse_path(), competition, scoped)
+    try:
+        return export_serving(scoped, target)
+    finally:
+        scoped.unlink(missing_ok=True)
 
 
 def player_competitions() -> list[str]:

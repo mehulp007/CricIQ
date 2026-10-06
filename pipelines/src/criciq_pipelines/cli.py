@@ -127,6 +127,21 @@ def export() -> None:
     typer.echo(f"  wrote {pipeline.serving_path()}")
 
 
+@app.command("export-competition")
+def export_competition(
+    competition: Annotated[str, typer.Argument(help="Competition id, e.g. T20I.")],
+    out: Annotated[Path, typer.Option(help="Database to write.")],
+) -> None:
+    """Export one competition's serving-shaped database (the simulator backtests on it)."""
+    _print_counts(
+        _timed(
+            f"exporting {competition}",
+            lambda: pipeline.run_export_competition(competition.upper(), out),
+        )
+    )
+    typer.echo(f"  wrote {out}")
+
+
 @app.command("export-players")
 def export_players() -> None:
     """Export the players database: Player Lab tables for every T20 competition and all T20."""

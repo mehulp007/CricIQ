@@ -21,6 +21,7 @@ from typing import Any, Literal
 
 import duckdb
 
+from criciq_core.phases import default_phase_config
 from criciq_pipelines.reference import GoldenMatch, load_competitions, load_golden_matches
 
 Severity = Literal["error", "warning"]
@@ -74,6 +75,18 @@ CHECKS: tuple[Check, ...] = (
           AND i.legal_balls - coalesce(x.extra_balls, 0)
               > CASE WHEN i.is_super_over THEN m.balls_per_over
                      ELSE m.scheduled_overs * m.balls_per_over END
+        """,
+    ),
+    Check(
+        "scheduled_overs_within_format",
+        "A limited-overs match is scheduled for no more overs than its format allows "
+        "(20 in T20 cricket, 50 in ODIs).",
+        f"""
+        SELECT m.competition_id, m.match_id, m.scheduled_overs, c.format
+        FROM matches m JOIN competitions c ON c.competition_id = m.competition_id
+        WHERE m.scheduled_overs > CASE c.format
+            WHEN 'T20' THEN {default_phase_config().for_format("T20").limit}
+            WHEN 'ODI' THEN {default_phase_config().for_format("ODI").limit} END
         """,
     ),
     Check(

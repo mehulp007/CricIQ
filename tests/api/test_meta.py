@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from criciq_api import __version__
 from criciq_api.core.config import Settings
-from criciq_api.db import ServingDataMissingError
+from criciq_api.db import Database, ServingDataMissingError
 from criciq_api.main import create_app
 
 
@@ -43,3 +43,12 @@ def test_missing_serving_database_fails_fast(tmp_path: Path) -> None:
         TestClient(create_app(settings)),
     ):
         pass
+
+
+def test_database_knows_its_format(fixture_serving_db: Path) -> None:
+    # Phase labels and splits follow the served competition's format.
+    db = Database(fixture_serving_db)
+    try:
+        assert db.match_format == "T20"
+    finally:
+        db.close()

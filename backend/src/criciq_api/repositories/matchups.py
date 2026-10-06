@@ -60,7 +60,7 @@ def dismissals(
     db: Database, batter_id: str, bowler_id: str, first: int, last: int, phase: str | None
 ) -> list[Row]:
     """Every time the bowler took the batter's wicket, newest first."""
-    phase_sql = default_phase_config().for_format("T20").sql_case("d.over_no")
+    phase_sql = default_phase_config().sql_case("d.over_no", "c.format")
     phase_filter = f"AND {phase_sql} = ?" if phase else ""
     return db.rows(
         f"""
@@ -70,6 +70,7 @@ def dismissals(
         JOIN innings i USING (match_id, innings_no)
         JOIN matches m USING (match_id)
         JOIN seasons s USING (season_id)
+        JOIN competitions c ON c.competition_id = m.competition_id
         WHERE w.player_out_id = ? AND w.bowler_id = ? AND w.bowler_credited
           AND NOT i.is_super_over AND s.year BETWEEN ? AND ? {phase_filter}
         ORDER BY m.match_order DESC

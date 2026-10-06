@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import numpy.typing as npt
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 
 FloatArray = npt.NDArray[np.float64]
 IntArray = npt.NDArray[np.int64]
@@ -66,7 +66,7 @@ URGENT_FROM_OVER = 12
 CONDITIONS = np.array([-0.5, 0.0, 0.0, 0.0, 0.5, 0.5, -0.5])
 CONDITIONS_SD = 0.0
 
-_PHASE_CONFIG = default_phase_config().for_format("T20")
+_PHASE_CONFIG = model_phases()
 PHASES: tuple[str, ...] = tuple(
     p.key for p in sorted(_PHASE_CONFIG.phases, key=lambda p: p.first_over)
 )

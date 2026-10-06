@@ -4,7 +4,13 @@ import duckdb
 import pytest
 from pydantic import ValidationError
 
-from criciq_core.phases import default_phase_config, load_phase_config
+from criciq_core.phases import (
+    MODEL_FORMAT,
+    check_model_format,
+    default_phase_config,
+    load_phase_config,
+    model_phases,
+)
 
 
 def test_repo_config_loads_t20() -> None:
@@ -102,3 +108,34 @@ def test_sql_case_agrees_with_python() -> None:
     assert all(t20.phase_for_over_index(o).key == key for o, key in rows)
     # Overs beyond the format (umpire miscounts) fall in the last phase.
     assert con.execute(f"SELECT {case} FROM (SELECT 21 AS o)").fetchone() == ("death",)
+
+
+@pytest.mark.parametrize(
+    ("fmt", "over_index", "phase"),
+    [
+        ("T20", 6, "middle"),
+        ("T20", 15, "death"),
+        ("ODI", 6, "powerplay"),
+        ("ODI", 15, "middle"),
+        ("ODI", 45, "death"),
+        ("Test", 15, "new_ball"),
+        ("Test", 45, "middle"),
+        ("Test", 150, "second_new_ball"),
+    ],
+)
+def test_sql_case_follows_each_rows_format(fmt: str, over_index: int, phase: str) -> None:
+    case = default_phase_config().sql_case("o", "f")
+    row = duckdb.connect().execute(f"SELECT {case} FROM (SELECT ? AS f, ? AS o)", [fmt, over_index])
+    assert row.fetchone() == (phase,)
+
+
+def test_models_use_t20_phases() -> None:
+    assert MODEL_FORMAT == "T20"
+    assert model_phases() == default_phase_config().for_format("T20")
+
+
+def test_check_model_format_refuses_other_formats() -> None:
+    check_model_format(["T20", "T20"])
+    check_model_format([])
+    with pytest.raises(ValueError, match="ODI, Test"):
+        check_model_format(["T20", "Test", "ODI"])

@@ -29,7 +29,8 @@ import pandas as pd
 from scipy import sparse
 from sklearn.linear_model import LogisticRegression
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
+from criciq_ml.data import check_formats
 
 FloatArray = npt.NDArray[np.float64]
 
@@ -43,10 +44,7 @@ BOUNDARY = [CLASSES.index("four"), CLASSES.index("six")]
 ENV_WINDOW = 60
 ENV_DEFAULT = 1.2
 
-PHASES = tuple(
-    p.key
-    for p in sorted(default_phase_config().for_format("T20").phases, key=lambda p: p.first_over)
-)
+PHASES = tuple(p.key for p in sorted(model_phases().phases, key=lambda p: p.first_over))
 
 # One-hot groups describing the situation; each row belongs to one level per group.
 GROUPS: dict[str, tuple[str, ...]] = {
@@ -59,7 +57,7 @@ GROUPS: dict[str, tuple[str, ...]] = {
 
 
 def _balls_sql() -> str:
-    phase = default_phase_config().for_format("T20").sql_case("d.over_no")
+    phase = model_phases().sql_case("d.over_no")
     return f"""
     WITH outs AS (
         SELECT match_id, innings_no, seq_no,
@@ -112,6 +110,7 @@ def load_balls(database: Path) -> pd.DataFrame:
     """Every ball faced outside super overs, with its situation and outcome."""
     con = duckdb.connect(str(database), read_only=True)
     try:
+        check_formats(con)
         balls = con.execute(_balls_sql()).df()
     finally:
         con.close()

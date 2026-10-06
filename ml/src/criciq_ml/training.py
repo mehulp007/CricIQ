@@ -29,7 +29,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 from criciq_ml import metrics
 from criciq_ml.config import WinProbabilityConfig
 from criciq_ml.features import CANDIDATES, FEATURES, GROUP_KEYS, LABEL, MONOTONE, STATE_FEATURES
@@ -70,7 +70,7 @@ def _upto(states: pd.DataFrame, season: int) -> pd.DataFrame:
 
 
 def phase_of(legal_balls: pd.Series) -> pd.Series:
-    phases = default_phase_config().for_format("T20")
+    phases = model_phases()
     over_index = (legal_balls.clip(lower=0) // phases.balls_per_over).clip(upper=phases.limit - 1)
     return over_index.map(lambda o: phases.phase_for_over_index(int(o)).key)
 

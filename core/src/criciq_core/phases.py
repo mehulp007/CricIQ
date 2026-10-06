@@ -6,6 +6,7 @@ format instead of being hardcoded across features, models and UI.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import cache
 from pathlib import Path
 
@@ -103,6 +104,17 @@ class PhaseConfig(BaseModel):
                 f"no phase config for format {match_format!r} (known: {known})"
             ) from None
 
+    def sql_case(self, over_index_column: str, format_column: str) -> str:
+        """SQL ``CASE`` giving the phase key of a 0-indexed over in each row's own format.
+
+        ``format_column`` holds the match format (``competitions.format``), so one query
+        can phase T20, ODI and Test deliveries side by side."""
+        whens = " ".join(
+            f"WHEN '{name}' THEN ({phases.sql_case(over_index_column)})"
+            for name, phases in sorted(self.formats.items())
+        )
+        return f"CASE {format_column} {whens} END"
+
 
 def load_phase_config(path: Path | None = None) -> PhaseConfig:
     source = path or config_dir() / "phases.yaml"
@@ -113,3 +125,22 @@ def load_phase_config(path: Path | None = None) -> PhaseConfig:
 @cache
 def default_phase_config() -> PhaseConfig:
     return load_phase_config()
+
+
+# The format the v1 models (win probability, projection, ball outcome, ratings,
+# similar players) and the simulator are built for. Data code phases each match by
+# its own format; model code uses this one until per-format models arrive.
+MODEL_FORMAT = "T20"
+
+
+def model_phases() -> FormatPhases:
+    return default_phase_config().for_format(MODEL_FORMAT)
+
+
+def check_model_format(formats: Iterable[str]) -> None:
+    """Fail loudly instead of feeding another format's balls to a T20 model."""
+    other = sorted(set(formats) - {MODEL_FORMAT})
+    if other:
+        raise ValueError(
+            f"the models are {MODEL_FORMAT} models but the data holds {', '.join(other)} matches"
+        )

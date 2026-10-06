@@ -13,6 +13,8 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+from criciq_core.phases import check_model_format
+
 MATCHES_SQL = """
 SELECT m.match_id, m.match_order, s.year AS season, m.match_date, m.venue_id,
        m.outcome_type, m.winner_id, m.scheduled_overs, m.balls_per_over
@@ -47,6 +49,11 @@ LEFT JOIN outs o USING (match_id, innings_no, seq_no)
 ORDER BY m.match_order, d.innings_no, d.seq_no
 """
 
+FORMATS_SQL = """
+SELECT DISTINCT c.format
+FROM matches m JOIN competitions c ON c.competition_id = m.competition_id
+"""
+
 SQUADS_SQL = """
 SELECT match_id, team_season_id, player_id, selection
 FROM match_players ORDER BY match_id, team_season_id, list_position
@@ -58,6 +65,11 @@ FROM substitutions
 WHERE kind = 'match' AND player_in_id IS NOT NULL
 ORDER BY match_id, innings_no, seq_no, sub_no
 """
+
+
+def check_formats(con: duckdb.DuckDBPyConnection) -> None:
+    """Refuse a database whose matches are not in the models' format."""
+    check_model_format(f for (f,) in con.execute(FORMATS_SQL).fetchall())
 
 
 @dataclass(frozen=True)
@@ -87,6 +99,7 @@ def load_inputs(database: Path) -> Inputs:
     """Read from a warehouse or serving database (both carry these tables)."""
     con = duckdb.connect(str(database), read_only=True)
     try:
+        check_formats(con)
         version = con.execute("SELECT value FROM meta WHERE key = 'data_version'").fetchone()
         return Inputs(
             matches=con.execute(MATCHES_SQL).df(),

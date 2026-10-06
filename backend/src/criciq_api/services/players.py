@@ -264,8 +264,8 @@ def _seasons(db: Database, player_id: str, w: SeasonWindow) -> list[SeasonLine]:
     return lines
 
 
-def _phase_order() -> list[tuple[str, str]]:
-    phases = default_phase_config().for_format("T20").phases
+def _phase_order(db: Database) -> list[tuple[str, str]]:
+    phases = default_phase_config().for_format(db.match_format).phases
     return [(p.key, p.label) for p in sorted(phases, key=lambda p: p.first_over)]
 
 
@@ -290,7 +290,7 @@ def _phases(db: Database, player_id: str, w: SeasonWindow) -> PhaseSplits:
             par_boundary_pct=_pct(r["par_boundaries"], r["balls"]),
             share=round(r["balls"] / bat_total, 4) if bat_total else 0.0,
         )
-        for key, label in _phase_order()
+        for key, label in _phase_order(db)
         if (r := bat.get(key)) is not None and (r["balls"] or r["outs"])
     ]
     bowling = [
@@ -308,7 +308,7 @@ def _phases(db: Database, player_id: str, w: SeasonWindow) -> PhaseSplits:
             par_dot_pct=_pct(r["par_dots"], r["balls"]),
             share=round(r["balls"] / bowl_total, 4) if bowl_total else 0.0,
         )
-        for key, label in _phase_order()
+        for key, label in _phase_order(db)
         if (r := bowl.get(key)) is not None and r["balls"]
     ]
     return PhaseSplits(batting=batting, bowling=bowling)
@@ -436,7 +436,7 @@ class _Labeler:
     def __init__(self, db: Database) -> None:
         self.franchises = repo.franchise_tags(db)
         self.venues = repo.venue_names(db)
-        self.phases = dict(_phase_order())
+        self.phases = dict(_phase_order(db))
 
     def __call__(self, group: str, key: str, role: str) -> tuple[str, str | None]:
         if group == "phase":
@@ -464,9 +464,9 @@ class _Labeler:
         return key, None
 
 
-def _order(group: str, rows: list[Row]) -> list[Row]:
+def _order(group: str, rows: list[Row], phases: list[str]) -> list[Row]:
     if group == "phase":
-        order = {k: i for i, (k, _) in enumerate(_phase_order())}
+        order = {k: i for i, k in enumerate(phases)}
         return sorted(rows, key=lambda r: order.get(r["key"], 99))
     if group in ("season", "innings"):
         return sorted(rows, key=lambda r: r["key"])
@@ -539,7 +539,7 @@ def get_splits(
                     label=title,
                     rows=[
                         _batting_row(r, *label(group, r["key"], "batting"), not cells)
-                        for r in _order(group, rows)
+                        for r in _order(group, rows, list(label.phases))
                     ],
                 )
             )
@@ -562,7 +562,7 @@ def get_splits(
                     label=title,
                     rows=[
                         _bowling_row(r, *label(group, r["key"], "bowling"), not cells)
-                        for r in _order(group, rows)
+                        for r in _order(group, rows, list(label.phases))
                     ],
                 )
             )

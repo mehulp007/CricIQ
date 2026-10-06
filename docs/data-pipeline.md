@@ -142,6 +142,13 @@ multi-competition, `criciq_pipelines.scope` copies the IPL out of the full wareh
 (`tests/pipelines/test_ipl_regression.py`) checks that the IPL warehouse and the scored serving
 database are unchanged, table by table.
 
+Innings phases follow each match's own format. Data code (player, team and simulator tables, the
+API's splits) phases a delivery with `PhaseConfig.sql_case(over, format)`, which reads
+`competitions.format`, so T20, ODI and Test balls can sit in one query. Model code (win probability,
+projection, ball outcome, ratings, similar players, the simulator) uses `model_phases()`: the v1
+models are T20 models (`MODEL_FORMAT`), and the ML loaders refuse a database holding other formats
+rather than score them with T20 phases. Per-format models replace that guard in V2-3, V2-5 and V2-6.
+
 ### 6. Player enrichment (`criciq-data enrich-players`, occasional)
 
 Cricsheet has no biographical attributes. This step links players through their ESPNcricinfo id to

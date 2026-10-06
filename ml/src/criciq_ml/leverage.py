@@ -34,7 +34,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 from criciq_ml import chase
 from criciq_ml.data import Inputs
 from criciq_ml.model import InningsModel, WinProbabilityModel
@@ -58,7 +58,7 @@ SMOOTHING: tuple[tuple[int, float], ...] = tuple((d, (5 - abs(d)) / 25) for d in
 
 
 def _phase_keys(over_index: np.ndarray) -> np.ndarray:
-    phases = default_phase_config().for_format("T20")
+    phases = model_phases()
     lookup = {o: phases.phase_for_over_index(min(o, phases.limit - 1)).key for o in range(40)}
     return np.array([lookup[min(int(o), 39)] for o in over_index])
 

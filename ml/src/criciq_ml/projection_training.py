@@ -26,7 +26,7 @@ import yaml
 from pydantic import BaseModel
 
 from criciq_core.paths import config_dir
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 from criciq_ml.projection import (
     CANDIDATES,
     FEATURES,
@@ -213,7 +213,7 @@ def _tune(
 
 
 def _phase(frame: pd.DataFrame) -> np.ndarray:
-    phases = default_phase_config().for_format("T20")
+    phases = model_phases()
     overs = (frame["legal_balls"].clip(lower=0) // phases.balls_per_over).clip(
         upper=phases.limit - 1
     )

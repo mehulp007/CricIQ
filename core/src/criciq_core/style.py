@@ -16,7 +16,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 from criciq_core.ratings import MIN_BALLS, Role
 
 # Candidates (and the population that defines "average") need MIN_BALLS in the
@@ -62,7 +62,7 @@ def features(role: Role) -> tuple[StyleFeature, ...]:
 
 
 def _edge_phases() -> tuple[str, str]:
-    ordered = sorted(default_phase_config().for_format("T20").phases, key=lambda p: p.first_over)
+    ordered = sorted(model_phases().phases, key=lambda p: p.first_over)
     return ordered[0].key, ordered[-1].key
 
 

@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import cache
 from typing import Literal
 
-from criciq_core.phases import default_phase_config
+from criciq_core.phases import model_phases
 
 Role = Literal["batting", "bowling"]
 Unit = Literal[
@@ -67,7 +67,7 @@ _WPA = """
 
 
 def _phases() -> list[tuple[str, str, int, int]]:
-    phases = default_phase_config().for_format("T20").phases
+    phases = model_phases().phases
     return [(p.key, p.label, p.first_over, p.last_over) for p in phases if p.last_over]
 
 

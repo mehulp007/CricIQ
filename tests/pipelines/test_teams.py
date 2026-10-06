@@ -21,7 +21,16 @@ from criciq_pipelines.teams import (
     check_league_tables,
 )
 
-CORE = ("matches", "seasons", "team_seasons", "innings", "deliveries", "wickets", "venues")
+CORE = (
+    "competitions",
+    "matches",
+    "seasons",
+    "team_seasons",
+    "innings",
+    "deliveries",
+    "wickets",
+    "venues",
+)
 
 
 @pytest.fixture(scope="module")

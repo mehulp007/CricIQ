@@ -51,7 +51,7 @@ ORDER BY o.player_id, season, o.over_no
 
 
 def _rates_sql() -> str:
-    phase = default_phase_config().for_format("T20").sql_case("d.over_no")
+    phase = default_phase_config().sql_case("d.over_no", "c.format")
     extras = ", ".join(
         f"count(*) FILTER (WHERE x.extras = {k})::INTEGER AS x{k}" for k in range(EXTRAS_CAP)
     )
@@ -89,6 +89,7 @@ def _rates_sql() -> str:
     FROM per_ball x
     JOIN matches m USING (match_id)
     JOIN seasons s USING (season_id)
+    JOIN competitions c ON c.competition_id = m.competition_id
     LEFT JOIN run_outs r USING (match_id, innings_no, slot)
     GROUP BY ALL
     ORDER BY season, x.innings_no, phase

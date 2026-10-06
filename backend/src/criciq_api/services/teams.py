@@ -240,8 +240,8 @@ def get_standings(db: Database, season: int) -> Standings:
 # --------------------------------------------------------------------------- team profile
 
 
-def _phase_order() -> list[tuple[str, str]]:
-    phases = default_phase_config().for_format("T20").phases
+def _phase_order(db: Database) -> list[tuple[str, str]]:
+    phases = default_phase_config().for_format(db.match_format).phases
     return [(p.key, p.label) for p in sorted(phases, key=lambda p: p.first_over)]
 
 
@@ -368,7 +368,7 @@ def get_profile(
             batting=_phase_line(phase_rows.get(("batting", key))),
             bowling=_phase_line(phase_rows.get(("bowling", key))),
         )
-        for key, label in _phase_order()
+        for key, label in _phase_order(db)
         if ("batting", key) in phase_rows or ("bowling", key) in phase_rows
     ]
     firsts = repo.first_innings(db, fid, w.first, w.last)

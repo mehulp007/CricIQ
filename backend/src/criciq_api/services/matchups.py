@@ -240,8 +240,9 @@ def _expected_sr(e: list[float]) -> float | None:
     return _sr(sum(r * x for r, x in zip(RUNS, e, strict=True)), balls)
 
 
-def _phase_labels() -> dict[str, str]:
-    phases = sorted(default_phase_config().for_format("T20").phases, key=lambda p: p.first_over)
+def _phase_labels(db: Database) -> dict[str, str]:
+    phases = default_phase_config().for_format(db.match_format).phases
+    phases = sorted(phases, key=lambda p: p.first_over)
     return {p.key: p.label for p in phases}
 
 
@@ -300,7 +301,7 @@ def get_matchup(
         estimate = _numbers(posterior, balls + kappa + 1)
         ratio = [m / max(p, 1e-12) for m, p in zip(posterior, q, strict=True)]
 
-    labels = _phase_labels()
+    labels = _phase_labels(db)
     by_phase = []
     for key, label in labels.items():
         rows = [r for r in all_cells if r["phase"] == key]

@@ -49,7 +49,7 @@ PLAYER_TABLES = (
 
 
 def _balls_sql() -> str:
-    phase = default_phase_config().for_format("T20").sql_case("d.over_no")
+    phase = default_phase_config().sql_case("d.over_no", "c.format")
     return f"""
     CREATE TEMP TABLE player_balls AS
     SELECT d.match_id, d.innings_no, d.seq_no, d.over_no, s.year AS season, {phase} AS phase,
@@ -67,6 +67,7 @@ def _balls_sql() -> str:
     JOIN innings i USING (match_id, innings_no)
     JOIN matches m USING (match_id)
     JOIN seasons s USING (season_id)
+    JOIN competitions c ON c.competition_id = m.competition_id
     LEFT JOIN players pw ON pw.player_id = d.bowler_id
     LEFT JOIN players pb ON pb.player_id = d.batter_id
     WHERE NOT i.is_super_over

@@ -29,6 +29,14 @@ class Database:
         self._con = duckdb.connect(str(path), read_only=True)
         meta = dict(self._con.execute("SELECT key, value FROM meta").fetchall())
         self.data_version: str = meta["data_version"]
+        # The serving database holds one competition; its format (T20, ODI or Test)
+        # decides the innings phases.
+        found = self._con.execute(
+            "SELECT format FROM competitions WHERE competition_id = ?", [meta["competition_id"]]
+        ).fetchone()
+        if found is None:
+            raise ServingDataMissingError(f"no competition {meta['competition_id']!r} in {path}")
+        self.match_format: str = found[0]
         self.tables: frozenset[str] = frozenset(
             name for (name,) in self._con.execute("SHOW TABLES").fetchall()
         )

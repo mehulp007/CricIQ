@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- The API image fetches Cricsheet's IPL archive and register with `ADD`, so a rebuild picks up
+  new matches instead of reusing stale data from the Docker layer cache.
+
 ## [1.0.0] - 2026-10-05
 
 V1: every planned feature is live (milestones V1-a to V1-d), plus a release pass.

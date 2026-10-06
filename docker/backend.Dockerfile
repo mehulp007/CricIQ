@@ -1,6 +1,6 @@
 # CricIQ API image.
 #
-# Stage 1 builds the data: it downloads the latest Cricsheet IPL archive, builds
+# Stage 1 builds the data: it fetches the latest Cricsheet IPL archive, builds
 # and validates the warehouse, exports the read-only serving database, and
 # scores every ball with the committed win probability model (models/). A
 # failed validation fails the image build, so invalid data can never ship.
@@ -35,7 +35,14 @@ RUN uv sync --frozen --no-dev --all-packages
 COPY config config
 COPY reference reference
 COPY models models
-RUN uv run --frozen --no-sync criciq-data run --report /tmp/data-quality-report.md     && uv run --frozen --no-sync criciq-ml score
+# Cricsheet's files are fetched with ADD, which checks them again on every build:
+# when either has changed, the data is rebuilt instead of reused from the layer
+# cache (a RUN step that downloads would otherwise ship stale data).
+ADD https://cricsheet.org/downloads/ipl_json.zip /tmp/cricsheet/ipl_json.zip
+ADD https://cricsheet.org/register/people.csv /tmp/cricsheet/people.csv
+RUN uv run --frozen --no-sync criciq-data snapshot /tmp/cricsheet/ipl_json.zip /tmp/cricsheet/people.csv \
+    && uv run --frozen --no-sync criciq-data run --no-download --report /tmp/data-quality-report.md \
+    && uv run --frozen --no-sync criciq-ml score
 
 # ---------------------------------------------------------------- runtime
 FROM python:${PYTHON_VERSION}-slim AS runtime

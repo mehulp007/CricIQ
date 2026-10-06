@@ -1,7 +1,8 @@
 {
   "name": "ratings",
-  "version": "1.0.0",
-  "data_version": "2026-05-31.713dafe9",
+  "version": "2.0.0",
+  "scope": "IPL",
+  "data_version": "2026-09-17.103eadea",
   "trained_on": {
     "seasons": [
       2008,
@@ -42,6 +43,7 @@
         "skill_vs_par": 0.091,
         "skill_vs_raw": 0.2568
       },
+      "pairs": 661,
       "role": "batting",
       "sigma2": 3.50818333,
       "split_half": {
@@ -79,6 +81,7 @@
         "skill_vs_par": 0.1206,
         "skill_vs_raw": 0.1488
       },
+      "pairs": 661,
       "role": "batting",
       "sigma2": 0.04339893,
       "split_half": {
@@ -116,6 +119,7 @@
         "skill_vs_par": 0.0178,
         "skill_vs_raw": 0.3708
       },
+      "pairs": 386,
       "role": "batting",
       "sigma2": 3.18555515,
       "split_half": {
@@ -153,6 +157,7 @@
         "skill_vs_par": 0.0862,
         "skill_vs_raw": 0.2316
       },
+      "pairs": 611,
       "role": "batting",
       "sigma2": 2.91427604,
       "split_half": {
@@ -190,6 +195,7 @@
         "skill_vs_par": -0.0251,
         "skill_vs_raw": 0.3801
       },
+      "pairs": 174,
       "role": "batting",
       "sigma2": 3.86594549,
       "split_half": {
@@ -227,6 +233,7 @@
         "skill_vs_par": 0.0322,
         "skill_vs_raw": 0.3794
       },
+      "pairs": 576,
       "role": "batting",
       "sigma2": 3.50808477,
       "split_half": {
@@ -264,6 +271,7 @@
         "skill_vs_par": 0.0099,
         "skill_vs_raw": 0.4148
       },
+      "pairs": 660,
       "role": "batting",
       "sigma2": 0.01778404,
       "split_half": {
@@ -300,6 +308,7 @@
         "skill_vs_par": 0.0077,
         "skill_vs_raw": 0.3886
       },
+      "pairs": 660,
       "role": "batting",
       "sigma2": 0.22406729,
       "split_half": {
@@ -336,6 +345,7 @@
         "skill_vs_par": 0.0917,
         "skill_vs_raw": 0.1765
       },
+      "pairs": 647,
       "role": "bowling",
       "sigma2": 3.81572521,
       "split_half": {
@@ -373,6 +383,7 @@
         "skill_vs_par": -0.0309,
         "skill_vs_raw": 0.4972
       },
+      "pairs": 647,
       "role": "bowling",
       "sigma2": 0.04335791,
       "split_half": {
@@ -410,6 +421,7 @@
         "skill_vs_par": -0.0025,
         "skill_vs_raw": 0.2337
       },
+      "pairs": 382,
       "role": "bowling",
       "sigma2": 3.38749347,
       "split_half": {
@@ -447,6 +459,7 @@
         "skill_vs_par": 0.0814,
         "skill_vs_raw": 0.1654
       },
+      "pairs": 459,
       "role": "bowling",
       "sigma2": 3.22449694,
       "split_half": {
@@ -484,6 +497,7 @@
         "skill_vs_par": -0.0163,
         "skill_vs_raw": 0.2828
       },
+      "pairs": 300,
       "role": "bowling",
       "sigma2": 4.57707703,
       "split_half": {
@@ -521,6 +535,7 @@
         "skill_vs_par": 0.0302,
         "skill_vs_raw": 0.3062
       },
+      "pairs": 590,
       "role": "bowling",
       "sigma2": 3.80477091,
       "split_half": {
@@ -558,6 +573,7 @@
         "skill_vs_par": 0.0101,
         "skill_vs_raw": 0.3765
       },
+      "pairs": 647,
       "role": "bowling",
       "sigma2": 0.02140035,
       "split_half": {
@@ -594,6 +610,7 @@
         "skill_vs_par": 0.0577,
         "skill_vs_raw": 0.2599
       },
+      "pairs": 647,
       "role": "bowling",
       "sigma2": 0.23971842,
       "split_half": {

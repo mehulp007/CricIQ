@@ -200,5 +200,6 @@
   "timing": {
     "seconds": 0.523,
     "simulations": 10000
-  }
+  },
+  "competition": "IPL"
 }

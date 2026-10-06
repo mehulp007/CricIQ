@@ -1,0 +1,37 @@
+{
+  "c": 1.0,
+  "classes": [
+    "dot",
+    "one",
+    "two",
+    "three",
+    "four",
+    "six",
+    "out"
+  ],
+  "data_version": "2026-09-17.103eadea",
+  "env_mean": 0.20477722120850247,
+  "env_std": 0.08332525780810883,
+  "extra_groups": [
+    "competition"
+  ],
+  "kappa": 205.55343261827136,
+  "name": "ball_outcome",
+  "player_scale": 0.1,
+  "trained_on": {
+    "balls": 1412900,
+    "competitions": [
+      "BBL",
+      "CPL",
+      "IPL",
+      "PSL",
+      "SA20",
+      "T20I"
+    ],
+    "seasons": [
+      2005,
+      2026
+    ]
+  },
+  "version": "2.0.0"
+}

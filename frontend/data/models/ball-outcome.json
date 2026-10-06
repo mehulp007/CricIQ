@@ -119,6 +119,7 @@
         "phase": "death"
       }
     ],
+    "by_competition": [],
     "calibration": {
       "dot": {
         "bins": [
@@ -675,5 +676,6 @@
       "model_log_loss": 1.4941339044689896,
       "season": 2026
     }
-  ]
+  ],
+  "competition_terms": false
 }

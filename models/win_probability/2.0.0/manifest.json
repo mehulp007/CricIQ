@@ -1,0 +1,122 @@
+{
+  "base_probability": {
+    "1": 0.4755697761775186,
+    "2": 0.47332948077896553
+  },
+  "calibration": {
+    "1": {
+      "a": 1.0,
+      "b": 0.0
+    },
+    "2": {
+      "a": 1.0,
+      "b": 0.0
+    }
+  },
+  "calibration_method": "none",
+  "feature_config": {
+    "bat_prior_balls": 100,
+    "bowl_prior_balls": 120,
+    "env_window_matches": 60,
+    "initial_rpb": 1.3,
+    "player_decay": 0.97,
+    "stable": true,
+    "venue_prior_balls": 1500
+  },
+  "features": {
+    "1": [
+      "legal_balls",
+      "runs",
+      "wickets",
+      "runs_vs_par",
+      "runs_last_12",
+      "wickets_last_12",
+      "opp_bat_strength",
+      "own_bowl_strength",
+      "international",
+      "crease_sr_idx",
+      "crease_avg_idx",
+      "crease_balls"
+    ],
+    "2": [
+      "legal_balls",
+      "balls_remaining",
+      "runs_needed",
+      "wickets",
+      "required_rate",
+      "chase_ratio",
+      "required_rate_rel",
+      "chase_dp",
+      "runs_last_12",
+      "wickets_last_12",
+      "international"
+    ]
+  },
+  "groups": [
+    "situation",
+    "wickets",
+    "recent",
+    "teams"
+  ],
+  "headline": {
+    "test_brier": 0.15071061143641223,
+    "test_log_loss": 0.45561696447578665,
+    "test_seasons": [
+      2025,
+      2026
+    ]
+  },
+  "lightgbm": "4.7.0",
+  "monotone": {
+    "1": {
+      "legal_balls": -1,
+      "runs": 1,
+      "runs_vs_par": 1,
+      "wickets": -1
+    },
+    "2": {
+      "balls_remaining": 1,
+      "chase_dp": 1,
+      "chase_ratio": -1,
+      "legal_balls": -1,
+      "required_rate": -1,
+      "required_rate_rel": -1,
+      "runs_needed": -1,
+      "wickets": -1
+    }
+  },
+  "name": "win_probability",
+  "params": {
+    "1": {
+      "min_data_in_leaf": 3000,
+      "num_leaves": 15,
+      "recency_half_life": 6
+    },
+    "2": {
+      "min_data_in_leaf": 3000,
+      "num_leaves": 31,
+      "recency_half_life": 0
+    }
+  },
+  "rounds": {
+    "1": 199,
+    "2": 472
+  },
+  "trained_on": {
+    "competitions": [
+      "BBL",
+      "CPL",
+      "IPL",
+      "PSL",
+      "SA20",
+      "T20I"
+    ],
+    "matches": 6277,
+    "rows": 1469432,
+    "seasons": [
+      2005,
+      2026
+    ]
+  },
+  "version": "2.0.0"
+}

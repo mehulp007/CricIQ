@@ -1,0 +1,815 @@
+{
+  "name": "ball_outcome",
+  "version": "2.0.0",
+  "data_version": "2026-09-17.103eadea",
+  "trained_on": {
+    "balls": 1412900,
+    "competitions": [
+      "BBL",
+      "CPL",
+      "IPL",
+      "PSL",
+      "SA20",
+      "T20I"
+    ],
+    "seasons": [
+      2005,
+      2026
+    ]
+  },
+  "kappa": 205.55343261827136,
+  "player_scale": 0.1,
+  "splits": {
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "tune_train_through": 2022,
+    "tune_valid": [
+      2023,
+      2024
+    ]
+  },
+  "outcomes": [
+    {
+      "key": "dot",
+      "label": "Dot"
+    },
+    {
+      "key": "one",
+      "label": "1 run"
+    },
+    {
+      "key": "two",
+      "label": "2 runs"
+    },
+    {
+      "key": "three",
+      "label": "3 runs"
+    },
+    {
+      "key": "four",
+      "label": "Four"
+    },
+    {
+      "key": "six",
+      "label": "Six"
+    },
+    {
+      "key": "out",
+      "label": "Wicket"
+    }
+  ],
+  "feature_selection": [
+    {
+      "label": "Phase and wickets only",
+      "log_loss": 1.456700633319791,
+      "variant": "baseline"
+    },
+    {
+      "label": "Match situation, no players",
+      "log_loss": 1.4443128722223602,
+      "variant": "situation"
+    },
+    {
+      "label": "+ batter and bowler",
+      "log_loss": 1.4404498060462545,
+      "variant": "served"
+    },
+    {
+      "label": "+ separate player effects per phase",
+      "log_loss": 1.4401765052529125,
+      "variant": "phase_players"
+    }
+  ],
+  "candidate_min_gain": 0.001,
+  "phase_players": false,
+  "test": {
+    "model": {
+      "actual_runs": 1.2656582913909906,
+      "balls": 303194,
+      "brier": 0.7056311257855853,
+      "expected_runs": 1.2074320970132584,
+      "log_loss": 1.4569652883864455
+    },
+    "situation_only": {
+      "actual_runs": 1.2656582913909906,
+      "balls": 303194,
+      "brier": 0.7077818333210114,
+      "expected_runs": 1.2043839540441037,
+      "log_loss": 1.46248551444006
+    },
+    "baseline": {
+      "actual_runs": 1.2656582913909906,
+      "balls": 303194,
+      "brier": 0.7124310772036471,
+      "expected_runs": 1.211962637889703,
+      "log_loss": 1.4731373100439389
+    },
+    "by_phase": [
+      {
+        "balls": 99705,
+        "baseline_log_loss": 1.4544557164137095,
+        "model_log_loss": 1.4403416407765772,
+        "phase": "powerplay"
+      },
+      {
+        "balls": 141261,
+        "baseline_log_loss": 1.433827461668267,
+        "model_log_loss": 1.4147639698477978,
+        "phase": "middle"
+      },
+      {
+        "balls": 62228,
+        "baseline_log_loss": 1.5923054784616573,
+        "model_log_loss": 1.579399903720857,
+        "phase": "death"
+      }
+    ],
+    "by_competition": [
+      {
+        "baseline": {
+          "actual_runs": 1.3626568556599434,
+          "balls": 15221,
+          "brier": 0.7368844792113903,
+          "expected_runs": 1.2096336645902663,
+          "log_loss": 1.5440644037791407
+        },
+        "competition": "BBL",
+        "model": {
+          "actual_runs": 1.3626568556599434,
+          "balls": 15221,
+          "brier": 0.7259266221843383,
+          "expected_runs": 1.2992894001558983,
+          "log_loss": 1.5184324527026203
+        }
+      },
+      {
+        "baseline": {
+          "actual_runs": 1.3145443732240798,
+          "balls": 15133,
+          "brier": 0.7100937350550263,
+          "expected_runs": 1.2203133355902567,
+          "log_loss": 1.4701945795333842
+        },
+        "competition": "CPL",
+        "model": {
+          "actual_runs": 1.3145443732240798,
+          "balls": 15133,
+          "brier": 0.7024396137444125,
+          "expected_runs": 1.2759743502187109,
+          "log_loss": 1.4467327348365222
+        }
+      },
+      {
+        "baseline": {
+          "actual_runs": 1.5439750172657118,
+          "balls": 33303,
+          "brier": 0.7317074310131825,
+          "expected_runs": 1.2381508737879154,
+          "log_loss": 1.5247725802834355
+        },
+        "competition": "IPL",
+        "model": {
+          "actual_runs": 1.5439750172657118,
+          "balls": 33303,
+          "brier": 0.7193827081685369,
+          "expected_runs": 1.4184835342418598,
+          "log_loss": 1.4921814358298215
+        }
+      },
+      {
+        "baseline": {
+          "actual_runs": 1.4325494325494326,
+          "balls": 17094,
+          "brier": 0.7242817764338798,
+          "expected_runs": 1.2217783462216254,
+          "log_loss": 1.5000243420653392
+        },
+        "competition": "PSL",
+        "model": {
+          "actual_runs": 1.4325494325494326,
+          "balls": 17094,
+          "brier": 0.7149624138674735,
+          "expected_runs": 1.359095728374863,
+          "log_loss": 1.4751602425682147
+        }
+      },
+      {
+        "baseline": {
+          "actual_runs": 1.2940068120878325,
+          "balls": 13799,
+          "brier": 0.7091807189195157,
+          "expected_runs": 1.2266832196447806,
+          "log_loss": 1.4650294200626963
+        },
+        "competition": "SA20",
+        "model": {
+          "actual_runs": 1.2940068120878325,
+          "balls": 13799,
+          "brier": 0.7008677576376589,
+          "expected_runs": 1.2928275592004799,
+          "log_loss": 1.444032070709916
+        }
+      },
+      {
+        "baseline": {
+          "actual_runs": 1.195064320085888,
+          "balls": 208644,
+          "brier": 0.7069839097661814,
+          "expected_runs": 1.2055690313077063,
+          "log_loss": 1.4582680374588852
+        },
+        "competition": "T20I",
+        "model": {
+          "actual_runs": 1.195064320085888,
+          "balls": 208644,
+          "brier": 0.7017375613003168,
+          "expected_runs": 1.1439988516760662,
+          "log_loss": 1.4469668944256464
+        }
+      }
+    ],
+    "calibration": {
+      "dot": {
+        "bins": [
+          {
+            "count": 30320,
+            "observed": 0.20296833773087072,
+            "predicted": 0.18770363356787267
+          },
+          {
+            "count": 30318,
+            "observed": 0.24117685863183588,
+            "predicted": 0.24448321837692716
+          },
+          {
+            "count": 30320,
+            "observed": 0.2742084432717678,
+            "predicted": 0.2792105565172516
+          },
+          {
+            "count": 30317,
+            "observed": 0.3058350100603622,
+            "predicted": 0.30958427822086426
+          },
+          {
+            "count": 30321,
+            "observed": 0.33260776359618743,
+            "predicted": 0.33943179047906785
+          },
+          {
+            "count": 30320,
+            "observed": 0.3637203166226913,
+            "predicted": 0.3703198559970316
+          },
+          {
+            "count": 30320,
+            "observed": 0.3973944591029024,
+            "predicted": 0.40533434780235483
+          },
+          {
+            "count": 30318,
+            "observed": 0.4368032192097104,
+            "predicted": 0.4444029413375003
+          },
+          {
+            "count": 30320,
+            "observed": 0.47968337730870714,
+            "predicted": 0.4889757733268362
+          },
+          {
+            "count": 30320,
+            "observed": 0.5309696569920844,
+            "predicted": 0.5576642993441715
+          }
+        ],
+        "ece": 0.00922736214624066,
+        "observed": 0.35653739849733174,
+        "predicted": 0.3627117593953808
+      },
+      "four": {
+        "bins": [
+          {
+            "count": 30318,
+            "observed": 0.049178705719374625,
+            "predicted": 0.04905619947919863
+          },
+          {
+            "count": 30318,
+            "observed": 0.06253710666930536,
+            "predicted": 0.06339658189379153
+          },
+          {
+            "count": 30319,
+            "observed": 0.07605791747748936,
+            "predicted": 0.07323838352148487
+          },
+          {
+            "count": 30322,
+            "observed": 0.08795593958182178,
+            "predicted": 0.08136011793861028
+          },
+          {
+            "count": 30317,
+            "observed": 0.09446845004452947,
+            "predicted": 0.0896691585189504
+          },
+          {
+            "count": 30318,
+            "observed": 0.10927501814103832,
+            "predicted": 0.09900790168306713
+          },
+          {
+            "count": 30322,
+            "observed": 0.11796715256249588,
+            "predicted": 0.1104759459707481
+          },
+          {
+            "count": 30315,
+            "observed": 0.13405904667656277,
+            "predicted": 0.12595876734691344
+          },
+          {
+            "count": 30319,
+            "observed": 0.15261057422738217,
+            "predicted": 0.14463147256772926
+          },
+          {
+            "count": 30326,
+            "observed": 0.18043922706588406,
+            "predicted": 0.18473193798836618
+          }
+        ],
+        "ece": 0.005332696869609699,
+        "observed": 0.10645659214892116,
+        "predicted": 0.1021545114609718
+      },
+      "one": {
+        "bins": [
+          {
+            "count": 30319,
+            "observed": 0.23193377090273426,
+            "predicted": 0.22125401430980482
+          },
+          {
+            "count": 30320,
+            "observed": 0.2445580474934037,
+            "predicted": 0.2500762494242014
+          },
+          {
+            "count": 30319,
+            "observed": 0.272700286948778,
+            "predicted": 0.2795287832145971
+          },
+          {
+            "count": 30319,
+            "observed": 0.32454896269665884,
+            "predicted": 0.32647314425474533
+          },
+          {
+            "count": 30318,
+            "observed": 0.35206807836928555,
+            "predicted": 0.3572363297398245
+          },
+          {
+            "count": 30320,
+            "observed": 0.37368073878627966,
+            "predicted": 0.3783170164134165
+          },
+          {
+            "count": 30320,
+            "observed": 0.3941952506596306,
+            "predicted": 0.3974623727695803
+          },
+          {
+            "count": 30319,
+            "observed": 0.4117220224941456,
+            "predicted": 0.4168683679828819
+          },
+          {
+            "count": 30317,
+            "observed": 0.44691097404096713,
+            "predicted": 0.4420870189028564
+          },
+          {
+            "count": 30323,
+            "observed": 0.48976024799657025,
+            "predicted": 0.4905799849660741
+          }
+        ],
+        "ece": 0.004881174322802016,
+        "observed": 0.3542088563757858,
+        "predicted": 0.3559893929019089
+      },
+      "out": {
+        "bins": [
+          {
+            "count": 30319,
+            "observed": 0.03222401794254428,
+            "predicted": 0.033564377687357205
+          },
+          {
+            "count": 30320,
+            "observed": 0.03987467018469657,
+            "predicted": 0.03878131003895214
+          },
+          {
+            "count": 30314,
+            "observed": 0.044962723494095136,
+            "predicted": 0.04166329960400297
+          },
+          {
+            "count": 30323,
+            "observed": 0.046829139597005576,
+            "predicted": 0.04433060671949946
+          },
+          {
+            "count": 30318,
+            "observed": 0.04865096642258724,
+            "predicted": 0.04735434340999895
+          },
+          {
+            "count": 30320,
+            "observed": 0.05,
+            "predicted": 0.050474517684684986
+          },
+          {
+            "count": 30321,
+            "observed": 0.054879456482305994,
+            "predicted": 0.054778694319115064
+          },
+          {
+            "count": 30320,
+            "observed": 0.06358839050131926,
+            "predicted": 0.06332115429218321
+          },
+          {
+            "count": 30317,
+            "observed": 0.07537025431276181,
+            "predicted": 0.07818920944061662
+          },
+          {
+            "count": 30322,
+            "observed": 0.09164962733328937,
+            "predicted": 0.09869391505965248
+          }
+        ],
+        "ece": 0.002023411261856107,
+        "observed": 0.05480319531389143,
+        "predicted": 0.05511548263678693
+      },
+      "six": {
+        "bins": [
+          {
+            "count": 30319,
+            "observed": 0.0224281803489561,
+            "predicted": 0.01620259729081758
+          },
+          {
+            "count": 30319,
+            "observed": 0.029453478017084995,
+            "predicted": 0.021825769478948327
+          },
+          {
+            "count": 30320,
+            "observed": 0.03426781002638522,
+            "predicted": 0.028570324484518243
+          },
+          {
+            "count": 30316,
+            "observed": 0.04020979020979021,
+            "predicted": 0.03427906606902143
+          },
+          {
+            "count": 30323,
+            "observed": 0.048049335487913465,
+            "predicted": 0.039087413715241194
+          },
+          {
+            "count": 30318,
+            "observed": 0.055874398047364604,
+            "predicted": 0.04429203224155161
+          },
+          {
+            "count": 30321,
+            "observed": 0.06510339368754328,
+            "predicted": 0.05102495891937584
+          },
+          {
+            "count": 30319,
+            "observed": 0.0727596556614664,
+            "predicted": 0.060039844521149285
+          },
+          {
+            "count": 30319,
+            "observed": 0.08107127543784426,
+            "predicted": 0.07332877949151173
+          },
+          {
+            "count": 30320,
+            "observed": 0.11589709762532982,
+            "predicted": 0.10713919738182048
+          }
+        ],
+        "ece": 0.008932487145361514,
+        "observed": 0.05651167239457245,
+        "predicted": 0.04757918524921094
+      },
+      "three": {
+        "bins": [
+          {
+            "count": 30320,
+            "observed": 0.0015831134564643799,
+            "predicted": 0.0018525464748805282
+          },
+          {
+            "count": 30318,
+            "observed": 0.002638696483936935,
+            "predicted": 0.002637922189768512
+          },
+          {
+            "count": 30319,
+            "observed": 0.0029354530162604307,
+            "predicted": 0.003217297710634817
+          },
+          {
+            "count": 30319,
+            "observed": 0.0029354530162604307,
+            "predicted": 0.003540229796867767
+          },
+          {
+            "count": 30320,
+            "observed": 0.0030013192612137205,
+            "predicted": 0.0038299121457230716
+          },
+          {
+            "count": 30318,
+            "observed": 0.0033313543109703804,
+            "predicted": 0.004179443576258643
+          },
+          {
+            "count": 30322,
+            "observed": 0.0037926258162390343,
+            "predicted": 0.004711285071369821
+          },
+          {
+            "count": 30319,
+            "observed": 0.004320722978990072,
+            "predicted": 0.0056840006964689015
+          },
+          {
+            "count": 30319,
+            "observed": 0.004650549160592368,
+            "predicted": 0.0066464069052087895
+          },
+          {
+            "count": 30320,
+            "observed": 0.006695250659630607,
+            "predicted": 0.008202943864382728
+          }
+        ],
+        "ece": 0.0008619033993077228,
+        "observed": 0.0035884615130906284,
+        "predicted": 0.004450210060715281
+      },
+      "two": {
+        "bins": [
+          {
+            "count": 30320,
+            "observed": 0.04432717678100264,
+            "predicted": 0.04186994040545354
+          },
+          {
+            "count": 30315,
+            "observed": 0.05112980372752763,
+            "predicted": 0.04916746184386359
+          },
+          {
+            "count": 30322,
+            "observed": 0.05141481432623178,
+            "predicted": 0.05473039473018384
+          },
+          {
+            "count": 30321,
+            "observed": 0.05682530259556083,
+            "predicted": 0.06010049690407862
+          },
+          {
+            "count": 30316,
+            "observed": 0.06174957118353345,
+            "predicted": 0.06590983155472689
+          },
+          {
+            "count": 30321,
+            "observed": 0.0693578707826259,
+            "predicted": 0.07244614195518795
+          },
+          {
+            "count": 30318,
+            "observed": 0.07035424500296854,
+            "predicted": 0.07931562991825643
+          },
+          {
+            "count": 30319,
+            "observed": 0.07744318744021901,
+            "predicted": 0.08604001191656498
+          },
+          {
+            "count": 30320,
+            "observed": 0.08898416886543535,
+            "predicted": 0.09515156371704526
+          },
+          {
+            "count": 30322,
+            "observed": 0.10734780027702658,
+            "predicted": 0.11525815048735014
+          }
+        ],
+        "ece": 0.0049895029602226824,
+        "observed": 0.06789382375640679,
+        "predicted": 0.07199945829502533
+      }
+    },
+    "runs_calibration": [
+      {
+        "count": 30317,
+        "observed": 0.8135369594616881,
+        "predicted": 0.7817344447911589
+      },
+      {
+        "count": 30322,
+        "observed": 0.9703185805685641,
+        "predicted": 0.9053839340332644
+      },
+      {
+        "count": 30314,
+        "observed": 1.0279078973411624,
+        "predicted": 1.0024783914804611
+      },
+      {
+        "count": 30324,
+        "observed": 1.1361957525392428,
+        "predicted": 1.0828081057960797
+      },
+      {
+        "count": 30320,
+        "observed": 1.2195580474934038,
+        "predicted": 1.1530544753474459
+      },
+      {
+        "count": 30318,
+        "observed": 1.2845504320865493,
+        "predicted": 1.2189406688484135
+      },
+      {
+        "count": 30319,
+        "observed": 1.3767934298624624,
+        "predicted": 1.2910896067485913
+      },
+      {
+        "count": 30321,
+        "observed": 1.4606378417598365,
+        "predicted": 1.3763030446240907
+      },
+      {
+        "count": 30316,
+        "observed": 1.5679179311254783,
+        "predicted": 1.4973757319725098
+      },
+      {
+        "count": 30323,
+        "observed": 1.7990963954753818,
+        "predicted": 1.7650872759170153
+      }
+    ]
+  },
+  "matchups": {
+    "all": {
+      "balls": 76443,
+      "model": 1.462900660369318,
+      "raw": 1.6751703399114277,
+      "shrunk": 1.4626262028534835
+    },
+    "by_history": [
+      {
+        "balls": 38769,
+        "history": "1-9",
+        "model": 1.4664892502254971,
+        "raw": 1.7551520865992423,
+        "shrunk": 1.4663021723125833
+      },
+      {
+        "balls": 28431,
+        "history": "10-29",
+        "model": 1.4585378619833411,
+        "raw": 1.6080855399791116,
+        "shrunk": 1.4580092158241842
+      },
+      {
+        "balls": 9243,
+        "history": "30+",
+        "model": 1.4612683635801265,
+        "raw": 1.5460429580587605,
+        "shrunk": 1.4614092709342137
+      }
+    ],
+    "kappa": 219.60236852391225,
+    "pairs_in_history": 147680,
+    "served_kappa": 205.55343261827136,
+    "test_pairs": 10527
+  },
+  "backtest": [
+    {
+      "balls": 50687,
+      "baseline_log_loss": 1.447274967660771,
+      "model_log_loss": 1.4300502293787518,
+      "season": 2016
+    },
+    {
+      "balls": 46241,
+      "baseline_log_loss": 1.4556958745115571,
+      "model_log_loss": 1.4378109984336398,
+      "season": 2017
+    },
+    {
+      "balls": 55568,
+      "baseline_log_loss": 1.4626734535324302,
+      "model_log_loss": 1.4451199875472458,
+      "season": 2018
+    },
+    {
+      "balls": 88452,
+      "baseline_log_loss": 1.442713840216031,
+      "model_log_loss": 1.425242997417597,
+      "season": 2019
+    },
+    {
+      "balls": 57561,
+      "baseline_log_loss": 1.4581511006686543,
+      "model_log_loss": 1.438683212972327,
+      "season": 2020
+    },
+    {
+      "balls": 107598,
+      "baseline_log_loss": 1.450139590100344,
+      "model_log_loss": 1.4317980188840442,
+      "season": 2021
+    },
+    {
+      "balls": 141140,
+      "baseline_log_loss": 1.4586827231460333,
+      "model_log_loss": 1.441986893372365,
+      "season": 2022
+    },
+    {
+      "balls": 126053,
+      "baseline_log_loss": 1.4601319409109899,
+      "model_log_loss": 1.442869076513467,
+      "season": 2023
+    },
+    {
+      "balls": 178599,
+      "baseline_log_loss": 1.4538869421420146,
+      "model_log_loss": 1.4365805106990375,
+      "season": 2024
+    },
+    {
+      "balls": 161912,
+      "baseline_log_loss": 1.4723579038634398,
+      "model_log_loss": 1.4562527941585357,
+      "season": 2025
+    },
+    {
+      "balls": 141282,
+      "baseline_log_loss": 1.473397436476252,
+      "model_log_loss": 1.455015157739312,
+      "season": 2026
+    }
+  ],
+  "competition_terms": true,
+  "ipl_comparison": {
+    "better": false,
+    "competition": "IPL",
+    "no_worse": false,
+    "v1": {
+      "balls": 33303,
+      "brier": 0.7190175638099201,
+      "log_loss": 1.4895268953190552,
+      "version": "1.0.0"
+    },
+    "v2": {
+      "balls": 33303,
+      "brier": 0.7193827081685369,
+      "log_loss": 1.4921814358298215,
+      "version": "2.0.0"
+    },
+    "v2_gain": {
+      "ci_high": -0.0012656839932535398,
+      "ci_low": -0.004152145258454958,
+      "improvement": -0.0026545405107662023,
+      "matches": 148
+    }
+  }
+}

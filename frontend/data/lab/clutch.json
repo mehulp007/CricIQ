@@ -5,634 +5,634 @@
     "batting": {
       "players": 104,
       "min_high_balls": 60,
-      "split_half_r": 0.17,
-      "null_90": 0.156,
-      "p_value": 0.074,
+      "split_half_r": 0.174,
+      "null_90": 0.155,
+      "p_value": 0.06,
       "reliable_r": 0.3,
       "halves": [
         {
           "player_id": "00ea847a",
           "name": "Mayank Agarwal",
-          "odd": 5.4,
-          "even": 2.6
+          "odd": 8.8,
+          "even": 5.2
         },
         {
           "player_id": "0184dc35",
           "name": "Rahul Dravid",
-          "odd": 12.6,
-          "even": 11.8
+          "odd": 14.4,
+          "even": 13.7
         },
         {
           "player_id": "04a418e8",
           "name": "Riyan Parag",
-          "odd": -6.9,
-          "even": 0.1
+          "odd": -3.8,
+          "even": 2.5
         },
         {
           "player_id": "0994d0ae",
           "name": "Vijay Shankar",
-          "odd": -4.9,
-          "even": -12.2
+          "odd": -4.2,
+          "even": -9.7
         },
         {
           "player_id": "0a476045",
           "name": "Shikhar Dhawan",
-          "odd": -1.2,
-          "even": 11.7
+          "odd": 1.0,
+          "even": 14.2
         },
         {
           "player_id": "0a509d6b",
           "name": "Rinku Singh",
-          "odd": 9.8,
-          "even": 11.7
+          "odd": 10.5,
+          "even": 11.2
         },
         {
           "player_id": "1c17e270",
           "name": "Robin Uthappa",
-          "odd": 7.4,
-          "even": 14.9
+          "odd": 10.6,
+          "even": 17.8
         },
         {
           "player_id": "1c914163",
           "name": "Yuvraj Singh",
-          "odd": -13.3,
-          "even": -9.7
+          "odd": -10.3,
+          "even": -7.1
         },
         {
           "player_id": "1dc12ab9",
           "name": "Suresh Raina",
-          "odd": 18.8,
-          "even": -3.5
+          "odd": 22.2,
+          "even": -0.8
         },
         {
           "player_id": "235c2bb6",
           "name": "Heinrich Klaasen",
-          "odd": 6.5,
-          "even": 8.1
+          "odd": 6.9,
+          "even": 11.0
         },
         {
           "player_id": "26e5cabf",
           "name": "Manoj Tiwary",
-          "odd": -19.9,
-          "even": 15.1
+          "odd": -15.1,
+          "even": 16.7
         },
         {
           "player_id": "271f83cd",
           "name": "Suryakumar Yadav",
-          "odd": 5.4,
-          "even": -0.3
+          "odd": 7.6,
+          "even": 0.7
         },
         {
           "player_id": "29e95537",
           "name": "Ajinkya Rahane",
-          "odd": 18.3,
-          "even": -16.1
+          "odd": 21.0,
+          "even": -14.0
         },
         {
           "player_id": "2b6e6dec",
           "name": "Adam Gilchrist",
-          "odd": -8.2,
-          "even": 3.6
+          "odd": -6.2,
+          "even": 4.9
         },
         {
           "player_id": "2c25d4f5",
           "name": "Devdutt Padikkal",
-          "odd": -13.1,
-          "even": -9.8
+          "odd": -10.9,
+          "even": -5.7
         },
         {
           "player_id": "2e171977",
           "name": "Axar Patel",
-          "odd": -23.8,
-          "even": 25.5
+          "odd": -23.4,
+          "even": 26.1
         },
         {
           "player_id": "2e8994e7",
           "name": "JP Duminy",
-          "odd": -1.8,
-          "even": 6.1
+          "odd": 0.4,
+          "even": 10.1
         },
         {
           "player_id": "30a45b23",
           "name": "Steve Smith",
-          "odd": 10.7,
-          "even": -9.3
+          "odd": 13.1,
+          "even": -8.1
         },
         {
           "player_id": "3241e3fd",
           "name": "Nicolas Pooran",
-          "odd": 24.6,
-          "even": -14.0
+          "odd": 26.5,
+          "even": -12.7
         },
         {
           "player_id": "3355b542",
           "name": "Faf du Plessis",
-          "odd": -1.0,
-          "even": 1.6
+          "odd": 1.5,
+          "even": 3.6
         },
         {
           "player_id": "35205dfc",
           "name": "Dwayne Smith",
-          "odd": 19.0,
-          "even": -4.7
+          "odd": 21.3,
+          "even": -3.0
         },
         {
           "player_id": "3576e47e",
           "name": "Subramaniam Badrinath",
-          "odd": -8.4,
-          "even": -31.1
+          "odd": -5.3,
+          "even": -29.4
         },
         {
           "player_id": "372455c4",
           "name": "Quinton de Kock",
-          "odd": 14.3,
-          "even": 8.3
+          "odd": 15.7,
+          "even": 10.6
         },
         {
           "player_id": "39a2dfa8",
           "name": "Rahul Tewatia",
-          "odd": 10.7,
-          "even": 36.6
+          "odd": 15.4,
+          "even": 36.7
         },
         {
           "player_id": "3c6ffae8",
           "name": "Yusuf Pathan",
-          "odd": -11.1,
-          "even": 10.2
+          "odd": -7.5,
+          "even": 13.4
         },
         {
           "player_id": "3d8feaf8",
           "name": "Mitchell Marsh",
-          "odd": 30.4,
-          "even": -17.0
+          "odd": 30.5,
+          "even": -16.4
         },
         {
           "player_id": "4329fbb5",
           "name": "Shane Watson",
-          "odd": 18.5,
-          "even": 6.5
+          "odd": 23.5,
+          "even": 9.5
         },
         {
           "player_id": "45a43fe2",
           "name": "Ruturaj Gaikwad",
-          "odd": -18.2,
-          "even": 20.7
+          "odd": -12.1,
+          "even": 22.2
         },
         {
           "player_id": "45eda7c8",
           "name": "Chris Lynn",
-          "odd": 3.6,
-          "even": -16.2
+          "odd": 5.6,
+          "even": -14.8
         },
         {
           "player_id": "48a1d7b7",
           "name": "Shimron Hetmyer",
-          "odd": 22.2,
-          "even": 78.0
+          "odd": 21.7,
+          "even": 80.5
         },
         {
           "player_id": "495d42a5",
           "name": "Ravichandran Ashwin",
-          "odd": 2.5,
-          "even": -4.1
+          "odd": 0.2,
+          "even": -4.5
         },
         {
           "player_id": "4a8a2e3b",
           "name": "MS Dhoni",
-          "odd": -0.8,
-          "even": 12.0
+          "odd": 3.2,
+          "even": 15.0
         },
         {
           "player_id": "4b57e452",
           "name": "Murali Vijay",
-          "odd": -16.2,
-          "even": -7.0
+          "odd": -13.6,
+          "even": -3.0
         },
         {
           "player_id": "508a1ea7",
           "name": "Shaun Marsh",
-          "odd": -6.4,
-          "even": -6.3
+          "odd": -4.3,
+          "even": -4.0
         },
         {
           "player_id": "5afd4539",
           "name": "Manvinder Bisla",
-          "odd": 49.4,
-          "even": 13.3
+          "odd": 52.2,
+          "even": 15.4
         },
         {
           "player_id": "5b8c830e",
           "name": "Krunal Pandya",
-          "odd": -10.9,
-          "even": 7.4
+          "odd": -8.2,
+          "even": 9.9
         },
         {
           "player_id": "5bdcdb72",
           "name": "Tillakaratne Dilshan",
-          "odd": -9.1,
-          "even": -7.3
+          "odd": -4.9,
+          "even": -6.4
         },
         {
           "player_id": "5fa06777",
           "name": "Irfan Pathan",
-          "odd": -6.7,
-          "even": 37.0
+          "odd": -4.3,
+          "even": 39.3
         },
         {
           "player_id": "6a26221c",
           "name": "Aiden Markram",
-          "odd": -14.2,
-          "even": -9.0
+          "odd": -14.1,
+          "even": -11.6
         },
         {
           "player_id": "6b71e6cf",
           "name": "Kumar Sangakkara",
-          "odd": -6.0,
-          "even": 26.7
+          "odd": -4.6,
+          "even": 27.2
         },
         {
           "player_id": "6c19c6e5",
           "name": "Yashasvi Jaiswal",
-          "odd": -3.5,
-          "even": 9.9
+          "odd": -1.5,
+          "even": 11.7
         },
         {
           "player_id": "709b0bac",
           "name": "Saurabh Tiwary",
-          "odd": -9.6,
-          "even": -23.6
+          "odd": -5.2,
+          "even": -21.5
         },
         {
           "player_id": "70d205c9",
           "name": "Ambati Rayudu",
-          "odd": 18.2,
-          "even": -0.2
+          "odd": 22.8,
+          "even": 2.8
         },
         {
           "player_id": "73ad96ed",
           "name": "Deepak Hooda",
-          "odd": -5.2,
-          "even": 1.6
+          "odd": -1.6,
+          "even": 4.2
         },
         {
           "player_id": "740742ef",
           "name": "Rohit Sharma",
-          "odd": 3.1,
-          "even": 5.7
+          "odd": 6.3,
+          "even": 8.7
         },
         {
           "player_id": "752f7486",
           "name": "Ishan Kishan",
-          "odd": -3.5,
-          "even": -0.9
+          "odd": -2.7,
+          "even": 2.3
         },
         {
           "player_id": "77255a9e",
           "name": "Rahul Tripathi",
-          "odd": 11.0,
-          "even": -6.4
+          "odd": 15.6,
+          "even": -5.1
         },
         {
           "player_id": "800d2d97",
           "name": "Jitesh Sharma",
-          "odd": 9.8,
-          "even": -12.6
+          "odd": 13.4,
+          "even": -9.3
         },
         {
           "player_id": "85ec8e33",
           "name": "Shreyas Iyer",
-          "odd": -1.7,
-          "even": 6.8
+          "odd": 1.7,
+          "even": 10.9
         },
         {
           "player_id": "86dc8f2e",
           "name": "Jacques Kallis",
-          "odd": 11.4,
-          "even": -1.8
+          "odd": 13.3,
+          "even": 1.4
         },
         {
           "player_id": "87e562a9",
           "name": "Dwayne Bravo",
-          "odd": -22.1,
-          "even": 10.7
+          "odd": -19.3,
+          "even": 14.3
         },
         {
           "player_id": "890946a0",
           "name": "Naman Ojha",
-          "odd": -20.6,
-          "even": -3.9
+          "odd": -17.9,
+          "even": -1.5
         },
         {
           "player_id": "896d78ad",
           "name": "Angelo Mathews",
-          "odd": 22.9,
-          "even": 16.9
+          "odd": 27.3,
+          "even": 18.3
         },
         {
           "player_id": "8ba8195d",
           "name": "Virender Sehwag",
-          "odd": 38.6,
-          "even": 32.3
+          "odd": 41.5,
+          "even": 35.6
         },
         {
           "player_id": "919a3be2",
           "name": "Rishabh Pant",
-          "odd": 38.3,
-          "even": 15.0
+          "odd": 40.6,
+          "even": 16.9
         },
         {
           "player_id": "93b4fc78",
           "name": "Manish Pandey",
-          "odd": -10.9,
-          "even": 26.4
+          "odd": -8.8,
+          "even": 29.4
         },
         {
           "player_id": "9418198b",
           "name": "Simran Singh",
-          "odd": -11.0,
-          "even": 21.8
+          "odd": -9.5,
+          "even": 22.9
         },
         {
           "player_id": "944533a5",
           "name": "Karun Nair",
-          "odd": 28.4,
-          "even": -4.7
+          "odd": 30.6,
+          "even": -2.7
         },
         {
           "player_id": "99b75528",
           "name": "Jos Buttler",
-          "odd": -8.4,
-          "even": 2.6
+          "odd": -6.2,
+          "even": 5.1
         },
         {
           "player_id": "99d63244",
           "name": "Kedar Jadhav",
-          "odd": 5.3,
-          "even": -13.9
+          "odd": 8.3,
+          "even": -10.8
         },
         {
           "player_id": "9d430b40",
           "name": "Sunil Narine",
-          "odd": -14.9,
-          "even": 2.0
+          "odd": -11.8,
+          "even": 3.5
         },
         {
           "player_id": "a24be938",
           "name": "Venkatesh Iyer",
-          "odd": -24.7,
-          "even": -10.9
+          "odd": -19.3,
+          "even": -10.1
         },
         {
           "player_id": "a4cc73aa",
           "name": "Sanju Samson",
-          "odd": -1.2,
-          "even": -4.5
+          "odd": 0.3,
+          "even": -2.4
         },
         {
           "player_id": "a4e37e47",
           "name": "Shivam Dube",
-          "odd": -35.0,
-          "even": -19.2
+          "odd": -29.6,
+          "even": -17.8
         },
         {
           "player_id": "a757b0d8",
           "name": "Kieron Pollard",
-          "odd": 28.2,
-          "even": 13.5
+          "odd": 30.2,
+          "even": 17.3
         },
         {
           "player_id": "b0482a1d",
           "name": "Tilak Varma",
-          "odd": -35.9,
-          "even": 3.0
+          "odd": -30.9,
+          "even": 3.5
         },
         {
           "player_id": "b17e2f24",
           "name": "KL Rahul",
-          "odd": -4.1,
-          "even": -2.2
+          "odd": -0.2,
+          "even": 1.8
         },
         {
           "player_id": "b4b99816",
           "name": "Shubman Gill",
-          "odd": 11.5,
-          "even": 0.0
+          "odd": 15.1,
+          "even": 0.5
         },
         {
           "player_id": "b57f8a9a",
           "name": "Brad Hodge",
-          "odd": 20.0,
-          "even": -14.2
+          "odd": 22.9,
+          "even": -13.1
         },
         {
           "player_id": "b5da6c24",
           "name": "Parthiv Patel",
-          "odd": -14.2,
-          "even": -0.5
+          "odd": -11.2,
+          "even": 2.5
         },
         {
           "player_id": "b61a3e1a",
           "name": "Ross Taylor",
-          "odd": 26.1,
-          "even": -8.6
+          "odd": 29.4,
+          "even": -5.3
         },
         {
           "player_id": "b681e71e",
           "name": "Glenn Maxwell",
-          "odd": -14.8,
-          "even": 1.5
+          "odd": -14.5,
+          "even": 5.0
         },
         {
           "player_id": "b8a55852",
           "name": "Brendon McCullum",
-          "odd": -10.9,
-          "even": 15.0
+          "odd": -10.0,
+          "even": 16.5
         },
         {
           "player_id": "b8d490fd",
           "name": "Aaron Finch",
-          "odd": 0.7,
-          "even": 17.6
+          "odd": 4.4,
+          "even": 20.5
         },
         {
           "player_id": "ba607b88",
           "name": "Virat Kohli",
-          "odd": 5.9,
-          "even": 9.7
+          "odd": 8.4,
+          "even": 12.2
         },
         {
           "player_id": "bb345e0b",
           "name": "Gautam Gambhir",
-          "odd": 15.2,
-          "even": -2.9
+          "odd": 18.4,
+          "even": -2.2
         },
         {
           "player_id": "bbd41817",
           "name": "Andre Russell",
-          "odd": 5.7,
-          "even": -5.1
+          "odd": 9.3,
+          "even": -2.1
         },
         {
           "player_id": "bcf325d2",
           "name": "Dhruv Jurel",
-          "odd": 7.0,
-          "even": -7.7
+          "odd": 8.9,
+          "even": -6.9
         },
         {
           "player_id": "bd17b45f",
           "name": "Stuart Binny",
-          "odd": 8.5,
-          "even": 1.4
+          "odd": 10.0,
+          "even": 2.5
         },
         {
           "player_id": "bd77eb62",
           "name": "Andrew Symonds",
-          "odd": -7.1,
-          "even": -1.3
+          "odd": -5.1,
+          "even": -0.7
         },
         {
           "player_id": "c03f1114",
           "name": "Dinesh Karthik",
-          "odd": 13.5,
-          "even": 9.2
+          "odd": 15.5,
+          "even": 11.0
         },
         {
           "player_id": "c3a96caf",
           "name": "Mandeep Singh",
-          "odd": 1.3,
-          "even": -37.3
+          "odd": 3.8,
+          "even": -34.4
         },
         {
           "player_id": "c3d35165",
           "name": "Albie Morkel",
-          "odd": 9.8,
-          "even": 14.3
+          "odd": 16.0,
+          "even": 17.9
         },
         {
           "player_id": "c4487b84",
           "name": "AB de Villiers",
-          "odd": -7.6,
-          "even": 12.4
+          "odd": -4.0,
+          "even": 14.6
         },
         {
           "player_id": "c740ea83",
           "name": "Rajat Patidar",
-          "odd": -46.2,
+          "odd": -45.7,
           "even": -6.3
         },
         {
           "player_id": "d027ba9f",
           "name": "Kane Williamson",
-          "odd": -0.9,
-          "even": 3.5
+          "odd": 0.6,
+          "even": 7.7
         },
         {
           "player_id": "d18f9182",
           "name": "Mahela Jayawardene",
-          "odd": 21.5,
-          "even": 17.7
+          "odd": 24.9,
+          "even": 21.2
         },
         {
           "player_id": "d2c2b2d5",
           "name": "Sachin Tendulkar",
-          "odd": 0.1,
-          "even": 13.7
+          "odd": 3.1,
+          "even": 16.2
         },
         {
           "player_id": "d5130a30",
           "name": "Sai Sudharsan",
-          "odd": -14.4,
-          "even": -5.9
+          "odd": -13.6,
+          "even": -7.4
         },
         {
           "player_id": "d67d5f00",
           "name": "David Miller",
-          "odd": 22.8,
-          "even": 10.9
+          "odd": 23.4,
+          "even": 15.0
         },
         {
           "player_id": "d8699ab7",
           "name": "Matthew Hayden",
-          "odd": 11.0,
-          "even": 7.4
+          "odd": 13.3,
+          "even": 7.8
         },
         {
           "player_id": "d9273ee7",
           "name": "Marcus Stoinis",
-          "odd": 11.4,
-          "even": 6.5
+          "odd": 14.3,
+          "even": 10.2
         },
         {
           "player_id": "db584dad",
           "name": "Chris Gayle",
-          "odd": 25.8,
-          "even": 21.9
+          "odd": 32.8,
+          "even": 24.4
         },
         {
           "player_id": "dbe50b21",
           "name": "Hardik Pandya",
-          "odd": -6.6,
-          "even": -5.7
+          "odd": -2.8,
+          "even": -5.1
         },
         {
           "player_id": "dcce6f09",
           "name": "David Warner",
-          "odd": 3.1,
-          "even": 10.8
+          "odd": 4.2,
+          "even": 13.9
         },
         {
           "player_id": "e087956b",
           "name": "Ben Stokes",
-          "odd": 20.0,
-          "even": 4.9
+          "odd": 23.9,
+          "even": 6.2
         },
         {
           "player_id": "e94915e6",
           "name": "Sam Curran",
-          "odd": 16.3,
-          "even": 20.6
+          "odd": 17.6,
+          "even": 24.4
         },
         {
           "player_id": "f1f99156",
           "name": "Tim David",
-          "odd": -0.3,
-          "even": -4.2
+          "odd": 2.6,
+          "even": -1.3
         },
         {
           "player_id": "f29185a1",
           "name": "Abhishek Sharma",
-          "odd": -7.7,
-          "even": 10.6
+          "odd": -4.6,
+          "even": 14.2
         },
         {
           "player_id": "f3cb53a1",
           "name": "Mark Boucher",
-          "odd": 5.0,
-          "even": 22.7
+          "odd": 5.4,
+          "even": 26.0
         },
         {
           "player_id": "fb2d1dda",
           "name": "Nitish Rana",
-          "odd": 5.9,
-          "even": -4.0
+          "odd": 10.1,
+          "even": -1.6
         },
         {
           "player_id": "fe11caa6",
           "name": "Wriddhiman Saha",
-          "odd": 13.7,
-          "even": -18.0
+          "odd": 16.0,
+          "even": -15.1
         },
         {
           "player_id": "fe763256",
           "name": "Yalaka Venugopal Rao",
-          "odd": -18.1,
-          "even": -22.9
+          "odd": -15.2,
+          "even": -20.7
         },
         {
           "player_id": "fe93fd9d",
           "name": "Ravindra Jadeja",
-          "odd": 10.2,
-          "even": -2.6
+          "odd": 13.2,
+          "even": -2.0
         }
       ],
       "most_exposed": [
@@ -640,791 +640,791 @@
           "player_id": "ba607b88",
           "name": "Virat Kohli",
           "high_balls": 1229,
-          "clutch": 8.1,
-          "low": -0.4,
-          "high": 16.6
+          "clutch": 10.7,
+          "low": 2.1,
+          "high": 19.2
         },
         {
           "player_id": "740742ef",
           "name": "Rohit Sharma",
           "high_balls": 1211,
-          "clutch": 4.5,
-          "low": -4.3,
-          "high": 13.3
+          "clutch": 7.7,
+          "low": -1.1,
+          "high": 16.5
         },
         {
           "player_id": "4a8a2e3b",
           "name": "MS Dhoni",
           "high_balls": 1019,
-          "clutch": 5.4,
-          "low": -4.5,
-          "high": 15.2
+          "clutch": 8.9,
+          "low": -0.9,
+          "high": 18.7
         },
         {
           "player_id": "c03f1114",
           "name": "Dinesh Karthik",
           "high_balls": 851,
-          "clutch": 11.4,
-          "low": 0.8,
-          "high": 22.0
+          "clutch": 13.3,
+          "low": 2.7,
+          "high": 24.0
         },
         {
           "player_id": "a4cc73aa",
           "name": "Sanju Samson",
           "high_balls": 842,
-          "clutch": -3.1,
-          "low": -13.8,
-          "high": 7.5
+          "clutch": -1.3,
+          "low": -11.9,
+          "high": 9.3
         },
         {
           "player_id": "b17e2f24",
           "name": "KL Rahul",
           "high_balls": 775,
-          "clutch": -2.9,
-          "low": -13.6,
-          "high": 7.9
+          "clutch": 1.2,
+          "low": -9.6,
+          "high": 11.9
         },
         {
           "player_id": "0a476045",
           "name": "Shikhar Dhawan",
           "high_balls": 774,
-          "clutch": 6.3,
-          "low": -4.2,
-          "high": 16.9
+          "clutch": 8.7,
+          "low": -1.8,
+          "high": 19.3
         },
         {
           "player_id": "dcce6f09",
           "name": "David Warner",
           "high_balls": 770,
-          "clutch": 8.5,
-          "low": -2.2,
-          "high": 19.2
+          "clutch": 10.5,
+          "low": -0.2,
+          "high": 21.2
         },
         {
           "player_id": "c4487b84",
           "name": "AB de Villiers",
           "high_balls": 769,
-          "clutch": 3.7,
-          "low": -7.4,
-          "high": 14.8
+          "clutch": 6.6,
+          "low": -4.5,
+          "high": 17.7
         },
         {
           "player_id": "1dc12ab9",
           "name": "Suresh Raina",
           "high_balls": 750,
-          "clutch": 7.6,
-          "low": -3.4,
-          "high": 18.5
+          "clutch": 10.6,
+          "low": -0.3,
+          "high": 21.6
         },
         {
           "player_id": "1c17e270",
           "name": "Robin Uthappa",
           "high_balls": 745,
-          "clutch": 11.7,
-          "low": 0.6,
-          "high": 22.8
+          "clutch": 14.8,
+          "low": 3.7,
+          "high": 25.8
         },
         {
           "player_id": "70d205c9",
           "name": "Ambati Rayudu",
           "high_balls": 738,
-          "clutch": 7.6,
-          "low": -3.7,
-          "high": 18.8
+          "clutch": 11.2,
+          "low": -0.1,
+          "high": 22.4
         },
         {
           "player_id": "93b4fc78",
           "name": "Manish Pandey",
           "high_balls": 735,
-          "clutch": 6.9,
-          "low": -4.4,
-          "high": 18.3
+          "clutch": 9.5,
+          "low": -1.8,
+          "high": 20.8
         },
         {
           "player_id": "29e95537",
           "name": "Ajinkya Rahane",
           "high_balls": 718,
-          "clutch": 0.6,
-          "low": -10.5,
-          "high": 11.7
+          "clutch": 3.0,
+          "low": -8.1,
+          "high": 14.1
         },
         {
           "player_id": "85ec8e33",
           "name": "Shreyas Iyer",
           "high_balls": 702,
-          "clutch": 2.3,
-          "low": -9.3,
-          "high": 13.9
+          "clutch": 5.9,
+          "low": -5.7,
+          "high": 17.5
         }
       ]
     },
     "bowling": {
       "players": 110,
       "min_high_balls": 60,
-      "split_half_r": -0.059,
-      "null_90": 0.145,
-      "p_value": 0.534,
+      "split_half_r": -0.051,
+      "null_90": 0.146,
+      "p_value": 0.58,
       "reliable_r": 0.3,
       "halves": [
         {
           "player_id": "03806cf8",
           "name": "Josh Hazlewood",
-          "odd": -1.7,
-          "even": -1.1
+          "odd": -6.8,
+          "even": -3.0
         },
         {
           "player_id": "0a8fce53",
           "name": "Mustafizur Rahman",
-          "odd": -37.9,
-          "even": -12.1
+          "odd": -39.2,
+          "even": -15.3
         },
         {
           "player_id": "0c2730df",
           "name": "Anil Kumble",
-          "odd": 14.9,
-          "even": -13.7
+          "odd": 9.9,
+          "even": -17.4
         },
         {
           "player_id": "0f12f9df",
           "name": "Thisara Perera",
-          "odd": -20.0,
-          "even": -1.5
+          "odd": -22.2,
+          "even": -1.9
         },
         {
           "player_id": "0f721006",
           "name": "Jason Holder",
-          "odd": -18.2,
-          "even": -5.9
+          "odd": -19.4,
+          "even": -6.9
         },
         {
           "player_id": "119678fd",
           "name": "Karn Sharma",
-          "odd": 10.3,
-          "even": -15.0
+          "odd": 8.6,
+          "even": -14.4
         },
         {
           "player_id": "13c35c9e",
           "name": "Tim Southee",
-          "odd": -10.6,
-          "even": -7.1
+          "odd": -12.8,
+          "even": -8.9
         },
         {
           "player_id": "1abb78f8",
           "name": "Shardul Thakur",
-          "odd": 23.4,
-          "even": 1.7
+          "odd": 19.6,
+          "even": -0.5
         },
         {
           "player_id": "1c914163",
           "name": "Yuvraj Singh",
-          "odd": 26.5,
-          "even": 27.8
+          "odd": 21.8,
+          "even": 24.4
         },
         {
           "player_id": "1dc12ab9",
           "name": "Suresh Raina",
-          "odd": 19.5,
-          "even": 0.0
+          "odd": 18.0,
+          "even": -1.3
         },
         {
           "player_id": "1e66c162",
           "name": "Jaydev Unadkat",
-          "odd": -25.0,
-          "even": -14.9
+          "odd": -26.8,
+          "even": -18.4
         },
         {
           "player_id": "21d4e29b",
           "name": "Navdeep Saini",
-          "odd": 31.4,
-          "even": -5.1
+          "odd": 28.4,
+          "even": -8.4
         },
         {
           "player_id": "23eeb873",
           "name": "Deepak Chahar",
-          "odd": -13.5,
-          "even": 18.5
+          "odd": -15.9,
+          "even": 13.5
         },
         {
           "player_id": "244048f6",
           "name": "Arshdeep Singh",
-          "odd": 16.5,
-          "even": 3.9
+          "odd": 13.4,
+          "even": 3.3
         },
         {
           "player_id": "2a2e6343",
           "name": "Daniel Christian",
-          "odd": 9.5,
-          "even": -53.3
+          "odd": 6.9,
+          "even": -56.5
         },
         {
           "player_id": "2cffab74",
           "name": "Mukesh Kumar",
-          "odd": 16.5,
-          "even": -18.3
+          "odd": 13.4,
+          "even": -23.0
         },
         {
           "player_id": "2e171977",
           "name": "Axar Patel",
-          "odd": 3.7,
-          "even": -0.9
+          "odd": 1.7,
+          "even": -2.2
         },
         {
           "player_id": "2e81a32d",
           "name": "Bhuvneshwar Kumar",
-          "odd": -15.9,
-          "even": -9.7
+          "odd": -20.5,
+          "even": -10.8
         },
         {
           "player_id": "2ed569a0",
           "name": "Rahul Chahar",
-          "odd": 2.7,
-          "even": -22.1
+          "odd": -0.2,
+          "even": -23.0
         },
         {
           "player_id": "2f49c897",
           "name": "Mohammed Siraj",
-          "odd": -13.9,
-          "even": -16.6
+          "odd": -17.7,
+          "even": -19.4
         },
         {
           "player_id": "2f9d0389",
           "name": "Lockie Ferguson",
-          "odd": 14.3,
-          "even": -30.4
+          "odd": 11.6,
+          "even": -32.6
         },
         {
           "player_id": "32198ae0",
           "name": "Mois\u00e9s Henriques",
-          "odd": 2.6,
-          "even": -24.0
+          "odd": 0.5,
+          "even": -24.6
         },
         {
           "player_id": "33a364a6",
           "name": "Rajat Bhatia",
-          "odd": -4.6,
-          "even": -5.5
+          "odd": -6.7,
+          "even": -6.8
         },
         {
           "player_id": "3c6ffae8",
           "name": "Yusuf Pathan",
-          "odd": -2.8,
-          "even": 18.9
+          "odd": -5.9,
+          "even": 16.3
         },
         {
           "player_id": "3d7e087f",
           "name": "Siddharth Trivedi",
-          "odd": -5.1,
-          "even": 24.5
+          "odd": -7.9,
+          "even": 24.7
         },
         {
           "player_id": "3fb19989",
           "name": "Mitchell Starc",
-          "odd": -51.0,
-          "even": -16.9
+          "odd": -53.5,
+          "even": -22.2
         },
         {
           "player_id": "41eb4a4f",
           "name": "Vinay Kumar",
-          "odd": 8.5,
-          "even": -3.2
+          "odd": 5.8,
+          "even": -5.0
         },
         {
           "player_id": "4329fbb5",
           "name": "Shane Watson",
-          "odd": -6.0,
-          "even": -23.9
+          "odd": -8.6,
+          "even": -24.9
         },
         {
           "player_id": "45c2196c",
           "name": "Doug Bollinger",
-          "odd": 15.7,
-          "even": 29.4
+          "odd": 12.8,
+          "even": 26.5
         },
         {
           "player_id": "462411b3",
           "name": "Jasprit Bumrah",
-          "odd": 9.4,
-          "even": -27.8
+          "odd": 7.4,
+          "even": -30.1
         },
         {
           "player_id": "46a9bea1",
           "name": "Tushar Deshpande",
-          "odd": -40.0,
-          "even": -5.3
+          "odd": -42.9,
+          "even": -8.5
         },
         {
           "player_id": "495d42a5",
           "name": "Ravichandran Ashwin",
-          "odd": -1.0,
-          "even": -5.5
+          "odd": -2.4,
+          "even": -8.2
         },
         {
           "player_id": "4ba44e19",
           "name": "Muttiah Muralitharan",
-          "odd": 10.1,
-          "even": -8.4
+          "odd": 7.1,
+          "even": -10.1
         },
         {
           "player_id": "51a3c5ef",
           "name": "Mitchell McClenaghan",
-          "odd": 11.8,
-          "even": -14.7
+          "odd": 10.3,
+          "even": -17.3
         },
         {
           "player_id": "5574750c",
           "name": "Jofra Archer",
-          "odd": -8.7,
-          "even": -4.8
+          "odd": -12.0,
+          "even": -8.7
         },
         {
           "player_id": "57ee1fde",
           "name": "Yuzvendra Chahal",
-          "odd": 15.9,
-          "even": 0.8
+          "odd": 13.7,
+          "even": -1.7
         },
         {
           "player_id": "5b7ab5a9",
           "name": "Varun Chakravarthy",
-          "odd": 8.8,
-          "even": -1.5
+          "odd": 6.1,
+          "even": -3.1
         },
         {
           "player_id": "5b8c830e",
           "name": "Krunal Pandya",
-          "odd": -1.2,
-          "even": 7.9
+          "odd": -2.7,
+          "even": 7.6
         },
         {
           "player_id": "5bb1a1c4",
           "name": "Ishant Sharma",
-          "odd": 7.4,
-          "even": -7.7
+          "odd": 4.3,
+          "even": -10.2
         },
         {
           "player_id": "5bb5a915",
           "name": "Morn\u00e9 Morkel",
-          "odd": 10.2,
-          "even": 8.8
+          "odd": 8.1,
+          "even": 7.7
         },
         {
           "player_id": "5d9a1a73",
           "name": "Rahul Sharma",
-          "odd": -17.2,
-          "even": -18.1
+          "odd": -21.1,
+          "even": -22.4
         },
         {
           "player_id": "5f547c8b",
           "name": "Rashid Khan",
-          "odd": -17.2,
-          "even": 6.7
+          "odd": -18.9,
+          "even": 5.2
         },
         {
           "player_id": "5fa06777",
           "name": "Irfan Pathan",
-          "odd": -16.2,
-          "even": -10.0
+          "odd": -18.0,
+          "even": -11.9
         },
         {
           "player_id": "66b30f71",
           "name": "Ashok Dinda",
-          "odd": 20.4,
-          "even": -1.3
+          "odd": 18.4,
+          "even": -3.7
         },
         {
           "player_id": "6b19d823",
           "name": "Amit Mishra",
-          "odd": -11.4,
-          "even": -21.0
+          "odd": -13.9,
+          "even": -23.1
         },
         {
           "player_id": "6b8eb6e5",
           "name": "S. Sreesanth",
-          "odd": -25.1,
-          "even": -16.6
+          "odd": -26.2,
+          "even": -18.7
         },
         {
           "player_id": "6c6591ab",
           "name": "Pragyan Ojha",
-          "odd": 2.7,
-          "even": 5.1
+          "odd": 0.9,
+          "even": 1.7
         },
         {
           "player_id": "7210d461",
           "name": "Yash Dayal",
-          "odd": 21.2,
-          "even": -54.7
+          "odd": 18.6,
+          "even": -51.9
         },
         {
           "player_id": "759ac88f",
           "name": "Mohit Sharma",
-          "odd": -6.9,
-          "even": -11.2
+          "odd": -9.3,
+          "even": -14.6
         },
         {
           "player_id": "77b1aa15",
           "name": "Harshit Rana",
-          "odd": 37.6,
-          "even": -6.8
+          "odd": 33.9,
+          "even": -7.9
         },
         {
           "player_id": "7a8bd078",
           "name": "Shreyas Gopal",
-          "odd": 14.9,
-          "even": 31.7
+          "odd": 8.6,
+          "even": 30.6
         },
         {
           "player_id": "7dc35884",
           "name": "Shakib Al Hasan",
-          "odd": -19.8,
-          "even": -12.7
+          "odd": -25.1,
+          "even": -15.5
         },
         {
           "player_id": "808f425a",
           "name": "James Faulkner",
-          "odd": -3.3,
-          "even": 8.1
+          "odd": -6.1,
+          "even": 6.9
         },
         {
           "player_id": "81c36ee9",
           "name": "Marco Jansen",
-          "odd": 28.3,
-          "even": -53.2
+          "odd": 24.7,
+          "even": -56.5
         },
         {
           "player_id": "85aae393",
           "name": "Iqbal Abdulla",
-          "odd": -35.8,
-          "even": -10.6
+          "odd": -38.1,
+          "even": -12.3
         },
         {
           "player_id": "85e0cf10",
           "name": "Prasidh Krishna",
-          "odd": 0.8,
-          "even": -8.9
+          "odd": -3.3,
+          "even": -9.6
         },
         {
           "player_id": "86dc8f2e",
           "name": "Jacques Kallis",
-          "odd": -13.7,
-          "even": 27.0
+          "odd": -16.5,
+          "even": 25.1
         },
         {
           "player_id": "87e562a9",
           "name": "Dwayne Bravo",
-          "odd": -2.2,
-          "even": 0.6
+          "odd": -5.3,
+          "even": -2.0
         },
         {
           "player_id": "896d78ad",
           "name": "Angelo Mathews",
-          "odd": -46.5,
-          "even": -37.7
+          "odd": -50.2,
+          "even": -40.2
         },
         {
           "player_id": "8b5b6769",
           "name": "Harbhajan Singh",
-          "odd": 7.3,
-          "even": -11.2
+          "odd": 4.9,
+          "even": -12.3
         },
         {
           "player_id": "8cf9814c",
           "name": "Mohammed Shami",
-          "odd": -3.6,
-          "even": -8.2
+          "odd": -6.3,
+          "even": -10.7
         },
         {
           "player_id": "8d2c70ad",
           "name": "Kuldeep Yadav",
-          "odd": 5.8,
-          "even": 4.3
+          "odd": 2.8,
+          "even": 3.3
         },
         {
           "player_id": "8fd1a8f5",
           "name": "Dale Steyn",
-          "odd": 6.3,
-          "even": -9.7
+          "odd": 2.9,
+          "even": -13.1
         },
         {
           "player_id": "91a4a398",
           "name": "Zaheer Khan",
-          "odd": -13.9,
-          "even": 20.1
+          "odd": -15.6,
+          "even": 17.6
         },
         {
           "player_id": "96fd40ae",
           "name": "Ashish Nehra",
-          "odd": -8.1,
-          "even": -15.2
+          "odd": -11.4,
+          "even": -19.0
         },
         {
           "player_id": "98ae73b1",
           "name": "Piyush Chawla",
-          "odd": 12.0,
-          "even": 7.6
+          "odd": 9.3,
+          "even": 5.8
         },
         {
           "player_id": "9d430b40",
           "name": "Sunil Narine",
-          "odd": 4.1,
-          "even": 17.8
+          "odd": 2.0,
+          "even": 15.4
         },
         {
           "player_id": "9fc0ef64",
           "name": "Pradeep Sangwan",
-          "odd": 8.1,
-          "even": -10.9
+          "odd": 6.1,
+          "even": -12.2
         },
         {
           "player_id": "a12e1d51",
           "name": "Lasith Malinga",
-          "odd": -8.7,
-          "even": -31.9
+          "odd": -12.1,
+          "even": -34.2
         },
         {
           "player_id": "a2f46292",
           "name": "Khaleel Ahmed",
-          "odd": -3.7,
-          "even": 11.8
+          "odd": -5.4,
+          "even": 7.4
         },
         {
           "player_id": "a757b0d8",
           "name": "Kieron Pollard",
-          "odd": -12.0,
-          "even": -1.2
+          "odd": -14.0,
+          "even": -2.7
         },
         {
           "player_id": "a818c1be",
           "name": "Trent Boult",
-          "odd": 19.6,
-          "even": -1.4
+          "odd": 15.8,
+          "even": -2.9
         },
         {
           "player_id": "a97c8ec2",
           "name": "Wanindu Hasaranga",
-          "odd": 35.7,
-          "even": -35.3
+          "odd": 34.4,
+          "even": -41.5
         },
         {
           "player_id": "abfeb126",
           "name": "Murali Kartik",
-          "odd": -17.2,
-          "even": -0.9
+          "odd": -20.2,
+          "even": -2.6
         },
         {
           "player_id": "acdc62f5",
           "name": "Anrich Nortje",
-          "odd": 6.7,
-          "even": 5.6
+          "odd": 4.7,
+          "even": 5.3
         },
         {
           "player_id": "acee4cc4",
           "name": "Imran Tahir",
-          "odd": 8.9,
-          "even": -8.3
+          "odd": 4.3,
+          "even": -9.2
         },
         {
           "player_id": "ae78bc32",
           "name": "Manpreet Gony",
-          "odd": 9.7,
-          "even": 18.4
+          "odd": 7.2,
+          "even": 17.1
         },
         {
           "player_id": "b2b50355",
           "name": "Lakshmipathy Balaji",
-          "odd": -29.6,
-          "even": -0.4
+          "odd": -31.5,
+          "even": -0.9
         },
         {
           "player_id": "b681e71e",
           "name": "Glenn Maxwell",
-          "odd": 11.9,
-          "even": 3.3
+          "odd": 7.0,
+          "even": -0.8
         },
         {
           "player_id": "bb18be76",
           "name": "Shane Warne",
-          "odd": 4.2,
-          "even": -22.7
+          "odd": 1.0,
+          "even": -24.7
         },
         {
           "player_id": "bbd41817",
           "name": "Andre Russell",
-          "odd": 22.4,
-          "even": -10.3
+          "odd": 19.2,
+          "even": -11.8
         },
         {
           "player_id": "c05edf8e",
           "name": "Harpreet Brar",
-          "odd": -2.4,
-          "even": 14.9
+          "odd": -5.8,
+          "even": 12.5
         },
         {
           "player_id": "c3d1402f",
           "name": "R. P. Singh",
-          "odd": -8.7,
-          "even": 6.0
+          "odd": -11.2,
+          "even": 2.2
         },
         {
           "player_id": "c3d35165",
           "name": "Albie Morkel",
-          "odd": -4.7,
-          "even": 3.3
+          "odd": -6.6,
+          "even": 0.1
         },
         {
           "player_id": "c8179c68",
           "name": "Shadab Jakati",
-          "odd": 8.3,
-          "even": -2.2
+          "odd": 7.1,
+          "even": -5.1
         },
         {
           "player_id": "cc1e8c68",
           "name": "Umesh Yadav",
-          "odd": 13.8,
-          "even": -4.9
+          "odd": 11.0,
+          "even": -6.2
         },
         {
           "player_id": "ce794613",
           "name": "Thangarasu Natarajan",
-          "odd": -17.0,
-          "even": -12.0
+          "odd": -20.2,
+          "even": -13.5
         },
         {
           "player_id": "ce820073",
           "name": "Sandeep Sharma",
-          "odd": -15.8,
-          "even": -10.8
+          "odd": -18.8,
+          "even": -13.9
         },
         {
           "player_id": "d2a989fc",
           "name": "Dhawal Kulkarni",
-          "odd": -8.6,
-          "even": -14.7
+          "odd": -12.4,
+          "even": -16.7
         },
         {
           "player_id": "d7c6af50",
           "name": "Daniel Vettori",
-          "odd": -30.9,
-          "even": 15.4
+          "odd": -34.0,
+          "even": 13.4
         },
         {
           "player_id": "d9273ee7",
           "name": "Marcus Stoinis",
-          "odd": -0.4,
-          "even": 3.5
+          "odd": -4.2,
+          "even": 2.0
         },
         {
           "player_id": "db31895a",
           "name": "Ankit Rajpoot",
-          "odd": -8.2,
-          "even": -14.5
+          "odd": -9.0,
+          "even": -15.2
         },
         {
           "player_id": "dbe50b21",
           "name": "Hardik Pandya",
-          "odd": -2.8,
-          "even": 11.1
+          "odd": -5.7,
+          "even": 9.3
         },
         {
           "player_id": "dcf81436",
           "name": "Siddarth Kaul",
-          "odd": -23.3,
-          "even": 26.3
+          "odd": -27.3,
+          "even": 23.3
         },
         {
           "player_id": "dd09ff8e",
           "name": "Brett Lee",
-          "odd": 20.2,
-          "even": -19.8
+          "odd": 15.5,
+          "even": -20.2
         },
         {
           "player_id": "ded9240e",
           "name": "Pat Cummins",
-          "odd": 6.0,
-          "even": 7.3
+          "odd": 3.3,
+          "even": 6.3
         },
         {
           "player_id": "df064e1a",
           "name": "Ravi Bishnoi",
-          "odd": 31.8,
-          "even": -21.6
+          "odd": 27.9,
+          "even": -24.4
         },
         {
           "player_id": "e087956b",
           "name": "Ben Stokes",
-          "odd": -0.2,
-          "even": -3.1
+          "odd": -3.0,
+          "even": -3.6
         },
         {
           "player_id": "e62dd25d",
           "name": "Kagiso Rabada",
-          "odd": -18.6,
-          "even": 3.9
+          "odd": -21.2,
+          "even": 2.5
         },
         {
           "player_id": "e938e1bc",
           "name": "Praveen Kumar",
-          "odd": -3.4,
-          "even": 9.6
+          "odd": -8.0,
+          "even": 5.6
         },
         {
           "player_id": "e94915e6",
           "name": "Sam Curran",
-          "odd": -12.6,
-          "even": 33.1
+          "odd": -14.3,
+          "even": 27.8
         },
         {
           "player_id": "eef2536f",
           "name": "Avesh Khan",
-          "odd": -5.0,
-          "even": 20.2
+          "odd": -8.4,
+          "even": 17.5
         },
         {
           "player_id": "efc04be7",
           "name": "Noor Ahmad",
-          "odd": -21.9,
-          "even": -11.2
+          "odd": -23.8,
+          "even": -13.9
         },
         {
           "player_id": "f0f628c7",
           "name": "Munaf Patel",
-          "odd": -30.2,
-          "even": -18.8
+          "odd": -33.5,
+          "even": -22.4
         },
         {
           "player_id": "f19ccfad",
           "name": "Washington Sundar",
-          "odd": -23.4,
-          "even": 10.8
+          "odd": -25.9,
+          "even": 9.5
         },
         {
           "player_id": "f5180fe6",
           "name": "Mitchell Johnson",
-          "odd": -1.7,
-          "even": 11.3
+          "odd": -3.2,
+          "even": 11.2
         },
         {
           "player_id": "f986ca1a",
           "name": "Harshal Patel",
-          "odd": -0.1,
-          "even": -1.2
+          "odd": -1.7,
+          "even": -3.3
         },
         {
           "player_id": "fa463154",
           "name": "Ajit Agarkar",
-          "odd": 0.5,
+          "odd": -2.7,
           "even": -31.6
         },
         {
           "player_id": "fb66ce1f",
           "name": "Chris Morris",
-          "odd": -14.0,
-          "even": -26.1
+          "odd": -16.6,
+          "even": -27.5
         },
         {
           "player_id": "fe93fd9d",
           "name": "Ravindra Jadeja",
-          "odd": 9.8,
-          "even": -8.2
+          "odd": 7.3,
+          "even": -10.9
         }
       ],
       "most_exposed": [
@@ -1432,124 +1432,124 @@
           "player_id": "495d42a5",
           "name": "Ravichandran Ashwin",
           "high_balls": 1074,
-          "clutch": -4.1,
-          "low": -13.5,
-          "high": 5.3
+          "clutch": -6.2,
+          "low": -15.6,
+          "high": 3.2
         },
         {
           "player_id": "2e81a32d",
           "name": "Bhuvneshwar Kumar",
           "high_balls": 922,
-          "clutch": -12.5,
-          "low": -22.5,
-          "high": -2.6
+          "clutch": -15.4,
+          "low": -25.4,
+          "high": -5.4
         },
         {
           "player_id": "9d430b40",
           "name": "Sunil Narine",
           "high_balls": 872,
-          "clutch": 12.8,
-          "low": 2.6,
-          "high": 23.0
+          "clutch": 10.4,
+          "low": 0.3,
+          "high": 20.6
         },
         {
           "player_id": "462411b3",
           "name": "Jasprit Bumrah",
           "high_balls": 866,
-          "clutch": -11.4,
-          "low": -21.9,
-          "high": -0.8
+          "clutch": -13.6,
+          "low": -24.1,
+          "high": -3.0
         },
         {
           "player_id": "57ee1fde",
           "name": "Yuzvendra Chahal",
           "high_balls": 807,
-          "clutch": 7.2,
-          "low": -3.4,
-          "high": 17.9
+          "clutch": 4.8,
+          "low": -5.8,
+          "high": 15.5
         },
         {
           "player_id": "6b19d823",
           "name": "Amit Mishra",
           "high_balls": 790,
-          "clutch": -16.9,
-          "low": -27.9,
-          "high": -5.9
+          "clutch": -19.1,
+          "low": -30.1,
+          "high": -8.1
         },
         {
           "player_id": "fe93fd9d",
           "name": "Ravindra Jadeja",
           "high_balls": 726,
-          "clutch": 2.3,
-          "low": -8.8,
-          "high": 13.3
+          "clutch": -0.3,
+          "low": -11.3,
+          "high": 10.8
         },
         {
           "player_id": "87e562a9",
           "name": "Dwayne Bravo",
           "high_balls": 684,
-          "clutch": -0.6,
-          "low": -12.4,
-          "high": 11.1
+          "clutch": -3.5,
+          "low": -15.3,
+          "high": 8.2
         },
         {
           "player_id": "5f547c8b",
           "name": "Rashid Khan",
           "high_balls": 656,
-          "clutch": -4.8,
-          "low": -16.5,
-          "high": 6.9
+          "clutch": -6.4,
+          "low": -18.1,
+          "high": 5.3
         },
         {
           "player_id": "98ae73b1",
           "name": "Piyush Chawla",
           "high_balls": 646,
-          "clutch": 9.4,
-          "low": -2.2,
-          "high": 21.1
+          "clutch": 7.2,
+          "low": -4.5,
+          "high": 18.8
         },
         {
           "player_id": "2e171977",
           "name": "Axar Patel",
           "high_balls": 642,
-          "clutch": 1.2,
-          "low": -10.6,
-          "high": 13.0
+          "clutch": -0.4,
+          "low": -12.2,
+          "high": 11.4
         },
         {
           "player_id": "8b5b6769",
           "name": "Harbhajan Singh",
           "high_balls": 632,
-          "clutch": -0.7,
-          "low": -12.6,
-          "high": 11.2
+          "clutch": -2.5,
+          "low": -14.4,
+          "high": 9.4
         },
         {
           "player_id": "ce820073",
           "name": "Sandeep Sharma",
           "high_balls": 623,
-          "clutch": -13.3,
-          "low": -25.4,
-          "high": -1.2
+          "clutch": -16.4,
+          "low": -28.5,
+          "high": -4.3
         },
         {
           "player_id": "2f49c897",
           "name": "Mohammed Siraj",
           "high_balls": 614,
-          "clutch": -15.2,
-          "low": -27.7,
-          "high": -2.8
+          "clutch": -18.5,
+          "low": -30.9,
+          "high": -6.0
         },
         {
           "player_id": "759ac88f",
           "name": "Mohit Sharma",
           "high_balls": 611,
-          "clutch": -7.8,
-          "low": -20.4,
-          "high": 4.9
+          "clutch": -10.6,
+          "low": -23.3,
+          "high": 2.1
         }
       ]
     }
   },
-  "data_version": "2026-05-31.713dafe9"
+  "data_version": "2026-09-17.103eadea"
 }

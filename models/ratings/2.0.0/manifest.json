@@ -1,0 +1,687 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "name": "ratings",
+  "scopes": {
+    "BBL": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 357.88,
+            "sigma2": 3.11258219,
+            "stability": "moderate"
+          },
+          "consistency": {
+            "k": 34.06,
+            "sigma2": 0.22039116,
+            "stability": "moderate"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 518.83,
+            "sigma2": 3.16146923,
+            "stability": "low"
+          },
+          "impact": {
+            "k": 63.25,
+            "sigma2": 0.01824187,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 192.72,
+            "sigma2": 2.60267326,
+            "stability": "moderate"
+          },
+          "powerplay": {
+            "k": 297.23,
+            "sigma2": 2.8214168,
+            "stability": "moderate"
+          },
+          "scoring": {
+            "k": 279.39,
+            "sigma2": 3.14494951,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 707.02,
+            "sigma2": 0.0478398,
+            "stability": "moderate"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 24.99,
+            "sigma2": 0.24436823,
+            "stability": "high"
+          },
+          "death": {
+            "k": 1681.79,
+            "sigma2": 3.88496272,
+            "stability": "low"
+          },
+          "defending": {
+            "k": 430.9,
+            "sigma2": 3.35414076,
+            "stability": "moderate"
+          },
+          "economy": {
+            "k": 357.88,
+            "sigma2": 3.4596821,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 36.23,
+            "sigma2": 0.02204495,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 246.86,
+            "sigma2": 3.02484729,
+            "stability": "moderate"
+          },
+          "powerplay": {
+            "k": 551.96,
+            "sigma2": 3.05533384,
+            "stability": "low"
+          },
+          "wickets": {
+            "k": 800.19,
+            "sigma2": 0.04662593,
+            "stability": "high"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2012,
+          2026
+        ]
+      }
+    },
+    "CPL": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 336.4,
+            "sigma2": 3.58672327,
+            "stability": "high"
+          },
+          "consistency": {
+            "k": 117.45,
+            "sigma2": 0.2237159,
+            "stability": "low"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 518.83,
+            "sigma2": 4.04568108,
+            "stability": "low"
+          },
+          "impact": {
+            "k": 20000.0,
+            "sigma2": 0.01791542,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 205.02,
+            "sigma2": 2.99861272,
+            "stability": "moderate"
+          },
+          "powerplay": {
+            "k": 20000.0,
+            "sigma2": 3.39405932,
+            "stability": "low"
+          },
+          "scoring": {
+            "k": 487.69,
+            "sigma2": 3.6845728,
+            "stability": "moderate"
+          },
+          "survival": {
+            "k": 905.65,
+            "sigma2": 0.04875307,
+            "stability": "low"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 19.51,
+            "sigma2": 0.23466685,
+            "stability": "high"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 232.04,
+            "sigma2": 4.7684822,
+            "stability": "moderate"
+          },
+          "defending": {
+            "k": 851.29,
+            "sigma2": 3.85343478,
+            "stability": "low"
+          },
+          "economy": {
+            "k": 170.28,
+            "sigma2": 3.87712216,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 23.49,
+            "sigma2": 0.02128195,
+            "stability": "high"
+          },
+          "middle": {
+            "k": 150.45,
+            "sigma2": 3.21610442,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 150.45,
+            "sigma2": 3.39639693,
+            "stability": "moderate"
+          },
+          "wickets": {
+            "k": 3322.53,
+            "sigma2": 0.04644458,
+            "stability": "moderate"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2013,
+          2026
+        ]
+      }
+    },
+    "IPL": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 487.69,
+            "sigma2": 3.50808477,
+            "stability": "moderate"
+          },
+          "consistency": {
+            "k": 46.41,
+            "sigma2": 0.22406729,
+            "stability": "moderate"
+          },
+          "death": {
+            "k": 232.04,
+            "sigma2": 3.86594549,
+            "stability": "moderate"
+          },
+          "impact": {
+            "k": 67.29,
+            "sigma2": 0.01778404,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 218.11,
+            "sigma2": 2.91427604,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 664.59,
+            "sigma2": 3.18555515,
+            "stability": "low"
+          },
+          "scoring": {
+            "k": 458.42,
+            "sigma2": 3.50818333,
+            "stability": "moderate"
+          },
+          "survival": {
+            "k": 357.88,
+            "sigma2": 0.04339893,
+            "stability": "high"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 26.59,
+            "sigma2": 0.23971842,
+            "stability": "moderate"
+          },
+          "death": {
+            "k": 124.95,
+            "sigma2": 4.57707703,
+            "stability": "high"
+          },
+          "defending": {
+            "k": 487.69,
+            "sigma2": 3.80477091,
+            "stability": "low"
+          },
+          "economy": {
+            "k": 316.21,
+            "sigma2": 3.81572521,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 63.25,
+            "sigma2": 0.02140035,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 279.39,
+            "sigma2": 3.22449694,
+            "stability": "moderate"
+          },
+          "powerplay": {
+            "k": 380.73,
+            "sigma2": 3.38749347,
+            "stability": "moderate"
+          },
+          "wickets": {
+            "k": 3760.38,
+            "sigma2": 0.04335791,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2008,
+          2026
+        ]
+      }
+    },
+    "PSL": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 430.9,
+            "sigma2": 3.57400332,
+            "stability": "low"
+          },
+          "consistency": {
+            "k": 34.06,
+            "sigma2": 0.22669946,
+            "stability": "high"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 518.83,
+            "sigma2": 3.68605575,
+            "stability": "low"
+          },
+          "impact": {
+            "k": 20000.0,
+            "sigma2": 0.01934838,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 132.93,
+            "sigma2": 3.02332277,
+            "stability": "high"
+          },
+          "powerplay": {
+            "borrowed": "T20",
+            "k": 316.21,
+            "sigma2": 3.02131685,
+            "stability": "high"
+          },
+          "scoring": {
+            "k": 458.42,
+            "sigma2": 3.56905143,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 357.88,
+            "sigma2": 0.04911983,
+            "stability": "high"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 19.51,
+            "sigma2": 0.24230063,
+            "stability": "high"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 232.04,
+            "sigma2": 4.40512641,
+            "stability": "moderate"
+          },
+          "defending": {
+            "k": 851.29,
+            "sigma2": 3.89711282,
+            "stability": "low"
+          },
+          "economy": {
+            "k": 458.42,
+            "sigma2": 3.86005086,
+            "stability": "moderate"
+          },
+          "impact": {
+            "k": 38.55,
+            "sigma2": 0.02286551,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 624.7,
+            "sigma2": 3.25334537,
+            "stability": "low"
+          },
+          "powerplay": {
+            "k": 232.04,
+            "sigma2": 3.35685353,
+            "stability": "low"
+          },
+          "wickets": {
+            "k": 1312.95,
+            "sigma2": 0.04780797,
+            "stability": "moderate"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2016,
+          2026
+        ]
+      }
+    },
+    "SA20": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "borrowed": "T20",
+            "k": 357.88,
+            "sigma2": 3.73864599,
+            "stability": "moderate"
+          },
+          "consistency": {
+            "borrowed": "T20",
+            "k": 43.63,
+            "sigma2": 0.21863901,
+            "stability": "moderate"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 518.83,
+            "sigma2": 4.19266265,
+            "stability": "low"
+          },
+          "impact": {
+            "borrowed": "T20",
+            "k": 218.11,
+            "sigma2": 0.01617693,
+            "stability": "low"
+          },
+          "middle": {
+            "borrowed": "T20",
+            "k": 218.11,
+            "sigma2": 2.94567006,
+            "stability": "high"
+          },
+          "powerplay": {
+            "borrowed": "T20",
+            "k": 316.21,
+            "sigma2": 3.1509146,
+            "stability": "high"
+          },
+          "scoring": {
+            "borrowed": "T20",
+            "k": 380.73,
+            "sigma2": 3.84065226,
+            "stability": "high"
+          },
+          "survival": {
+            "borrowed": "T20",
+            "k": 487.69,
+            "sigma2": 0.04959434,
+            "stability": "high"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "borrowed": "T20",
+            "k": 26.59,
+            "sigma2": 0.24211825,
+            "stability": "high"
+          },
+          "death": {
+            "borrowed": "T20",
+            "k": 232.04,
+            "sigma2": 5.5298284,
+            "stability": "moderate"
+          },
+          "defending": {
+            "borrowed": "T20",
+            "k": 316.21,
+            "sigma2": 3.84206553,
+            "stability": "moderate"
+          },
+          "economy": {
+            "borrowed": "T20",
+            "k": 336.4,
+            "sigma2": 4.31389891,
+            "stability": "high"
+          },
+          "impact": {
+            "borrowed": "T20",
+            "k": 46.41,
+            "sigma2": 0.01980704,
+            "stability": "moderate"
+          },
+          "middle": {
+            "borrowed": "T20",
+            "k": 232.04,
+            "sigma2": 3.33183025,
+            "stability": "high"
+          },
+          "powerplay": {
+            "borrowed": "T20",
+            "k": 316.21,
+            "sigma2": 4.18468723,
+            "stability": "high"
+          },
+          "wickets": {
+            "borrowed": "T20",
+            "k": 3322.53,
+            "sigma2": 0.04581122,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2023,
+          2026
+        ]
+      }
+    },
+    "T20": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 357.88,
+            "sigma2": 3.50063511,
+            "stability": "moderate"
+          },
+          "consistency": {
+            "k": 43.63,
+            "sigma2": 0.21339221,
+            "stability": "moderate"
+          },
+          "death": {
+            "k": 518.83,
+            "sigma2": 3.67578702,
+            "stability": "low"
+          },
+          "impact": {
+            "k": 218.11,
+            "sigma2": 0.01791136,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 218.11,
+            "sigma2": 2.92242843,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 316.21,
+            "sigma2": 3.1489929,
+            "stability": "high"
+          },
+          "scoring": {
+            "k": 380.73,
+            "sigma2": 3.56693026,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 487.69,
+            "sigma2": 0.04916907,
+            "stability": "high"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 26.59,
+            "sigma2": 0.23561684,
+            "stability": "high"
+          },
+          "death": {
+            "k": 232.04,
+            "sigma2": 4.27594511,
+            "stability": "moderate"
+          },
+          "defending": {
+            "k": 316.21,
+            "sigma2": 3.82871911,
+            "stability": "moderate"
+          },
+          "economy": {
+            "k": 336.4,
+            "sigma2": 3.90568878,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 46.41,
+            "sigma2": 0.02182359,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 232.04,
+            "sigma2": 3.2014031,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 316.21,
+            "sigma2": 3.47258819,
+            "stability": "high"
+          },
+          "wickets": {
+            "k": 3322.53,
+            "sigma2": 0.04785071,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2005,
+          2026
+        ]
+      }
+    },
+    "T20I": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 170.28,
+            "sigma2": 3.30029531,
+            "stability": "high"
+          },
+          "consistency": {
+            "k": 20.76,
+            "sigma2": 0.20383778,
+            "stability": "high"
+          },
+          "death": {
+            "k": 150.45,
+            "sigma2": 3.40937245,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 117.45,
+            "sigma2": 0.01762664,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 117.45,
+            "sigma2": 2.7968819,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 192.72,
+            "sigma2": 3.05491517,
+            "stability": "high"
+          },
+          "scoring": {
+            "k": 192.72,
+            "sigma2": 3.46753954,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 518.83,
+            "sigma2": 0.05238431,
+            "stability": "moderate"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 26.59,
+            "sigma2": 0.22936029,
+            "stability": "high"
+          },
+          "death": {
+            "k": 192.72,
+            "sigma2": 4.03504177,
+            "stability": "moderate"
+          },
+          "defending": {
+            "k": 181.15,
+            "sigma2": 3.83840029,
+            "stability": "high"
+          },
+          "economy": {
+            "k": 262.62,
+            "sigma2": 3.94125171,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 52.53,
+            "sigma2": 0.02181208,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 181.15,
+            "sigma2": 3.15990123,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 297.23,
+            "sigma2": 3.52043805,
+            "stability": "moderate"
+          },
+          "wickets": {
+            "k": 5124.35,
+            "sigma2": 0.05031746,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2005,
+          2026
+        ]
+      }
+    }
+  },
+  "version": "2.0.0"
+}

@@ -51,7 +51,7 @@ format-agnostic; competition-specific knowledge lives in `config/`.
 |---|---|
 | `venue_id` | Slug for a physical ground, e.g. `chinnaswamy` |
 | `name`, `city`, `country`, `notes` | Canonical description, including rename history |
-| `venue_aliases.raw_name` → `venue_id` | Every raw Cricsheet venue string |
+| `venue_aliases.raw_name` → `venue_id` | Every raw Cricsheet venue string (a name several grounds share, told apart by city, maps to each of them) |
 
 ### `players`
 | Column | Meaning |

@@ -160,6 +160,6 @@ and are left out:
 |---|---|---|---|
 | 1229824 | T20I | player_on_both_sides | player efcb778e is listed for both sides |
 
-**Grounds added automatically:** 278 grounds outside the curated
+**Grounds added automatically:** 265 grounds outside the curated
 `config/venues.yaml`, named from Cricsheet and placed with
 `config/venue_countries.yaml`; 0 without a country.

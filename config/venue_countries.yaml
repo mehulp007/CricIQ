@@ -6,8 +6,10 @@
 # Cricsheet's city (else the text after the comma), and its country comes from
 # `cities` below, or from `venues` for grounds whose city is missing or
 # ambiguous (Hamilton is in New Zealand and Bermuda). `merges` joins names one
-# ground has had, or been recorded under. Countries are geographic: England,
-# Wales, Scotland and Northern Ireland are separate.
+# ground has had, or been recorded under; `shared` splits a name several grounds
+# use (Cricsheet calls grounds in Karachi and Bermuda "National Stadium"), using
+# the match's city. Countries are geographic: England, Wales, Scotland and
+# Northern Ireland are separate.
 
 cities:
   Aberdeen: Scotland
@@ -243,7 +245,6 @@ cities:
 # Grounds whose city is missing or ambiguous, by venue name (up to the comma).
 venues:
   Bermuda National Stadium: { city: Hamilton, country: Bermuda }
-  National Stadium: { city: Hamilton, country: Bermuda }
   White Hill Field: { city: Sandys Parish, country: Bermuda }
   Simonds Stadium: { city: Geelong, country: Australia }
   Chittagong Divisional Stadium: { city: Chattogram, country: Bangladesh }
@@ -271,3 +272,39 @@ merges:
   Wanderers: Wanderers Cricket Ground
   Sharjah Cricket Association Stadium: Sharjah Cricket Stadium
   Queen's Park (New): National Cricket Stadium
+  # Sponsors' names and spellings of one ground.
+  Simonds Stadium: GMHBA Stadium
+  Jade Stadium: AMI Stadium
+  Westpac Stadium: Sky Stadium
+  Sedgars Park: Senwes Park
+  Boland Bank Park: Boland Park
+  Diamond Oval: De Beers Diamond Oval
+  Dubai Sports City Cricket Stadium: Dubai International Cricket Stadium
+  Sardar Patel (Gujarat) Stadium: Sardar Patel Stadium
+  Zohur Ahmed Chowdhury Stadium: Zahur Ahmed Chowdhury Stadium
+  Sher-e-Bangla National Cricket Stadium: Shere Bangla National Stadium
+  Vidarbha C.A. Ground: Vidarbha Cricket Association Ground
+  Sinhalese Sports Club: Sinhalese Sports Club Ground
+  National Sports Academy: Vassil Levski National Sports Academy
+  VRA Cricket Ground: VRA Ground
+  Grange Cricket Club: Grange Cricket Club Ground
+  Bready: Bready Cricket Club
+  Choice Moosa Stadium: Moosa Cricket Stadium
+  Gahanga International Cricket Stadium. Rwanda: Gahanga International Cricket Stadium
+
+# Names that several grounds share, told apart by Cricsheet's city: name -> city ->
+# ground (`id`, plus `name` and `country` where the name or the city is not enough).
+# A shared name in a city not listed here fails the build rather than guess.
+shared:
+  National Stadium:
+    Karachi: { id: national-stadium }
+    Hamilton: { id: bermuda-national-stadium, name: Bermuda National Stadium, country: Bermuda }
+  Nehru Stadium:
+    Kochi: { id: nehru-kochi }
+    Guwahati: { id: nehru-stadium-guwahati }
+    Margao: { id: nehru-stadium-margao }
+    Pune: { id: nehru-stadium-pune }
+  County Ground:
+    Bristol: { id: county-ground-bristol }
+    Chelmsford: { id: county-ground-chelmsford }
+    Taunton: { id: county-ground-taunton }

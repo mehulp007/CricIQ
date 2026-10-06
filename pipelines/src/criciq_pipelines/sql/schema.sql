@@ -68,10 +68,13 @@ CREATE TABLE venues (
     is_curated BOOLEAN NOT NULL
 );
 
+-- Cricsheet's venue names. A few names belong to several grounds ("National Stadium"
+-- in Karachi and in Bermuda), told apart by the match's city.
 CREATE TABLE venue_aliases (
-    raw_name   VARCHAR PRIMARY KEY,
+    raw_name   VARCHAR NOT NULL,
     venue_id   VARCHAR NOT NULL REFERENCES venues (venue_id),
-    is_curated BOOLEAN NOT NULL
+    is_curated BOOLEAN NOT NULL,
+    PRIMARY KEY (raw_name, venue_id)
 );
 
 CREATE TABLE players (

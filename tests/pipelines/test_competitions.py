@@ -1,5 +1,6 @@
 """The multi-competition warehouse: every league and format in one build."""
 
+import shutil
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import pytest
 from criciq_pipelines.raw import RawSnapshot
 from criciq_pipelines.reference import load_competitions
 from criciq_pipelines.validation import validate
-from criciq_pipelines.warehouse import BuildInputs, build_warehouse
+from criciq_pipelines.warehouse import BuildInputs, WarehouseBuildError, build_warehouse
 
 
 @pytest.fixture(scope="module")
@@ -161,6 +162,58 @@ def test_grounds_outside_the_curated_list_get_countries(con: duckdb.DuckDBPyConn
         "SELECT v.is_curated FROM matches m JOIN venues v USING (venue_id) "
         "WHERE m.match_id = 1343973",
     ) == (True,)
+
+
+def test_a_shared_ground_name_is_told_apart_by_city(con: duckdb.DuckDBPyConnection) -> None:
+    # Cricsheet calls grounds in Karachi and Bermuda "National Stadium".
+    assert _one(
+        con,
+        "SELECT v.venue_id, v.city, v.country FROM matches m JOIN venues v USING (venue_id) "
+        "WHERE m.match_id = 1211672",
+    ) == ("national-stadium", "Karachi", "Pakistan")
+
+
+def _config_with_shared(tmp_path: Path, shared: str) -> Path:
+    config = tmp_path / "config"
+    shutil.copytree(Path(__file__).resolve().parents[2] / "config", config)
+    places = config / "venue_countries.yaml"
+    text = places.read_text("utf-8").split("\nshared:\n")[0]
+    places.write_text(f"{text}\nshared:\n{shared}", "utf-8")
+    return config
+
+
+def test_shared_names_follow_the_config(
+    fixture_snapshot: RawSnapshot, fixture_interim: Path, tmp_path: Path
+) -> None:
+    config = _config_with_shared(
+        tmp_path, "  Sydney Cricket Ground:\n    Sydney: { id: scg-sydney }\n"
+    )
+    target = tmp_path / "w.duckdb"
+    build_warehouse(
+        BuildInputs(fixture_interim, fixture_snapshot.people, "test", None, config), target
+    )
+    connection = duckdb.connect(str(target), read_only=True)
+    try:
+        rows = connection.execute(
+            "SELECT DISTINCT m.venue_id, v.country FROM matches m JOIN venues v USING (venue_id) "
+            "WHERE m.match_id IN (1223871, 1386137)"
+        ).fetchall()
+        assert rows == [("scg-sydney", "Australia")]
+    finally:
+        connection.close()
+
+
+def test_a_shared_name_in_an_unknown_city_fails_the_build(
+    fixture_snapshot: RawSnapshot, fixture_interim: Path, tmp_path: Path
+) -> None:
+    config = _config_with_shared(
+        tmp_path, "  Sydney Cricket Ground:\n    Melbourne: { id: scg-melbourne }\n"
+    )
+    with pytest.raises(WarehouseBuildError, match="several grounds share"):
+        build_warehouse(
+            BuildInputs(fixture_interim, fixture_snapshot.people, "test", None, config),
+            tmp_path / "w.duckdb",
+        )
 
 
 def test_quirks_outside_curated_competitions_are_notes(fixture_full_warehouse: Path) -> None:

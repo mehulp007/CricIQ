@@ -222,12 +222,22 @@ class VenuePlace(BaseModel):
     country: str
 
 
+class SharedGround(BaseModel):
+    """One of several grounds that share a name, picked out by Cricsheet's city."""
+
+    id: str
+    name: str | None = None  # default: the shared name
+    country: str | None = None  # default: from `cities`
+
+
 class VenueCountriesConfig(BaseModel):
     """Countries (and merges) for grounds added automatically, outside venues.yaml."""
 
     cities: dict[str, str]
     venues: dict[str, VenuePlace] = {}
     merges: dict[str, str] = {}
+    # Names several grounds share ("County Ground"): name -> Cricsheet city -> ground.
+    shared: dict[str, dict[str, SharedGround]] = {}
 
 
 def load_venue_countries(directory: Path | None = None) -> VenueCountriesConfig:

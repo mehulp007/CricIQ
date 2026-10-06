@@ -100,7 +100,11 @@ that completes already guarantees referential integrity.
 - **Venues.** Raw venue strings map to physical grounds. Curated grounds (`venues.yaml`) merge pure
   renames (Feroz Shah Kotla becomes Arun Jaitley Stadium) and keep rebuilt grounds apart (Motera and
   Narendra Modi Stadium). Other grounds are added automatically: named from the text before the
-  first comma, placed with `venue_countries.yaml`, and listed in `auto_added` for review.
+  first comma, placed with `venue_countries.yaml`, and listed in `auto_added` for review. Its
+  `merges` join sponsors' names and spellings of one ground (Westpac Stadium and Sky Stadium), and
+  its `shared` list splits the few names several grounds use by the match's city: Cricsheet calls
+  grounds in Karachi and Bermuda "National Stadium", and has three County Grounds and four Nehru
+  Stadiums. A shared name in a city the list does not know fails the build instead of guessing.
 - **Curated or not.** In a `strict` competition (the IPL) an unknown team or venue fails the build.
   Elsewhere new teams and venues are added automatically, so a new associate nation never stops a
   refresh.

@@ -45,9 +45,10 @@ and players' careers). That is about 9,900 matches and 4.6 million deliveries, a
 **Negative / accepted trade-offs**
 - Two shapes coexist until every consumer is multi-competition, and the scope copy costs a few
   seconds per build.
-- Automatically added grounds are named from Cricsheet's strings, so a few renamed grounds may
-  appear twice until they are merged in `config/venue_countries.yaml`; the data-quality report lists
-  them.
+- Automatically added grounds are named from Cricsheet's strings, so a ground renamed later may
+  appear twice until it is merged in `config/venue_countries.yaml`; the data-quality report lists
+  added grounds for review. The known renames are merged, and names several grounds share are
+  split by city (`shared`).
 - Cricsheet has no Afghanistan matches, so that record is absent.
 
 **Revisit when** the last consumer reads the full warehouse (V2-4): the scope module can then go.

@@ -428,62 +428,102 @@ def _load_venues(
     venues: VenuesConfig,
     places: VenueCountriesConfig,
 ) -> None:
-    """Curated venues, plus grounds added automatically for non-strict competitions."""
+    """Curated venues, plus grounds added automatically for non-strict competitions.
+
+    A match's ground is found from its venue name and city: a few names belong to
+    several grounds ("National Stadium" is in Karachi and in Bermuda), so those are
+    told apart by city (`shared` in venue_countries.yaml). The result is the temp
+    table ``venue_map`` (venue name, city -> venue id) that the matches load joins."""
     _insert_many(
         con,
         "INSERT INTO venues VALUES (?, ?, ?, ?, ?, true)",
         [[v.id, v.name, v.city, v.country, v.notes] for v in venues.venues],
     )
-    aliases = venues.alias_map()
-    curated = set(aliases)
+    curated_aliases = venues.alias_map()
     curated_ids = {v.id for v in venues.venues}
-    curated_base = {_venue_base(a): vid for a, vid in aliases.items()}
+    curated_base = {_venue_base(a): vid for a, vid in curated_aliases.items()}
     strict = [c.id for c in competitions if c.strict]
     rows = con.execute(
         """
-        SELECT m.venue_raw, any_value(m.city_raw), bool_or(list_contains(?, mc.competition_id)),
+        SELECT m.venue_raw, m.city_raw, count(*), bool_or(list_contains(?, mc.competition_id)),
                min(mc.competition_id)
         FROM raw_matches m JOIN match_competition mc USING (match_id)
-        GROUP BY m.venue_raw ORDER BY 1
+        GROUP BY m.venue_raw, m.city_raw ORDER BY 1, 2 NULLS LAST
         """,
         [strict or [""]],
     ).fetchall()
-    unmapped_strict = [raw for raw, _, is_strict, _ in rows if is_strict and raw not in aliases]
+    unmapped_strict = sorted(
+        {raw for raw, _, _, is_strict, _ in rows if is_strict and raw not in curated_aliases}
+    )
     if unmapped_strict:
         names = ", ".join(repr(u) for u in unmapped_strict)
         raise WarehouseBuildError(f"unmapped venues (add to config/venues.yaml): {names}")
 
+    # A name that only ever means one ground takes the city most of its matches give.
+    usual_city: dict[str, str | None] = {}
+    for raw, city_raw, _, _, _ in sorted(
+        rows, key=lambda r: (r[0], r[1] is None, -r[2], r[1] or "")
+    ):
+        usual_city.setdefault(raw, city_raw)
+
     new_venues: dict[str, list[object]] = {}
-    auto_rows = []
-    for raw, city_raw, _, competition_id in rows:
-        if raw in aliases:
-            continue
-        base = places.merges.get(_venue_base(raw), _venue_base(raw))
-        if base in curated_base:
-            aliases[raw] = curated_base[base]
-            continue
-        place = places.venues.get(base) or places.venues.get(_venue_base(raw))
+    auto_rows: list[list[object]] = []
+    resolved: dict[str, str] = {}
+    venue_map: list[tuple[str, str | None, str]] = []
+    for raw, city_raw, _, _, competition_id in rows:
+        base = _venue_base(raw)
         suffix = raw.split(",", 1)[1].split(",")[0].strip() if "," in raw else None
-        city = place.city if place else (city_raw or suffix)
-        country = place.country if place else places.cities.get(city or "")
-        venue_id = _slug(base)
-        clashes = venue_id in curated_ids or (
-            venue_id in new_venues and new_venues[venue_id][3] != country
-        )
-        if clashes:
-            venue_id = f"{venue_id}-{_slug(country or 'unknown')}"
-        if venue_id not in new_venues:
-            new_venues[venue_id] = [venue_id, base, city, country, None]
+        if base in places.shared:
+            city = city_raw or suffix
+            ground = places.shared[base].get(city or "")
+            if ground is None:
+                raise WarehouseBuildError(
+                    f"venue {raw!r} in {city!r}: several grounds share this name; add the city "
+                    "under `shared` in config/venue_countries.yaml"
+                )
+            venue_id, name = ground.id, ground.name or base
+            country = ground.country or places.cities.get(city or "")
+        elif raw in resolved:
+            venue_map.append((raw, city_raw, resolved[raw]))
+            continue
+        elif raw in curated_aliases or places.merges.get(base, base) in curated_base:
+            venue_id = curated_aliases.get(raw) or curated_base[places.merges.get(base, base)]
+            resolved[raw] = venue_id
+            venue_map.append((raw, city_raw, venue_id))
+            continue
+        else:
+            name = places.merges.get(base, base)
+            place = places.venues.get(name) or places.venues.get(base)
+            city = place.city if place else (usual_city[raw] or suffix)
+            country = place.country if place else places.cities.get(city or "")
+            venue_id = _slug(name)
+            clashes = venue_id in curated_ids or (
+                venue_id in new_venues and new_venues[venue_id][3] != country
+            )
+            if clashes:
+                venue_id = f"{venue_id}-{_slug(country or 'unknown')}"
+            resolved[raw] = venue_id
+        if venue_id not in new_venues and venue_id not in curated_ids:
+            new_venues[venue_id] = [venue_id, name, city, country, None]
             auto_rows.append(
                 ["venue", competition_id, venue_id, raw, None if country else "no country"]
             )
-        aliases[raw] = venue_id
+        venue_map.append((raw, city_raw, venue_id))
+
     _insert_many(con, "INSERT INTO venues VALUES (?, ?, ?, ?, ?, false)", list(new_venues.values()))
+    # Every curated name, used or not, plus every name a match used.
+    aliases = sorted(
+        set(curated_aliases.items()) | {(raw, venue_id) for raw, _, venue_id in venue_map}
+    )
     _insert_many(
         con,
         "INSERT INTO venue_aliases VALUES (?, ?, ?)",
-        [[raw, venue_id, raw in curated] for raw, venue_id in aliases.items()],
+        [[raw, vid, curated_aliases.get(raw) == vid] for raw, vid in aliases],
     )
+    con.execute(
+        "CREATE TEMP TABLE venue_map (raw_name VARCHAR, city_raw VARCHAR, venue_id VARCHAR)"
+    )
+    _insert_many(con, "INSERT INTO venue_map VALUES (?, ?, ?)", [list(r) for r in venue_map])
     if auto_rows:
         _insert_many(con, "INSERT INTO auto_added VALUES (?, ?, ?, ?, ?)", auto_rows)
 
@@ -635,7 +675,8 @@ def _load_matches(con: duckdb.DuckDBPyConnection) -> None:
             coalesce(m.has_supersubs, false)
         FROM raw_matches m
         JOIN match_team mt USING (match_id)
-        JOIN venue_aliases va ON va.raw_name = m.venue_raw
+        JOIN venue_map va ON va.raw_name = m.venue_raw
+             AND va.city_raw IS NOT DISTINCT FROM m.city_raw
         JOIN team_map t1 ON t1.competition_id = mt.competition_id AND t1.year = mt.year
              AND t1.raw_name = m.team1
         JOIN team_map t2 ON t2.competition_id = mt.competition_id AND t2.year = mt.year

@@ -22,16 +22,19 @@ import type {
   TeamsOverview,
   Timeline,
 } from "./types";
+import { withVersion } from "./version";
 
 /**
- * Server-side client for the CricIQ API. Historical data only changes when the
- * API is redeployed, so responses are cached by Next.js for a day.
+ * Server-side client for the CricIQ API. Responses are cached by Next.js for a
+ * day, keyed by the data version (see ./version): the metadata that carries it
+ * is refreshed every few minutes, so new data from a sync shows up quickly.
  */
 const API_URL = process.env.CRICIQ_API_URL ?? "http://localhost:8000";
 
 // The free-tier API sleeps when idle and can take ~30-50s to wake.
 const TIMEOUT_MS = 55_000;
 const REVALIDATE_SECONDS = 86_400;
+const META_REVALIDATE_SECONDS = 300;
 // Every API response carries this cache tag, so an API redeploy can be followed
 // by one invalidation instead of waiting a day (see docs/deployment.md).
 export const API_CACHE_TAG = "criciq-api";
@@ -46,11 +49,11 @@ export class ApiError extends Error {
   }
 }
 
-async function apiGet<T>(path: string): Promise<T> {
+async function fetchJson<T>(path: string, revalidate: number): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      next: { revalidate: REVALIDATE_SECONDS, tags: [API_CACHE_TAG] },
+      next: { revalidate, tags: [API_CACHE_TAG] },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (cause) {
@@ -60,6 +63,17 @@ async function apiGet<T>(path: string): Promise<T> {
     throw new ApiError(`CricIQ API returned ${response.status} for ${path}`, response.status);
   }
   return (await response.json()) as T;
+}
+
+async function apiGet<T>(path: string): Promise<T> {
+  let version: string | null = null;
+  try {
+    version = (await getMeta()).data_version;
+  } catch (error) {
+    // An unreachable API fails the same way for the request itself: don't wait twice.
+    if (error instanceof ApiError && error.status === null) throw error;
+  }
+  return fetchJson<T>(withVersion(path, version), REVALIDATE_SECONDS);
 }
 
 export interface MatchQuery {
@@ -83,7 +97,7 @@ export function getMatches(query: MatchQuery = {}): Promise<MatchPage> {
 }
 
 export function getMeta(): Promise<Meta> {
-  return apiGet<Meta>("/api/v1/meta");
+  return fetchJson<Meta>("/api/v1/meta", META_REVALIDATE_SECONDS);
 }
 
 export function getTimeline(matchId: number): Promise<Timeline> {

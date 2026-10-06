@@ -10,8 +10,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { MatchCard } from "@/components/match/match-card";
+import { LatestMatches } from "@/components/matches/latest-matches";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { FEATURED, SNAPSHOT } from "@/lib/featured";
@@ -229,6 +231,10 @@ export default function OverviewPage() {
           </Link>
         </div>
       </section>
+
+      <Suspense fallback={null}>
+        <LatestMatches />
+      </Suspense>
 
       <section aria-labelledby="featured-heading" className="flex flex-col gap-6">
         <div className="flex flex-wrap items-end justify-between gap-3">

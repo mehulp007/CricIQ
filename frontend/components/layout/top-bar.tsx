@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { Logo } from "@/components/brand/logo";
+import { DataBadges, SeasonBadge } from "@/components/layout/data-badges";
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { Badge } from "@/components/ui/badge";
-import { seasonRange } from "@/lib/featured";
 
 export function TopBar() {
   return (
@@ -13,9 +13,9 @@ export function TopBar() {
         <Logo />
       </Link>
       <div className="ml-auto flex items-center gap-2">
-        <Badge variant="outline" className="font-mono text-[11px] text-muted-foreground">
-          IPL · {seasonRange()}
-        </Badge>
+        <Suspense fallback={<SeasonBadge />}>
+          <DataBadges />
+        </Suspense>
       </div>
     </header>
   );

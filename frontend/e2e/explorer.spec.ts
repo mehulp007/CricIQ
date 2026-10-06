@@ -31,3 +31,19 @@ test.describe("match explorer", () => {
     await expect(page.getByTestId("win-probability")).toBeVisible();
   });
 });
+
+test.describe("data freshness", () => {
+  test("the overview leads with the latest matches", async ({ page }) => {
+    await page.goto("/");
+    const latest = page.getByRole("region", { name: "Latest matches" });
+    await expect(latest.getByRole("listitem").first()).toBeVisible();
+    await latest.getByRole("listitem").first().getByRole("link").click();
+    await expect(page).toHaveURL(/\/matches\/\d+$/);
+  });
+
+  test("the top bar says how fresh the data is", async ({ page, isMobile }) => {
+    test.skip(isMobile, "the freshness note is shown from tablet width up");
+    await page.goto("/matches");
+    await expect(page.getByTestId("data-freshness")).toHaveText(/^Data (updated|to) \d/);
+  });
+});

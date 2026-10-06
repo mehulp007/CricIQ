@@ -11,8 +11,8 @@ export default function PlayersLoading() {
         <div className="h-5 w-[32rem] max-w-full animate-pulse rounded bg-muted/70" />
       </div>
       <div className="flex flex-wrap gap-2">
-        {[288, 160, 144, 224, 160].map((w) => (
-          <div key={w} className="h-9 animate-pulse rounded-lg bg-muted" style={{ width: w }} />
+        {[288, 160, 144, 224, 160].map((w, i) => (
+          <div key={i} className="h-9 animate-pulse rounded-lg bg-muted" style={{ width: w }} />
         ))}
       </div>
       <div className="h-[36rem] animate-pulse rounded-2xl border border-border bg-card/50" />

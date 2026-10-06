@@ -42,7 +42,7 @@ class Meta(BaseModel):
     data_version: str
     """Version of the loaded serving dataset (latest match date + content hash)."""
     model_versions: dict[str, str]
-    """Loaded model name -> semantic version; empty until models ship (M3+)."""
+    """Model name -> semantic version of the models that scored this data."""
     seasons: list[SeasonInfo]
     franchises: list[FranchiseInfo]
     venues: list[VenueInfo]

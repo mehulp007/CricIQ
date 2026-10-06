@@ -29,11 +29,14 @@ def get_meta(db: Database) -> Meta:
         GROUP BY ALL ORDER BY matches DESC, v.name
         """
     )
+    models = (
+        db.rows("SELECT name, version FROM models ORDER BY name") if db.has_table("models") else []
+    )
     return Meta(
         api_version="v1",
         app_version=__version__,
         data_version=db.data_version,
-        model_versions={},
+        model_versions={r["name"]: r["version"] for r in models},
         seasons=[SeasonInfo(**r) for r in seasons],
         franchises=[FranchiseInfo(**r) for r in franchises],
         venues=[VenueInfo(**r) for r in venues],

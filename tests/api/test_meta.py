@@ -22,7 +22,16 @@ def test_meta_reports_dataset(client: TestClient) -> None:
     assert body["app_version"] == __version__
     assert body["data_version"].startswith("2025-06-03.")
     assert response.headers["X-Data-Version"] == body["data_version"]
-    assert body["model_versions"] == {}
+    assert body["model_versions"] == {
+        name: "1.0.0"
+        for name in (
+            "ball_outcome",
+            "ratings",
+            "score_projection",
+            "simulator",
+            "win_probability",
+        )
+    }
     assert {s["year"] for s in body["seasons"]} >= {2008, 2019, 2025}
     franchise_ids = {f["franchise_id"] for f in body["franchises"]}
     assert {"MI", "CSK", "DC", "DCH"} <= franchise_ids
@@ -52,3 +61,7 @@ def test_database_knows_its_format(fixture_serving_db: Path) -> None:
         assert db.match_format == "T20"
     finally:
         db.close()
+
+
+def test_meta_has_no_model_versions_before_scoring(unscored_client: TestClient) -> None:
+    assert unscored_client.get("/api/v1/meta").json()["model_versions"] == {}

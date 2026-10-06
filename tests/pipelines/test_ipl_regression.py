@@ -121,3 +121,36 @@ def test_model_outputs_allow_machine_noise_only(tmp_path: Path) -> None:
     jumped = list(base)
     jumped[3] = (3, base[3][1], base[3][2], base[3][3] + 5)
     assert diff(jumped) == ["wp_predictions.pressure: integers differ beyond rounding"]
+
+
+def test_explanations_may_resplit_a_total_on_a_few_balls(tmp_path: Path) -> None:
+    def build(name: str, rows: list[tuple[int, list[float]]]) -> Path:
+        db = tmp_path / name
+        con = duckdb.connect(str(db))
+        con.execute("CREATE TABLE wp_predictions (seq_no INTEGER, factors FLOAT[])")
+        con.executemany("INSERT INTO wp_predictions VALUES (?, ?)", rows)
+        con.close()
+        return db
+
+    base = [(i, [-33.5, 0.2, 0.3]) for i in range(1000)]
+    saved = tmp_path / "saved"
+    save_values(build("base.duckdb", base), ["wp_predictions"], saved)
+
+    def diff(name: str, rows: list[tuple[int, list[float]]]) -> list[str]:
+        return value_differences(build(name, rows), ["wp_predictions"], saved)
+
+    # Seen on CI: one ball split the same -33.0 points differently.
+    resplit = list(base)
+    resplit[46] = (46, [-33.9, 0.6, 0.3])
+    assert diff("resplit.duckdb", resplit) == []
+
+    moved_total = list(base)
+    moved_total[46] = (46, [-30.0, 0.2, 0.3])
+    assert diff("total.duckdb", moved_total) == [
+        "wp_predictions.factors: shares differ beyond re-splitting a total"
+    ]
+
+    many = [(i, [-33.9, 0.6, 0.3]) for i in range(1000)]
+    assert diff("many.duckdb", many) == [
+        "wp_predictions.factors: shares differ beyond re-splitting a total"
+    ]

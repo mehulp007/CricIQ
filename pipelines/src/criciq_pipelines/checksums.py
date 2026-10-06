@@ -29,9 +29,13 @@ SKIP = frozenset({"meta"})
 ROUNDED_FROM_FLOATS = frozenset(
     {("wp_predictions", "pressure"), ("score_projections", "quantiles")}
 )
+# Shares of a total, each rounded to 0.1 (a ball's explanation points): where two
+# shares are nearly tied, a machine may split the same total differently.
+SHARES_OF_A_TOTAL = frozenset({("wp_predictions", "factors")})
+SHARE_STEP = 0.1
 DOUBLE_TOLERANCE = 1e-6
 FLOAT32_TOLERANCE = 1e-5
-MAX_ROUNDING_FLIPS = 0.002  # share of values
+MAX_ROUNDING_FLIPS = 0.002  # share of values (or of rows, for shares of a total)
 
 TableChecksum = dict[str, object]
 
@@ -174,7 +178,11 @@ def _compare_rows(
     for i, (column, kind) in enumerate(zip(columns, kinds, strict=True)):
         old = [row[i] for row in expected]
         new = [row[i] for row in actual]
-        if (table, column) in ROUNDED_FROM_FLOATS:
+        if (table, column) in SHARES_OF_A_TOTAL:
+            resplit = _count_resplits(old, new)
+            if resplit is None or resplit > max(2, MAX_ROUNDING_FLIPS * len(old)):
+                out.append(f"{table}.{column}: shares differ beyond re-splitting a total")
+        elif (table, column) in ROUNDED_FROM_FLOATS:
             flips, total = _count_flips(old, new)
             if flips is None or flips > max(2, MAX_ROUNDING_FLIPS * total):
                 out.append(f"{table}.{column}: integers differ beyond rounding")
@@ -222,6 +230,21 @@ def _close(a: Any, b: Any, tolerance: float) -> bool:
     if isinstance(a, dict) and isinstance(b, dict):
         return a.keys() == b.keys() and all(_close(a[k], b[k], tolerance) for k in a)
     return bool(a == b)
+
+
+def _count_resplits(old: list[Any], new: list[Any]) -> int | None:
+    """Rows whose shares were split differently (None if any row's total moved)."""
+    resplit = 0
+    for a, b in zip(old, new, strict=True):
+        if _close(a, b, FLOAT32_TOLERANCE):
+            continue
+        if not (isinstance(a, list) and isinstance(b, list) and len(a) == len(b)):
+            return None
+        # Each share is rounded to SHARE_STEP, so totals agree to half a step per share.
+        if abs(sum(a) - sum(b)) > SHARE_STEP / 2 * len(a) + FLOAT32_TOLERANCE:
+            return None
+        resplit += 1
+    return resplit
 
 
 def _count_flips(old: list[Any], new: list[Any]) -> tuple[int | None, int]:

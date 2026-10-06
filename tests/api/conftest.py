@@ -9,9 +9,13 @@ from criciq_api.main import create_app
 
 
 @pytest.fixture(scope="session")
-def client(fixture_scored_serving_db: Path, fixture_players_db: Path) -> Iterator[TestClient]:
+def client(
+    fixture_scored_serving_db: Path, fixture_scored_players_db: Path
+) -> Iterator[TestClient]:
     settings = Settings(
-        environment="test", serving_db=fixture_scored_serving_db, players_db=fixture_players_db
+        environment="test",
+        serving_db=fixture_scored_serving_db,
+        players_db=fixture_scored_players_db,
     )
     with TestClient(create_app(settings)) as test_client:
         yield test_client

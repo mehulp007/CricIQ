@@ -94,6 +94,10 @@ describe("explanations", () => {
     );
     expect(describeFactor(final, chaseBall, "wickets").label).toBe("Wickets in hand");
     expect(describeFactor(final, -1, "situation").detail).toBe("Before the first ball");
+    expect(describeFactor(final, -1, "teams").label).toBe("Who is playing");
+    expect(describeFactor(final, chaseBall, "teams").detail).toBe(
+      "International or league cricket",
+    );
     const form = recentForm(final, chaseBall);
     expect(form.runs).toBeGreaterThanOrEqual(0);
     expect(form.wickets).toBeLessThanOrEqual(12);

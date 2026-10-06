@@ -205,6 +205,14 @@ export function describeFactor(timeline: Timeline, cursor: number, key: string):
           : "No balls bowled yet",
       };
     }
+    case "teams":
+      return {
+        label: "Who is playing",
+        detail:
+          inningsNo === 1
+            ? "Both XIs' batting and bowling records"
+            : "International or league cricket",
+      };
     default:
       return { label: key, detail: "" };
   }

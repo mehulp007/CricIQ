@@ -38,10 +38,13 @@ def test_every_competition_has_a_directory_profile_and_splits(client: TestClient
         assert profile["player"]["player_id"] == busiest["player_id"]
         assert profile["batting"]["runs"] == busiest["runs"]
         assert profile["batting"]["par_strike_rate"] is not None
-        # Ratings and win probability added come with the pooled T20 models.
-        assert profile["ratings"] == {"batting": None, "bowling": None}
+        # Win probability added and ratings, from each competition's own constants.
+        assert profile["batting"]["wpa"] is not None
+        assert profile["ratings"]["batting"] is not None
         splits = _get(client, f"/api/v2/{competition}/players/{busiest['player_id']}/splits")
         assert [g["key"] for g in splits["batting"]][:2] == ["phase", "bowling_type"]
+        similar = _get(client, f"/api/v2/{competition}/players/{busiest['player_id']}/similar")
+        assert "batting" in similar
 
 
 def test_all_t20_adds_up_a_players_competitions(client: TestClient) -> None:

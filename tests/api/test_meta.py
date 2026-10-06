@@ -10,6 +10,7 @@ from criciq_api.core.config import Settings
 from criciq_api.db import Database, ServingDataMissingError
 from criciq_api.main import create_app
 from criciq_core import publish
+from criciq_ml import registry
 
 
 def test_healthz(client: TestClient) -> None:
@@ -25,8 +26,9 @@ def test_meta_reports_dataset(client: TestClient) -> None:
     assert body["app_version"] == __version__
     assert body["data_version"].startswith("2025-06-03.")
     assert response.headers["X-Data-Version"] == body["data_version"]
+    # The versions serving the IPL (the pooled T20 versions where the IPL takes them).
     assert body["model_versions"] == {
-        name: "1.0.0"
+        name: registry.current_version(name, "IPL")
         for name in (
             "ball_outcome",
             "ratings",
@@ -49,7 +51,11 @@ def test_openapi_is_versioned(client: TestClient) -> None:
 
 
 def test_missing_serving_database_fails_fast(tmp_path: Path) -> None:
-    settings = Settings(environment="test", serving_db=tmp_path / "absent.duckdb")
+    settings = Settings(
+        environment="test",
+        serving_db=tmp_path / "absent.duckdb",
+        players_db=tmp_path / "no-players.duckdb",
+    )
     with (
         pytest.raises(ServingDataMissingError, match="criciq-data"),
         TestClient(create_app(settings)),
@@ -85,7 +91,10 @@ def test_meta_reports_the_latest_data_update(
         """
     )
     con.close()
-    with TestClient(create_app(Settings(environment="test", serving_db=serving))) as client:
+    settings = Settings(
+        environment="test", serving_db=serving, players_db=serving.with_name("no-players.duckdb")
+    )
+    with TestClient(create_app(settings)) as client:
         body = client.get("/api/v1/meta").json()
     assert body["last_update"] == {
         "updated_at": "2027-04-02T06:00:00",

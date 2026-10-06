@@ -3,8 +3,8 @@
 The same directory, profiles and splits as /api/v1/players, from the players
 database: ``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i or t20 (every T20
 competition). Par is always the player's own competition's: a PSL strike rate is
-judged against the PSL. Ratings, similar players and win probability added come
-with the pooled T20 models; until then those fields are empty.
+judged against the PSL. Ratings use each competition's own shrinkage constants,
+and win probability added comes from the model serving that competition.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from criciq_api.db import Database
 from criciq_api.repositories.players import PlayerFilters, PlayerSort, RoleFilter
 from criciq_api.schemas.competitions import CompetitionList, PlayerCareers
-from criciq_api.schemas.players import PlayerPage, PlayerProfile, PlayerSplits
+from criciq_api.schemas.players import PlayerPage, PlayerProfile, PlayerSplits, SimilarPlayers
 from criciq_api.services import competitions as competitions_service
 from criciq_api.services import players as service
 
@@ -128,6 +128,23 @@ def read_splits(
     """Batting and bowling in one competition by phase, opponent type, position and more."""
     try:
         return service.get_splits(_scoped(db, competition), player_id, first, last)
+    except service.PlayerNotFoundError:
+        raise _not_found(player_id) from None
+    except service.InvalidWindowError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from None
+
+
+@router.get("/{competition}/players/{player_id}/similar")
+def read_similar(
+    db: PlayersDB,
+    competition: Competition,
+    player_id: str,
+    first: FirstSeason = None,
+    last: LastSeason = None,
+) -> SimilarPlayers:
+    """Players of one competition with the most similar batting and bowling styles."""
+    try:
+        return service.get_similar(_scoped(db, competition), player_id, first, last)
     except service.PlayerNotFoundError:
         raise _not_found(player_id) from None
     except service.InvalidWindowError as error:

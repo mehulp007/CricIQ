@@ -26,7 +26,7 @@ def test_featured_files_are_compact() -> None:
 
 
 def test_featured_replays_carry_the_current_model() -> None:
-    current = registry.current_version()
+    current = registry.current_version(registry.NAME, "IPL")
     for match_id in FEATURED:
         timeline = Timeline.model_validate_json((OUT_DIR / f"{match_id}.json").read_text("utf-8"))
         assert timeline.win_probability is not None

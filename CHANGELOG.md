@@ -21,6 +21,11 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
   - An IPL regression gate: the IPL warehouse and scored serving database are compared table by
     table with checksums from the v1 code.
   - The data-quality report covers every competition.
+  - Innings phases follow each match's format: data code phases T20, ODI and Test deliveries by
+    their own format, and the T20 models refuse a database holding other formats instead of scoring
+    them with T20 phases.
+  - `just v2-up`: the local v2 runtime builds every competition, scores every ball and serves the
+    API and the web app together.
 
 ### Changed
 - `criciq-data download` and `run` fetch every selected competition (`CRICIQ_COMPETITIONS`, default
@@ -30,6 +35,11 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
 ### Fixed
 - An over split between two bowlers (three balls each) is credited to the bowler who started it;
   before, the choice depended on row order.
+- Grounds that share a name are told apart by city: Karachi's National Stadium (about 150 matches)
+  had been filed under Bermuda's, and Nehru Stadiums and County Grounds in different cities had been
+  merged. Eighteen grounds recorded under two names (sponsors' names and spellings) are merged.
+- `/api/v1/meta` reports the versions of the models that scored the data (it always returned none).
+- `criciq-data report` and `run` write the data-quality report with LF line endings on Windows.
 
 ## [1.0.0] - 2026-10-05
 

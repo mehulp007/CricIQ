@@ -27,8 +27,8 @@ The image build **is** the data pipeline:
 2. The same stage scores every ball with the committed models (`criciq-ml score`), adding win
    probabilities, explanations and first-innings score projections to the serving database. It
    never retrains (ADR-0004).
-3. The `runtime` stage installs only the API package (no ML libraries) and copies in the 12 MB serving
-   database. It runs as a non-root user with a container health check.
+3. The `runtime` stage installs only the API package (no ML libraries) and copies in the serving
+   database (about 28 MB for the IPL). It runs as a non-root user with a container health check.
 
 | Setting | Value |
 |---|---|

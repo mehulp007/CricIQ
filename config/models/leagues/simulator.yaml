@@ -1,0 +1,19 @@
+# Match simulator for the T20 leagues (BBL, CPL, PSL, SA20): backtest configuration.
+#
+# The simulator plays matches with the leagues' own ball-outcome model, refit on
+# the seasons before each period and folded for each league. Each league is
+# backtested on its own serving-shaped database and is served only where its own
+# backtest passes (see ../simulator.yaml).
+
+name: simulator
+version: 1.0.0
+competitions: [BBL, CPL, PSL, SA20]
+
+valid: [2023, 2024]      # the conditions spread is tuned here ...
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+tuning_simulations: 2000
+test: [2025, 2026]       # ... and every match with a result here is simulated once
+simulations: 2000        # per test match
+history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
+timing_simulations: 10000
+seed: 2026

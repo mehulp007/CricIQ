@@ -15,7 +15,8 @@ from criciq_core import paths
 from criciq_core.ratings import MIN_BALLS, MIN_INNINGS, MIN_RATED_BALLS, MIN_SUBSET_BALLS
 from criciq_core.style import MIN_PROFILE_BALLS
 from criciq_ml import registry
-from criciq_ml.report_common import IPL, format_path, pooled_path, write_json, write_text
+from criciq_ml.ratings import ALL_T20
+from criciq_ml.report_common import IPL, format_path, names, pooled_path, write_json, write_text
 from criciq_ml.report_common import label as competition_label
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "ratings.json"
@@ -72,6 +73,20 @@ def insights(version: str, scope: str = IPL) -> dict[str, Any]:
     }
 
 
+def _lender(scopes: dict[str, dict[str, Any]]) -> str:
+    """Whose k a component borrows: all T20's, or a group's competitions' together."""
+    lenders = {
+        str(c["borrowed"])
+        for part in scopes.values()
+        for c in part["components"]
+        if c.get("borrowed")
+    }
+    if not lenders or lenders == {ALL_T20}:
+        return "the all-T20"
+    members = [s for s in scopes if s != ALL_T20]
+    return f"the {names([competition_label(s) for s in members])} records' pooled"
+
+
 def _players_of(data: dict[str, Any]) -> str:
     """Whose regulars a rating compares a player with."""
     return {IPL: "IPL players", "ODI": "ODI players", "T20": "T20 players"}.get(
@@ -103,7 +118,7 @@ def scopes_section(scopes: dict[str, dict[str, Any]]) -> list[str]:
         "",
         "Each competition's ratings are fitted on its own players' records, against its own par.",
         "A component of a competition with too few players followed from one season to the next",
-        "borrows the all-T20 k and stability (marked *). Cells show k and stability.",
+        f"borrows {_lender(scopes)} k and stability (marked *). Cells show k and stability.",
         "",
         "| Role | Component | " + " | ".join(competition_label(n) for n in names) + " |",
         "|---|---|" + "---|" * len(names),
@@ -250,18 +265,21 @@ def model_card(data: dict[str, Any], scopes: dict[str, dict[str, Any]] | None = 
 
 
 def write_format() -> list[Path]:
-    """Another format's current ratings (see ``report.write_format``): one scope, the
-    format's competition."""
+    """A model group's (or another format's) current ratings (see
+    ``report.write_format``): one scope's data, or every scope's for a group of several
+    competitions (``{"version", "scopes"}``, as the pooled T20 data)."""
     version = registry.current_version(registry.RATINGS)
     if version is None:
         return []
     scopes = {scope: insights(version, scope) for scope in scopes_of(version)}
     data = next(iter(scopes.values()))
+    several = len(scopes) > 1
     return [
-        write_json(format_path(INSIGHTS_PATH), data),
-        write_text(
-            format_path(MODEL_CARD_PATH), model_card(data, scopes if len(scopes) > 1 else None)
+        write_json(
+            format_path(INSIGHTS_PATH),
+            {"version": version, "scopes": scopes} if several else data,
         ),
+        write_text(format_path(MODEL_CARD_PATH), model_card(data, scopes if several else None)),
     ]
 
 

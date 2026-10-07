@@ -1,0 +1,19 @@
+# Match simulator for men's T20 internationals: backtest configuration.
+#
+# The simulator plays matches with the T20Is' own ball-outcome model (with
+# national side terms), refit on the seasons before each period. T20Is are served
+# a simulator only if this backtest passes (see ../simulator.yaml); the pooled
+# versions of V2-3 failed theirs.
+
+name: simulator
+version: 1.0.0
+competitions: [T20I]
+
+valid: [2023, 2024]      # the conditions spread is tuned here ...
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+tuning_simulations: 2000
+test: [2025, 2026]       # ... and every match with a result here is simulated once
+simulations: 2000        # per test match
+history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
+timing_simulations: 10000
+seed: 2026

@@ -1,0 +1,46 @@
+# Score projection for men's T20 internationals: training configuration.
+#
+# Trained on the T20Is' copy of the warehouse alone (`scope: T20I`), with the
+# protocol of ../score_projection.yaml: years never do two jobs (tuning, conformal
+# calibration and the test each have their own).
+
+name: score_projection
+version: 1.0.0
+scope: T20I
+
+# Candidate groups served on top of the core features (projection.CANDIDATES): the
+# batters at the crease, which forward selection chose for the pooled T20 model
+# (its other choice, the international flag, is the same for every T20I). The
+# training run tries every other candidate once more on the pre-test rolling origin
+# and reports it.
+served_extras: [crease]
+
+splits:
+  tune_train_through: 2020   # grid candidates are fit on matches up to 2020 ...
+  tune_valid: [2021, 2022]   # ... with early stopping and selection here
+  calibrate: [2023, 2024]    # conformal shifts for the headline model
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit < y-2, calibrate y-2 and y-1, test y
+
+lightgbm:
+  base:
+    learning_rate: 0.05
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    max_rounds: 1500
+    early_stopping_rounds: 100
+    seed: 7
+    num_threads: 12
+  grid:
+    num_leaves: [15, 31]
+    # Rows are balls, but a total is shared by a whole innings (~120 rows):
+    # leaves must span many innings or the trees memorise individual games.
+    min_data_in_leaf: [1500, 4500]
+
+# Totals used to evaluate "P(total >= X)".
+thresholds: [140, 160, 180, 200, 220]
+
+gate:
+  coverage_band: [0.75, 0.85]   # 80% range must cover 75-85% of test totals

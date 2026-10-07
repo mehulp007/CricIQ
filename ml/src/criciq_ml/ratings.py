@@ -26,6 +26,10 @@ v2 fits every scope of the players database (each T20 competition, and all T20
 together) on its own records. A component of a competition with too few
 players followed from one season to the next to tune its ``k``
 (``min_pairs``) borrows the all-T20 ``k`` and stability, and says so.
+
+A model group of several competitions (the T20 leagues) instead borrows from a
+pool of its own competitions' records together, so nothing comes from outside
+the group (``criciq_core.groups``).
 """
 
 from __future__ import annotations
@@ -448,6 +452,33 @@ def train_ratings(
 ALL_T20 = "T20"
 
 
+def train_pool(
+    players: Path, schemas: list[str], cfg: RatingsConfig, *, log: Log = _quiet
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Every component fitted on several scopes' records together (a group's pool):
+    the served constants by role and key, and their evaluations."""
+    con = duckdb.connect(str(players), read_only=True)
+    try:
+        components: dict[str, dict[str, Any]] = {}
+        evaluations: list[dict[str, Any]] = []
+        for role in ROLES:
+            parts = []
+            tables: set[str] = set()
+            for schema in schemas:
+                con.execute(f"SET search_path = '{schema},main'")
+                parts.append(load_units(con, role, schema))
+                tables = _tables(con, schema)
+            units = pd.concat(parts, ignore_index=True)
+            components[role] = {}
+            for component in role_components(role, tables):
+                served, evaluation = fit_component(units, component, cfg, log)
+                components[role][component.key] = served
+                evaluations.append(evaluation)
+    finally:
+        con.close()
+    return components, evaluations
+
+
 def train_scopes(
     players: Path,
     scopes: list[tuple[str, str]],
@@ -455,8 +486,14 @@ def train_scopes(
     *,
     data_version: str,
     log: Log = _quiet,
+    pool: str | None = None,
 ) -> tuple[RatingsModel, dict[str, Any]]:
-    """Fit every scope of the players database: ``scopes`` are (scope id, schema)."""
+    """Fit every scope of the players database: ``scopes`` are (scope id, schema).
+
+    A component a scope cannot tune on its own borrows from the all-T20 scope (when
+    it is among ``scopes``) or, with ``pool`` (a group's name), from every scope's
+    records together.
+    """
     fitted: dict[str, tuple[RatingsModel, dict[str, Any]]] = {}
     order = sorted(scopes, key=lambda s: s[0] != ALL_T20)  # all T20 first: others borrow
     for scope_id, schema in order:
@@ -464,22 +501,35 @@ def train_scopes(
         fitted[scope_id] = train_ratings(
             players, cfg, data_version=data_version, log=log, schema=schema
         )
-    # Another format has no all-T20 scope to borrow from: its scopes keep their own fits.
-    pooled_model = fitted[ALL_T20][0] if ALL_T20 in fitted else None
+    lender: str | None = None
+    lent: dict[str, Any] = {}
+    pool_evaluation: dict[str, Any] | None = None
+    if pool is not None and len(scopes) > 1:
+        log(f"> {pool} (every scope together, to borrow from)")
+        lent, pool_lines = train_pool(players, [schema for _, schema in scopes], cfg, log=log)
+        lender = pool
+        pool_evaluation = {
+            "id": pool,
+            "scopes": [scope_id for scope_id, _ in scopes],
+            "components": pool_lines,
+        }
+    elif ALL_T20 in fitted:
+        lender, lent = ALL_T20, fitted[ALL_T20][0].manifest["components"]
+    # Otherwise (another format, or a group of one competition) every scope keeps its own fits.
     manifest_scopes: dict[str, Any] = {}
     evaluation_scopes: dict[str, Any] = {}
     for scope_id, (model, evaluation) in fitted.items():
         components = model.manifest["components"]
         for line in evaluation["components"]:
-            if pooled_model is None or scope_id == ALL_T20 or line["pairs"] >= cfg.min_pairs:
+            if lender is None or scope_id == lender or line["pairs"] >= cfg.min_pairs:
                 continue
-            pooled = pooled_model.manifest["components"][line["role"]][line["key"]]
+            pooled = lent[line["role"]][line["key"]]
             served = components[line["role"]][line["key"]]
-            served.update(k=pooled["k"], stability=pooled["stability"], borrowed=ALL_T20)
-            line["borrowed"] = ALL_T20
+            served.update(k=pooled["k"], stability=pooled["stability"], borrowed=lender)
+            line["borrowed"] = lender
             log(
                 f"  {scope_id} {line['role']} {line['key']}: {line['pairs']} pairs, "
-                f"borrows the all-T20 k={pooled['k']:.0f}"
+                f"borrows the {lender} k={pooled['k']:.0f}"
             )
         manifest_scopes[scope_id] = {
             "trained_on": model.manifest["trained_on"],
@@ -498,6 +548,7 @@ def train_scopes(
         "splits": cfg.splits.model_dump(),
         "min_pairs": cfg.min_pairs,
         "scopes": evaluation_scopes,
+        **({"pool": pool_evaluation} if pool_evaluation is not None else {}),
     }
     return RatingsModel(manifest), evaluation
 

@@ -1,11 +1,19 @@
-"""Versioned model registry: ``models/<name>/<version>/`` plus a ``CURRENT`` pointer.
+"""Versioned model registry: ``models/<group>/<name>/<version>/`` plus pointers.
 
 Model files are small text artifacts and are committed, so every deployment
 scores with a reviewed, versioned model instead of retraining on the fly.
 
-``CURRENT`` names the version every competition is scored with. A competition
-can keep another version with its own pointer, ``CURRENT.<competition>``: the
-IPL keeps v1 if the pooled T20 model is worse on the IPL's test seasons.
+Each model group (``criciq_core.groups``) has its own registry
+(``criciq_ml.formats.models_root``). ``CURRENT`` names the version its
+competitions are scored with; a competition can have its own pointer,
+``CURRENT.<competition>`` (each competition's simulator, which passes or fails
+its own backtest). The IPL's versions share ``models/`` with the pooled T20
+models of V2-3 and are marked by ``CURRENT.IPL``.
+
+While scoring (``use_group(..., serving=True)``), a T20 group that has no current
+version of a model yet is scored with the pooled T20 one, so its competitions keep
+their predictions until the group's own models are trained; a group with a
+simulator of its own never borrows the pooled simulator.
 """
 
 from __future__ import annotations
@@ -14,6 +22,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from criciq_core.phases import MODEL_FORMAT, model_format
 from criciq_ml import formats
 from criciq_ml.ball_outcome import BallOutcomeModel
 from criciq_ml.model import WinProbabilityModel
@@ -37,50 +46,111 @@ def version_dir(version: str, name: str = NAME) -> Path:
 
 
 def _pointer(name: str, competition: str | None) -> Path:
-    return root(name) / ("CURRENT" if competition is None else f"CURRENT.{competition}")
+    """The pointer a promotion writes: the competition's, else the group's own."""
+    owner = competition or formats.default_pointer()
+    return root(name) / ("CURRENT" if owner is None else f"CURRENT.{owner}")
 
 
-def current_version(name: str = NAME, competition: str | None = None) -> str | None:
-    """The version serving ``competition`` (its own pointer, else ``CURRENT``)."""
-    for pointer in (_pointer(name, competition), _pointer(name, None)):
-        if pointer.exists():
-            return pointer.read_text(encoding="utf-8").strip()
+def _pointer_names(competition: str | None, group_pointer: str | None) -> list[str]:
+    owners = [c for c in (competition, group_pointer) if c is not None]
+    return [f"CURRENT.{c}" for c in dict.fromkeys(owners)] + ["CURRENT"]
+
+
+def _read(base: Path, names: list[str]) -> str | None:
+    for pointer in names:
+        if (base / pointer).exists():
+            return (base / pointer).read_text(encoding="utf-8").strip()
     return None
 
 
+def trained_versions(name: str = NAME) -> list[str]:
+    """Every version of a model saved in the current group's registry."""
+    base = root(name)
+    if not base.exists():
+        return []
+    return sorted(d.name for d in base.iterdir() if (d / "evaluation.json").exists())
+
+
+def _resolve(name: str, competition: str | None) -> tuple[Path, str] | None:
+    """The version serving ``competition`` and the registry holding it."""
+    base = root(name)
+    version = _read(base, _pointer_names(competition, formats.default_pointer()))
+    if version is not None:
+        return base, version
+    if not _falls_back(name):
+        return None
+    legacy = formats.legacy_root() / name
+    version = _read(legacy, _pointer_names(competition, None))
+    return None if version is None else (legacy, version)
+
+
+def _falls_back(name: str) -> bool:
+    """Whether scoring may borrow the pooled T20 version (see the module docstring)."""
+    if not formats.serving() or formats.folder() is None or model_format() != MODEL_FORMAT:
+        return False
+    return name != SIMULATOR or not trained_versions(name)
+
+
+def current_version(name: str = NAME, competition: str | None = None) -> str | None:
+    """The version serving ``competition`` (its own pointer, else the group's)."""
+    found = _resolve(name, competition)
+    return None if found is None else found[1]
+
+
+def fallback_version(name: str = NAME, competition: str | None = None) -> str | None:
+    """The pooled T20 version serving ``competition`` because its group has none yet."""
+    found = _resolve(name, competition)
+    if found is None or found[0] == root(name):
+        return None
+    return found[1]
+
+
+def current_dir(name: str = NAME, competition: str | None = None) -> Path | None:
+    """The folder of the version serving ``competition``."""
+    found = _resolve(name, competition)
+    return None if found is None else found[0] / found[1]
+
+
+def _current_dir(name: str, competition: str | None, missing: str) -> Path:
+    found = current_dir(name, competition)
+    if found is None:
+        raise FileNotFoundError(missing)
+    return found
+
+
 def load_current(name: str = NAME, competition: str | None = None) -> WinProbabilityModel:
-    version = current_version(name, competition)
-    if version is None:
-        raise FileNotFoundError(f"no current {name} model; run `criciq-ml train`")
-    return WinProbabilityModel.load(version_dir(version, name))
+    return WinProbabilityModel.load(
+        _current_dir(name, competition, f"no current {name} model; run `criciq-ml train`")
+    )
 
 
 def load_current_projection(competition: str | None = None) -> ScoreProjectionModel:
-    version = current_version(PROJECTION, competition)
-    if version is None:
-        raise FileNotFoundError("no current score projection model; run `criciq-ml train`")
-    return ScoreProjectionModel.load(version_dir(version, PROJECTION))
+    return ScoreProjectionModel.load(
+        _current_dir(
+            PROJECTION, competition, "no current score projection model; run `criciq-ml train`"
+        )
+    )
 
 
 def load_current_ball_outcome(competition: str | None = None) -> BallOutcomeModel:
-    version = current_version(BALL_OUTCOME, competition)
-    if version is None:
-        raise FileNotFoundError("no current ball-outcome model; run `criciq-ml train`")
-    return BallOutcomeModel.load(version_dir(version, BALL_OUTCOME))
+    return BallOutcomeModel.load(
+        _current_dir(
+            BALL_OUTCOME, competition, "no current ball-outcome model; run `criciq-ml train`"
+        )
+    )
 
 
 def load_current_ratings() -> RatingsModel:
-    version = current_version(RATINGS)
-    if version is None:
-        raise FileNotFoundError("no current ratings; run `criciq-ml train ratings`")
-    return RatingsModel.load(version_dir(version, RATINGS))
+    return RatingsModel.load(
+        _current_dir(RATINGS, None, "no current ratings; run `criciq-ml train ratings`")
+    )
 
 
 def load_current_simulator(competition: str | None = None) -> SimulatorSettings:
-    version = current_version(SIMULATOR, competition)
-    if version is None:
-        raise FileNotFoundError("no current simulator; run `criciq-ml train simulator`")
-    manifest = json.loads((version_dir(version, SIMULATOR) / "manifest.json").read_text("utf-8"))
+    folder = _current_dir(
+        SIMULATOR, competition, "no current simulator; run `criciq-ml train simulator`"
+    )
+    manifest = json.loads((folder / "manifest.json").read_text("utf-8"))
     return SimulatorSettings(manifest)
 
 

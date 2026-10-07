@@ -1,0 +1,63 @@
+# Win probability for the T20 leagues (BBL, CPL, PSL, SA20): training configuration.
+#
+# The leagues have models of their own (`scope: LEAGUES`, the leagues' copy of the
+# warehouse: no IPL and no international matches), built with the same features
+# and protocol as the other groups' (../win_probability.yaml): splits by calendar
+# year, hyperparameters searched on the validation years only, the test years
+# touched once.
+
+name: win_probability
+version: 1.0.0
+scope: LEAGUES
+
+splits:
+  train_through: 2022        # headline evaluation: fit on matches up to 2022
+  validation: [2023, 2024]   # tuning, early stopping and calibration
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling-origin: for each year y, fit < y-1, calibrate y-1, test y
+
+features:
+  bat_prior_balls: 100       # empirical-Bayes shrinkage toward the league average
+  bowl_prior_balls: 120
+  venue_prior_balls: 1500
+  player_decay: 0.97         # per match played: a half-life of about 23 matches
+  env_window_matches: 60     # rolling scoring rate of each league ("era")
+  stable: true               # derived ratios rounded so every CPU agrees (see features.py)
+
+# Candidate groups served on top of the core features (features.CANDIDATES), per
+# innings. These are what forward selection chose for the pooled T20 model (the
+# squads' records and the batters at the crease in the first innings), without
+# international cricket, which no league match is. The training run tries every
+# other candidate once more on the leagues' pre-test rolling origin and reports it.
+served_extras:
+  1: [squads, crease]
+  2: []
+
+lightgbm:
+  base:
+    objective: cross_entropy  # accepts 0.5 labels for tied matches
+    learning_rate: 0.03
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    monotone_constraints_method: intermediate
+    max_rounds: 2000
+    early_stopping_rounds: 100
+    num_threads: 12
+    seed: 7
+  grid:
+    num_leaves: [7, 15]
+    # Rows are balls, but the outcome is shared by a whole match (~240 rows):
+    # leaves must span many matches or the trees memorise individual games. The
+    # leagues have about 1,600 matches, a little more than the IPL.
+    min_data_in_leaf: [2000, 6000]
+    recency_half_life: [0, 6]  # years; 0 = every year weighted equally
+
+# Calibration (none, or Platt scaling on the log-odds) is chosen per training run
+# with the rolling origin on pre-test seasons. If Platt wins, the served model is
+# calibrated on out-of-fold predictions for this many recent seasons:
+calibration_recent_seasons: 3
+
+gate:
+  max_log_loss_regression: 0.002   # a new version may not be worse than this vs the current one

@@ -1,0 +1,32 @@
+# Ball-outcome model for men's T20 internationals: training configuration.
+#
+# Trained on the T20Is' copy of the warehouse alone (`scope: T20I`): one effect per
+# player from their T20I balls only, and a term per national side, so a player
+# with few balls is shrunk towards their side rather than an average player (an
+# associate debutant is not a full member's equal). The protocol is
+# ../ball_outcome.yaml's.
+
+name: ball_outcome
+version: 1.0.0
+scope: T20I
+
+splits:
+  tune_train_through: 2022   # candidates are fit on matches up to 2022 ...
+  tune_valid: [2023, 2024]   # ... and compared here
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit on every year before y, test on y
+
+model:
+  c: 1.0             # inverse L2 strength for the situation terms
+  max_iter: 3000
+  competition_terms: false   # one competition
+  side_terms: true
+  n_jobs: 12         # independent fits (grid, test, backtest seasons) run in parallel
+  # Player one-hots are multiplied by this before fitting, so their effective
+  # penalty is 1 / (c * scale^2): the smaller the scale, the harder player
+  # effects are shrunk towards their side.
+  player_scale_grid: [0.05, 0.1, 0.2]
+
+gate:
+  # The model must beat the phase-and-wickets baseline on test log loss.
+  must_beat_baseline: true

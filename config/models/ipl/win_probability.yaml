@@ -1,0 +1,53 @@
+# Win probability for the IPL: training configuration (the IPL's own models).
+#
+# The IPL's models train on IPL matches alone (`scope: IPL`, its v1-shaped copy of
+# the warehouse). 1.0.0 is the version trained in v1 and still served; these are
+# its settings, for retraining the IPL on newer data (`just train-group ipl`, which
+# names the new version). Serving a retrained version also makes its derived
+# ratios CPU-independent (`stable`), as every other group's are.
+
+name: win_probability
+version: 1.0.0
+scope: IPL
+
+splits:
+  train_through: 2022        # headline evaluation: fit on 2008-2022
+  validation: [2023, 2024]   # tuning, early stopping and calibration
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling-origin: for each season s, fit < s-1, calibrate s-1, test s
+
+features:
+  bat_prior_balls: 100       # empirical-Bayes shrinkage toward the league average
+  bowl_prior_balls: 120
+  venue_prior_balls: 1500
+  player_decay: 0.97         # per match played: a half-life of about 23 matches
+  env_window_matches: 60     # rolling league scoring rate ("era")
+  stable: true               # derived ratios rounded so every CPU agrees (see features.py)
+
+lightgbm:
+  base:
+    objective: cross_entropy  # accepts 0.5 labels for tied matches
+    learning_rate: 0.03
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    monotone_constraints_method: intermediate
+    max_rounds: 2000
+    early_stopping_rounds: 100
+    num_threads: 12
+    seed: 7
+  grid:
+    num_leaves: [7, 15]
+    # Rows are balls, but the outcome is shared by a whole match (~240 rows):
+    # leaves must span many matches or the trees memorise individual games.
+    min_data_in_leaf: [2000, 6000]
+    recency_half_life: [0, 6]  # seasons; 0 = every season weighted equally
+
+# Calibration (none, or Platt scaling on the log-odds) is chosen per training run
+# with the rolling origin on pre-test seasons. If Platt wins, the served model is
+# calibrated on out-of-fold predictions for this many recent seasons:
+calibration_recent_seasons: 3
+
+gate:
+  max_log_loss_regression: 0.002   # a new version may not be worse than this vs the current one

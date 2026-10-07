@@ -30,6 +30,7 @@ from criciq_ml.report_common import (
     by_competition,
     comparison_section,
     competitions_of,
+    fitted_on,
     format_path,
     ipl_card_path,
     match_phrase,
@@ -406,8 +407,8 @@ def model_card(data: dict[str, Any]) -> str:
         *(
             [
                 "- **Players carry their records across competitions**: a career average in "
-                "the squad and crease features counts every T20 competition, shrunk toward "
-                "the average player.",
+                f"the squad and crease features counts {fitted_on(competitions)}, shrunk "
+                "toward the average player.",
                 "- **Ratios are rounded** to nine decimals in training and scoring, so values "
                 "that are equal in exact arithmetic are equal on every CPU and a tree split "
                 "cannot fall between them.",
@@ -529,10 +530,11 @@ def model_card(data: dict[str, Any]) -> str:
 
 
 def write_format(servings: dict[str, Path]) -> list[Path]:
-    """Model cards and Model Insights data of another format's models (the current one,
-    ``criciq_core.phases.use_format``): ``docs/model-cards/<format>/`` and
-    ``frontend/data/models/<format>/``. ``servings`` are its competitions' serving
-    databases (ODIs: one), whose replays give the biggest swings."""
+    """Model cards and Model Insights data of a model group's models (the current one,
+    ``criciq_ml.formats.use_group``, or another format's): ``docs/model-cards/<group>/``
+    and ``frontend/data/models/<group>/``. ``servings`` are its competitions' serving
+    databases, whose replays give the biggest swings (each competition's, for a group
+    of several)."""
     written = [
         *projection_report.write_format(),
         *ball_outcome_report.write_format(),
@@ -542,7 +544,15 @@ def write_format(servings: dict[str, Path]) -> list[Path]:
     version = registry.current_version()
     if version is None or not servings:
         return written
-    data = insights(version, next(iter(servings.values())))
+    if len(servings) == 1:
+        data = insights(version, next(iter(servings.values())))
+    else:
+        data = {
+            **insights(version, next(iter(servings.values())), swings=False),
+            "swings_by_competition": {
+                c: biggest_swings(path) for c, path in sorted(servings.items())
+            },
+        }
     return [
         write_json(format_path(INSIGHTS_PATH), data),
         write_text(format_path(MODEL_CARD_PATH), model_card(data)),

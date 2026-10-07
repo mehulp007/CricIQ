@@ -1,0 +1,36 @@
+# CricIQ Ratings for the IPL: fitting configuration (the IPL's own constants).
+#
+# Fitted on the IPL's records alone (its scope of the players database, the same
+# tables as its serving database). The IPL is served the IPL constants fitted in
+# V2-3 (ratings 2.0.0, scope IPL) until it is retrained here.
+
+name: ratings
+version: 1.0.0
+source: players
+min_pairs: 100
+
+splits:
+  # k for the validation is tuned on seasons before this one; predictions of
+  # each next season from 2022->2023 onward are then scored.
+  test_from: 2023
+
+# Candidate values of k, log-spaced between these bounds (in exposure units).
+k_grid:
+  low: 1
+  high: 20000
+  points: 161
+
+# A single season is a short window: players qualify for the tuning and the
+# stability check with this share of the window thresholds (150 balls in the
+# role instead of 300, 60 balls in a phase instead of 120, 5 innings).
+season_factor: 0.5
+
+# Stability labels from the year-to-year correlation of single-season
+# ratings. "low" components are shown with a warning that a season's rating
+# is mostly luck.
+stability:
+  high: 0.3
+  moderate: 0.15
+
+# Similar players: the retrieval test needs this many balls in both seasons.
+style_min_balls: 150

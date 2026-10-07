@@ -1,0 +1,35 @@
+# CricIQ Ratings for the T20 leagues (BBL, CPL, PSL, SA20): fitting configuration.
+#
+# Each league is fitted on its own records (its scope of the players database),
+# as in ../ratings.yaml. A component of a league with too few players followed
+# from one season to the next borrows k and stability from the four leagues'
+# records together, never from the IPL or T20 internationals.
+
+name: ratings
+version: 1.0.0
+source: players
+# A league with fewer players followed from one season to the next than this
+# borrows the leagues' pooled k (and stability) for that component.
+min_pairs: 100
+
+splits:
+  # k for the validation is tuned on seasons before this one; predictions of
+  # each next season from 2022->2023 onward are then scored.
+  test_from: 2023
+
+# Candidate values of k, log-spaced between these bounds (in exposure units).
+k_grid:
+  low: 1
+  high: 20000
+  points: 161
+
+# Players qualify for the tuning and the stability check with this share of the
+# window thresholds (see ../ratings.yaml).
+season_factor: 0.5
+
+stability:
+  high: 0.3
+  moderate: 0.15
+
+# Similar players: the retrieval test needs this many balls in both seasons.
+style_min_balls: 150

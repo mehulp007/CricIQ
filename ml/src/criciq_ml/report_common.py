@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from criciq_core.groups import model_groups
 from criciq_core.phases import model_phases
 from criciq_ml import formats
 
@@ -44,6 +45,24 @@ def by_competition(lines: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Per-competition result lines in the usual order."""
     order = in_order([line["competition"] for line in lines])
     return sorted(lines, key=lambda line: order.index(line["competition"]))
+
+
+def spans_groups(competitions: list[str]) -> bool:
+    """Whether a version was fitted across model groups (the pooled T20 versions of V2-3)."""
+    return not any(g.covers(competitions) for g in model_groups().groups)
+
+
+def names(labels: list[str]) -> str:
+    """ "A", "A and B", "A, B and C"."""
+    return " and ".join([", ".join(labels[:-1]), labels[-1]]) if len(labels) > 1 else labels[0]
+
+
+def fitted_on(competitions: list[str]) -> str:
+    """What a version of several competitions was fitted on, for a card: "every T20
+    competition" for the pooled versions, else the competitions by name."""
+    if spans_groups(competitions):
+        return "every T20 competition"
+    return names([label(c) for c in in_order(competitions)])
 
 
 def pooled_path(path: Path) -> Path:

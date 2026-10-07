@@ -16,6 +16,7 @@ from pathlib import Path
 import duckdb
 
 from criciq_core import paths
+from criciq_core.groups import model_groups
 from criciq_core.publish import publish
 from criciq_pipelines import enrich
 from criciq_pipelines.export import export_serving
@@ -43,10 +44,10 @@ CRICINFO_SOURCES = ("cricinfo", "cricinfo_2", "cricinfo_3")
 # Competitions whose v1-shaped warehouse the export and the models read.
 SCOPED = ("IPL",)
 # The pooled copy of every selected T20 competition, in one time order: what the
-# models train on and score from (criciq_ml).
+# pooled T20 models of V2-3 trained on and score from (criciq_ml), until each model
+# group has trained its own.
 POOLED = "T20"
-# Formats with models of their own, each trained on and scored from one copy of the
-# format's competitions (``POOLED`` for T20, ``odi.duckdb`` for ODIs).
+# Formats with models of their own (Test cricket arrives in V2-6).
 MODEL_FORMATS = ("T20", "ODI")
 # Formats the site serves so far (Test cricket arrives in V2-6).
 SERVED_FORMATS = ("T20", "ODI")
@@ -148,8 +149,8 @@ def run_build(
     for competition in scoped_competitions():
         out = (scopes or {}).get(competition) or paths.warehouse_path(competition)
         build_scope(target, competition, out)
-    for match_format, members in model_copies().items():
-        out = (scopes or {}).get(match_format) or paths.warehouse_path(match_format)
+    for name, members in model_copies().items():
+        out = (scopes or {}).get(name) or paths.warehouse_path(name)
         build_scope(target, members, out)
     return counts
 
@@ -166,11 +167,21 @@ def pooled_competitions() -> list[str]:
 
 
 def model_copies() -> dict[str, list[str]]:
-    """Each model format's selected competitions, by the copy's name (the format)."""
+    """The warehouse copies the models train on and score from, by name: the pooled
+    T20 copy (``POOLED``) and each model group's (``LEAGUES``, ``T20I``, ``ODI``;
+    ``criciq_core.groups``), each with its selected competitions. The IPL's is its
+    scoped copy."""
+    selected = [c for c in selected_competitions() if c.format in MODEL_FORMATS]
     found: dict[str, list[str]] = {}
-    for c in selected_competitions():
-        if c.format in MODEL_FORMATS:
-            found.setdefault(c.format, []).append(c.id)
+    pooled = [c.id for c in selected if c.format == POOLED]
+    if pooled:
+        found[POOLED] = pooled
+    for group in model_groups().groups:
+        if group.copy_name in SCOPED:
+            continue
+        members = [c.id for c in selected if c.id in group.competitions]
+        if members:
+            found[group.copy_name] = members
     return found
 
 

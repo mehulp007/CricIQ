@@ -13,8 +13,8 @@ from criciq_api.featured import (
     season_snapshot,
 )
 from criciq_api.schemas.matches import Timeline
-from criciq_core.phases import use_format
-from criciq_ml import registry
+from criciq_core.groups import group_of
+from criciq_ml import formats, registry
 
 # Every competition the web app bundles replays for.
 BUNDLED = sorted(p.name for p in OUT_DIR.iterdir() if p.is_dir())
@@ -61,8 +61,10 @@ def test_featured_files_are_compact() -> None:
 
 @pytest.mark.parametrize("competition", BUNDLED)
 def test_featured_replays_carry_the_model_serving_them(competition: str) -> None:
-    # Each format's models are its own (ADR-0012).
-    with use_format("ODI" if competition == "odi" else "T20"):
+    # Each model group's models are its own (ADR-0012, ADR-0013).
+    owner = group_of(competition.upper())
+    assert owner is not None
+    with formats.use_group(owner, serving=True):
         current = registry.current_version(registry.NAME, competition.upper())
     for entry in _index(competition).matches:
         timeline = Timeline.model_validate_json(

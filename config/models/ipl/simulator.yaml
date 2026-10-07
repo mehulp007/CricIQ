@@ -1,0 +1,17 @@
+# Match simulator for the IPL: backtest configuration (the IPL's own models).
+#
+# Backtested with the IPL's own ball-outcome model on the IPL's serving database.
+# 1.0.0 is the version from v1, still served; these are its settings.
+
+name: simulator
+version: 1.0.0
+competitions: [IPL]
+
+valid: [2023, 2024]      # the conditions spread is tuned here ...
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+tuning_simulations: 2000
+test: [2025, 2026]       # ... and every match with a result here is simulated once
+simulations: 2000        # per test match
+history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
+timing_simulations: 10000
+seed: 2026

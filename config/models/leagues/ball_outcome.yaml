@@ -1,0 +1,30 @@
+# Ball-outcome model for the T20 leagues (BBL, CPL, PSL, SA20): training configuration.
+#
+# Trained on the leagues' copy of the warehouse alone (`scope: LEAGUES`): one
+# effect per player across the four leagues (from their league balls only), each
+# league's own scoring era and its own term. The protocol is ../ball_outcome.yaml's.
+
+name: ball_outcome
+version: 1.0.0
+scope: LEAGUES
+
+splits:
+  tune_train_through: 2022   # candidates are fit on matches up to 2022 ...
+  tune_valid: [2023, 2024]   # ... and compared here
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit on every year before y, test on y
+
+model:
+  c: 1.0             # inverse L2 strength for the situation terms
+  max_iter: 3000
+  competition_terms: true    # a term per league
+  side_terms: false          # national side terms apply to international balls only
+  n_jobs: 12         # independent fits (grid, test, backtest seasons) run in parallel
+  # Player one-hots are multiplied by this before fitting, so their effective
+  # penalty is 1 / (c * scale^2): the smaller the scale, the harder player
+  # effects are shrunk towards an average player.
+  player_scale_grid: [0.05, 0.1, 0.2]
+
+gate:
+  # The model must beat the phase-and-wickets baseline on test log loss.
+  must_beat_baseline: true

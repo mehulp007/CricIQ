@@ -1,0 +1,50 @@
+# Model groups: the competitions one set of models learns from and serves.
+#
+# Every group's models are trained only on its own competitions' matches, from a
+# copy of the warehouse holding just them (data/warehouse/<copy>.duckdb), and
+# serve only those competitions. Nothing is shared between groups.
+#
+#   id            the group's name (`criciq-ml train <model> --group <id>`,
+#                 `just train-group <id>`)
+#   format        the format of its matches (phases and simulator rules)
+#   competitions  what it trains on and serves
+#   copy          the warehouse copy it trains on and is scored from
+#   models        its folder under models/ ("" for models/ itself)
+#   config        its folder under config/models/
+#   pointer       the competition whose pointer (CURRENT.<pointer>) marks the
+#                 group's current versions, where its folder holds other versions
+#                 too; otherwise CURRENT
+#
+# The IPL's models keep their v1 places (models/<model>/, CURRENT.IPL). Until a
+# group has trained a model of its own, its competitions keep the pooled T20 model
+# (models/<model>/CURRENT, trained on every T20 competition in V2-3) for scoring.
+
+groups:
+  - id: ipl
+    format: T20
+    competitions: [IPL]
+    copy: IPL
+    models: ""
+    config: ipl
+    pointer: IPL
+
+  - id: leagues
+    format: T20
+    competitions: [BBL, CPL, PSL, SA20]
+    copy: LEAGUES
+    models: leagues
+    config: leagues
+
+  - id: t20i
+    format: T20
+    competitions: [T20I]
+    copy: T20I
+    models: t20i
+    config: t20i
+
+  - id: odi
+    format: ODI
+    competitions: [ODI]
+    copy: ODI
+    models: odi
+    config: odi

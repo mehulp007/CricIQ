@@ -13,7 +13,15 @@ from criciq_core import paths
 from criciq_core import simulation as sim
 from criciq_core.phases import model_format
 from criciq_ml import registry
-from criciq_ml.report_common import IPL, format_path, pooled_path, write_json, write_text
+from criciq_ml.report_common import (
+    IPL,
+    fitted_on,
+    format_path,
+    pooled_path,
+    spans_groups,
+    write_json,
+    write_text,
+)
 from criciq_ml.report_common import label as competition_label
 from criciq_ml.simulator import gate
 
@@ -85,8 +93,14 @@ def pooled_section(version: str) -> str:
     parts = [insights(version, c) for c in competitions_of(version)]
     served = [p["competition"] for p in parts if serves(version, p["competition"])]
     kept = [p for p in parts if p["competition"] not in served]
+    competitions = competitions_of(version)
+    ball = (
+        "the pooled ball model (every T20 competition)"
+        if spans_groups(competitions)
+        else f"the ball model fitted on {fitted_on(competitions)}"
+    )
     summary = [
-        f"Version {version} plays matches with the pooled ball model (every T20 competition) and "
+        f"Version {version} plays matches with {ball} and "
         "was backtested on each competition below on its own matches. Each competition is "
         "simulated with it only where its own backtest passed the gate."
     ]
@@ -311,8 +325,9 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
 
 
 def write_format() -> list[Path]:
-    """Another format's newest simulator backtest (see ``report.write_format``), served
-    or not: one competition."""
+    """A model group's (or another format's) newest simulator backtest (see
+    ``report.write_format``), served or not: one competition's, or for a group of
+    several each competition's and where it serves (as the pooled T20 data)."""
     root = registry.root(registry.SIMULATOR)
     if not root.exists():
         return []
@@ -320,13 +335,42 @@ def write_format() -> list[Path]:
     if not trained:
         return []
     version = trained[-1]
-    competition = competitions_of(version)[0]
+    competitions = competitions_of(version)
+    if len(competitions) > 1:
+        parts = {c: insights(version, c) for c in competitions}
+        data: dict[str, Any] = {
+            "version": version,
+            "served": [c for c in parts if serves(version, c)],
+            "competitions": {c: {**part, "gate": gate(part)} for c, part in parts.items()},
+        }
+        return [
+            write_json(format_path(INSIGHTS_PATH), data),
+            write_text(format_path(MODEL_CARD_PATH), _group_card(version, parts)),
+        ]
+    competition = competitions[0]
     part = insights(version, competition)
     data = {**part, "gate": gate(part), "served": serves(version, competition)}
     return [
         write_json(format_path(INSIGHTS_PATH), data),
         write_text(format_path(MODEL_CARD_PATH), model_card([part])),
     ]
+
+
+def _group_card(version: str, parts: dict[str, dict[str, Any]]) -> str:
+    """The card of a group's simulator: every competition's backtest, and where it serves."""
+    lines = [model_card(list(parts.values())), "", "## Where it serves", ""]
+    for competition, part in parts.items():
+        problems = gate(part)
+        name = competition_label(competition)
+        if serves(version, competition):
+            lines.append(f"- **{name}**: served (its backtest passed the gate).")
+        else:
+            lines.append(
+                f"- **{name}**: not served; its backtest failed the gate: "
+                + ("; ".join(problems) if problems else "not promoted")
+                + "."
+            )
+    return "\n".join([*lines, ""])
 
 
 def write_all() -> list[Path]:

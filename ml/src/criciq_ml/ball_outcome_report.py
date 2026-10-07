@@ -14,11 +14,13 @@ from criciq_ml.report_common import (
     by_competition,
     comparison_section,
     competitions_of,
+    fitted_on,
     format_path,
     ipl_card_path,
     phase_labels,
     pooled,
     pooled_path,
+    spans_groups,
     write_json,
     write_text,
 )
@@ -119,9 +121,15 @@ def model_card(data: dict[str, Any]) -> str:
         *(
             [
                 "",
-                "One model is fitted on every T20 competition at once ("
-                + ", ".join(competition_label(c) for c in competitions_of(data))
-                + "), so a player who has played in several has one record across them.",
+                "One model is fitted on "
+                + (
+                    "every T20 competition at once ("
+                    + ", ".join(competition_label(c) for c in competitions_of(data))
+                    + ")"
+                    if spans_groups(competitions_of(data))
+                    else f"{fitted_on(competitions_of(data))} at once"
+                )
+                + ", so a player who has played in several has one record across them.",
             ]
             if is_pooled
             else []

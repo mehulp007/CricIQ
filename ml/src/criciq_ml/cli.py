@@ -2,13 +2,17 @@
 
 Typical use::
 
-    criciq-ml train win_probability    # tune, evaluate, backtest; register and promote if gated
-    criciq-ml train score_projection
-    criciq-ml train ball_outcome
-    criciq-ml train ratings    # rating shrinkage and stability (reads the scored serving database)
-    criciq-ml train simulator  # backtest the match simulator on the test seasons
-    criciq-ml score     # score every ball with the current models into the serving database
-    criciq-ml report    # model cards + the Model Insights data bundled with the web app
+    criciq-ml train win_probability --group leagues  # tune, evaluate, backtest; promote if gated
+    criciq-ml train score_projection --group t20i
+    criciq-ml train ball_outcome --group odi
+    criciq-ml train ratings --group leagues    # rating shrinkage and stability (scored players)
+    criciq-ml train simulator --group leagues  # backtest the match simulator on the test seasons
+    criciq-ml score     # score every ball with the models serving each competition
+    criciq-ml report --group t20i  # model cards + the Model Insights data bundled with the web app
+
+Each model group (``config/model_groups.yaml``: the IPL, the other T20 leagues,
+T20 internationals, ODIs) trains on its own competitions only. ``scripts/train_group.py``
+(``just train-group <group>``) trains a whole group in order and writes a summary.
 
 Deployments only run ``score``: training is an explicit, reviewed step whose
 artifacts are committed under ``models/``.
@@ -16,13 +20,14 @@ artifacts are committed under ``models/``.
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import os
 import shutil
 import subprocess
 import tempfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import asdict
 from enum import StrEnum
 from pathlib import Path
@@ -33,11 +38,13 @@ import pandas as pd
 import typer
 
 from criciq_core import paths
+from criciq_core.groups import ModelGroup, group, group_of, model_groups
 from criciq_core.phases import MODEL_FORMAT, default_phase_config, model_format, use_format
 from criciq_core.publish import current, publish
 from criciq_ml import (
     ball_outcome_training,
     comparison,
+    formats,
     players_scoring,
     ratings,
     registry,
@@ -355,15 +362,25 @@ def _train_ratings(force: bool, promote: bool) -> None:
     data_version = _data_version(paths.warehouse_path())
     if cfg.source == "players":
         players = current(paths.players_path())
+        owner = formats.current_group()
         scopes = [
             (s["scope_id"], s["schema_name"])
             for s in players_scoring.scopes(players)
-            if s["format"] == model_format()
+            if (
+                s["scope_id"] in owner.competitions
+                if owner is not None
+                else s["format"] == model_format()
+            )
         ]
+        if not scopes:
+            typer.echo("no scopes of these competitions in the players database")
+            raise typer.Exit(code=1)
+        # A group of several competitions borrows from its own pool, never from outside.
+        pool = owner.id.upper() if owner is not None and len(owner.competitions) > 1 else None
         model, evaluation = _timed(
             "fitting ratings for every scope",
             lambda: ratings.train_scopes(
-                players, scopes, cfg, data_version=data_version, log=typer.echo
+                players, scopes, cfg, data_version=data_version, log=typer.echo, pool=pool
             ),
         )
         parts = list(evaluation["scopes"].values())
@@ -397,10 +414,8 @@ def _train_simulator(force: bool, promote: bool) -> None:
     fitted: dict[tuple[str, int, int], BallOutcomeModel] = {}
     for competition in cfg.competitions:
         served = registry.load_current_ball_outcome(competition).manifest
-        warehouse = (
-            paths.warehouse_path(POOLED)
-            if len(served.get("trained_on", {}).get("competitions", [])) > 1
-            else paths.warehouse_path(competition)
+        warehouse = _Sources(paths.warehouse_path(IPL), paths.warehouse_path(POOLED)).warehouse(
+            served
         )
         balls = _timed(
             f"loading balls for {competition}",
@@ -499,8 +514,16 @@ FormatOption = Annotated[
     str,
     typer.Option(
         "--format",
-        help="The format's models: T20 (config/models/, models/) or ODI "
-        "(config/models/odi/, models/odi/).",
+        help="Without --group: the format's models, T20 (the pooled T20 models of V2-3 in "
+        "config/models/ and models/) or ODI (the odi group).",
+    ),
+]
+GroupOption = Annotated[
+    str | None,
+    typer.Option(
+        "--group",
+        help="The model group (config/model_groups.yaml): ipl, leagues, t20i or odi. "
+        "Its models train on its own competitions only.",
     ),
 ]
 
@@ -511,10 +534,23 @@ def train(
     promote: Annotated[bool, typer.Option(help="Make it current if the gate passes.")] = True,
     force: Annotated[bool, typer.Option(help="Overwrite an existing version.")] = False,
     match_format: FormatOption = MODEL_FORMAT,
+    group_id: GroupOption = None,
 ) -> None:
     """Tune, evaluate and backtest a new model version, then register it."""
+    if group_id is not None:
+        with formats.use_group(_group(group_id)):
+            _train(model, force, promote)
+        return
     with use_format(_format(match_format)):
         _train(model, force, promote)
+
+
+def _group(value: str) -> ModelGroup:
+    try:
+        return group(value)
+    except KeyError:
+        known = ", ".join(g.id for g in model_groups().groups)
+        raise typer.BadParameter(f"unknown model group {value!r} (one of {known})") from None
 
 
 def _format(value: str) -> str:
@@ -541,9 +577,10 @@ def _train(model: ModelName, force: bool, promote: bool) -> None:
 class _Sources:
     """Inputs, match states and balls, each built once per warehouse and settings.
 
-    A model fitted on several competitions (its manifest lists them) scores from
-    the pooled copy; a model of one competition from that competition's copy (the
-    IPL's, or another format's such as the ODIs').
+    A model scores from the copy it was fitted on: its group's (the competitions its
+    manifest lists, the IPL alone if none), or the pooled T20 copy for the pooled
+    versions of V2-3, which span groups. ``copies`` overrides where a copy is, by its
+    name (``LEAGUES``, ``T20I``, ``ODI``).
     """
 
     def __init__(self, ipl: Path, pooled: Path, copies: dict[str, Path] | None = None) -> None:
@@ -555,13 +592,13 @@ class _Sources:
         self._balls: dict[Path, pd.DataFrame] = {}
 
     def warehouse(self, manifest: dict[str, Any]) -> Path:
-        competitions = manifest.get("trained_on", {}).get("competitions", [])
-        if len(competitions) > 1:
-            return self.pooled
+        competitions = [str(c) for c in manifest.get("trained_on", {}).get("competitions", [])]
         if not competitions or competitions == [IPL]:
             return self.ipl
-        only = str(competitions[0])
-        return self.copies.get(only) or paths.warehouse_path(only)
+        owner = next((g for g in model_groups().groups if g.covers(competitions)), None)
+        if owner is None:  # a pooled version, fitted across groups
+            return self.pooled
+        return self.copies.get(owner.copy_name) or paths.warehouse_path(owner.copy_name)
 
     def inputs(self, warehouse: Path) -> Inputs:
         if warehouse not in self._inputs:
@@ -599,8 +636,8 @@ def score(
     copy: Annotated[
         list[str] | None,
         typer.Option(
-            help="Another format's warehouse copy, as FORMAT=PATH (repeatable; by default "
-            "data/warehouse/<format>.duckdb)."
+            help="A model group's warehouse copy, as NAME=PATH (LEAGUES, T20I, ODI; "
+            "repeatable; by default data/warehouse/<name>.duckdb)."
         ),
     ] = None,
     players: Annotated[Path | None, typer.Option(help="Players database to update.")] = None,
@@ -612,27 +649,49 @@ def score(
         ),
     ] = None,
 ) -> None:
-    """Score every historical ball with the models serving each competition: the IPL's
-    serving database, every other competition's, then the players database."""
+    """Score every historical ball with the models serving each competition (its model
+    group's): the IPL's serving database, every other competition's, then the players
+    database."""
     sources = _Sources(
         warehouse or paths.warehouse_path(IPL),
         pooled or paths.warehouse_path(POOLED),
         _parse_serving(copy or []),
     )
-    _score_serving(serving, sources)
+    with _serving_models(IPL):
+        _score_serving(serving, sources)
     others = _parse_serving(serving_db) if serving_db is not None else _exported_servings()
-    if others and not sources.pooled.exists():
-        raise typer.BadParameter(f"the pooled warehouse {sources.pooled} is missing")
     for competition, path in others.items():
-        match_format = _format_of(path)
-        with use_format(match_format):
+        with _serving_models(competition, path):
             if registry.current_version(registry.NAME, competition) is None:
-                typer.echo(f"> no {match_format} models yet: {competition} is not scored")
+                typer.echo(f"> no {model_format()} models yet: {competition} is not scored")
                 continue
             _score_serving(path, sources, competition)
     target = players or paths.players_path()
-    if current(target).exists() and sources.pooled.exists():
+    if current(target).exists():
         _score_players(target, sources)
+
+
+@contextlib.contextmanager
+def _serving_models(competition: str, serving: Path | None = None) -> Iterator[None]:
+    """Score ``competition`` with its group's models (or, in no group, its format's)."""
+    owner = group_of(competition)
+    if owner is not None:
+        with formats.use_group(owner, serving=True):
+            yield
+        return
+    with use_format(_format_of(serving) if serving is not None else MODEL_FORMAT):
+        yield
+
+
+def _fallback_notice(name: str, competition: str) -> None:
+    """Say so when a competition is scored with a pooled T20 model (its group has none yet)."""
+    version = registry.fallback_version(name, competition)
+    owner = formats.current_group()
+    if version is not None and owner is not None:
+        typer.echo(
+            f"  [fallback] {competition} {name}: the pooled T20 model {version} until the "
+            f"{owner.id} group has its own (just train-group {owner.id})"
+        )
 
 
 def _format_of(serving: Path) -> str:
@@ -681,6 +740,8 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
     typer.echo(f"> scoring {competition}")
     ipl = {competition}
     try:
+        for name in (registry.NAME, registry.PROJECTION, registry.BALL_OUTCOME, registry.RATINGS):
+            _fallback_notice(name, competition)
         wp_model = registry.load_current(registry.NAME, competition)
         wp_source = sources.warehouse(wp_model.manifest)
         states = _of(sources.states(wp_source, wp_model.feature_config), ipl)
@@ -737,6 +798,7 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
             None if simulator_version is None else registry.load_current_simulator(competition)
         )
         if simulator_model is not None and _serves_simulator(simulator_model, competition):
+            _fallback_notice(registry.SIMULATOR, competition)
             settings = simulator_model.for_competition(competition)
             _timed(
                 "publishing simulator settings",
@@ -754,20 +816,24 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
 
 def _score_players(players: Path, sources: _Sources) -> None:
     """Win probability added and rating constants for every competition's scope, each
-    format's with its own models."""
-    by_format: dict[str, list[str]] = {}
+    with its model group's models. A scope of several competitions (all T20) keeps the
+    pooled T20 ratings that were fitted on it."""
+    by_group: dict[str, list[str]] = {}
     for s in players_scoring.scopes(current(players)):
-        if len(s["competition_ids"]) == 1:
-            by_format.setdefault(str(s["format"]), []).append(s["scope_id"])
+        owner = group_of(str(s["scope_id"])) if len(s["competition_ids"]) == 1 else None
+        if owner is not None:
+            by_group.setdefault(owner.id, []).append(str(s["scope_id"]))
     frames = []
     ratings_models = []
-    for match_format, competitions in by_format.items():
-        with use_format(match_format):
+    for group_id, competitions in by_group.items():
+        with formats.use_group(group_id, serving=True):
             frames += _players_wpa(competitions, sources)
             try:
                 ratings_models.append(registry.load_current_ratings())
             except FileNotFoundError:
-                typer.echo(f"  no {match_format} ratings yet")
+                typer.echo(f"  no {group_id} ratings yet")
+    with contextlib.suppress(FileNotFoundError):
+        ratings_models.append(registry.load_current_ratings())  # the pooled T20 ratings
     placed = _timed(
         "publishing to the players database",
         lambda: players_scoring.publish(
@@ -805,8 +871,24 @@ def _players_wpa(competitions: list[str], sources: _Sources) -> list[pd.DataFram
 
 
 @app.command("report")
-def report_cmd(match_format: FormatOption = MODEL_FORMAT) -> None:
+def report_cmd(match_format: FormatOption = MODEL_FORMAT, group_id: GroupOption = None) -> None:
     """Write the model cards and the Model Insights data for the web app."""
+    if group_id is not None:
+        owner = _group(group_id)
+        servings = {
+            c: current(p)
+            for c, p in _exported_servings().items()
+            if c in owner.competitions and current(p).exists()
+        }
+        with formats.use_group(owner):
+            written = (
+                report.write_all(_serving_path(), {})
+                if owner.models == ""
+                else report.write_format(servings)
+            )
+        for path in written:
+            typer.echo(f"wrote {path}")
+        return
     match_format = _format(match_format)
     others = {
         c: current(p)

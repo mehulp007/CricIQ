@@ -14,10 +14,10 @@ import pandas as pd
 import pytest
 
 from criciq_core import paths
-from criciq_core.phases import use_format
 from criciq_ml import cli as ml_cli
 from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
+from criciq_pipelines import pipeline
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
 from criciq_pipelines.pipeline import run_export_competition
@@ -135,32 +135,46 @@ def fixture_odi_warehouse(
 
 
 @pytest.fixture(scope="session")
+def fixture_group_copies(
+    fixture_full_warehouse: Path,
+    fixture_odi_warehouse: Path,
+    tmp_path_factory: pytest.TempPathFactory,
+) -> dict[str, Path]:
+    """Each model group's copy of the fixtures, by name (what its models read), so no
+    test reads the real copies in data/warehouse/."""
+    folder = tmp_path_factory.mktemp("groups")
+    copies = {"ODI": fixture_odi_warehouse}
+    for name, members in pipeline.model_copies().items():
+        if name not in copies and name != pipeline.POOLED:
+            copies[name] = folder / f"{name.lower()}.duckdb"
+            build_scope(fixture_full_warehouse, members, copies[name])
+    return copies
+
+
+@pytest.fixture(scope="session")
 def fixture_scored_serving_db(
     fixture_serving_db: Path,
     fixture_warehouse: Path,
     fixture_full_warehouse: Path,
     fixture_pooled_warehouse: Path,
-    fixture_odi_warehouse: Path,
+    fixture_group_copies: dict[str, Path],
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
     """The fixture serving database scored as `criciq-ml score` scores the IPL's: with the
     committed models serving the IPL, each from the data it was trained on. The men's
-    T20Is' and ODIs' serving databases, scored with the models serving them, sit beside
-    it."""
+    T20Is' and ODIs' serving databases, scored with their model groups' models, sit
+    beside it."""
     folder = tmp_path_factory.mktemp("scored")
     target = folder / "serving.duckdb"
     shutil.copyfile(fixture_serving_db, target)
-    sources = ml_cli._Sources(
-        fixture_warehouse, fixture_pooled_warehouse, {"ODI": fixture_odi_warehouse}
-    )
-    ml_cli._score_serving(target, sources)
-    t20i = folder / "serving-t20i.duckdb"
-    run_export_competition("T20I", t20i, warehouse=fixture_full_warehouse)
-    ml_cli._score_serving(t20i, sources, "T20I")
-    odi = folder / "serving-odi.duckdb"
-    run_export_competition("ODI", odi, warehouse=fixture_full_warehouse)
-    with use_format("ODI"):
-        ml_cli._score_serving(odi, sources, "ODI")
+    sources = ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse, fixture_group_copies)
+    with ml_cli._serving_models("IPL"):
+        ml_cli._score_serving(target, sources)
+    for competition in ("T20I", "ODI"):
+        other = folder / f"serving-{competition.lower()}.duckdb"
+        run_export_competition(competition, other, warehouse=fixture_full_warehouse)
+        with ml_cli._serving_models(competition):
+            ml_cli._score_serving(other, sources, competition)
     return target
 
 
@@ -169,7 +183,7 @@ def fixture_scored_players_db(
     fixture_players_db: Path,
     fixture_warehouse: Path,
     fixture_pooled_warehouse: Path,
-    fixture_odi_warehouse: Path,
+    fixture_group_copies: dict[str, Path],
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
     """The fixture players database with win probability added and rating constants,
@@ -178,8 +192,6 @@ def fixture_scored_players_db(
     shutil.copyfile(fixture_players_db, target)
     ml_cli._score_players(
         target,
-        ml_cli._Sources(
-            fixture_warehouse, fixture_pooled_warehouse, {"ODI": fixture_odi_warehouse}
-        ),
+        ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse, fixture_group_copies),
     )
     return target

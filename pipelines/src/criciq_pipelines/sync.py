@@ -401,7 +401,9 @@ class _Workspace:
             warehouse=_beside(paths.cricket_warehouse_path(), ".sync"),
             scopes={
                 c: _beside(paths.warehouse_path(c), ".sync")
-                for c in (*pipeline.SCOPED, *pipeline.MODEL_FORMATS)
+                for c in dict.fromkeys(
+                    (*pipeline.SCOPED, pipeline.POOLED, *pipeline.model_copies())
+                )
             },
             serving=_beside(paths.serving_path(), ".sync"),
             players=_beside(paths.players_path(), ".sync"),
@@ -593,8 +595,8 @@ def _apply(
     scoped = pipeline.scoped_competitions()
     for competition in scoped:
         build_scope(workspace.warehouse, competition, workspace.scopes[competition])
-    for match_format, members in pipeline.model_copies().items():
-        build_scope(workspace.warehouse, members, workspace.scopes[match_format])
+    for name, members in pipeline.model_copies().items():
+        build_scope(workspace.warehouse, members, workspace.scopes[name])
     if scoped:
         log("> exporting the serving databases ...")
         updates = _updates_with(con, result, started)
@@ -743,10 +745,10 @@ def _score(workspace: _Workspace, competition: str) -> None:
         "--pooled",
         str(workspace.scopes[pipeline.POOLED]),
     ]
-    for match_format in pipeline.MODEL_FORMATS:
-        copy = workspace.scopes[match_format]
-        if match_format != pipeline.POOLED and copy.exists():
-            arguments += ["--copy", f"{match_format}={copy}"]
+    for name in pipeline.model_copies():
+        copy = workspace.scopes[name]
+        if name != pipeline.POOLED and copy.exists():
+            arguments += ["--copy", f"{name}={copy}"]
     if workspace.players.exists():
         arguments += ["--players", str(workspace.players)]
     for other, path in workspace.servings.items():

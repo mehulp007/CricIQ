@@ -376,6 +376,8 @@ def _train_simulator(force: bool, promote: bool) -> None:
     data_version = load_inputs(paths.warehouse_path()).data_version
     settings: dict[str, Any] = {}
     evaluations: dict[str, Any] = {}
+    # Competitions served by one pooled ball model refit it on the same years: fit once.
+    fitted: dict[tuple[str, int, int], BallOutcomeModel] = {}
     for competition in cfg.competitions:
         served = registry.load_current_ball_outcome(competition).manifest
         warehouse = (
@@ -391,13 +393,17 @@ def _train_simulator(force: bool, promote: bool) -> None:
         def fit(
             train: pd.DataFrame, served: dict[str, Any] = served, competition: str = competition
         ) -> BallOutcomeModel:
-            return BallOutcomeModel.fit(
-                train,
-                player_scale=float(served["player_scale"]),
-                c=float(served["c"]),
-                max_iter=ball_cfg.model.max_iter,
-                competition_terms="competition" in served.get("extra_groups", []),
-            ).for_competition(competition)
+            key = (str(served["version"]), len(train), int(train["season"].max()))
+            if key not in fitted:
+                fitted[key] = BallOutcomeModel.fit(
+                    train,
+                    player_scale=float(served["player_scale"]),
+                    c=float(served["c"]),
+                    max_iter=ball_cfg.model.max_iter,
+                    competition_terms="competition" in served.get("extra_groups", []),
+                    side_terms="batting_side" in served.get("extra_groups", []),
+                )
+            return fitted[key].for_competition(competition)
 
         with tempfile.TemporaryDirectory(prefix="criciq-simulator-") as work:
             serving = _simulation_database(competition, Path(work))
@@ -423,17 +429,22 @@ def _train_simulator(force: bool, promote: bool) -> None:
         evaluation = {**common, "competitions": evaluations}
     registry.save(model, evaluation, registry.SIMULATOR)
     typer.echo(f"  wrote {target}")
-    problems = [
-        f"{competition}: {problem}"
-        for competition, part in evaluations.items()
-        for problem in simulator.gate(part)
-    ]
-    ipl_version = registry.current_version(registry.SIMULATOR, IPL)
-    _finish(problems, promote, cfg.version, registry.SIMULATOR)
-    if promote and IPL not in cfg.competitions and ipl_version is not None:
-        # Not backtested here: the IPL keeps the settings it has.
-        registry.promote(ipl_version, registry.SIMULATOR, IPL)
-        typer.echo(f"  the IPL keeps simulator {ipl_version}")
+    gates = {competition: simulator.gate(part) for competition, part in evaluations.items()}
+    if cfg.competitions == [IPL]:  # v1: one competition, one pointer
+        _finish(gates[IPL], promote, cfg.version, registry.SIMULATOR)
+        return
+    # A pooled version serves each competition whose own backtest passed; the others
+    # (and the IPL, not backtested here) keep what they have.
+    for competition, problems in gates.items():
+        for problem in problems:
+            typer.echo(f"  [gate] {competition}: {problem}")
+    passed = [c for c, problems in gates.items() if not problems]
+    if not passed:
+        raise typer.Exit(code=1)
+    if promote:
+        for competition in passed:
+            registry.promote(cfg.version, registry.SIMULATOR, competition)
+            typer.echo(f"  promoted {registry.SIMULATOR} {cfg.version} for {competition}")
 
 
 def _training_balls(warehouse: Path) -> pd.DataFrame:
@@ -534,31 +545,71 @@ def _of(frame: pd.DataFrame, competitions: set[str]) -> pd.DataFrame:
 
 @app.command()
 def score(
-    serving: Annotated[Path | None, typer.Option(help="Serving database to update.")] = None,
+    serving: Annotated[Path | None, typer.Option(help="The IPL's serving database.")] = None,
     warehouse: Annotated[Path | None, typer.Option(help="The IPL's warehouse copy.")] = None,
     pooled: Annotated[Path | None, typer.Option(help="The pooled T20 warehouse copy.")] = None,
     players: Annotated[Path | None, typer.Option(help="Players database to update.")] = None,
+    serving_db: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Another competition's serving database, as COMPETITION=PATH (repeatable). "
+            "By default every serving-<competition>.duckdb in the exports folder."
+        ),
+    ] = None,
 ) -> None:
     """Score every historical ball with the models serving each competition: the IPL's
-    serving database, then the players database of every T20 competition."""
+    serving database, every other competition's, then the players database."""
     sources = _Sources(
         warehouse or paths.warehouse_path(IPL), pooled or paths.warehouse_path(POOLED)
     )
     _score_serving(serving, sources)
+    others = _parse_serving(serving_db) if serving_db is not None else _exported_servings()
+    if others and not sources.pooled.exists():
+        raise typer.BadParameter(f"the pooled warehouse {sources.pooled} is missing")
+    for competition, path in others.items():
+        _score_serving(path, sources, competition)
     target = players or paths.players_path()
     if current(target).exists() and sources.pooled.exists():
         _score_players(target, sources)
 
 
-def _score_serving(serving: Path | None, sources: _Sources) -> None:
-    final = serving or paths.serving_path()
+def _parse_serving(values: list[str]) -> dict[str, Path]:
+    found = {}
+    for value in values:
+        competition, sep, path = value.partition("=")
+        if not sep or not competition or not path:
+            raise typer.BadParameter(f"expected COMPETITION=PATH, got {value!r}")
+        found[competition.upper()] = Path(path)
+    return found
+
+
+def _exported_servings() -> dict[str, Path]:
+    """Every other competition's serving database in the exports folder, by competition."""
+    found = {}
+    for path in sorted(paths.exports_dir().glob("serving-*.duckdb*")):
+        name = path.name.split(".duckdb")[0]
+        competition = name.removeprefix("serving-").upper()
+        if competition != IPL:
+            found[competition] = paths.serving_path(competition)
+    return found
+
+
+def _serves_simulator(settings: simulator.SimulatorSettings, competition: str) -> bool:
+    """Whether a simulator version was backtested on (and so serves) ``competition``."""
+    covered = settings.manifest.get("competitions")
+    return competition == IPL if covered is None else competition in covered
+
+
+def _score_serving(serving: Path | None, sources: _Sources, competition: str = IPL) -> None:
+    final = serving or paths.serving_path(competition)
     # Score one working copy and put it in place at the end, so a failure leaves
     # nothing half-scored and the running API can keep its database open.
     target = final.with_name(final.name + ".scoring")
-    shutil.copyfile(serving or _serving_path(), target)
-    ipl = {IPL}
+    shutil.copyfile(current(final), target)
+    typer.echo(f"> scoring {competition}")
+    ipl = {competition}
     try:
-        wp_model = registry.load_current(registry.NAME, IPL)
+        wp_model = registry.load_current(registry.NAME, competition)
         wp_source = sources.warehouse(wp_model.manifest)
         states = _of(sources.states(wp_source, wp_model.feature_config), ipl)
         inputs = sources.inputs(wp_source)
@@ -570,7 +621,7 @@ def _score_serving(serving: Path | None, sources: _Sources) -> None:
         count = _timed("publishing", lambda: scoring.publish(target, predictions, wp_model, scale))
         typer.echo(f"  {count:,} win probabilities from model {wp_model.version}")
 
-        projection_model = registry.load_current_projection(IPL)
+        projection_model = registry.load_current_projection(competition)
         projection_states = _of(
             sources.states(
                 sources.warehouse(projection_model.manifest), projection_model.feature_config
@@ -587,9 +638,9 @@ def _score_serving(serving: Path | None, sources: _Sources) -> None:
         )
         typer.echo(f"  {count:,} score projections from model {projection_model.version}")
 
-        ball_model = registry.load_current_ball_outcome(IPL)
+        ball_model = registry.load_current_ball_outcome(competition)
         balls = _of(sources.balls(sources.warehouse(ball_model.manifest)), ipl)
-        served = ball_model.for_competition(IPL)
+        served = ball_model.for_competition(competition)
         cells = _timed("ball outcomes", lambda: scoring.score_matchups(served, balls))
         count = _timed(
             "publishing",
@@ -600,13 +651,20 @@ def _score_serving(serving: Path | None, sources: _Sources) -> None:
         rating_constants = registry.load_current_ratings()
         _timed(
             "publishing ratings",
-            lambda: scoring.publish_ratings(target, rating_constants, IPL),
+            lambda: scoring.publish_ratings(target, rating_constants, competition),
         )
         typer.echo(f"  rating constants {rating_constants.version} -> {target}")
 
-        settings = registry.load_current_simulator(IPL).for_competition(IPL)
-        _timed("publishing simulator settings", lambda: scoring.publish_simulator(target, settings))
-        typer.echo(f"  simulator settings {settings.version} -> {target}")
+        simulator_model = registry.load_current_simulator(competition)
+        if _serves_simulator(simulator_model, competition):
+            settings = simulator_model.for_competition(competition)
+            _timed(
+                "publishing simulator settings",
+                lambda: scoring.publish_simulator(target, settings),
+            )
+            typer.echo(f"  simulator settings {settings.version} -> {target}")
+        else:
+            typer.echo(f"  no simulator serves {competition} (none passed its gate there)")
     except BaseException:
         target.unlink(missing_ok=True)
         raise
@@ -654,7 +712,8 @@ def _score_players(players: Path, sources: _Sources) -> None:
 @app.command("report")
 def report_cmd() -> None:
     """Write the model cards and the Model Insights data for the web app."""
-    for path in report.write_all(_serving_path()):
+    others = {c: current(p) for c, p in _exported_servings().items() if current(p).exists()}
+    for path in report.write_all(_serving_path(), others):
         typer.echo(f"wrote {path}")
 
 

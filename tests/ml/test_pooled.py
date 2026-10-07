@@ -124,6 +124,38 @@ def test_serving_one_competition_folds_its_term(fixture_pooled_warehouse: Path) 
         assert np.allclose(served.predict(mine), model.predict(mine))
 
 
+def test_national_sides_fold_into_players_for_internationals(
+    fixture_pooled_warehouse: Path,
+) -> None:
+    balls = load_balls(fixture_pooled_warehouse)
+    model = BallOutcomeModel.fit(
+        balls, player_scale=0.1, c=1.0, max_iter=500, competition_terms=True, side_terms=True
+    )
+    t20i = balls[balls["competition_id"] == "T20I"]
+    assert {f"batting_side={s}" for s in t20i["batting_side"]} <= set(model.terms)
+    # Club balls have no side: the IPL is served without side terms.
+    ipl = model.for_competition("IPL")
+    assert not any(t.startswith(("batting_side=", "bowling_side=")) for t in ipl.terms)
+    mine = balls[balls["competition_id"] == "IPL"]
+    assert np.allclose(ipl.predict(mine), model.predict(mine))
+    # Internationals: each player's latest side is folded into their effect, so balls
+    # where both players are with that side are predicted the same.
+    served = model.for_competition("T20I")
+    assert "sides" not in served.manifest
+    assert not set(served.manifest.get("extra_groups", [])) & {"batting_side", "bowling_side"}
+    latest = model.manifest["sides"]
+    usual = t20i[
+        (t20i["batter_id"].map(latest["batter"]) == t20i["batting_side"])
+        & (t20i["bowler_id"].map(latest["bowler"]) == t20i["bowling_side"])
+    ]
+    assert len(usual) > 0
+    assert np.allclose(served.predict(usual), model.predict(usual))
+    # A player without an effect of their own plays at their side's level.
+    side = str(t20i["batting_side"].iloc[0])
+    assert served.side_effect("batter", side) is not None
+    assert ipl.side_effect("batter", side) is None
+
+
 def _predictions(p: list[float], match_ids: list[int]) -> pd.DataFrame:
     return pd.DataFrame(
         {

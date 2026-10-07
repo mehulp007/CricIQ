@@ -35,6 +35,7 @@ from criciq_core import paths
 from criciq_core.teams import FORM_PRIOR
 from criciq_ml import registry
 from criciq_ml.ball_outcome import OUT, RUNS, load_balls
+from criciq_ml.report_common import IPL
 
 LAB_DIR = paths.repo_root() / "frontend" / "data" / "lab"
 SEED = 7
@@ -78,7 +79,8 @@ MIN_SLOPE_MEETINGS = 20
 def load_lab_balls(serving: Path) -> pd.DataFrame:
     """Every ball faced, with the model's expectation and the pressure before it was bowled."""
     balls = load_balls(serving)
-    model = registry.load_current_ball_outcome()
+    # The notes are about the IPL: its own model, whatever serves the other competitions.
+    model = registry.load_current_ball_outcome(IPL).for_competition(IPL)
     probs = model.predict(balls)
     balls["expected_runs"] = probs @ RUNS
     balls["p_out"] = probs[:, OUT]
@@ -344,6 +346,8 @@ def swing_check(serving: Path, bins: int = 10) -> list[dict[str, Any]]:
                    abs(lead(wp) OVER (PARTITION BY match_id, innings_no ORDER BY seq_no) - wp)
                        AS realised
             FROM w
+            -- Ties in leverage are grouped in this order, so it must not depend on storage.
+            ORDER BY match_id, innings_no, seq_no
             """
         ).df()
     finally:

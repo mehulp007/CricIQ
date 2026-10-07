@@ -326,6 +326,8 @@ class _Squads:
 INTERNATIONAL = frozenset({"T20I"})
 # Decimals kept by stable features.
 STABLE_DECIMALS = 9
+# Balls the batters at the crease have faced, as a feature, are capped here.
+CREASE_BALLS_CAP = 120
 
 
 def build_states(inputs: Inputs, cfg: FeatureConfig | None = None) -> pd.DataFrame:
@@ -491,7 +493,7 @@ def _innings_rows(
             "wickets_last_12": sum(w for _, _, w in window),
             "crease_sr_idx": float(np.mean([r.sr_idx for r in crease])),
             "crease_avg_idx": float(np.mean([r.avg_idx for r in crease])),
-            "crease_balls": min(faced[pair[0]] + faced[pair[1]], 120),
+            "crease_balls": min(faced[pair[0]] + faced[pair[1]], CREASE_BALLS_CAP),
             "depth_avg_sum": sum(min(ratings[p].avg_idx, 2.0) for p in yet_to_bat),
             "bowl_left_econ_idx": _bowling_left(bowling, ratings, bowled, balls_left, quota),
         }

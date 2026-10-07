@@ -18,6 +18,13 @@ Fitted on several competitions at once (v2), players keep one effect across
 all of them, the scoring era is each competition's own, and each competition
 gets its own term (``competition=<id>``). Serving one competition folds its
 term into the intercept (``for_competition``), so the API needs nothing new.
+
+With side terms (2.1), each national side gets a term per outcome on
+international balls (``batting_side=<id>``, ``bowling_side=<id>``), penalised
+like a player's. A player's effect is then their side's level plus their own
+deviation, so a player with few balls is shrunk towards their side, not towards
+an average player: an associate debutant is not a full member's equal. Serving
+an international competition folds each player's latest side into their effect.
 """
 
 from __future__ import annotations
@@ -36,6 +43,7 @@ from sklearn.linear_model import LogisticRegression
 
 from criciq_core.phases import model_phases
 from criciq_ml.data import MAX_BALLS_SQL, TARGET_SQL, check_formats
+from criciq_ml.features import INTERNATIONAL
 
 FloatArray = npt.NDArray[np.float64]
 
@@ -54,6 +62,8 @@ PHASES = tuple(p.key for p in sorted(model_phases().phases, key=lambda p: p.firs
 # Optional group of a model fitted on several competitions (its levels are the
 # competitions in the data).
 COMPETITION = "competition"
+# Optional groups of national sides, on international balls only.
+SIDES = ("batting_side", "bowling_side")
 
 # One-hot groups describing the situation; each row belongs to one level per group.
 GROUPS: dict[str, tuple[str, ...]] = {
@@ -86,11 +96,14 @@ def _balls_sql() -> str:
            {TARGET_SQL} AS target_runs,
            {MAX_BALLS_SQL} AS max_balls,
            (row_number() OVER (PARTITION BY d.match_id, d.innings_no, d.batter_id
-                               ORDER BY d.seq_no) - 1)::INTEGER AS batter_balls
+                               ORDER BY d.seq_no) - 1)::INTEGER AS batter_balls,
+           tb.franchise_id AS batting_side, tw.franchise_id AS bowling_side
     FROM deliveries d
     JOIN innings i USING (match_id, innings_no)
     JOIN matches m USING (match_id)
     JOIN seasons s USING (season_id)
+    JOIN team_seasons tb ON tb.team_season_id = i.batting_team_id
+    JOIN team_seasons tw ON tw.team_season_id = i.bowling_team_id
     LEFT JOIN outs o USING (match_id, innings_no, seq_no)
     LEFT JOIN players pb ON pb.player_id = d.batter_id
     LEFT JOIN players pw ON pw.player_id = d.bowler_id
@@ -152,6 +165,11 @@ def add_situation(balls: pd.DataFrame) -> pd.DataFrame:
     keys = pd.MultiIndex.from_frame(balls[["competition_id", "match_order"]])
     balls["env"] = env.reindex(keys).to_numpy(dtype=float)
     balls["g_competition"] = balls["competition_id"].astype(str)
+    # National sides, on international balls only (club sides change every season).
+    international = balls["competition_id"].isin(INTERNATIONAL).to_numpy()
+    for group in SIDES:
+        sides = balls[group] if group in balls else pd.Series("", index=balls.index)
+        balls[f"g_{group}"] = np.where(international, sides.fillna("").astype(str), "")
 
     balls["g_phase"] = balls["phase"] + "_" + balls["innings_no"].astype(str)
     balls["g_wickets"] = _bucket(balls["wickets_before"], [2, 4, 6], GROUPS["wickets"])
@@ -190,6 +208,7 @@ class Design:
         min_balls: int = 1,
         phase_players: bool = False,
         competition_terms: bool = False,
+        side_terms: bool = False,
     ) -> Design:
         context = tuple(f"{g}={level}" for g, levels in GROUPS.items() for level in levels)
         extra: tuple[str, ...] = ()
@@ -198,6 +217,11 @@ class Design:
             context += tuple(
                 f"{COMPETITION}={c}" for c in sorted(balls["g_competition"].astype(str).unique())
             )
+        if side_terms:
+            extra += SIDES
+            for group in SIDES:
+                levels = sorted(s for s in balls[f"g_{group}"].astype(str).unique() if s)
+                context += tuple(f"{group}={s}" for s in levels)
         bat = balls["batter_id"].value_counts()
         bowl = balls["bowler_id"].value_counts()
         log_env = np.log(balls["env"].to_numpy())
@@ -256,6 +280,16 @@ class Design:
         )
 
 
+def latest_sides(balls: pd.DataFrame) -> dict[str, dict[str, str]]:
+    """Each player's latest national side on international balls, by role."""
+    out: dict[str, dict[str, str]] = {}
+    for role, group in (("batter", "batting_side"), ("bowler", "bowling_side")):
+        rows = balls.loc[balls[f"g_{group}"] != "", ["match_order", f"{role}_id", f"g_{group}"]]
+        last = rows.sort_values("match_order").drop_duplicates(f"{role}_id", keep="last")
+        out[role] = dict(zip(last[f"{role}_id"], last[f"g_{group}"], strict=True))
+    return out
+
+
 def softmax(logits: FloatArray) -> FloatArray:
     z = logits - logits.max(axis=1, keepdims=True)
     e = np.exp(z)
@@ -285,9 +319,13 @@ class BallOutcomeModel:
         manifest: dict[str, Any] | None = None,
         phase_players: bool = False,
         competition_terms: bool = False,
+        side_terms: bool = False,
     ) -> BallOutcomeModel:
         design = Design.from_training(
-            balls, phase_players=phase_players, competition_terms=competition_terms
+            balls,
+            phase_players=phase_players,
+            competition_terms=competition_terms,
+            side_terms=side_terms,
         )
         x = design.matrix(balls, player_scale)
         clf = LogisticRegression(C=c, max_iter=max_iter, tol=1e-6)
@@ -314,22 +352,49 @@ class BallOutcomeModel:
             "player_scale": player_scale,
             "c": c,
             **({"extra_groups": list(design.extra_groups)} if design.extra_groups else {}),
+            **({"sides": latest_sides(balls)} if side_terms else {}),
             **(manifest or {}),
         }
         return cls(terms, info)
 
     def for_competition(self, competition: str) -> BallOutcomeModel:
-        """The model for one competition: its term folded into the intercept, so it
-        is evaluated with the situation groups alone (as the API and simulator do)."""
-        if COMPETITION not in self.manifest.get("extra_groups", []):
+        """The model for one competition: its term folded into the intercept, and in
+        an international competition each player's latest side folded into their
+        effect, so it is evaluated with the situation groups alone (as the API and
+        simulator do). The side terms stay for players without an effect of their
+        own (``side_effect``); a club competition has none."""
+        groups = self.manifest.get("extra_groups", [])
+        if COMPETITION not in groups and not set(SIDES) & set(groups):
             return self
-        prefix = f"{COMPETITION}="
-        terms = {k: v for k, v in self.terms.items() if not k.startswith(prefix)}
-        own = self.terms.get(prefix + competition, np.zeros(len(CLASSES)))
-        terms["intercept"] = self.terms["intercept"] + own
-        extra = [g for g in self.manifest["extra_groups"] if g != COMPETITION]
-        manifest = {k: v for k, v in self.manifest.items() if k != "extra_groups"}
+        terms = dict(self.terms)
+        if COMPETITION in groups:
+            prefix = f"{COMPETITION}="
+            terms = {k: v for k, v in terms.items() if not k.startswith(prefix)}
+            own = self.terms.get(prefix + competition, np.zeros(len(CLASSES)))
+            terms["intercept"] = self.terms["intercept"] + own
+        if set(SIDES) & set(groups):
+            sides = {g: {k: v for k, v in terms.items() if k.startswith(f"{g}=")} for g in SIDES}
+            for group in SIDES:
+                for key in sides[group]:
+                    del terms[key]
+            if competition in INTERNATIONAL:
+                latest = self.manifest.get("sides", {})
+                for role, group in (("batter", "batting_side"), ("bowler", "bowling_side")):
+                    for player, side in latest.get(role, {}).items():
+                        effect = sides[group].get(f"{group}={side}")
+                        key = f"{role}={player}"
+                        if effect is not None and key in terms:
+                            terms[key] = terms[key] + effect
+                    terms.update(sides[group])
+        extra = [g for g in groups if g != COMPETITION and g not in SIDES]
+        manifest = {k: v for k, v in self.manifest.items() if k not in ("extra_groups", "sides")}
         return BallOutcomeModel(terms, {**manifest, **({"extra_groups": extra} if extra else {})})
+
+    def side_effect(self, role: str, side: str) -> FloatArray | None:
+        """A national side's level for a player without an effect of their own
+        (after ``for_competition`` of an international competition)."""
+        group = "batting_side" if role == "batter" else "bowling_side"
+        return self.terms.get(f"{group}={side}")
 
     def logits(self, balls: pd.DataFrame) -> FloatArray:
         out = np.tile(self.terms["intercept"], (len(balls), 1))

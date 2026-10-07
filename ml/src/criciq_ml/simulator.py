@@ -104,9 +104,21 @@ class SimulatorSettings:
 # --------------------------------------------------------------------------- inputs
 
 
-def ball_model_inputs(model: BallOutcomeModel, env: float) -> sim.BallModel:
+def ball_model_inputs(
+    model: BallOutcomeModel, env: float, sides: dict[str, list[str]] | None = None
+) -> sim.BallModel:
+    """The engine's ball model at a scoring era. ``sides`` maps a national side to its
+    players: one without an effect of their own (a debutant) plays at the side's level."""
     era = (math.log(env) - float(model.manifest["env_mean"])) / float(model.manifest["env_std"])
-    return sim.BallModel(terms={k: list(v) for k, v in model.terms.items()}, era=era)
+    terms = {k: list(v) for k, v in model.terms.items()}
+    for side, players in (sides or {}).items():
+        for role in ("batter", "bowler"):
+            level = model.side_effect(role, side)
+            if level is None:
+                continue
+            for player in players:
+                terms.setdefault(f"{role}={player}", list(level))
+    return sim.BallModel(terms=terms, era=era)
 
 
 def test_matches(con: duckdb.DuckDBPyConnection, seasons: list[int]) -> pd.DataFrame:
@@ -206,6 +218,13 @@ def rates(con: duckdb.DuckDBPyConnection, first: int, last: int, env: float) -> 
         [first, last],
     ).fetchall()
     return sim.league_rates(rows, env)
+
+
+def franchise(con: duckdb.DuckDBPyConnection, team_season_id: str) -> str:
+    found = con.execute(
+        "SELECT franchise_id FROM team_seasons WHERE team_season_id = ?", [team_season_id]
+    ).fetchone()
+    return str(found[0]) if found else ""
 
 
 def side_for(name: str, xi: list[sim.Candidate], shapes: dict[str, Any]) -> sim.Side:
@@ -310,10 +329,14 @@ def prepare(
             b = candidates(con, m.match_id, m.second_id, m.match_order, int(season), history)
             if len(a) < 11 or len(b) < 11:
                 continue
+            sides = {
+                franchise(con, m.first_id): [c.player.player_id for c in a],
+                franchise(con, m.second_id): [c.player.player_id for c in b],
+            }
             setups.append(
                 Setup(
                     match=m,
-                    model=ball_model_inputs(model, env),
+                    model=ball_model_inputs(model, env, sides),
                     rates=rates(con, first, last, env),
                     first=side_for(m.first_id, a, shapes),
                     second=side_for(m.second_id, b, shapes),

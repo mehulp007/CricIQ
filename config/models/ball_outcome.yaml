@@ -7,9 +7,13 @@
 # one effect per player across all of them, each competition's own scoring era
 # and its own term. Splits are calendar years of the match (see
 # win_probability.yaml). v1 (1.0.0) trained on the IPL alone.
+#
+# 2.1 adds a term per national side on international balls, so a player with few
+# balls is shrunk towards their side rather than an average player (2.0's T20I
+# simulator made unequal sides look too even).
 
 name: ball_outcome
-version: 2.0.0
+version: 2.1.0
 scope: T20
 
 splits:
@@ -22,6 +26,7 @@ model:
   c: 1.0             # inverse L2 strength for the situation terms
   max_iter: 3000
   competition_terms: true
+  side_terms: true
   n_jobs: 12         # independent fits (grid, test, backtest seasons) run in parallel
   # Player one-hots are multiplied by this before fitting, so their effective
   # penalty is 1 / (c * scale^2): the smaller the scale, the harder player

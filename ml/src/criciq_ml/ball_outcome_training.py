@@ -69,6 +69,8 @@ class ModelSettings(BaseModel):
     player_scale_grid: list[float]
     # One term per competition (a model fitted on several).
     competition_terms: bool = False
+    # One term per national side on international balls (players shrink towards it).
+    side_terms: bool = False
     # Independent fits run in this many processes at once.
     n_jobs: int = 1
 
@@ -161,6 +163,7 @@ def _fit(
         max_iter=cfg.model.max_iter,
         phase_players=phase_players,
         competition_terms=cfg.model.competition_terms,
+        side_terms=cfg.model.side_terms,
     )
 
 

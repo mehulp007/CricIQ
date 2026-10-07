@@ -528,8 +528,9 @@ def model_card(data: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def write_all(serving: Path) -> list[Path]:
-    """Model cards and Model Insights data for every current model."""
+def write_all(serving: Path, others: dict[str, Path] | None = None) -> list[Path]:
+    """Model cards and Model Insights data for every current model. ``others`` are the
+    other competitions' serving databases, whose biggest swings go with the pooled data."""
     written = [
         *projection_report.write_all(),
         *ball_outcome_report.write_all(),
@@ -549,5 +550,8 @@ def write_all(serving: Path) -> list[Path]:
     if default != ipl:
         out.append(write_text(ipl_card_path(MODEL_CARD_PATH), model_card(ipl_data)))
     if len(competitions_of(data)) > 1:
-        out.append(write_json(pooled_path(INSIGHTS_PATH), data))
+        swings = {c: biggest_swings(path) for c, path in sorted((others or {}).items())}
+        out.append(
+            write_json(pooled_path(INSIGHTS_PATH), {**data, "swings_by_competition": swings})
+        )
     return [*out, *written]

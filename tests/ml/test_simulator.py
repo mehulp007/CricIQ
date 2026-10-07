@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from pathlib import Path
 
@@ -134,16 +135,23 @@ def test_committed_settings_are_published(fixture_scored_serving_db: Path) -> No
     assert '"conditions_sd"' in row[1]
 
 
-def test_unserved_version_is_found(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_the_card_follows_the_newest_pooled_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from criciq_ml import simulator_report
 
     monkeypatch.setenv("CRICIQ_MODELS_DIR", str(tmp_path))
-    for version in ("1.0.0", "2.0.0", "10.0.0"):
-        (tmp_path / "simulator" / version).mkdir(parents=True)
-    (tmp_path / "simulator" / "1.0.0" / "evaluation.json").write_text("{}")
-    assert simulator_report.unserved({"1.0.0"}) is None
-    # Only trained versions count, compared as versions (10 after 2).
-    (tmp_path / "simulator" / "2.0.0" / "evaluation.json").write_text("{}")
-    (tmp_path / "simulator" / "10.0.0" / "evaluation.json").write_text("{}")
-    assert simulator_report.unserved({"1.0.0"}) == "10.0.0"
-    assert simulator_report.unserved({"10.0.0", "1.0.0"}) is None
+    root = tmp_path / "simulator"
+    for version, evaluation in (
+        ("1.0.0", {"test": [2025]}),
+        ("2.0.0", {"competitions": {"T20I": {}}}),
+        ("10.0.0", {"competitions": {"T20I": {}, "BBL": {}}}),
+    ):
+        (root / version).mkdir(parents=True)
+        (root / version / "evaluation.json").write_text(json.dumps(evaluation))
+    # Versions compare as versions (10 after 2); v1 backtested the IPL alone.
+    assert simulator_report.latest_pooled() == "10.0.0"
+    registry.promote("1.0.0", registry.SIMULATOR)
+    registry.promote("10.0.0", registry.SIMULATOR, "BBL")
+    assert simulator_report.serves("10.0.0", "BBL")
+    assert not simulator_report.serves("10.0.0", "T20I")

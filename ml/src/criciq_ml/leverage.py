@@ -37,7 +37,7 @@ import pandas as pd
 from criciq_core.phases import model_phases
 from criciq_ml import chase
 from criciq_ml.data import Inputs
-from criciq_ml.features import STABLE_COLUMNS, STABLE_DECIMALS
+from criciq_ml.features import CREASE_BALLS_CAP, STABLE_COLUMNS, STABLE_DECIMALS
 from criciq_ml.model import InningsModel, WinProbabilityModel
 
 # (label, runs added, wickets added, legal balls added)
@@ -153,6 +153,10 @@ _CARRIED = (
     "venue_idx",
     "opp_bat_strength",
     "own_bowl_strength",
+    # The batters at the crease (pooled models): after a wicket the incoming batter is
+    # not known, so their records carry over unchanged.
+    "crease_sr_idx",
+    "crease_avg_idx",
 )
 
 
@@ -176,6 +180,9 @@ def _after(
     nxt["runs"] = (s["runs"] + runs).clip(lower=0)
     nxt["wickets"] = (s["wickets"] + wickets).clip(upper=10)
     nxt["balls_remaining"] = (s["max_balls"] - nxt["legal_balls"]).clip(lower=0)
+    if "crease_balls" in s:
+        faced = s["crease_balls"] + (legal if not wickets else 0)
+        nxt["crease_balls"] = faced.clip(upper=CREASE_BALLS_CAP)
     nxt["runs_last_12"] = s["runs_last_12"] + runs - (drop[0] if legal else 0)
     nxt["wickets_last_12"] = s["wickets_last_12"] + wickets - (drop[1] if legal else 0)
     nxt["runs_vs_par"] = nxt["runs"] - s["env_rpb"] * nxt["legal_balls"]

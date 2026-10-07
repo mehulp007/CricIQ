@@ -11,10 +11,14 @@
 # the pooled ball model (every T20 competition) refit before the validation and
 # test years and folded for that competition. The IPL is backtested only when
 # it is served by the pooled ball model; otherwise it keeps v1 (1.0.0).
+#
+# 2.0.0 backtested T20Is and failed its gate. 2.1.0 uses the ball model with
+# national side terms (ball_outcome 2.1.0) and backtests the leagues too; each
+# competition is served only where its own backtest passes.
 
 name: simulator
-version: 2.0.0
-competitions: [T20I]
+version: 2.1.0
+competitions: [T20I, BBL, PSL, CPL, SA20]
 
 valid: [2023, 2024]      # the conditions spread is tuned here ...
 conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]

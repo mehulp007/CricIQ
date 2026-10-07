@@ -11,7 +11,7 @@ from typing import Any
 
 from criciq_core import paths
 from criciq_ml import registry
-from criciq_ml.report_common import IPL, ipl_card_path, pooled_path, write_json, write_text
+from criciq_ml.report_common import IPL, pooled_path, write_json, write_text
 from criciq_ml.report_common import label as competition_label
 from criciq_ml.simulator import gate
 
@@ -57,34 +57,48 @@ def _key(version: str) -> tuple[int, ...]:
     return tuple(int(x) for x in version.split("."))
 
 
-def unserved(served: set[str]) -> str | None:
-    """A version newer than every served one (trained but kept out by its gate), if any."""
+def latest_pooled() -> str | None:
+    """The newest version backtested beyond the IPL (it serves each competition whose
+    own backtest passed), if any."""
     root = registry.root(registry.SIMULATOR)
-    trained = [d.name for d in root.iterdir() if (d / "evaluation.json").exists()]
-    if not trained or not served:
-        return None
-    latest = max(trained, key=_key)
-    return latest if _key(latest) > max(_key(v) for v in served) else None
+    trained = sorted((d.name for d in root.iterdir() if (d / "evaluation.json").exists()), key=_key)
+    pooled = [v for v in trained if competitions_of(v) != [IPL]]
+    return pooled[-1] if pooled else None
 
 
-def unserved_section(version: str) -> str:
-    """The backtest of a version no competition is simulated with, and why."""
+def serves(version: str, competition: str) -> bool:
+    return registry.current_version(registry.SIMULATOR, competition) == version
+
+
+def _names(names: list[str]) -> str:
+    """ "A", "A and B", "A, B and C"."""
+    return " and ".join([", ".join(names[:-1]), names[-1]]) if len(names) > 1 else names[0]
+
+
+def pooled_section(version: str) -> str:
+    """The pooled version's backtest of every competition, and where it serves."""
     parts = [insights(version, c) for c in competitions_of(version)]
-    reasons = [f"{competition_label(p['competition'])}: {r}" for p in parts for r in gate(p)]
-    lines = [
-        "",
-        f"# Backtested, not served: version {version}",
-        "",
-        f"Version {version} was backtested on "
-        + ", ".join(competition_label(p["competition"]) for p in parts)
-        + " and failed the gate ("
-        + "; ".join(reasons)
-        + "), so no competition is simulated with it. Its backtest is published here as it "
-        "came out.",
-        "",
+    served = [p["competition"] for p in parts if serves(version, p["competition"])]
+    kept = [p for p in parts if p["competition"] not in served]
+    summary = [
+        f"Version {version} plays matches with the pooled ball model (every T20 competition) and "
+        "was backtested on each competition below on its own matches. Each competition is "
+        "simulated with it only where its own backtest passed the gate."
     ]
+    if served:
+        summary.append(f"It serves {_names([competition_label(c) for c in served])}.")
+    for p in kept:
+        reasons = "; ".join(gate(p)) or "not promoted"
+        summary.append(f"It does not serve {competition_label(p['competition'])} ({reasons}).")
+    lines = ["", f"# Version {version}: the other competitions", "", " ".join(summary), ""]
     for d in parts:
-        lines += _section(d, titled=True)
+        section = _section(d, titled=True)
+        status = (
+            "Served: this backtest passed the gate."
+            if d["competition"] in served
+            else "Not served: " + ("; ".join(gate(d)) or "not promoted") + "."
+        )
+        lines += [section[0], "", status, *section[1:]]
     return "\n".join(lines)
 
 
@@ -113,6 +127,8 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
     name = competition_label(d["competition"])
     ipl = d["competition"] == IPL
     coin_flip = gain["low"] <= 0
+    # The whole interval below zero: worse than calling every match a coin flip.
+    worse = gain["high"] < 0
     low_chases = chase["mean_predicted"] < chase["observed"] - 0.03
     lopsided = win["calibration"][-1]
     timid = lopsided["observed"] - lopsided["predicted"] > 0.08
@@ -175,7 +191,12 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
         f"Against a coin flip the simulator's Brier score is {gain['value']:+.4f} (90%: "
         f"{gain['low']:+.4f} to {gain['high']:+.4f}; positive is better). "
         + (
-            "Before a ball is bowled, who wins is close to unpredictable from XIs and form"
+            (
+                "Before a ball is bowled the simulator calls winners worse than a coin flip would "
+                "(its chances lean the wrong way more often than not)"
+                if worse
+                else "Before a ball is bowled, who wins is close to unpredictable from XIs and form"
+            )
             + (" (see the Analytics Lab note on rivalries)" if ipl else "")
             + "; "
             if coin_flip
@@ -258,7 +279,11 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
             ]
         ),
         *(
-            ["- Pre-match win chances are no better than a coin flip in the backtest."]
+            [
+                "- Pre-match win chances are "
+                + ("worse than" if worse else "no better than")
+                + " a coin flip in the backtest."
+            ]
             if coin_flip
             else []
         ),
@@ -279,22 +304,24 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
 
 
 def write_all() -> list[Path]:
-    default = registry.current_version(registry.SIMULATOR)
     ipl = registry.current_version(registry.SIMULATOR, IPL)
-    if default is None or ipl is None:
+    if ipl is None:
         return []
     out = [write_json(INSIGHTS_PATH, insights(ipl, IPL))]
-    parts = [insights(default, c) for c in competitions_of(default)]
-    kept_out = unserved({default, ipl})
-    card = model_card(parts) + (unserved_section(kept_out) if kept_out else "")
-    out.append(write_text(MODEL_CARD_PATH, card))
-    if default != ipl:
-        out.append(write_text(ipl_card_path(MODEL_CARD_PATH), model_card([insights(ipl, IPL)])))
-    if competitions_of(default) != [IPL]:
+    card = model_card([insights(ipl, IPL)])
+    pooled = latest_pooled()
+    if pooled is not None:
+        card += pooled_section(pooled)
+        parts = {c: insights(pooled, c) for c in competitions_of(pooled)}
         out.append(
             write_json(
                 pooled_path(INSIGHTS_PATH),
-                {"version": default, "competitions": {p["competition"]: p for p in parts}},
+                {
+                    "version": pooled,
+                    "served": [c for c in parts if serves(pooled, c)],
+                    "competitions": {c: {**part, "gate": gate(part)} for c, part in parts.items()},
+                },
             )
         )
+    out.append(write_text(MODEL_CARD_PATH, card))
     return out

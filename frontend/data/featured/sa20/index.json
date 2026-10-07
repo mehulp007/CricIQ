@@ -1,0 +1,201 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "matches": [
+    {
+      "match_id": 1494286,
+      "headline": "SA20 2026 final",
+      "summary": {
+        "match_id": 1494286,
+        "season": 2026,
+        "date": "2026-01-25",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "newlands",
+          "name": "Newlands",
+          "city": "Cape Town"
+        },
+        "team_a": {
+          "team_season_id": "PC-2026",
+          "franchise_id": "PC",
+          "name": "Pretoria Capitals",
+          "color": "#17479E",
+          "runs": 158,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "SEC-2026",
+          "franchise_id": "SEC",
+          "name": "Sunrisers Eastern Cape",
+          "color": "#FF822A",
+          "runs": 162,
+          "wickets": 4,
+          "overs": "19.2"
+        },
+        "target_runs": 159,
+        "outcome_type": "win",
+        "winner_id": "SEC-2026",
+        "result_text": "Sunrisers Eastern Cape won by 6 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SEC-2026",
+          "winner_name": "Sunrisers Eastern Cape",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Dewald Brevis"
+        ]
+      }
+    },
+    {
+      "match_id": 1449667,
+      "headline": "SA20 2025 final",
+      "summary": {
+        "match_id": 1449667,
+        "season": 2025,
+        "date": "2025-02-08",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "wanderers",
+          "name": "New Wanderers Stadium",
+          "city": "Johannesburg"
+        },
+        "team_a": {
+          "team_season_id": "MICT-2025",
+          "franchise_id": "MICT",
+          "name": "MI Cape Town",
+          "color": "#004BA0",
+          "runs": 181,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "SEC-2025",
+          "franchise_id": "SEC",
+          "name": "Sunrisers Eastern Cape",
+          "color": "#FF822A",
+          "runs": 105,
+          "wickets": 10,
+          "overs": "18.4"
+        },
+        "target_runs": 182,
+        "outcome_type": "win",
+        "winner_id": "MICT-2025",
+        "result_text": "MI Cape Town won by 76 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "MICT-2025",
+          "winner_name": "MI Cape Town",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Trent Boult"
+        ]
+      }
+    },
+    {
+      "match_id": 1392685,
+      "headline": "SA20 2024 final",
+      "summary": {
+        "match_id": 1392685,
+        "season": 2024,
+        "date": "2024-02-10",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "newlands",
+          "name": "Newlands",
+          "city": "Cape Town"
+        },
+        "team_a": {
+          "team_season_id": "SEC-2024",
+          "franchise_id": "SEC",
+          "name": "Sunrisers Eastern Cape",
+          "color": "#FF822A",
+          "runs": 204,
+          "wickets": 3,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "DSG-2024",
+          "franchise_id": "DSG",
+          "name": "Durban's Super Giants",
+          "color": "#1E63B4",
+          "runs": 115,
+          "wickets": 10,
+          "overs": "17.0"
+        },
+        "target_runs": 205,
+        "outcome_type": "win",
+        "winner_id": "SEC-2024",
+        "result_text": "Sunrisers Eastern Cape won by 89 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SEC-2024",
+          "winner_name": "Sunrisers Eastern Cape",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Tom Abell"
+        ]
+      }
+    },
+    {
+      "match_id": 1343973,
+      "headline": "SA20 2023 final",
+      "summary": {
+        "match_id": 1343973,
+        "season": 2023,
+        "date": "2023-02-11",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "wanderers",
+          "name": "New Wanderers Stadium",
+          "city": "Johannesburg"
+        },
+        "team_a": {
+          "team_season_id": "PC-2023",
+          "franchise_id": "PC",
+          "name": "Pretoria Capitals",
+          "color": "#17479E",
+          "runs": 135,
+          "wickets": 10,
+          "overs": "19.3"
+        },
+        "team_b": {
+          "team_season_id": "SEC-2023",
+          "franchise_id": "SEC",
+          "name": "Sunrisers Eastern Cape",
+          "color": "#FF822A",
+          "runs": 137,
+          "wickets": 6,
+          "overs": "16.2"
+        },
+        "target_runs": 136,
+        "outcome_type": "win",
+        "winner_id": "SEC-2023",
+        "result_text": "Sunrisers Eastern Cape won by 4 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SEC-2023",
+          "winner_name": "Sunrisers Eastern Cape",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Roelof van der Merwe"
+        ]
+      }
+    }
+  ]
+}

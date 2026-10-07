@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { ClutchScatter } from "@/components/lab/clutch-scatter";
@@ -15,6 +14,7 @@ import {
   signed,
 } from "@/lib/lab";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 function Prose({ children }: { children: ReactNode }) {
   return (
@@ -45,9 +45,9 @@ function interval(e: { value: number; low: number; high: number }, digits: numbe
 const EXPECTED = (
   <>
     &quot;Expected&quot; comes from the{" "}
-    <Link href="/models" className="text-foreground underline-offset-4 hover:underline">
+    <CompetitionLink href="/models" className="text-foreground underline-offset-4 hover:underline">
       ball-outcome model
-    </Link>
+    </CompetitionLink>
     , which already knows the batter, the bowler, the phase, the wickets down, how settled the
     batter is and the chase equation.
   </>
@@ -346,12 +346,12 @@ export function PressureNoteView() {
                   {m.happened}. {m.result}.
                 </span>
               </span>
-              <Link
+              <CompetitionLink
                 href={`/matches/${m.match_id}?ball=${m.innings_no}.${m.seq_no}`}
                 className="text-xs text-primary underline-offset-4 hover:underline"
               >
                 Replay
-              </Link>
+              </CompetitionLink>
             </li>
           ))}
         </ol>
@@ -447,12 +447,12 @@ export function ClutchNoteView() {
             For batters there may be a faint tilt that persists, but it is far too weak to rank
             anyone: a high-pressure record mostly reflects which moments a player happened to face
             and how they went. Pressure still matters to the match (see{" "}
-            <Link
+            <CompetitionLink
               href="/lab/pressure"
               className="text-foreground underline-offset-4 hover:underline"
             >
               what pressure does to batting
-            </Link>
+            </CompetitionLink>
             ); what does not persist is one player handling it better than their overall record
             says.
           </p>

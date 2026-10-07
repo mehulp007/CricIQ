@@ -3,9 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useCompetition } from "@/components/competition/use-competition";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { PRIMARY_NAV, SECONDARY_NAV, isActive, isAvailable } from "@/lib/navigation";
+import {
+  PRIMARY_NAV,
+  SECONDARY_NAV,
+  isActive,
+  isAvailable,
+  isShown,
+  navHref,
+} from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 const itemClass =
@@ -24,8 +32,9 @@ export function NavList({
   group: keyof typeof NAV_GROUPS;
   onNavigate?: () => void;
 }) {
-  const items = NAV_GROUPS[group];
   const pathname = usePathname();
+  const competition = useCompetition();
+  const items = NAV_GROUPS[group].filter((item) => isShown(item, competition));
 
   return (
     <ul className="flex flex-col gap-0.5">
@@ -34,7 +43,7 @@ export function NavList({
 
         if (!isAvailable(item)) {
           return (
-            <li key={item.href}>
+            <li key={item.label}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   {/* Not focusable: a focus-trapping drawer would otherwise auto-open
@@ -60,11 +69,11 @@ export function NavList({
           );
         }
 
-        const active = isActive(item, pathname);
+        const active = isActive(item, pathname, competition);
         return (
-          <li key={item.href}>
+          <li key={item.label}>
             <Link
-              href={item.href}
+              href={navHref(item, competition)}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(

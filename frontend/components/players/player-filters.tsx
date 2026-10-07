@@ -19,7 +19,7 @@ const ALL = "all";
 const SEARCH_DELAY_MS = 300;
 
 export interface PlayerFilterOptions {
-  seasons: number[];
+  seasons: { year: number; label: string }[];
   teams: { id: string; name: string; active: boolean }[];
 }
 
@@ -120,9 +120,9 @@ export function PlayerFilters({ options }: { options: PlayerFilterOptions }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>All seasons</SelectItem>
-            {options.seasons.map((year) => (
+            {options.seasons.map(({ year, label }) => (
               <SelectItem key={year} value={String(year)}>
-                {year}
+                {label}
               </SelectItem>
             ))}
           </SelectContent>

@@ -5,7 +5,12 @@ import {
 } from "@/components/models/charts";
 import { Section, Stat } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
-import { SCORE_PROJECTION as sp, SERIES, seasonSpan } from "@/lib/models";
+import {
+  SCORE_PROJECTION,
+  type ScoreProjectionInsights as Insights,
+  SERIES,
+  seasonSpan,
+} from "@/lib/models";
 import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
@@ -20,7 +25,7 @@ function runs(value: number, signedValue = false): string {
   return `${value >= 0 ? "+" : "−"}${text}`;
 }
 
-export function ScoreProjectionInsights() {
+export function ScoreProjectionInsights({ data: sp = SCORE_PROJECTION }: { data?: Insights }) {
   const { test } = sp;
   const testSeasons = seasonSpan(sp.splits.test);
   const wins = sp.backtest.filter((r) => r.mae < r.par_mae).length;

@@ -16,7 +16,13 @@ import {
 import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { describeDelivery } from "@/lib/replay/engine";
-import { turningPoints, type WpPoint, wpSeries } from "@/lib/replay/win-probability";
+import {
+  inningsOvers,
+  overTicks,
+  turningPoints,
+  type WpPoint,
+  wpSeries,
+} from "@/lib/replay/win-probability";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
@@ -29,10 +35,12 @@ function WpTooltip({
   active,
   payload,
   timeline,
+  overs,
 }: {
   active?: boolean;
   payload?: { payload?: ChartRow }[];
   timeline: Timeline;
+  overs: number;
 }) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
@@ -40,7 +48,7 @@ function WpTooltip({
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="mb-1 font-medium text-foreground">
-        {row.index < 0 ? row.label : `Ball ${row.label}${row.x > 20 ? " (chase)" : ""}`}
+        {row.index < 0 ? row.label : `Ball ${row.label}${row.x > overs ? " (chase)" : ""}`}
       </p>
       {(
         [
@@ -73,6 +81,7 @@ export function WinProbabilityChart({
   cursor: number;
   onSeek: (index: number) => void;
 }) {
+  const overs = inningsOvers(timeline);
   const data: ChartRow[] = wpSeries(timeline, cursor).map((p) => ({
     ...p,
     above: Math.max(p.wp, 50),
@@ -94,9 +103,9 @@ export function WinProbabilityChart({
             <XAxis
               dataKey="x"
               type="number"
-              domain={[0, 40]}
-              ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40]}
-              tickFormatter={(v: number) => String(v <= 20 ? v : v - 20)}
+              domain={[0, 2 * overs]}
+              ticks={overTicks(2 * overs, overs)}
+              tickFormatter={(v: number) => String(v <= overs ? v : v - overs)}
               {...AXIS}
             />
             <YAxis
@@ -108,7 +117,7 @@ export function WinProbabilityChart({
             />
             <ReferenceLine y={50} stroke="var(--muted-foreground)" strokeDasharray="4 3" />
             <ReferenceLine
-              x={20}
+              x={overs}
               stroke="var(--border)"
               label={{
                 value: "Chase",
@@ -119,7 +128,7 @@ export function WinProbabilityChart({
             />
             <Tooltip
               cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }}
-              content={<WpTooltip timeline={timeline} />}
+              content={<WpTooltip timeline={timeline} overs={overs} />}
             />
             <Area
               dataKey="above"

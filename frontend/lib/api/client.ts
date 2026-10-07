@@ -1,11 +1,15 @@
 import "server-only";
 
+import type { CompetitionId } from "@/lib/competitions";
+
 import type {
+  CompetitionList,
   MatchPage,
   MatchupDetail,
   MatchupList,
   MatchupPhase,
   Meta,
+  PlayerCareers,
   PlayerPage,
   PlayerProfile,
   PlayerSplits,
@@ -25,9 +29,11 @@ import type {
 import { withVersion } from "./version";
 
 /**
- * Server-side client for the CricIQ API. Responses are cached by Next.js for a
- * day, keyed by the data version (see ./version): the metadata that carries it
- * is refreshed every few minutes, so new data from a sync shows up quickly.
+ * Server-side client for the CricIQ API (`/api/v2`). Every page of a
+ * competition reads that competition's data (`/api/v2/{competition}/...`).
+ * Responses are cached by Next.js for a day, keyed by the data version (see
+ * ./version): the metadata that carries it is refreshed every few minutes, so
+ * new data from a sync shows up quickly.
  */
 const API_URL = process.env.CRICIQ_API_URL ?? "http://localhost:8000";
 
@@ -65,15 +71,15 @@ async function fetchJson<T>(path: string, revalidate: number): Promise<T> {
   return (await response.json()) as T;
 }
 
-async function apiGet<T>(path: string): Promise<T> {
+async function apiGet<T>(competition: CompetitionId, path: string): Promise<T> {
   let version: string | null = null;
   try {
-    version = (await getMeta()).data_version;
+    version = (await getMeta(competition)).data_version;
   } catch (error) {
     // An unreachable API fails the same way for the request itself: don't wait twice.
     if (error instanceof ApiError && error.status === null) throw error;
   }
-  return fetchJson<T>(withVersion(path, version), REVALIDATE_SECONDS);
+  return fetchJson<T>(withVersion(`/api/v2/${competition}${path}`, version), REVALIDATE_SECONDS);
 }
 
 export interface MatchQuery {
@@ -85,7 +91,7 @@ export interface MatchQuery {
   pageSize?: number;
 }
 
-export function getMatches(query: MatchQuery = {}): Promise<MatchPage> {
+export function getMatches(competition: CompetitionId, query: MatchQuery = {}): Promise<MatchPage> {
   const params = new URLSearchParams();
   if (query.season) params.set("season", String(query.season));
   if (query.team) params.set("team", query.team);
@@ -93,15 +99,20 @@ export function getMatches(query: MatchQuery = {}): Promise<MatchPage> {
   if (query.sort) params.set("sort", query.sort);
   params.set("page", String(query.page ?? 1));
   params.set("page_size", String(query.pageSize ?? 24));
-  return apiGet<MatchPage>(`/api/v1/matches?${params}`);
+  return apiGet<MatchPage>(competition, `/matches?${params}`);
 }
 
-export function getMeta(): Promise<Meta> {
-  return fetchJson<Meta>("/api/v1/meta", META_REVALIDATE_SECONDS);
+export function getMeta(competition: CompetitionId): Promise<Meta> {
+  return fetchJson<Meta>(`/api/v2/${competition}/meta`, META_REVALIDATE_SECONDS);
 }
 
-export function getTimeline(matchId: number): Promise<Timeline> {
-  return apiGet<Timeline>(`/api/v1/matches/${matchId}/timeline`);
+/** Every competition of the players database, with its seasons. */
+export function getCompetitions(): Promise<CompetitionList> {
+  return fetchJson<CompetitionList>("/api/v2/competitions", META_REVALIDATE_SECONDS);
+}
+
+export function getTimeline(competition: CompetitionId, matchId: number): Promise<Timeline> {
+  return apiGet<Timeline>(competition, `/matches/${matchId}/timeline`);
 }
 
 export type PlayerRoleFilter = "batter" | "bowler" | "all_rounder" | "keeper";
@@ -117,7 +128,10 @@ export interface PlayerQuery {
   pageSize?: number;
 }
 
-export function getPlayers(query: PlayerQuery = {}): Promise<PlayerPage> {
+export function getPlayers(
+  competition: CompetitionId,
+  query: PlayerQuery = {},
+): Promise<PlayerPage> {
   const params = new URLSearchParams();
   if (query.q) params.set("q", query.q);
   if (query.role) params.set("role", query.role);
@@ -126,7 +140,7 @@ export function getPlayers(query: PlayerQuery = {}): Promise<PlayerPage> {
   if (query.sort) params.set("sort", query.sort);
   params.set("page", String(query.page ?? 1));
   params.set("page_size", String(query.pageSize ?? 30));
-  return apiGet<PlayerPage>(`/api/v1/players?${params}`);
+  return apiGet<PlayerPage>(competition, `/players?${params}`);
 }
 
 /** Seasons to include, inclusive; omitted ends mean the whole career. */
@@ -143,27 +157,44 @@ function windowQuery(window: SeasonWindow): string {
   return query ? `?${query}` : "";
 }
 
-export function getPlayer(playerId: string, window: SeasonWindow = {}): Promise<PlayerProfile> {
+export function getPlayer(
+  competition: CompetitionId,
+  playerId: string,
+  window: SeasonWindow = {},
+): Promise<PlayerProfile> {
   return apiGet<PlayerProfile>(
-    `/api/v1/players/${encodeURIComponent(playerId)}${windowQuery(window)}`,
+    competition,
+    `/players/${encodeURIComponent(playerId)}${windowQuery(window)}`,
+  );
+}
+
+/** A player's career in every competition and in all T20 cricket. */
+export async function getCareers(playerId: string): Promise<PlayerCareers> {
+  return fetchJson<PlayerCareers>(
+    `/api/v2/players/${encodeURIComponent(playerId)}`,
+    REVALIDATE_SECONDS,
   );
 }
 
 export function getPlayerSplits(
+  competition: CompetitionId,
   playerId: string,
   window: SeasonWindow = {},
 ): Promise<PlayerSplits> {
   return apiGet<PlayerSplits>(
-    `/api/v1/players/${encodeURIComponent(playerId)}/splits${windowQuery(window)}`,
+    competition,
+    `/players/${encodeURIComponent(playerId)}/splits${windowQuery(window)}`,
   );
 }
 
 export function getSimilarPlayers(
+  competition: CompetitionId,
   playerId: string,
   window: SeasonWindow = {},
 ): Promise<SimilarPlayers> {
   return apiGet<SimilarPlayers>(
-    `/api/v1/players/${encodeURIComponent(playerId)}/similar${windowQuery(window)}`,
+    competition,
+    `/players/${encodeURIComponent(playerId)}/similar${windowQuery(window)}`,
   );
 }
 
@@ -178,7 +209,10 @@ export interface MatchupQuery extends SeasonWindow {
   pageSize?: number;
 }
 
-export function getMatchups(query: MatchupQuery = {}): Promise<MatchupList> {
+export function getMatchups(
+  competition: CompetitionId,
+  query: MatchupQuery = {},
+): Promise<MatchupList> {
   const params = new URLSearchParams();
   if (query.batter) params.set("batter", query.batter);
   if (query.bowler) params.set("bowler", query.bowler);
@@ -188,10 +222,11 @@ export function getMatchups(query: MatchupQuery = {}): Promise<MatchupList> {
   if (query.sort) params.set("sort", query.sort);
   params.set("page", String(query.page ?? 1));
   params.set("page_size", String(query.pageSize ?? 25));
-  return apiGet<MatchupList>(`/api/v1/matchups?${params}`);
+  return apiGet<MatchupList>(competition, `/matchups?${params}`);
 }
 
 export function getMatchup(
+  competition: CompetitionId,
   batterId: string,
   bowlerId: string,
   options: SeasonWindow & { phase?: MatchupPhase } = {},
@@ -202,25 +237,32 @@ export function getMatchup(
   if (options.phase) params.set("phase", options.phase);
   const query = params.toString();
   return apiGet<MatchupDetail>(
-    `/api/v1/matchups/${encodeURIComponent(batterId)}/${encodeURIComponent(bowlerId)}${query ? `?${query}` : ""}`,
+    competition,
+    `/matchups/${encodeURIComponent(batterId)}/${encodeURIComponent(bowlerId)}${query ? `?${query}` : ""}`,
   );
 }
 
-export function getTeams(): Promise<TeamsOverview> {
-  return apiGet<TeamsOverview>("/api/v1/teams");
+export function getTeams(competition: CompetitionId): Promise<TeamsOverview> {
+  return apiGet<TeamsOverview>(competition, "/teams");
 }
 
-export function getStandings(season: number): Promise<Standings> {
-  return apiGet<Standings>(`/api/v1/teams/standings/${season}`);
+export function getStandings(competition: CompetitionId, season: number): Promise<Standings> {
+  return apiGet<Standings>(competition, `/teams/standings/${season}`);
 }
 
-export function getTeam(franchiseId: string, window: SeasonWindow = {}): Promise<TeamProfile> {
+export function getTeam(
+  competition: CompetitionId,
+  franchiseId: string,
+  window: SeasonWindow = {},
+): Promise<TeamProfile> {
   return apiGet<TeamProfile>(
-    `/api/v1/teams/${encodeURIComponent(franchiseId)}${windowQuery(window)}`,
+    competition,
+    `/teams/${encodeURIComponent(franchiseId)}${windowQuery(window)}`,
   );
 }
 
 export function getHeadToHead(
+  competition: CompetitionId,
   a: string,
   b: string,
   window: SeasonWindow = {},
@@ -228,7 +270,7 @@ export function getHeadToHead(
   const params = new URLSearchParams({ a, b });
   if (window.from) params.set("from", String(window.from));
   if (window.to) params.set("to", String(window.to));
-  return apiGet<HeadToHead>(`/api/v1/teams/h2h?${params}`);
+  return apiGet<HeadToHead>(competition, `/teams/h2h?${params}`);
 }
 
 /** POST without caching: simulations depend on the request body. */
@@ -260,12 +302,19 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function getSimSeasons(): Promise<SimSeason[]> {
-  return apiGet<SimSeason[]>("/api/v1/simulate/seasons");
+export function getSimSeasons(competition: CompetitionId): Promise<SimSeason[]> {
+  return apiGet<SimSeason[]>(competition, "/simulate/seasons");
 }
 
-export function getSquad(season: number, franchiseId: string): Promise<SimSquad> {
-  return apiGet<SimSquad>(`/api/v1/simulate/squad/${season}/${encodeURIComponent(franchiseId)}`);
+export function getSquad(
+  competition: CompetitionId,
+  season: number,
+  franchiseId: string,
+): Promise<SimSquad> {
+  return apiGet<SimSquad>(
+    competition,
+    `/simulate/squad/${season}/${encodeURIComponent(franchiseId)}`,
+  );
 }
 
 /** Ping the API so a sleeping free-tier instance starts waking before it is needed. */
@@ -281,10 +330,16 @@ export async function wakeApi(): Promise<boolean> {
   }
 }
 
-export function simulateMatch(request: SimulationRequest): Promise<SimulationResult> {
-  return apiPost<SimulationResult>("/api/v1/simulate/match", request);
+export function simulateMatch(
+  competition: CompetitionId,
+  request: SimulationRequest,
+): Promise<SimulationResult> {
+  return apiPost<SimulationResult>(`/api/v2/${competition}/simulate/match`, request);
 }
 
-export function simulateState(request: StateRequest): Promise<StateResult> {
-  return apiPost<StateResult>("/api/v1/simulate/state", request);
+export function simulateState(
+  competition: CompetitionId,
+  request: StateRequest,
+): Promise<StateResult> {
+  return apiPost<StateResult>(`/api/v2/${competition}/simulate/state`, request);
 }

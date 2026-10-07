@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2026",
+  "matches": 35,
+  "champion": null,
+  "first_innings_average": 158.6,
+  "previous_first_innings_average": 168.0,
+  "sixes": 563,
+  "leaders": {
+    "runs": {
+      "player_id": "372455c4",
+      "name": "Quinton de Kock",
+      "team": "BR",
+      "value": 392.0,
+      "detail": "strike rate 143.1"
+    },
+    "wickets": {
+      "player_id": "83d17bbc",
+      "name": "Matthew Forde",
+      "team": "SLK",
+      "value": 16.0,
+      "detail": "economy 9.13"
+    },
+    "runs_above_par": {
+      "player_id": "48a1d7b7",
+      "name": "Shimron Hetmyer",
+      "team": "GAW",
+      "value": 85.0,
+      "detail": "from 137 balls"
+    },
+    "runs_saved": {
+      "player_id": "9d430b40",
+      "name": "Sunil Narine",
+      "team": "TKR",
+      "value": 118.0,
+      "detail": "from 229 balls"
+    }
+  }
+}

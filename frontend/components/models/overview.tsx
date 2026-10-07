@@ -122,7 +122,7 @@ function ResultsTable() {
             <tr key={r.key}>
               <th scope="row" className="w-48 px-3 py-3 text-left font-normal">
                 <Link
-                  href={`/models?tab=${r.key}`}
+                  href={`/ipl/models?tab=${r.key}`}
                   className="font-medium underline-offset-4 hover:text-primary hover:underline"
                 >
                   {r.model}
@@ -421,24 +421,24 @@ export function ModelsOverview() {
         lede="CricIQ's own measures were each given a test they could fail. Two passed and became part of the replay; two failed and are reported as findings."
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Metric title="Pressure" href="/lab/pressure" verdict="Passed: in the replay">
+          <Metric title="Pressure" href="/ipl/lab/pressure" verdict="Passed: in the replay">
             Leverage predicts how far the next ball moves the match: from {calm.leverage.toFixed(2)}
             × a typical ball expected and {calm.realised.value.toFixed(2)}× realised in the calmest
             tenth to {tense.leverage.toFixed(1)}× and {tense.realised.value.toFixed(1)}× in the
             tensest.
           </Metric>
-          <Metric title="Momentum" href="/lab/momentum" verdict="Descriptive, not predictive">
+          <Metric title="Momentum" href="/ipl/lab/momentum" verdict="Descriptive, not predictive">
             Across {MOMENTUM.states.toLocaleString("en-IN")} moments, a 10-point surge adds{" "}
             {MOMENTUM.runs_per_10_points.value.toFixed(2)} runs over the next two overs and no extra
             chance of winning ({MOMENTUM.result_per_10_points.value.toFixed(3)}). It is shown as
             what just happened.
           </Metric>
-          <Metric title="Clutch" href="/lab/clutch" verdict="Failed: no rating">
+          <Metric title="Clutch" href="/ipl/lab/clutch" verdict="Failed: no rating">
             A batter&apos;s record under pressure in odd seasons predicts even seasons with r ={" "}
             {batting.split_half_r?.toFixed(2) ?? "—"}, below the {batting.reliable_r.toFixed(1)} the
             plan required for a rating.
           </Metric>
-          <Metric title="Rivalries" href="/lab/rivalries" verdict="Form, not history">
+          <Metric title="Rivalries" href="/ipl/lab/rivalries" verdict="Form, not history">
             Past head-to-head records add nothing to form; even the side in better form wins only{" "}
             {RIVALRIES.favourite.win_pct?.toFixed(1) ?? "—"}% of meetings.
           </Metric>

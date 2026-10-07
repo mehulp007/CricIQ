@@ -3,11 +3,11 @@
  *
  * After every ball the API stores the pressure on the *next* ball (a 0-100
  * percentile of leverage: how much that ball can move the win probability,
- * compared with every IPL ball) and the batting side's momentum (its change in
+ * compared with every ball of the competition) and the batting side's momentum (its change in
  * win probability over the last 12 legal balls, in points).
  */
 import type { Timeline } from "@/lib/api/types";
-import { matchOvers } from "@/lib/replay/win-probability";
+import { inningsOvers, matchOvers } from "@/lib/replay/win-probability";
 
 export const PRESSURE_BANDS = [
   { label: "Low", from: 0 },
@@ -69,7 +69,7 @@ export function momentumAt(timeline: Timeline, cursor: number): MomentumReading 
 }
 
 export interface PressurePoint {
-  x: number; // match overs (the chase starts at 20)
+  x: number; // match overs (the chase starts after the first innings' overs)
   pressure: number;
   leverage: number;
   index: number;
@@ -78,6 +78,7 @@ export interface PressurePoint {
 
 /** Pressure after every ball up to the cursor, on the match-overs axis. */
 export function pressureSeries(timeline: Timeline, cursor: number): PressurePoint[] {
+  const overs = inningsOvers(timeline);
   const points: PressurePoint[] = [];
   const first = timeline.innings[0];
   if (first?.pressure_start !== null && first?.pressure_start !== undefined) {
@@ -92,7 +93,7 @@ export function pressureSeries(timeline: Timeline, cursor: number): PressurePoin
   timeline.deliveries.forEach((d, index) => {
     if (index > cursor || d.pressure === null || d.pressure === undefined) return;
     points.push({
-      x: matchOvers(d),
+      x: matchOvers(d, overs),
       pressure: d.pressure,
       leverage: d.leverage ?? 1,
       index,

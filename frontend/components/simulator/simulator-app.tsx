@@ -23,6 +23,8 @@ import {
   sideIssue,
   simulationRequest,
 } from "@/lib/simulator";
+import { useCompetition } from "@/components/competition/use-competition";
+import { getCompetition, seasonLabel } from "@/lib/competitions";
 import { cn } from "@/lib/utils";
 import { fetchAwake, wakeSimulator } from "@/lib/wake";
 
@@ -58,6 +60,7 @@ export function SimulatorApp({
   const [waking, setWaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const competition = useCompetition();
   // The API sleeps when idle: start waking it while the visitor picks sides.
   useEffect(() => wakeSimulator(), []);
 
@@ -68,7 +71,7 @@ export function SimulatorApp({
 
   async function loadSquad(year: number, team: string): Promise<XIState> {
     const response = await fetchAwake(
-      `/api/simulate/squad?season=${year}&team=${encodeURIComponent(team)}`,
+      `/api/${competition}/simulate/squad?season=${year}&team=${encodeURIComponent(team)}`,
       undefined,
       () => setWaking(true),
     );
@@ -125,7 +128,7 @@ export function SimulatorApp({
     setError(null);
     try {
       const response = await fetchAwake(
-        "/api/simulate/match",
+        `/api/${competition}/simulate/match`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -169,14 +172,14 @@ export function SimulatorApp({
           <SelectContent>
             {seasons.map((s) => (
               <SelectItem key={s.season} value={String(s.season)}>
-                IPL {s.season}
+                {getCompetition(competition).label} {seasonLabel(competition, s.season)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <p className="text-sm text-muted-foreground">
           {season
-            ? `Both sides and their players come from the ${season} squads, and runs come as easily as they did in ${season}.`
+            ? `Both sides and their players come from the ${seasonLabel(competition, season)} squads, and runs come as easily as they did in ${seasonLabel(competition, season)}.`
             : "No seasons are available in this build."}
         </p>
       </div>

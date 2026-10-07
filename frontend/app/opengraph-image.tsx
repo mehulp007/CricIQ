@@ -1,8 +1,7 @@
 import { ImageResponse } from "next/og";
 
-import { SNAPSHOT } from "@/lib/featured";
-
-export const alt = "CricIQ: IPL analytics with replay, win probability, players and matchups";
+export const alt =
+  "CricIQ: T20 cricket analytics with replay, win probability, players and matchups";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -44,7 +43,7 @@ export default function Image() {
         </div>
       </div>
       <div style={{ display: "flex", marginTop: 44, fontSize: 30, color: "#c6ccd6" }}>
-        {`Every IPL ball, 2008–${SNAPSHOT.season}: replay, win probability, players and matchups`}
+        IPL, T20Is, BBL, PSL, CPL and SA20: replay, win probability, players and matchups
       </div>
     </div>,
     size,

@@ -26,6 +26,7 @@ import type {
   SimilarPlayers as Similar,
 } from "@/lib/api/types";
 import { compareHref } from "@/lib/compare";
+import { getCompetition, type CompetitionId } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
 import {
   figures,
@@ -36,8 +37,16 @@ import {
   seasonRanges,
   signed,
 } from "@/lib/players";
+import { CompetitionLink } from "@/components/competition/competition-link";
+import { SeasonLabel } from "@/components/competition/season-label";
 
-export function PlayerHeader({ profile }: { profile: PlayerProfile }) {
+export function PlayerHeader({
+  profile,
+  competition,
+}: {
+  profile: PlayerProfile;
+  competition: CompetitionId;
+}) {
   const p = profile.player;
   const hand = handLabel(p.batting_hand);
   return (
@@ -54,13 +63,13 @@ export function PlayerHeader({ profile }: { profile: PlayerProfile }) {
         <Badge variant="outline" className="text-primary">
           {roleLabel(p.role, p.is_keeper)}
         </Badge>
-        <Link
+        <CompetitionLink
           href={compareHref(p.player_id, undefined)}
           className="inline-flex items-center gap-1.5 text-foreground underline-offset-4 hover:text-primary hover:underline"
         >
           <GitCompareArrows className="size-4" aria-hidden="true" />
           Compare
-        </Link>
+        </CompetitionLink>
         {p.country && (
           <span className="flex items-center gap-1.5">
             <Flag className="size-4" aria-hidden="true" />
@@ -84,7 +93,7 @@ export function PlayerHeader({ profile }: { profile: PlayerProfile }) {
         <p className="text-sm">
           <span className="font-mono tabular-nums">{p.matches}</span>{" "}
           <span className="text-muted-foreground">
-            IPL matches ·{" "}
+            {getCompetition(competition).label} matches ·{" "}
             {p.first_season === p.last_season
               ? p.first_season
               : `${p.first_season}–${p.last_season}`}
@@ -238,9 +247,14 @@ export function BattingView({
           Runs scored beyond what an average batter would have made from the same balls.
         </StatTile>
         <StatTile label="50s / 100s" value={`${b.fifties} / ${b.hundreds}`}>
-          {b.highest
-            ? `Highest ${b.highest.runs}${b.highest.not_out ? "*" : ""} vs ${b.highest.opposition_id}, ${b.highest.season}`
-            : "No innings yet"}
+          {b.highest ? (
+            <>
+              {`Highest ${b.highest.runs}${b.highest.not_out ? "*" : ""} vs ${b.highest.opposition_id}, `}
+              <SeasonLabel season={b.highest.season} />
+            </>
+          ) : (
+            "No innings yet"
+          )}
           {b.ducks > 0 && ` · ${b.ducks} ${b.ducks === 1 ? "duck" : "ducks"}`}
         </StatTile>
         <StatTile label="Win probability added" value={formatWpa(b.wpa)}>
@@ -380,7 +394,12 @@ export function BowlingView({
           Runs an average bowler would have conceded from the same balls, minus the runs conceded.
         </StatTile>
         <StatTile label="Best" value={b.best ? figures(b.best.wickets, b.best.runs) : "—"}>
-          {b.best && `vs ${b.best.opposition_id}, ${b.best.season}`}
+          {b.best && (
+            <>
+              {`vs ${b.best.opposition_id}, `}
+              <SeasonLabel season={b.best.season} />
+            </>
+          )}
           {` · average ${rate(b.average, 1)}`}
           {(b.four_wickets > 0 || b.five_wickets > 0) &&
             ` · ${b.four_wickets} four-fors, ${b.five_wickets} five-fors`}

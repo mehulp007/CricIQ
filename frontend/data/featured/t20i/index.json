@@ -1,0 +1,495 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "matches": [
+    {
+      "match_id": 1512773,
+      "headline": "T20 World Cup 2026 final",
+      "summary": {
+        "match_id": 1512773,
+        "season": 2026,
+        "date": "2026-03-08",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "narendra-modi",
+          "name": "Narendra Modi Stadium",
+          "city": "Ahmedabad"
+        },
+        "team_a": {
+          "team_season_id": "T20I-IND-2026",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 255,
+          "wickets": 5,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-NZ-2026",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 159,
+          "wickets": 10,
+          "overs": "19.0"
+        },
+        "target_runs": 256,
+        "outcome_type": "win",
+        "winner_id": "T20I-IND-2026",
+        "result_text": "India won by 96 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-NZ-2026",
+          "winner_name": "New Zealand",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Jasprit Bumrah"
+        ]
+      }
+    },
+    {
+      "match_id": 1415755,
+      "headline": "T20 World Cup 2024 final",
+      "summary": {
+        "match_id": 1415755,
+        "season": 2024,
+        "date": "2024-06-29",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "kensington-oval",
+          "name": "Kensington Oval",
+          "city": "Bridgetown"
+        },
+        "team_a": {
+          "team_season_id": "T20I-IND-2024",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 176,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-SA-2024",
+          "franchise_id": "SA",
+          "name": "South Africa",
+          "color": "#007A4D",
+          "runs": 169,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "target_runs": 177,
+        "outcome_type": "win",
+        "winner_id": "T20I-IND-2024",
+        "result_text": "India won by 7 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-IND-2024",
+          "winner_name": "India",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Virat Kohli"
+        ]
+      }
+    },
+    {
+      "match_id": 1298179,
+      "headline": "T20 World Cup 2022 final",
+      "summary": {
+        "match_id": 1298179,
+        "season": 2022,
+        "date": "2022-11-13",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "melbourne-cricket-ground",
+          "name": "Melbourne Cricket Ground",
+          "city": "Melbourne"
+        },
+        "team_a": {
+          "team_season_id": "T20I-PAK-2022",
+          "franchise_id": "PAK",
+          "name": "Pakistan",
+          "color": "#1E8E3E",
+          "runs": 137,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-ENG-2022",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 138,
+          "wickets": 5,
+          "overs": "19.0"
+        },
+        "target_runs": 138,
+        "outcome_type": "win",
+        "winner_id": "T20I-ENG-2022",
+        "result_text": "England won by 5 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-ENG-2022",
+          "winner_name": "England",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Sam Curran"
+        ]
+      }
+    },
+    {
+      "match_id": 1273756,
+      "headline": "T20 World Cup 2021 final",
+      "summary": {
+        "match_id": 1273756,
+        "season": 2021,
+        "date": "2021-11-14",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "dubai",
+          "name": "Dubai International Cricket Stadium",
+          "city": "Dubai"
+        },
+        "team_a": {
+          "team_season_id": "T20I-NZ-2021",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 172,
+          "wickets": 4,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-AUS-2021",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 173,
+          "wickets": 2,
+          "overs": "18.5"
+        },
+        "target_runs": 173,
+        "outcome_type": "win",
+        "winner_id": "T20I-AUS-2021",
+        "result_text": "Australia won by 8 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-AUS-2021",
+          "winner_name": "Australia",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Mitchell Marsh"
+        ]
+      }
+    },
+    {
+      "match_id": 951373,
+      "headline": "T20 World Cup 2016 final",
+      "summary": {
+        "match_id": 951373,
+        "season": 2016,
+        "date": "2016-04-03",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "eden-gardens",
+          "name": "Eden Gardens",
+          "city": "Kolkata"
+        },
+        "team_a": {
+          "team_season_id": "T20I-ENG-2016",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 155,
+          "wickets": 9,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-WI-2016",
+          "franchise_id": "WI",
+          "name": "West Indies",
+          "color": "#9B1B3A",
+          "runs": 161,
+          "wickets": 6,
+          "overs": "19.4"
+        },
+        "target_runs": 156,
+        "outcome_type": "win",
+        "winner_id": "T20I-WI-2016",
+        "result_text": "West Indies won by 4 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-WI-2016",
+          "winner_name": "West Indies",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Marlon Samuels"
+        ]
+      }
+    },
+    {
+      "match_id": 682965,
+      "headline": "T20 World Cup 2014 final",
+      "summary": {
+        "match_id": 682965,
+        "season": 2014,
+        "date": "2014-04-06",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "shere-bangla-national-stadium",
+          "name": "Shere Bangla National Stadium",
+          "city": "Mirpur"
+        },
+        "team_a": {
+          "team_season_id": "T20I-IND-2014",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 130,
+          "wickets": 4,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-SL-2014",
+          "franchise_id": "SL",
+          "name": "Sri Lanka",
+          "color": "#2B4BA8",
+          "runs": 134,
+          "wickets": 4,
+          "overs": "17.5"
+        },
+        "target_runs": 131,
+        "outcome_type": "win",
+        "winner_id": "T20I-SL-2014",
+        "result_text": "Sri Lanka won by 6 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-SL-2014",
+          "winner_name": "Sri Lanka",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Kumar Sangakkara"
+        ]
+      }
+    },
+    {
+      "match_id": 533298,
+      "headline": "T20 World Cup 2012 final",
+      "summary": {
+        "match_id": 533298,
+        "season": 2012,
+        "date": "2012-10-07",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "r-premadasa-stadium",
+          "name": "R Premadasa Stadium",
+          "city": "Colombo"
+        },
+        "team_a": {
+          "team_season_id": "T20I-WI-2012",
+          "franchise_id": "WI",
+          "name": "West Indies",
+          "color": "#9B1B3A",
+          "runs": 137,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-SL-2012",
+          "franchise_id": "SL",
+          "name": "Sri Lanka",
+          "color": "#2B4BA8",
+          "runs": 101,
+          "wickets": 10,
+          "overs": "18.4"
+        },
+        "target_runs": 138,
+        "outcome_type": "win",
+        "winner_id": "T20I-WI-2012",
+        "result_text": "West Indies won by 36 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-WI-2012",
+          "winner_name": "West Indies",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Marlon Samuels"
+        ]
+      }
+    },
+    {
+      "match_id": 412703,
+      "headline": "T20 World Cup 2010 final",
+      "summary": {
+        "match_id": 412703,
+        "season": 2010,
+        "date": "2010-05-16",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "kensington-oval",
+          "name": "Kensington Oval",
+          "city": "Bridgetown"
+        },
+        "team_a": {
+          "team_season_id": "T20I-AUS-2010",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 147,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-ENG-2010",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 148,
+          "wickets": 3,
+          "overs": "17.0"
+        },
+        "target_runs": 148,
+        "outcome_type": "win",
+        "winner_id": "T20I-ENG-2010",
+        "result_text": "England won by 7 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-ENG-2010",
+          "winner_name": "England",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Craig Kieswetter"
+        ]
+      }
+    },
+    {
+      "match_id": 356017,
+      "headline": "T20 World Cup 2009 final",
+      "summary": {
+        "match_id": 356017,
+        "season": 2009,
+        "date": "2009-06-21",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "lord-s",
+          "name": "Lord's",
+          "city": "London"
+        },
+        "team_a": {
+          "team_season_id": "T20I-SL-2009",
+          "franchise_id": "SL",
+          "name": "Sri Lanka",
+          "color": "#2B4BA8",
+          "runs": 138,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-PAK-2009",
+          "franchise_id": "PAK",
+          "name": "Pakistan",
+          "color": "#1E8E3E",
+          "runs": 139,
+          "wickets": 2,
+          "overs": "18.4"
+        },
+        "target_runs": 139,
+        "outcome_type": "win",
+        "winner_id": "T20I-PAK-2009",
+        "result_text": "Pakistan won by 8 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-SL-2009",
+          "winner_name": "Sri Lanka",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Shahid Afridi"
+        ]
+      }
+    },
+    {
+      "match_id": 287879,
+      "headline": "T20 World Cup 2007 final, the first",
+      "summary": {
+        "match_id": 287879,
+        "season": 2007,
+        "date": "2007-09-24",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "wanderers",
+          "name": "New Wanderers Stadium",
+          "city": "Johannesburg"
+        },
+        "team_a": {
+          "team_season_id": "T20I-IND-2007",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 157,
+          "wickets": 5,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "T20I-PAK-2007",
+          "franchise_id": "PAK",
+          "name": "Pakistan",
+          "color": "#1E8E3E",
+          "runs": 152,
+          "wickets": 10,
+          "overs": "19.3"
+        },
+        "target_runs": 158,
+        "outcome_type": "win",
+        "winner_id": "T20I-IND-2007",
+        "result_text": "India won by 5 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "T20I-IND-2007",
+          "winner_name": "India",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Irfan Pathan"
+        ]
+      }
+    }
+  ]
+}

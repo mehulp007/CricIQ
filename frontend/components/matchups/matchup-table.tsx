@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import { TeamSwatch } from "@/components/match/team-badge";
 import { ParDelta } from "@/components/players/profile-parts";
 import type { MatchupListItem, MatchupPlayer } from "@/lib/api/types";
 import { rate } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { scrollRegion } from "@/lib/a11y";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 const th = "px-3 py-2.5 text-right text-xs font-medium text-muted-foreground";
 const td = "px-3 py-3 text-right font-mono tabular-nums";
@@ -73,7 +72,7 @@ export function MatchupTable({
               className="transition-colors hover:bg-muted/40"
             >
               <th scope="row" className="px-3 py-3 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/matchups?batter=${m.batter.player_id}&bowler=${m.bowler.player_id}`}
                   className="underline-offset-4 hover:text-primary hover:underline"
                 >
@@ -86,7 +85,7 @@ export function MatchupTable({
                   ) : (
                     <Name player={show === "batter" ? m.batter : m.bowler} />
                   )}
-                </Link>
+                </CompetitionLink>
               </th>
               <td className={cn(td, "text-muted-foreground")}>{m.balls}</td>
               <td className={td}>{m.runs}</td>

@@ -1,5 +1,6 @@
 "use client";
 
+import { SeasonLabel } from "@/components/competition/season-label";
 import {
   CartesianGrid,
   Line,
@@ -11,6 +12,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { useCompetition } from "@/components/competition/use-competition";
+import { seasonLabel } from "@/lib/competitions";
 import type { SeasonTrend } from "@/lib/api/types";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
@@ -33,7 +36,7 @@ function Tip({
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="mb-1 font-medium text-foreground">
-        {p.season} · {p.matches} decided matches
+        <SeasonLabel season={p.season} /> · {p.matches} decided matches
       </p>
       {TREND_SERIES.map((s) => {
         const value = p[s.key];
@@ -57,6 +60,7 @@ function Tip({
 
 /** Share of matches won by the chasing side, the home side and the toss winner, by season. */
 export function LeagueTrendsChart({ seasons }: { seasons: SeasonTrend[] }) {
+  const competition = useCompetition();
   return (
     <div className="flex flex-col gap-3">
       <ul
@@ -82,7 +86,13 @@ export function LeagueTrendsChart({ seasons }: { seasons: SeasonTrend[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={seasons} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
             <CartesianGrid stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="season" {...AXIS} tickLine={false} minTickGap={16} />
+            <XAxis
+              dataKey="season"
+              {...AXIS}
+              tickLine={false}
+              minTickGap={16}
+              tickFormatter={(s: number) => seasonLabel(competition, s)}
+            />
             <YAxis
               {...AXIS}
               tickLine={false}

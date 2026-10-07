@@ -16,6 +16,8 @@ import {
 } from "recharts";
 
 import type { BattingInnings, SeasonLine } from "@/lib/api/types";
+import { useCompetition } from "@/components/competition/use-competition";
+import { competitionPath } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
 import { PLAYER_SERIES, rate, signed } from "@/lib/players";
 
@@ -283,6 +285,7 @@ function FormTip({ active, payload }: TipProps<FormPoint>) {
 /** Runs in each of the most recent innings, oldest to newest; a bar opens that replay. */
 export function FormChart({ innings }: { innings: BattingInnings[] }) {
   const router = useRouter();
+  const competition = useCompetition();
   const points: FormPoint[] = [...innings]
     .reverse()
     .map((i, index) => ({ index: index + 1, runs: i.runs, notOut: !i.is_out, innings: i }));
@@ -310,7 +313,7 @@ export function FormChart({ innings }: { innings: BattingInnings[] }) {
               className="cursor-pointer"
               onClick={(entry: { payload?: FormPoint }) => {
                 const id = entry.payload?.innings.match_id;
-                if (id) router.push(`/matches/${id}`);
+                if (id) router.push(competitionPath(competition, `/matches/${id}`));
               }}
             >
               {points.map((p) => (

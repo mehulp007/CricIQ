@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("featured replay", () => {
   test("overview links to a featured replay", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/ipl");
     await expect(page.getByRole("heading", { name: /Decode the game/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Featured replays" })).toBeVisible();
     await page.getByRole("link", { name: /Replay the 2019 final/ }).click();
@@ -13,7 +13,7 @@ test.describe("featured replay", () => {
   });
 
   test("plays, steps and finishes the 2019 final", async ({ page }) => {
-    await page.goto("/matches/1181768");
+    await page.goto("/ipl/matches/1181768");
     const scoreboard = page.getByRole("region", { name: "Scoreboard" });
     await expect(scoreboard).toContainText("Before the first ball");
 
@@ -44,7 +44,7 @@ test.describe("featured replay", () => {
 
   test("keyboard shortcuts drive the replay", async ({ page, isMobile }) => {
     test.skip(isMobile, "keyboard shortcuts are a desktop feature");
-    await page.goto("/matches/335982");
+    await page.goto("/ipl/matches/335982");
     await page.locator("[data-replay-ready]").waitFor();
     const scoreboard = page.getByRole("region", { name: "Scoreboard" });
     await page.keyboard.press("End");

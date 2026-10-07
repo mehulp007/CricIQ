@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import type { MatchSummary, TeamScore } from "@/lib/api/types";
+import { competitionPath, seasonLabel, type CompetitionId } from "@/lib/competitions";
 import { formatDate, formatScore, stageLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -30,10 +31,18 @@ function TeamRow({ team, won }: { team: TeamScore; won: boolean }) {
   );
 }
 
-export function MatchCard({ match, headline }: { match: MatchSummary; headline?: string }) {
+export function MatchCard({
+  competition,
+  match,
+  headline,
+}: {
+  competition: CompetitionId;
+  match: MatchSummary;
+  headline?: string;
+}) {
   return (
     <Link
-      href={`/matches/${match.match_id}`}
+      href={competitionPath(competition, `/matches/${match.match_id}`)}
       className="group flex w-full flex-col gap-4 rounded-xl border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
@@ -42,7 +51,7 @@ export function MatchCard({ match, headline }: { match: MatchSummary; headline?:
           {formatDate(match.date)}
         </span>
         <span className={cn(match.is_playoff && "font-medium text-team-b")}>
-          {match.season} · {stageLabel(match.stage, match.match_number)}
+          {seasonLabel(competition, match.season)} · {stageLabel(match.stage, match.match_number)}
         </span>
       </div>
       {headline && <p className="text-sm font-medium text-balance">{headline}</p>}

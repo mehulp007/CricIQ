@@ -13,15 +13,21 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
+
 export type MilestoneId =
   "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0";
 
 export interface NavItem {
-  href: string;
+  /** Within the competition being browsed ("/matches" is /ipl/matches), or a global page. */
+  path: string;
+  scope: "competition" | "global";
   label: string;
   icon: LucideIcon;
   /** Milestone in docs/PLAN.md §16 that ships this page. */
   milestone: MilestoneId;
+  /** Only shown where the competition has this content. */
+  requires?: "lab";
 }
 
 /**
@@ -42,29 +48,42 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "v1.0",
 ]);
 
+const page = (path: string, label: string, icon: LucideIcon, milestone: MilestoneId) =>
+  ({ path, scope: "competition", label, icon, milestone }) as const;
+
 export const PRIMARY_NAV: readonly NavItem[] = [
-  { href: "/", label: "Overview", icon: LayoutDashboard, milestone: "M0" },
-  { href: "/matches", label: "Matches", icon: CalendarRange, milestone: "M2" },
-  { href: "/players", label: "Players", icon: Users, milestone: "M5" },
-  { href: "/matchups", label: "Matchups", icon: Swords, milestone: "M6" },
-  { href: "/compare", label: "Compare", icon: GitCompareArrows, milestone: "V1-a" },
-  { href: "/teams", label: "Teams", icon: Shield, milestone: "V1-c" },
-  { href: "/simulator", label: "Simulator", icon: Dices, milestone: "V1-d" },
-  { href: "/lab", label: "Analytics Lab", icon: FlaskConical, milestone: "V1-b" },
-  { href: "/models", label: "Model Insights", icon: BrainCircuit, milestone: "M3" },
+  page("", "Overview", LayoutDashboard, "M0"),
+  page("/matches", "Matches", CalendarRange, "M2"),
+  page("/players", "Players", Users, "M5"),
+  page("/matchups", "Matchups", Swords, "M6"),
+  page("/compare", "Compare", GitCompareArrows, "V1-a"),
+  page("/teams", "Teams", Shield, "V1-c"),
+  page("/simulator", "Simulator", Dices, "V1-d"),
+  { ...page("/lab", "Analytics Lab", FlaskConical, "V1-b"), requires: "lab" },
+  page("/models", "Model Insights", BrainCircuit, "M3"),
 ];
 
 export const SECONDARY_NAV: readonly NavItem[] = [
-  { href: "/writeup", label: "The write-up", icon: BookOpen, milestone: "v1.0" },
-  { href: "/about", label: "About & Methodology", icon: Info, milestone: "M0" },
+  { path: "/writeup", scope: "global", label: "The write-up", icon: BookOpen, milestone: "v1.0" },
+  { path: "/about", scope: "global", label: "About & Methodology", icon: Info, milestone: "M0" },
 ];
 
 export function isAvailable(item: NavItem): boolean {
   return SHIPPED_MILESTONES.has(item.milestone);
 }
 
-/** Active if the path is the item itself or nested below it ("/" only matches exactly). */
-export function isActive(item: NavItem, pathname: string): boolean {
-  if (item.href === "/") return pathname === "/";
-  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+/** Whether the competition has the item's page (the Analytics Lab covers the IPL so far). */
+export function isShown(item: NavItem, competition: CompetitionId): boolean {
+  return item.requires !== "lab" || getCompetition(competition).lab;
+}
+
+export function navHref(item: NavItem, competition: CompetitionId): string {
+  return item.scope === "global" ? item.path : competitionPath(competition, item.path);
+}
+
+/** Active if the path is the item itself or nested below it (the overview only matches exactly). */
+export function isActive(item: NavItem, pathname: string, competition: CompetitionId): boolean {
+  const href = navHref(item, competition);
+  if (item.scope === "competition" && item.path === "") return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }

@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // Matchup Lab pages are served from the API.
 test.describe("matchup lab", () => {
   test("opens a rivalry from the landing list", async ({ page }) => {
-    await page.goto("/matchups");
+    await page.goto("/ipl/matchups");
     await expect(page.getByRole("heading", { name: "Matchup Lab" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "The most-played rivalries" })).toBeVisible();
     await page.getByRole("table").getByRole("link").first().click();
@@ -21,7 +21,7 @@ test.describe("matchup lab", () => {
   });
 
   test("picks a batter and a bowler by search", async ({ page }) => {
-    await page.goto("/matchups");
+    await page.goto("/ipl/matchups");
     await page.getByRole("combobox", { name: "Batter" }).fill("kohli");
     await page.getByRole("option", { name: /Virat Kohli/ }).click();
     await expect(page).toHaveURL(/batter=ba607b88/);
@@ -44,7 +44,7 @@ test.describe("matchup lab", () => {
   });
 
   test("profiles link to head-to-head records", async ({ page }) => {
-    await page.goto("/players/ba607b88");
+    await page.goto("/ipl/players/ba607b88");
     const panel = page.getByRole("region", { name: "Most-faced bowlers" });
     await expect(panel).toBeVisible();
     await panel.getByRole("table").getByRole("link").first().click();
@@ -52,7 +52,7 @@ test.describe("matchup lab", () => {
   });
 
   test("model insights explain the ball-outcome model", async ({ page }) => {
-    await page.goto("/models");
+    await page.goto("/ipl/models");
     await page.getByRole("tab", { name: "Ball outcome" }).click();
     await expect(
       page.getByRole("heading", { name: "Do head-to-head records predict the future?" }),

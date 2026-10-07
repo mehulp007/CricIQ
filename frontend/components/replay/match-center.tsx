@@ -15,6 +15,7 @@ import { type OverOption, ReplayControls } from "@/components/replay/replay-cont
 import { Scoreboard } from "@/components/replay/scoreboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
+import type { CompetitionId } from "@/lib/competitions";
 import { inningsLabel } from "@/lib/format";
 import { buildFrames, overStarts, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
@@ -54,7 +55,16 @@ function isInteractive(target: EventTarget | null): boolean {
   return role !== null && INTERACTIVE_ROLES.has(role);
 }
 
-export function MatchCenter({ timeline }: { timeline: Timeline }) {
+export function MatchCenter({
+  timeline,
+  competition,
+  simulator,
+}: {
+  timeline: Timeline;
+  competition: CompetitionId;
+  /** Whether a simulator serves this competition (the what-if sandbox needs one). */
+  simulator: boolean;
+}) {
   const frames = useMemo(() => buildFrames(timeline), [timeline]);
   const [state, dispatch] = useReducer(replayReducer, frames.length, (n) => initialState(n));
   const { cursor, playing, speed } = state;
@@ -144,8 +154,10 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
               <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
             </div>
             <div className="flex flex-col gap-4 lg:col-span-5">
-              <PressurePanel timeline={timeline} cursor={cursor} />
-              <WhatIfPanel timeline={timeline} cursor={cursor} />
+              <PressurePanel timeline={timeline} cursor={cursor} competition={competition} />
+              {simulator && (
+                <WhatIfPanel timeline={timeline} cursor={cursor} competition={competition} />
+              )}
               <ExplainPanel timeline={timeline} cursor={cursor} />
               <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
             </div>
@@ -153,7 +165,7 @@ export function MatchCenter({ timeline }: { timeline: Timeline }) {
         </TabsContent>
 
         <TabsContent value="scorecard" className="mt-4">
-          <LiveScorecard timeline={timeline} cards={cards} />
+          <LiveScorecard timeline={timeline} cards={cards} competition={competition} />
         </TabsContent>
       </Tabs>
 

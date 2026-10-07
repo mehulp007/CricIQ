@@ -1152,6 +1152,43 @@
         "title": "CareerLine",
         "type": "object"
       },
+      "CompetitionInfo": {
+        "properties": {
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "team_type": {
+            "enum": [
+              "club",
+              "national"
+            ],
+            "title": "Team Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "short_name",
+          "format",
+          "team_type"
+        ],
+        "title": "CompetitionInfo",
+        "type": "object"
+      },
       "CompetitionList": {
         "properties": {
           "data_version": {
@@ -1435,6 +1472,35 @@
           "name"
         ],
         "title": "FallOfWicket",
+        "type": "object"
+      },
+      "Features": {
+        "description": "What this competition's data supports.",
+        "properties": {
+          "ball_model": {
+            "title": "Ball Model",
+            "type": "boolean"
+          },
+          "score_projection": {
+            "title": "Score Projection",
+            "type": "boolean"
+          },
+          "simulator": {
+            "title": "Simulator",
+            "type": "boolean"
+          },
+          "win_probability": {
+            "title": "Win Probability",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "win_probability",
+          "score_projection",
+          "ball_model",
+          "simulator"
+        ],
+        "title": "Features",
         "type": "object"
       },
       "FieldingSummary": {
@@ -2789,7 +2855,7 @@
       "Meta": {
         "properties": {
           "api_version": {
-            "const": "v1",
+            "const": "v2",
             "title": "Api Version",
             "type": "string"
           },
@@ -2797,9 +2863,15 @@
             "title": "App Version",
             "type": "string"
           },
+          "competition": {
+            "$ref": "#/components/schemas/CompetitionInfo"
+          },
           "data_version": {
             "title": "Data Version",
             "type": "string"
+          },
+          "features": {
+            "$ref": "#/components/schemas/Features"
           },
           "franchises": {
             "items": {
@@ -2855,6 +2927,8 @@
         "required": [
           "api_version",
           "app_version",
+          "competition",
+          "features",
           "data_version",
           "model_versions",
           "latest_match_date",
@@ -4625,6 +4699,10 @@
             "title": "Impact Player Rule",
             "type": "boolean"
           },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
           "matches": {
             "title": "Matches",
             "type": "integer"
@@ -4636,6 +4714,7 @@
         },
         "required": [
           "year",
+          "label",
           "matches",
           "impact_player_rule"
         ],
@@ -5496,7 +5575,7 @@
             "anyOf": [
               {
                 "maximum": 2100.0,
-                "minimum": 2008.0,
+                "minimum": 2000.0,
                 "type": "integer"
               },
               {
@@ -7650,11 +7729,88 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/api/v1/matches": {
+    "/api/v2/competitions": {
+      "get": {
+        "description": "The competitions with Player Lab data, with their season labels.",
+        "operationId": "list_competitions_api_v2_competitions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Competitions",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/players/{player_id}": {
+      "get": {
+        "description": "A player's headline numbers in every competition, then all T20 cricket together.",
+        "operationId": "read_careers_api_v2_players__player_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCareers"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Careers",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/{competition}/matches": {
       "get": {
         "description": "Paginated match summaries, newest first by default.",
-        "operationId": "list_matches_api_v1_matches_get",
+        "operationId": "list_matches_api_v2__competition__matches_get",
         "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "season",
@@ -7663,7 +7819,7 @@
               "anyOf": [
                 {
                   "maximum": 2100,
-                  "minimum": 2008,
+                  "minimum": 2000,
                   "type": "integer"
                 },
                 {
@@ -7795,10 +7951,10 @@
         ]
       }
     },
-    "/api/v1/matches/{match_id}": {
+    "/api/v2/{competition}/matches/{match_id}": {
       "get": {
         "description": "Match summary with full scorecards for every innings.",
-        "operationId": "read_match_api_v1_matches__match_id__get",
+        "operationId": "read_match_api_v2__competition__matches__match_id__get",
         "parameters": [
           {
             "in": "path",
@@ -7807,6 +7963,18 @@
             "schema": {
               "title": "Match Id",
               "type": "integer"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
             }
           }
         ],
@@ -7838,10 +8006,10 @@
         ]
       }
     },
-    "/api/v1/matches/{match_id}/timeline": {
+    "/api/v2/{competition}/matches/{match_id}/timeline": {
       "get": {
         "description": "Every delivery with running state: one payload drives a full client-side replay.",
-        "operationId": "read_timeline_api_v1_matches__match_id__timeline_get",
+        "operationId": "read_timeline_api_v2__competition__matches__match_id__timeline_get",
         "parameters": [
           {
             "in": "path",
@@ -7850,6 +8018,18 @@
             "schema": {
               "title": "Match Id",
               "type": "integer"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
             }
           }
         ],
@@ -7881,11 +8061,23 @@
         ]
       }
     },
-    "/api/v1/matchups": {
+    "/api/v2/{competition}/matchups": {
       "get": {
         "description": "Batter-bowler pairs with raw, expected and shrunk strike rates.\n\nFilter by batter (the bowlers they faced) or by bowler (the batters they\nbowled to). ``batter_edge`` and ``bowler_edge`` rank by the matchup effect\nbeyond each player's overall record.",
-        "operationId": "list_matchups_api_v1_matchups_get",
+        "operationId": "list_matchups_api_v2__competition__matchups_get",
         "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "batter",
@@ -7929,7 +8121,7 @@
               "anyOf": [
                 {
                   "maximum": 2100,
-                  "minimum": 2008,
+                  "minimum": 2000,
                   "type": "integer"
                 },
                 {
@@ -7949,7 +8141,7 @@
               "anyOf": [
                 {
                   "maximum": 2100,
-                  "minimum": 2008,
+                  "minimum": 2000,
                   "type": "integer"
                 },
                 {
@@ -8039,10 +8231,10 @@
         ]
       }
     },
-    "/api/v1/matchups/{batter_id}/{bowler_id}": {
+    "/api/v2/{competition}/matchups/{batter_id}/{bowler_id}": {
       "get": {
         "description": "Head-to-head record, the empirical-Bayes estimate and next-ball odds for a pair.",
-        "operationId": "read_matchup_api_v1_matchups__batter_id___bowler_id__get",
+        "operationId": "read_matchup_api_v2__competition__matchups__batter_id___bowler_id__get",
         "parameters": [
           {
             "in": "path",
@@ -8063,6 +8255,18 @@
             }
           },
           {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
             "description": "First season (inclusive).",
             "in": "query",
             "name": "from",
@@ -8071,7 +8275,7 @@
               "anyOf": [
                 {
                   "maximum": 2100,
-                  "minimum": 2008,
+                  "minimum": 2000,
                   "type": "integer"
                 },
                 {
@@ -8091,7 +8295,7 @@
               "anyOf": [
                 {
                   "maximum": 2100,
-                  "minimum": 2008,
+                  "minimum": 2000,
                   "type": "integer"
                 },
                 {
@@ -8152,10 +8356,24 @@
         ]
       }
     },
-    "/api/v1/meta": {
+    "/api/v2/{competition}/meta": {
       "get": {
         "description": "Dataset version and the seasons, franchises and venues available for filtering.",
-        "operationId": "read_meta_api_v1_meta_get",
+        "operationId": "read_meta_api_v2__competition__meta_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -8166,1016 +8384,21 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Read Meta",
         "tags": [
           "meta"
-        ]
-      }
-    },
-    "/api/v1/players": {
-      "get": {
-        "description": "Player directory with headline numbers; season and team filters scope the numbers.",
-        "operationId": "list_players_api_v1_players_get",
-        "parameters": [
-          {
-            "description": "Name search",
-            "in": "query",
-            "name": "q",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maxLength": 64,
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Name search",
-              "title": "Q"
-            }
-          },
-          {
-            "in": "query",
-            "name": "role",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "batter",
-                    "bowler",
-                    "all_rounder",
-                    "keeper"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Role"
-            }
-          },
-          {
-            "in": "query",
-            "name": "season",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Season"
-            }
-          },
-          {
-            "description": "Franchise id, e.g. MI",
-            "in": "query",
-            "name": "team",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maxLength": 8,
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Franchise id, e.g. MI",
-              "title": "Team"
-            }
-          },
-          {
-            "in": "query",
-            "name": "sort",
-            "required": false,
-            "schema": {
-              "default": "matches",
-              "enum": [
-                "matches",
-                "runs",
-                "wickets",
-                "recent",
-                "name"
-              ],
-              "title": "Sort",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "default": 1,
-              "minimum": 1,
-              "title": "Page",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "page_size",
-            "required": false,
-            "schema": {
-              "default": 30,
-              "maximum": 100,
-              "minimum": 1,
-              "title": "Page Size",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerPage"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "List Players",
-        "tags": [
-          "players"
-        ]
-      }
-    },
-    "/api/v1/players/{player_id}": {
-      "get": {
-        "description": "Profile: batting and bowling against par, seasons, phases, ratings and recent form.",
-        "operationId": "read_player_api_v1_players__player_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "player_id",
-            "required": true,
-            "schema": {
-              "title": "Player Id",
-              "type": "string"
-            }
-          },
-          {
-            "description": "First season (inclusive).",
-            "in": "query",
-            "name": "from",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "First season (inclusive).",
-              "title": "From"
-            }
-          },
-          {
-            "description": "Last season (inclusive).",
-            "in": "query",
-            "name": "to",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Last season (inclusive).",
-              "title": "To"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerProfile"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Player",
-        "tags": [
-          "players"
-        ]
-      }
-    },
-    "/api/v1/players/{player_id}/similar": {
-      "get": {
-        "description": "Players with the most similar batting and bowling styles in the same seasons.",
-        "operationId": "read_similar_api_v1_players__player_id__similar_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "player_id",
-            "required": true,
-            "schema": {
-              "title": "Player Id",
-              "type": "string"
-            }
-          },
-          {
-            "description": "First season (inclusive).",
-            "in": "query",
-            "name": "from",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "First season (inclusive).",
-              "title": "From"
-            }
-          },
-          {
-            "description": "Last season (inclusive).",
-            "in": "query",
-            "name": "to",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Last season (inclusive).",
-              "title": "To"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimilarPlayers"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Similar",
-        "tags": [
-          "players"
-        ]
-      }
-    },
-    "/api/v1/players/{player_id}/splits": {
-      "get": {
-        "description": "Batting and bowling split by phase, opponent type, position, venue, opposition and more.",
-        "operationId": "read_splits_api_v1_players__player_id__splits_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "player_id",
-            "required": true,
-            "schema": {
-              "title": "Player Id",
-              "type": "string"
-            }
-          },
-          {
-            "description": "First season (inclusive).",
-            "in": "query",
-            "name": "from",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "First season (inclusive).",
-              "title": "From"
-            }
-          },
-          {
-            "description": "Last season (inclusive).",
-            "in": "query",
-            "name": "to",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Last season (inclusive).",
-              "title": "To"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerSplits"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Splits",
-        "tags": [
-          "players"
-        ]
-      }
-    },
-    "/api/v1/predict/next-ball": {
-      "post": {
-        "description": "Outcome probabilities for the next ball in a given situation (model estimate).",
-        "operationId": "predict_next_ball_api_v1_predict_next_ball_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NextBallRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NextBallResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Predict Next Ball",
-        "tags": [
-          "matchups"
-        ]
-      }
-    },
-    "/api/v1/simulate/match": {
-      "post": {
-        "description": "Up to 10,000 Monte Carlo matches between two XIs (model simulation).",
-        "operationId": "simulate_match_api_v1_simulate_match_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SimulationRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimulationResult"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Simulate Match",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/simulate/seasons": {
-      "get": {
-        "description": "Every season, newest first, with the sides that played in it.",
-        "operationId": "read_seasons_api_v1_simulate_seasons_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/SimSeason"
-                  },
-                  "title": "Response Read Seasons Api V1 Simulate Seasons Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Read Seasons",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/simulate/squad/{season}/{franchise_id}": {
-      "get": {
-        "description": "Everyone who played for a side in a season, with its last XI that season.",
-        "operationId": "read_squad_api_v1_simulate_squad__season___franchise_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "season",
-            "required": true,
-            "schema": {
-              "title": "Season",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "path",
-            "name": "franchise_id",
-            "required": true,
-            "schema": {
-              "title": "Franchise Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimSquad"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Squad",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/simulate/state": {
-      "post": {
-        "description": "What if a replay position were different: the rest of the match simulated from\nthe real and the edited score (model simulation).",
-        "operationId": "simulate_state_api_v1_simulate_state_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StateResult"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Simulate State",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/simulate/xi": {
-      "post": {
-        "description": "Any players in their usual batting order, with default bowling options.",
-        "operationId": "order_xi_api_v1_simulate_xi_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/XIRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimXI"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Order Xi",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/simulate/xi/{franchise_id}": {
-      "get": {
-        "description": "A franchise's most recent playing XI, in batting order, with its bowling options.",
-        "operationId": "read_latest_xi_api_v1_simulate_xi__franchise_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "franchise_id",
-            "required": true,
-            "schema": {
-              "title": "Franchise Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimXI"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Latest Xi",
-        "tags": [
-          "simulation"
-        ]
-      }
-    },
-    "/api/v1/teams": {
-      "get": {
-        "description": "Every franchise's record and titles, champions by season and league-wide trends.",
-        "operationId": "read_overview_api_v1_teams_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TeamsOverview"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Read Overview",
-        "tags": [
-          "teams"
-        ]
-      }
-    },
-    "/api/v1/teams/h2h": {
-      "get": {
-        "description": "Head-to-head record of two franchises, against what their form predicts.",
-        "operationId": "read_head_to_head_api_v1_teams_h2h_get",
-        "parameters": [
-          {
-            "description": "Franchise id, e.g. MI",
-            "in": "query",
-            "name": "a",
-            "required": true,
-            "schema": {
-              "description": "Franchise id, e.g. MI",
-              "maxLength": 8,
-              "minLength": 2,
-              "title": "A",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Franchise id, e.g. MI",
-            "in": "query",
-            "name": "b",
-            "required": true,
-            "schema": {
-              "description": "Franchise id, e.g. MI",
-              "maxLength": 8,
-              "minLength": 2,
-              "title": "B",
-              "type": "string"
-            }
-          },
-          {
-            "description": "First season (inclusive).",
-            "in": "query",
-            "name": "from",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "First season (inclusive).",
-              "title": "From"
-            }
-          },
-          {
-            "description": "Last season (inclusive).",
-            "in": "query",
-            "name": "to",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Last season (inclusive).",
-              "title": "To"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TeamHeadToHead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Head To Head",
-        "tags": [
-          "teams"
-        ]
-      }
-    },
-    "/api/v1/teams/standings/{season}": {
-      "get": {
-        "description": "The league table for a season (points, net run rate, finish) and its playoffs.",
-        "operationId": "read_standings_api_v1_teams_standings__season__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "season",
-            "required": true,
-            "schema": {
-              "maximum": 2100,
-              "minimum": 2008,
-              "title": "Season",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Standings"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Standings",
-        "tags": [
-          "teams"
-        ]
-      }
-    },
-    "/api/v1/teams/{franchise_id}": {
-      "get": {
-        "description": "A franchise's seasons, results by situation, phase profile, players and swings.",
-        "operationId": "read_team_api_v1_teams__franchise_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "franchise_id",
-            "required": true,
-            "schema": {
-              "title": "Franchise Id",
-              "type": "string"
-            }
-          },
-          {
-            "description": "First season (inclusive).",
-            "in": "query",
-            "name": "from",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "First season (inclusive).",
-              "title": "From"
-            }
-          },
-          {
-            "description": "Last season (inclusive).",
-            "in": "query",
-            "name": "to",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 2100,
-                  "minimum": 2008,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Last season (inclusive).",
-              "title": "To"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TeamProfile"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Team",
-        "tags": [
-          "teams"
-        ]
-      }
-    },
-    "/api/v2/competitions": {
-      "get": {
-        "description": "The competitions with Player Lab data, with their season labels.",
-        "operationId": "list_competitions_api_v2_competitions_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CompetitionList"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "List Competitions",
-        "tags": [
-          "competitions"
-        ]
-      }
-    },
-    "/api/v2/players/{player_id}": {
-      "get": {
-        "description": "A player's headline numbers in every competition, then all T20 cricket together.",
-        "operationId": "read_careers_api_v2_players__player_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "player_id",
-            "required": true,
-            "schema": {
-              "title": "Player Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerCareers"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Read Careers",
-        "tags": [
-          "competitions"
         ]
       }
     },
@@ -9625,6 +8848,709 @@
         "summary": "Read Splits",
         "tags": [
           "competitions"
+        ]
+      }
+    },
+    "/api/v2/{competition}/predict/next-ball": {
+      "post": {
+        "description": "Outcome probabilities for the next ball in a given situation (model estimate).",
+        "operationId": "predict_next_ball_api_v2__competition__predict_next_ball_post",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NextBallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NextBallResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Predict Next Ball",
+        "tags": [
+          "matchups"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/match": {
+      "post": {
+        "description": "Up to 10,000 Monte Carlo matches between two XIs (model simulation).",
+        "operationId": "simulate_match_api_v2__competition__simulate_match_post",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Match",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/seasons": {
+      "get": {
+        "description": "Every season, newest first, with the sides that played in it.",
+        "operationId": "read_seasons_api_v2__competition__simulate_seasons_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SimSeason"
+                  },
+                  "title": "Response Read Seasons Api V2  Competition  Simulate Seasons Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Seasons",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/squad/{season}/{franchise_id}": {
+      "get": {
+        "description": "Everyone who played for a side in a season, with its last XI that season.",
+        "operationId": "read_squad_api_v2__competition__simulate_squad__season___franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season",
+            "required": true,
+            "schema": {
+              "title": "Season",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimSquad"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Squad",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/state": {
+      "post": {
+        "description": "What if a replay position were different: the rest of the match simulated from\nthe real and the edited score (model simulation).",
+        "operationId": "simulate_state_api_v2__competition__simulate_state_post",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate State",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/xi": {
+      "post": {
+        "description": "Any players in their usual batting order, with default bowling options.",
+        "operationId": "order_xi_api_v2__competition__simulate_xi_post",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/XIRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimXI"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Order Xi",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/simulate/xi/{franchise_id}": {
+      "get": {
+        "description": "A franchise's most recent playing XI, in batting order, with its bowling options.",
+        "operationId": "read_latest_xi_api_v2__competition__simulate_xi__franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimXI"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Latest Xi",
+        "tags": [
+          "simulation"
+        ]
+      }
+    },
+    "/api/v2/{competition}/teams": {
+      "get": {
+        "description": "Every franchise's record and titles, champions by season and league-wide trends.",
+        "operationId": "read_overview_api_v2__competition__teams_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Overview",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v2/{competition}/teams/h2h": {
+      "get": {
+        "description": "Head-to-head record of two franchises, against what their form predicts.",
+        "operationId": "read_head_to_head_api_v2__competition__teams_h2h_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "a",
+            "required": true,
+            "schema": {
+              "description": "Franchise id, e.g. MI",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "A",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI",
+            "in": "query",
+            "name": "b",
+            "required": true,
+            "schema": {
+              "description": "Franchise id, e.g. MI",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "B",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamHeadToHead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Head To Head",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v2/{competition}/teams/standings/{season}": {
+      "get": {
+        "description": "The league table for a season (points, net run rate, finish) and its playoffs.",
+        "operationId": "read_standings_api_v2__competition__teams_standings__season__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Season",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Standings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Standings",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/v2/{competition}/teams/{franchise_id}": {
+      "get": {
+        "description": "A franchise's seasons, results by situation, phase profile, players and swings.",
+        "operationId": "read_team_api_v2__competition__teams__franchise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "franchise_id",
+            "required": true,
+            "schema": {
+              "title": "Franchise Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Team",
+        "tags": [
+          "teams"
         ]
       }
     },

@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2026",
+  "matches": 447,
+  "champion": null,
+  "first_innings_average": 153.9,
+  "previous_first_innings_average": 150.8,
+  "sixes": 4887,
+  "leaders": {
+    "runs": {
+      "player_id": "6a97c7a4",
+      "name": "Karanbir Singh",
+      "team": "AUT",
+      "value": 869.0,
+      "detail": "strike rate 182.6"
+    },
+    "wickets": {
+      "player_id": "090f96e4",
+      "name": "Muhammad Nadir",
+      "team": "RWA",
+      "value": 33.0,
+      "detail": "economy 3.93"
+    },
+    "runs_above_par": {
+      "player_id": "6a97c7a4",
+      "name": "Karanbir Singh",
+      "team": "AUT",
+      "value": 309.0,
+      "detail": "from 476 balls"
+    },
+    "runs_saved": {
+      "player_id": "090f96e4",
+      "name": "Muhammad Nadir",
+      "team": "RWA",
+      "value": 281.0,
+      "detail": "from 470 balls"
+    }
+  }
+}

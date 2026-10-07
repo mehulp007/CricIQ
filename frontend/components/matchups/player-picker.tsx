@@ -3,6 +3,7 @@
 import { Search, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { useCompetition } from "@/components/competition/use-competition";
 import { roleLabel } from "@/lib/players";
 import type { PlayerRole } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ export function PlayerPicker({
   const [active, setActive] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
+  const competition = useCompetition();
 
   useEffect(() => {
     const q = query.trim();
@@ -52,7 +54,7 @@ export function PlayerPicker({
       setStatus("loading");
       try {
         // Not filtered by role: part-time bowlers and all-rounders bowl too.
-        const response = await fetch(`/api/players?q=${encodeURIComponent(q)}`, {
+        const response = await fetch(`/api/${competition}/players?q=${encodeURIComponent(q)}`, {
           signal: controller.signal,
         });
         const body = (await response.json()) as { items: Option[] };
@@ -67,7 +69,7 @@ export function PlayerPicker({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query]);
+  }, [query, competition]);
 
   function pick(option: Option) {
     onChange({ player_id: option.player_id, name: option.name });

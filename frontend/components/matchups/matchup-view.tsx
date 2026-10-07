@@ -9,6 +9,7 @@ import { PHASE_OPTIONS, SAMPLE_LABELS, weightSentence } from "@/lib/matchups";
 import { dismissalLabel, handLabel, rate } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { scrollRegion } from "@/lib/a11y";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
@@ -128,13 +129,13 @@ export function MatchupView({ detail }: { detail: MatchupDetail }) {
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-3">
         <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-2xl font-semibold tracking-tight">
-          <Link href={`/players/${batter.player_id}`} className="hover:text-primary">
+          <CompetitionLink href={`/players/${batter.player_id}`} className="hover:text-primary">
             {batter.full_name ?? batter.name}
-          </Link>
+          </CompetitionLink>
           <span className="text-base font-normal text-muted-foreground">vs</span>
-          <Link href={`/players/${bowler.player_id}`} className="hover:text-primary">
+          <CompetitionLink href={`/players/${bowler.player_id}`} className="hover:text-primary">
             {bowler.full_name ?? bowler.name}
-          </Link>
+          </CompetitionLink>
         </h2>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <SampleBadge detail={detail} />
@@ -216,12 +217,12 @@ export function MatchupView({ detail }: { detail: MatchupDetail }) {
                 <ul className="divide-y divide-border text-sm">
                   {detail.dismissals.map((d, i) => (
                     <li key={`${d.match_id}-${i}`} className="flex justify-between gap-3 py-2">
-                      <Link
+                      <CompetitionLink
                         href={`/matches/${d.match_id}`}
                         className="underline-offset-4 hover:text-primary hover:underline"
                       >
                         {formatDate(d.date)}
-                      </Link>
+                      </CompetitionLink>
                       <span className="text-muted-foreground">{dismissalLabel(d.kind)}</span>
                     </li>
                   ))}

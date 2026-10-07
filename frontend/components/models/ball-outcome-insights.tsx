@@ -4,7 +4,8 @@ import { BallBacktestChart, SeriesLegend } from "@/components/models/charts";
 import { OutcomeCalibrationPicker } from "@/components/models/outcome-calibration";
 import { Section, Stat } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
-import { BALL_OUTCOME as bo, seasonSpan } from "@/lib/models";
+import { competitionPath, type CompetitionId } from "@/lib/competitions";
+import { BALL_OUTCOME, type BallOutcomeInsights as Insights, seasonSpan } from "@/lib/models";
 import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
@@ -18,7 +19,13 @@ function gain(model: number, other: number): string {
   return `${(((other - model) / other) * 100).toFixed(2)}%`;
 }
 
-export function BallOutcomeInsights() {
+export function BallOutcomeInsights({
+  data: bo = BALL_OUTCOME,
+  competition = "ipl",
+}: {
+  data?: Insights;
+  competition?: CompetitionId;
+}) {
   const { test, matchups } = bo;
   const testSeasons = seasonSpan(bo.splits.test);
   const wins = bo.backtest.filter((r) => r.model_log_loss < r.baseline_log_loss).length;
@@ -42,7 +49,10 @@ export function BallOutcomeInsights() {
         <p className="max-w-3xl leading-relaxed text-muted-foreground">
           The chance of a dot, 1, 2, 3, 4, 6 or wicket on the next ball a batter faces. It powers
           the next-ball odds in the{" "}
-          <Link href="/matchups" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            href={competitionPath(competition, "/matchups")}
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Matchup Lab
           </Link>{" "}
           and is the baseline batter-vs-bowler records are shrunk towards. Tested once on{" "}

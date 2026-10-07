@@ -1,10 +1,10 @@
-import Link from "next/link";
-
 import { TeamSwatch } from "@/components/match/team-badge";
 import type { Standings } from "@/lib/api/types";
 import { scrollRegion } from "@/lib/a11y";
 import { finishLabel, formatNrr } from "@/lib/teams";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
+import { SeasonLabel } from "@/components/competition/season-label";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
@@ -16,8 +16,8 @@ export function StandingsTable({ standings }: { standings: Standings }) {
     <div className="overflow-x-auto" {...scrollRegion(`${standings.season} league table`)}>
       <table className="w-full min-w-[40rem] text-sm">
         <caption className="sr-only">
-          {standings.season} league table: position, team, played, won, lost, no result, points, net
-          run rate and how the season ended
+          <SeasonLabel season={standings.season} /> league table: position, team, played, won, lost,
+          no result, points, net run rate and how the season ended
         </caption>
         <thead className="border-b border-border">
           <tr>
@@ -70,13 +70,13 @@ export function StandingsTable({ standings }: { standings: Standings }) {
                 {r.position}
               </td>
               <th scope="row" className="px-2 py-2.5 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/teams/${r.team.franchise_id}`}
                   className="inline-flex items-center gap-2 underline-offset-4 hover:text-primary hover:underline"
                 >
                   <TeamSwatch color={r.team.color} />
                   {r.team_name}
-                </Link>
+                </CompetitionLink>
               </th>
               <td className={td}>{r.played}</td>
               <td className={td}>{r.won}</td>

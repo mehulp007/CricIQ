@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import { oversUpTo, wormUpTo } from "@/lib/replay/engine";
 import { projectionCone } from "@/lib/replay/projection";
+import { inningsOvers, overTicks } from "@/lib/replay/win-probability";
 
 // Chart roles map to design tokens: side batting first = team A, chasing side = team B.
 const COLORS = { a: "var(--team-a)", b: "var(--team-b)" };
@@ -150,7 +151,7 @@ export function ReplayCharts({
     (d) => d.pressure !== null && d.pressure !== undefined,
   );
   const sides = sidesOf(timeline);
-  const maxOvers = 20;
+  const maxOvers = inningsOvers(timeline);
 
   const worm = sides.map((side) =>
     wormUpTo(timeline, side.inningsNo, cursor).map((p) => ({
@@ -213,7 +214,7 @@ export function ReplayCharts({
                   dataKey="over"
                   type="number"
                   domain={[0, maxOvers]}
-                  ticks={[0, 5, 10, 15, 20]}
+                  ticks={overTicks(maxOvers, maxOvers)}
                   {...AXIS}
                   allowDuplicatedCategory={false}
                 />

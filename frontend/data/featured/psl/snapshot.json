@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2026",
+  "matches": 43,
+  "champion": "Peshawar Zalmi",
+  "first_innings_average": 178.5,
+  "previous_first_innings_average": 185.4,
+  "sixes": 589,
+  "leaders": {
+    "runs": {
+      "player_id": "8a75e999",
+      "name": "Mohammad Babar Azam",
+      "team": "PSZ",
+      "value": 588.0,
+      "detail": "strike rate 145.9"
+    },
+    "wickets": {
+      "player_id": "4277234d",
+      "name": "Sufyan Moqeem",
+      "team": "PSZ",
+      "value": 22.0,
+      "detail": "economy 7.2"
+    },
+    "runs_above_par": {
+      "player_id": "5d1e7582",
+      "name": "Kusal Mendis",
+      "team": "PSZ",
+      "value": 94.0,
+      "detail": "from 327 balls"
+    },
+    "runs_saved": {
+      "player_id": "402f8494",
+      "name": "Richard Gleeson",
+      "team": "ISU",
+      "value": 68.0,
+      "detail": "from 190 balls"
+    }
+  }
+}

@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 const ALL = "all";
 
 export interface FilterOptions {
-  seasons: number[];
+  seasons: { year: number; label: string }[];
   teams: { id: string; name: string; active: boolean }[];
 }
 
@@ -52,9 +52,9 @@ export function MatchFilters({ options }: { options: FilterOptions }) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={ALL}>All seasons</SelectItem>
-          {options.seasons.map((year) => (
+          {options.seasons.map(({ year, label }) => (
             <SelectItem key={year} value={String(year)}>
-              {year}
+              {label}
             </SelectItem>
           ))}
         </SelectContent>

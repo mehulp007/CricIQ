@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // Player Lab pages are served from the API.
 test.describe("player lab", () => {
   test("searches the directory and opens a profile", async ({ page }) => {
-    await page.goto("/players");
+    await page.goto("/ipl/players");
     await expect(page.getByRole("heading", { name: "Player Lab" })).toBeVisible();
 
     await page.getByRole("searchbox", { name: "Search players" }).fill("bumrah");
@@ -26,7 +26,7 @@ test.describe("player lab", () => {
   });
 
   test("narrows the season window and switches splits", async ({ page }) => {
-    await page.goto("/players?q=kohli");
+    await page.goto("/ipl/players?q=kohli");
     await page.getByRole("link", { name: "Virat Kohli" }).click();
     await expect(page.getByRole("tab", { name: "Batting" })).toHaveAttribute(
       "aria-selected",
@@ -48,7 +48,7 @@ test.describe("player lab", () => {
   });
 
   test("scorecard names link to player profiles", async ({ page }) => {
-    await page.goto("/matches/1181768");
+    await page.goto("/ipl/matches/1181768");
     await page.getByRole("button", { name: "Jump to end" }).click();
     await page.getByRole("tab", { name: "Scorecard" }).click();
     await page.getByRole("link", { name: "JJ Bumrah" }).first().click();

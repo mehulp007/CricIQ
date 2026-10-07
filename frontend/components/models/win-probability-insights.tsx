@@ -5,13 +5,28 @@ import { BacktestChart, ReliabilityChart, SeriesLegend } from "@/components/mode
 import { Section, Stat, signed } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
-import { SERIES, seasonSpan, WIN_PROBABILITY as wp } from "@/lib/models";
+import {
+  competitionPath,
+  getCompetition,
+  seasonLabel,
+  type CompetitionId,
+} from "@/lib/competitions";
+import { type ModelInsights, SERIES, seasonSpan, type Swing, WIN_PROBABILITY } from "@/lib/models";
 import { scrollRegion } from "@/lib/a11y";
 
 const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
 
-export function WinProbabilityInsights() {
+export function WinProbabilityInsights({
+  data: wp = WIN_PROBABILITY,
+  competition = "ipl",
+  swings = wp.swings,
+}: {
+  data?: ModelInsights;
+  competition?: CompetitionId;
+  swings?: Swing[];
+}) {
   const { test } = wp;
+  const label = getCompetition(competition).label;
   const testSeasons = seasonSpan(wp.splits.test);
   const wins = wp.backtest.filter((r) => r.model_log_loss < r.baseline_log_loss).length;
   const served = Object.fromEntries(
@@ -285,14 +300,17 @@ export function WinProbabilityInsights() {
 
       <Section
         id="swings-heading"
-        title="The biggest swings in IPL history"
-        lede="The single biggest win-probability swing from each match, across every IPL season. Open one to replay the moment."
+        title={`The biggest swings in ${label} history`}
+        lede={`The single biggest win-probability swing from each match, across every ${label} season. Open one to replay the moment.`}
       >
         <ol className="flex flex-col divide-y divide-border">
-          {wp.swings.map((s) => (
+          {swings.map((s) => (
             <li key={`${s.match_id}`}>
               <Link
-                href={`/matches/${s.match_id}?ball=${s.innings_no}.${s.seq_no}`}
+                href={competitionPath(
+                  competition,
+                  `/matches/${s.match_id}?ball=${s.innings_no}.${s.seq_no}`,
+                )}
                 className="group flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3 text-sm"
               >
                 <span className="w-20 shrink-0 font-mono text-xs text-muted-foreground tabular-nums">
@@ -301,7 +319,8 @@ export function WinProbabilityInsights() {
                 <span className="min-w-0 flex-1">
                   <span className="font-medium group-hover:text-primary">{s.description}</span>
                   <span className="block text-xs text-muted-foreground">
-                    {s.teams}, {s.season} · ball {s.ball_label} · {s.result}
+                    {s.teams}, {seasonLabel(competition, s.season)} · ball {s.ball_label} ·{" "}
+                    {s.result}
                   </span>
                 </span>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary">

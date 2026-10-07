@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
 
-import { FEATURED } from "@/lib/featured";
+import { COMPETITIONS, competitionPath } from "@/lib/competitions";
+import { featuredMatches } from "@/lib/featured";
+import { LAB } from "@/lib/lab";
 import { SITE_URL } from "@/lib/site";
 
-const PAGES = [
+const SECTIONS = [
   "",
   "/matches",
   "/players",
@@ -12,19 +14,29 @@ const PAGES = [
   "/teams",
   "/teams/h2h",
   "/simulator",
-  "/lab",
-  "/lab/momentum",
-  "/lab/pressure",
-  "/lab/clutch",
-  "/lab/rivalries",
   "/models",
-  "/writeup",
-  "/about",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    ...PAGES.map((path) => ({ url: `${SITE_URL}${path}`, priority: path ? 0.8 : 1 })),
-    ...FEATURED.map((m) => ({ url: `${SITE_URL}/matches/${m.match_id}`, priority: 0.6 })),
-  ];
+  const global = ["", "/writeup", "/about"].map((path) => ({
+    url: `${SITE_URL}${path}`,
+    priority: path ? 0.8 : 1,
+  }));
+  const pages = COMPETITIONS.flatMap((c) => [
+    ...SECTIONS.map((path) => ({
+      url: `${SITE_URL}${competitionPath(c.id, path)}`,
+      priority: path ? 0.7 : 0.9,
+    })),
+    ...(c.lab
+      ? ["/lab", ...LAB.map((note) => `/lab/${note.slug}`)].map((path) => ({
+          url: `${SITE_URL}${competitionPath(c.id, path)}`,
+          priority: 0.7,
+        }))
+      : []),
+    ...featuredMatches(c.id).map((m) => ({
+      url: `${SITE_URL}${competitionPath(c.id, `/matches/${m.match_id}`)}`,
+      priority: 0.6,
+    })),
+  ]);
+  return [...global, ...pages];
 }

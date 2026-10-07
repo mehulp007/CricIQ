@@ -1,12 +1,12 @@
-import index from "@/data/featured/index.json";
-import { featuredTimelines } from "@/data/featured/manifest";
-import snapshot from "@/data/featured/snapshot.json";
+import { featuredBundles } from "@/data/featured";
+import type { CompetitionId } from "@/lib/competitions";
 
 import type { MatchSummary, Timeline } from "./api/types";
 
 /**
  * Featured replays are bundled with the app (exported from the API's own
  * serializer), so they load instantly and never depend on the API being awake.
+ * Each competition has its own (`data/featured/<competition>/`).
  */
 export interface FeaturedMatch {
   match_id: number;
@@ -14,23 +14,9 @@ export interface FeaturedMatch {
   summary: MatchSummary;
 }
 
-export const FEATURED: readonly FeaturedMatch[] = index.matches as FeaturedMatch[];
-
-export const DATA_VERSION: string = index.data_version;
-
-export function isFeatured(matchId: number): boolean {
-  return matchId in featuredTimelines;
-}
-
-export async function loadFeaturedTimeline(matchId: number): Promise<Timeline | null> {
-  const load = featuredTimelines[matchId];
-  return load ? load() : null;
-}
-
-/** Season range covered by the data, e.g. "2008–2026". */
-export function seasonRange(): string {
-  const seasons = FEATURED.map((m) => m.summary.season);
-  return `${Math.min(...seasons)}–${Math.max(...seasons)}`;
+interface FeaturedIndex {
+  data_version: string;
+  matches: FeaturedMatch[];
 }
 
 export interface SeasonLeader {
@@ -44,6 +30,7 @@ export interface SeasonLeader {
 /** The latest season at a glance, exported with the featured replays. */
 export interface SeasonSnapshot {
   season: number;
+  label: string;
   matches: number;
   champion: string | null;
   first_innings_average: number;
@@ -52,4 +39,33 @@ export interface SeasonSnapshot {
   leaders: Record<"runs" | "wickets" | "runs_above_par" | "runs_saved", SeasonLeader>;
 }
 
-export const SNAPSHOT = snapshot as SeasonSnapshot;
+function bundle(competition: CompetitionId) {
+  const found = featuredBundles[competition];
+  if (!found) throw new Error(`no featured replays for ${competition}`);
+  return found;
+}
+
+export function featuredMatches(competition: CompetitionId): readonly FeaturedMatch[] {
+  return (bundle(competition).index as FeaturedIndex).matches;
+}
+
+export function seasonSnapshot(competition: CompetitionId): SeasonSnapshot {
+  return bundle(competition).snapshot as SeasonSnapshot;
+}
+
+/** The data version the bundled replays were exported from (the same for every competition). */
+export function dataVersion(competition: CompetitionId = "ipl"): string {
+  return (bundle(competition).index as FeaturedIndex).data_version;
+}
+
+export function isFeatured(competition: CompetitionId, matchId: number): boolean {
+  return matchId in bundle(competition).timelines;
+}
+
+export async function loadFeaturedTimeline(
+  competition: CompetitionId,
+  matchId: number,
+): Promise<Timeline | null> {
+  const load = bundle(competition).timelines[matchId];
+  return load ? load() : null;
+}

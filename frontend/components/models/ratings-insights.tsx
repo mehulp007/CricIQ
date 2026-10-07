@@ -3,7 +3,13 @@ import Link from "next/link";
 import { Section, Stat } from "@/components/models/section";
 import { Badge } from "@/components/ui/badge";
 import { scrollRegion } from "@/lib/a11y";
-import { RATINGS as ri, type RatingComponentEvaluation, seasonSpan } from "@/lib/models";
+import { competitionPath, type CompetitionId } from "@/lib/competitions";
+import {
+  RATINGS,
+  type RatingComponentEvaluation,
+  type RatingsInsights as Insights,
+  seasonSpan,
+} from "@/lib/models";
 import { cn } from "@/lib/utils";
 
 const STABILITY = {
@@ -24,7 +30,7 @@ function weight(c: RatingComponentEvaluation): string {
 }
 
 /** Year-to-year correlation as a bar on 0-0.7, with the stability thresholds marked. */
-function Persistence({ c }: { c: RatingComponentEvaluation }) {
+function Persistence({ c, ri }: { c: RatingComponentEvaluation; ri: Insights }) {
   const r = c.year_to_year.r;
   const scale = 0.7;
   return (
@@ -58,7 +64,7 @@ function Persistence({ c }: { c: RatingComponentEvaluation }) {
   );
 }
 
-function ComponentTable({ role }: { role: "batting" | "bowling" }) {
+function ComponentTable({ role, ri }: { role: "batting" | "bowling"; ri: Insights }) {
   const rows = ri.components.filter((c) => c.role === role);
   return (
     <div className="overflow-x-auto" {...scrollRegion(`${role} rating components`)}>
@@ -96,7 +102,7 @@ function ComponentTable({ role }: { role: "batting" | "bowling" }) {
               </td>
               <td className="py-2.5 pr-3 text-right text-xs text-muted-foreground">{weight(c)}</td>
               <td className="py-2.5 pr-3">
-                <Persistence c={c} />
+                <Persistence c={c} ri={ri} />
               </td>
               <td className="py-2.5 pr-3 text-right font-mono text-muted-foreground tabular-nums">
                 {c.split_half.r === null ? "—" : c.split_half.r.toFixed(2)}
@@ -123,7 +129,7 @@ function ComponentTable({ role }: { role: "batting" | "bowling" }) {
   );
 }
 
-function Retrieval({ role }: { role: "batting" | "bowling" }) {
+function Retrieval({ role, ri }: { role: "batting" | "bowling"; ri: Insights }) {
   const s = ri.similarity[role];
   return (
     <div className="flex flex-col gap-3">
@@ -158,7 +164,13 @@ function Retrieval({ role }: { role: "batting" | "bowling" }) {
   );
 }
 
-export function RatingsInsights() {
+export function RatingsInsights({
+  data: ri = RATINGS,
+  competition = "ipl",
+}: {
+  data?: Insights;
+  competition?: CompetitionId;
+}) {
   const components = ri.components;
   const beatsRaw = components.filter((c) => (c.next_season.skill_vs_raw ?? 0) > 0).length;
   const high = components.filter((c) => c.stability === "high");
@@ -181,11 +193,17 @@ export function RatingsInsights() {
           CricIQ Ratings place a player among the regulars of the same seasons on each thing they
           do, from 0 to 100, after blending their record with the average according to how much a
           record of that size can be trusted. They appear on every{" "}
-          <Link href="/players" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            href={competitionPath(competition, "/players")}
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             player profile
           </Link>{" "}
           and in{" "}
-          <Link href="/compare" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            href={competitionPath(competition, "/compare")}
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Compare
           </Link>
           . This tab shows how far each kind of record can be trusted, and which ones persist.
@@ -220,7 +238,7 @@ export function RatingsInsights() {
         title="Batting: which records can be trusted?"
         lede={`k is the number of balls (or innings) of the average blended into every record, tuned so a season's shrunk record best predicts the next. "Year to year" correlates players' single-season ratings; ticks mark ${ri.stability.moderate} and ${ri.stability.high}.`}
       >
-        <ComponentTable role="batting" />
+        <ComponentTable role="batting" ri={ri} />
       </Section>
 
       <Section
@@ -228,7 +246,7 @@ export function RatingsInsights() {
         title="Bowling: runs conceded tell you more than wickets"
         lede="Economy against par settles quickly and carries over; wickets against par are mostly the luck of when chances are taken, so the record needs thousands of balls before it outweighs the average."
       >
-        <ComponentTable role="bowling" />
+        <ComponentTable role="bowling" ri={ri} />
       </Section>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -243,7 +261,7 @@ export function RatingsInsights() {
                 <h3 className="text-sm font-medium">
                   {role === "batting" ? "Batters" : "Bowlers"}
                 </h3>
-                <Retrieval role={role} />
+                <Retrieval role={role} ri={ri} />
               </div>
             ))}
           </div>

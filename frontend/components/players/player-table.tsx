@@ -1,9 +1,8 @@
-import Link from "next/link";
-
 import { TeamBadge } from "@/components/match/team-badge";
 import type { PlayerListItem } from "@/lib/api/types";
 import { rate, roleLabel } from "@/lib/players";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 const th = "px-3 py-2.5 text-right text-xs font-medium text-muted-foreground";
 const td = "px-3 py-3 text-right font-mono tabular-nums";
@@ -58,12 +57,12 @@ export function PlayerTable({ players }: { players: PlayerListItem[] }) {
           {players.map((p) => (
             <tr key={p.player_id} className="transition-colors hover:bg-muted/40">
               <th scope="row" className="px-3 py-3 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/players/${p.player_id}`}
                   className="font-medium underline-offset-4 hover:text-primary hover:underline"
                 >
                   {p.full_name ?? p.name}
-                </Link>
+                </CompetitionLink>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
                   {roleLabel(p.role, p.is_keeper)}
                   {p.country && ` · ${p.country}`}

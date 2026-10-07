@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // including the test fixtures; the 2019 final is a bundled featured replay.
 test.describe("simulator", () => {
   test("simulates two XIs and shows the spread of results", async ({ page }) => {
-    await page.goto("/simulator");
+    await page.goto("/ipl/simulator");
     await expect(page.getByRole("heading", { level: 1, name: "Match Simulator" })).toBeVisible();
     const teamA = page.getByRole("region", { name: "Team A" });
     await expect(
@@ -28,7 +28,7 @@ test.describe("simulator", () => {
   });
 
   test("edits the XI and refuses too few bowlers", async ({ page }) => {
-    await page.goto("/simulator");
+    await page.goto("/ipl/simulator");
     const teamA = page.getByRole("region", { name: "Team A" });
     const boxes = teamA.getByRole("checkbox", { checked: true });
     await expect(boxes.first()).toBeVisible();
@@ -43,7 +43,7 @@ test.describe("simulator", () => {
   });
 
   test("picks the XI from the season's squad", async ({ page }) => {
-    await page.goto("/simulator");
+    await page.goto("/ipl/simulator");
     await expect(page.getByRole("combobox", { name: "Season" })).toContainText("IPL");
     const teamA = page.getByRole("region", { name: "Team A" });
     const xi = teamA.getByRole("list", { name: "Team A batting order" }).getByRole("listitem");
@@ -61,7 +61,7 @@ test.describe("simulator", () => {
   });
 
   test("the replay's what-if moves the win probability", async ({ page }) => {
-    await page.goto("/matches/1181768");
+    await page.goto("/ipl/matches/1181768");
     await page.locator("[data-replay-ready]").waitFor();
     await page.getByRole("button", { name: "Jump to end" }).click();
     for (let i = 0; i < 9; i += 1)

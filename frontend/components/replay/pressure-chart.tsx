@@ -20,6 +20,7 @@ import {
   pressurePeaks,
   pressureSeries,
 } from "@/lib/replay/pressure";
+import { inningsOvers, overTicks } from "@/lib/replay/win-probability";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 const COLOR = "var(--chart-4)";
@@ -30,9 +31,11 @@ const TICKS = [0.25, 0.5, 1, 2, 4, 8, 16, 32];
 function PressureTooltip({
   active,
   payload,
+  overs,
 }: {
   active?: boolean;
   payload?: { payload?: PressurePoint }[];
+  overs: number;
 }) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
@@ -41,7 +44,7 @@ function PressureTooltip({
       <p className="mb-1 font-medium text-foreground">
         {row.index < 0
           ? "Before the first ball"
-          : `After ball ${row.label}${row.x > 20 ? " (chase)" : ""}`}
+          : `After ball ${row.label}${row.x > overs ? " (chase)" : ""}`}
       </p>
       <p className="text-muted-foreground">
         {pressureBand(row.pressure)} pressure{" "}
@@ -68,6 +71,7 @@ export function PressureChart({
   cursor: number;
   onSeek: (index: number) => void;
 }) {
+  const overs = inningsOvers(timeline);
   const data = pressureSeries(timeline, cursor).map((p) => ({
     ...p,
     plotted: Math.min(Math.max(p.leverage, FLOOR), CEILING),
@@ -78,8 +82,8 @@ export function PressureChart({
     <div className="flex flex-col gap-4">
       <p className="sr-only">
         How much the next ball can move the win probability after every delivery, as a multiple of a
-        typical IPL ball, on a log scale. Dashed lines mark where medium, high and very high
-        pressure begin.
+        typical ball in the competition, on a log scale. Dashed lines mark where medium, high and
+        very high pressure begin.
       </p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -88,9 +92,9 @@ export function PressureChart({
             <XAxis
               dataKey="x"
               type="number"
-              domain={[0, 40]}
-              ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40]}
-              tickFormatter={(v: number) => String(v <= 20 ? v : v - 20)}
+              domain={[0, 2 * overs]}
+              ticks={overTicks(2 * overs, overs)}
+              tickFormatter={(v: number) => String(v <= overs ? v : v - overs)}
               {...AXIS}
             />
             <YAxis
@@ -111,10 +115,10 @@ export function PressureChart({
                 strokeDasharray="4 3"
               />
             ))}
-            <ReferenceLine x={20} stroke="var(--border)" />
+            <ReferenceLine x={overs} stroke="var(--border)" />
             <Tooltip
               cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }}
-              content={<PressureTooltip />}
+              content={<PressureTooltip overs={overs} />}
             />
             <Line
               dataKey="plotted"
@@ -131,8 +135,8 @@ export function PressureChart({
 
       {thresholds.length > 0 && (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          How much the next ball can move the match, as a multiple of a typical IPL ball. Dashed
-          lines mark where pressure turns{" "}
+          How much the next ball can move the match, as a multiple of a typical ball. Dashed lines
+          mark where pressure turns{" "}
           {PRESSURE_BANDS.slice(1, thresholds.length + 1)
             .map((b, i) => `${b.label.toLowerCase()} (${formatLeverage(thresholds[i])})`)
             .join(", ")}

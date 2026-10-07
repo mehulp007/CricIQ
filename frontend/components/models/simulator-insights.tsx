@@ -2,7 +2,13 @@ import Link from "next/link";
 
 import { Section, Stat } from "@/components/models/section";
 import { scrollRegion } from "@/lib/a11y";
-import { type CalibrationRow, SIMULATOR as s, seasonSpan } from "@/lib/models";
+import { getCompetition, type CompetitionId } from "@/lib/competitions";
+import {
+  type CalibrationRow,
+  SIMULATOR,
+  type SimulatorInsights as Insights,
+  seasonSpan,
+} from "@/lib/models";
 
 const COLOR = "var(--chart-3)";
 
@@ -15,7 +21,7 @@ function signed(value: number, digits = 3): string {
 }
 
 /** Actual totals' percentiles within their simulations, in tenths: flat is calibrated. */
-function PitChart() {
+function PitChart({ s }: { s: Insights }) {
   const counts = s.first_innings.pit_counts;
   const expected = s.first_innings.matches / counts.length;
   const top = Math.max(...counts, expected) * 1.15;
@@ -88,16 +94,27 @@ function CalibrationTable({ rows, label }: { rows: CalibrationRow[]; label: stri
   );
 }
 
-export function SimulatorInsights() {
+export function SimulatorInsights({
+  data: s = SIMULATOR,
+  competition = "ipl",
+}: {
+  data?: Insights;
+  competition?: CompetitionId;
+}) {
   const { win, chase, first_innings: first } = s;
   const test = seasonSpan(s.test);
+  const label = getCompetition(competition).label;
+  // What each backtest found decides how it is described.
+  const coinFlip = win.gain_vs_coin_flip.low <= 0;
+  const worse = win.gain_vs_coin_flip.high < 0;
+  const lowChases = chase.mean_predicted < chase.observed - 0.03;
   return (
     <div className="flex flex-col gap-6">
       <section aria-label="Headline results" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Who wins, pre-match"
           value={win.simulator.brier.toFixed(3)}
-          context={`Brier score; a coin flip scores ${win.coin_flip.brier.toFixed(3)}. No better than chance.`}
+          context={`Brier score; a coin flip scores ${win.coin_flip.brier.toFixed(3)}. ${worse ? "Worse than chance." : coinFlip ? "No better than chance." : "Better than chance."}`}
         />
         <Stat
           label="Chases, from ball one"
@@ -168,12 +185,16 @@ export function SimulatorInsights() {
           title="First-innings totals"
           lede={`Every ${test} match simulated ${s.simulations_per_match.toLocaleString("en-IN")} times before a ball was bowled, with a ball model that never saw ${test}. Where each actual total fell within its simulation: a flat histogram means the spread is right. Averages: ${first.simulated_mean} simulated, ${first.actual_mean} actual.`}
         >
-          <PitChart />
+          <PitChart s={s} />
         </Section>
         <Section
           id="simulator-chases"
           title="From the first ball of a chase"
-          lede={`With the real target, the simulated chance ranks chases well but runs low: ${pct(chase.mean_predicted)} on average against ${pct(chase.observed)} chased, most for modest targets. So the replay's what-if starts from the win probability model and adds only the simulated change.`}
+          lede={
+            lowChases
+              ? `With the real target, the simulated chance ranks chases well but runs low: ${pct(chase.mean_predicted)} on average against ${pct(chase.observed)} chased, most for modest targets. So the replay's what-if starts from the win probability model and adds only the simulated change.`
+              : `With the real target: ${pct(chase.mean_predicted)} simulated on average against ${pct(chase.observed)} chased. The replay's what-if starts from the win probability model and adds only the simulated change.`
+          }
         >
           <CalibrationTable rows={chase.calibration} label="Simulated chase chances by fifth" />
         </Section>
@@ -227,12 +248,29 @@ export function SimulatorInsights() {
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             The simulator&apos;s Brier score minus a coin flip&apos;s is{" "}
             {signed(-win.gain_vs_coin_flip.value, 4)} (90%: {signed(-win.gain_vs_coin_flip.high, 4)}{" "}
-            to {signed(-win.gain_vs_coin_flip.low, 4)}): no better. Before a ball is bowled, who
-            wins an IPL match is close to unpredictable from XIs and form, as the{" "}
-            <Link href="/lab/rivalries" className="text-primary underline-offset-4 hover:underline">
-              rivalries note
-            </Link>{" "}
-            found too. The simulator is for distributions and what-ifs, and every page says so.
+            to {signed(-win.gain_vs_coin_flip.low, 4)}):{" "}
+            {coinFlip ? (
+              competition === "ipl" ? (
+                <>
+                  no better. Before a ball is bowled, who wins an IPL match is close to
+                  unpredictable from XIs and form, as the{" "}
+                  <Link
+                    href="/ipl/lab/rivalries"
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    rivalries note
+                  </Link>{" "}
+                  found too.
+                </>
+              ) : worse ? (
+                `worse: before a ball is bowled, its chances for a ${label} match lean the wrong way more often than not.`
+              ) : (
+                `no better: before a ball is bowled, who wins a ${label} match is close to unpredictable from XIs and form.`
+              )
+            ) : (
+              `better: the XIs say something about who wins a ${label} match, where sides differ more in strength.`
+            )}{" "}
+            The simulator is for distributions and what-ifs, and every page says so.
           </p>
         </div>
       </Section>

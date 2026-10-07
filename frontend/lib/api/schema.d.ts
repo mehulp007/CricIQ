@@ -4,431 +4,6 @@
  */
 
 export interface paths {
-    "/api/v1/matches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Matches
-         * @description Paginated match summaries, newest first by default.
-         */
-        get: operations["list_matches_api_v1_matches_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/matches/{match_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Match
-         * @description Match summary with full scorecards for every innings.
-         */
-        get: operations["read_match_api_v1_matches__match_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/matches/{match_id}/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Timeline
-         * @description Every delivery with running state: one payload drives a full client-side replay.
-         */
-        get: operations["read_timeline_api_v1_matches__match_id__timeline_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/matchups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Matchups
-         * @description Batter-bowler pairs with raw, expected and shrunk strike rates.
-         *
-         *     Filter by batter (the bowlers they faced) or by bowler (the batters they
-         *     bowled to). ``batter_edge`` and ``bowler_edge`` rank by the matchup effect
-         *     beyond each player's overall record.
-         */
-        get: operations["list_matchups_api_v1_matchups_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/matchups/{batter_id}/{bowler_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Matchup
-         * @description Head-to-head record, the empirical-Bayes estimate and next-ball odds for a pair.
-         */
-        get: operations["read_matchup_api_v1_matchups__batter_id___bowler_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Meta
-         * @description Dataset version and the seasons, franchises and venues available for filtering.
-         */
-        get: operations["read_meta_api_v1_meta_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/players": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Players
-         * @description Player directory with headline numbers; season and team filters scope the numbers.
-         */
-        get: operations["list_players_api_v1_players_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/players/{player_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Player
-         * @description Profile: batting and bowling against par, seasons, phases, ratings and recent form.
-         */
-        get: operations["read_player_api_v1_players__player_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/players/{player_id}/similar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Similar
-         * @description Players with the most similar batting and bowling styles in the same seasons.
-         */
-        get: operations["read_similar_api_v1_players__player_id__similar_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/players/{player_id}/splits": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Splits
-         * @description Batting and bowling split by phase, opponent type, position, venue, opposition and more.
-         */
-        get: operations["read_splits_api_v1_players__player_id__splits_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/predict/next-ball": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Predict Next Ball
-         * @description Outcome probabilities for the next ball in a given situation (model estimate).
-         */
-        post: operations["predict_next_ball_api_v1_predict_next_ball_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/match": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Simulate Match
-         * @description Up to 10,000 Monte Carlo matches between two XIs (model simulation).
-         */
-        post: operations["simulate_match_api_v1_simulate_match_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/seasons": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Seasons
-         * @description Every season, newest first, with the sides that played in it.
-         */
-        get: operations["read_seasons_api_v1_simulate_seasons_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/squad/{season}/{franchise_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Squad
-         * @description Everyone who played for a side in a season, with its last XI that season.
-         */
-        get: operations["read_squad_api_v1_simulate_squad__season___franchise_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/state": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Simulate State
-         * @description What if a replay position were different: the rest of the match simulated from
-         *     the real and the edited score (model simulation).
-         */
-        post: operations["simulate_state_api_v1_simulate_state_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/xi": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Order Xi
-         * @description Any players in their usual batting order, with default bowling options.
-         */
-        post: operations["order_xi_api_v1_simulate_xi_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/simulate/xi/{franchise_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Latest Xi
-         * @description A franchise's most recent playing XI, in batting order, with its bowling options.
-         */
-        get: operations["read_latest_xi_api_v1_simulate_xi__franchise_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/teams": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Overview
-         * @description Every franchise's record and titles, champions by season and league-wide trends.
-         */
-        get: operations["read_overview_api_v1_teams_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/teams/h2h": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Head To Head
-         * @description Head-to-head record of two franchises, against what their form predicts.
-         */
-        get: operations["read_head_to_head_api_v1_teams_h2h_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/teams/standings/{season}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Standings
-         * @description The league table for a season (points, net run rate, finish) and its playoffs.
-         */
-        get: operations["read_standings_api_v1_teams_standings__season__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/teams/{franchise_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Team
-         * @description A franchise's seasons, results by situation, phase profile, players and swings.
-         */
-        get: operations["read_team_api_v1_teams__franchise_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v2/competitions": {
         parameters: {
             query?: never;
@@ -461,6 +36,130 @@ export interface paths {
          * @description A player's headline numbers in every competition, then all T20 cricket together.
          */
         get: operations["read_careers_api_v2_players__player_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Matches
+         * @description Paginated match summaries, newest first by default.
+         */
+        get: operations["list_matches_api_v2__competition__matches_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matches/{match_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Match
+         * @description Match summary with full scorecards for every innings.
+         */
+        get: operations["read_match_api_v2__competition__matches__match_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matches/{match_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Timeline
+         * @description Every delivery with running state: one payload drives a full client-side replay.
+         */
+        get: operations["read_timeline_api_v2__competition__matches__match_id__timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matchups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Matchups
+         * @description Batter-bowler pairs with raw, expected and shrunk strike rates.
+         *
+         *     Filter by batter (the bowlers they faced) or by bowler (the batters they
+         *     bowled to). ``batter_edge`` and ``bowler_edge`` rank by the matchup effect
+         *     beyond each player's overall record.
+         */
+        get: operations["list_matchups_api_v2__competition__matchups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matchups/{batter_id}/{bowler_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Matchup
+         * @description Head-to-head record, the empirical-Bayes estimate and next-ball odds for a pair.
+         */
+        get: operations["read_matchup_api_v2__competition__matchups__batter_id___bowler_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Meta
+         * @description Dataset version and the seasons, franchises and venues available for filtering.
+         */
+        get: operations["read_meta_api_v2__competition__meta_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -541,6 +240,227 @@ export interface paths {
          * @description Batting and bowling in one competition by phase, opponent type, position and more.
          */
         get: operations["read_splits_api_v2__competition__players__player_id__splits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/predict/next-ball": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Predict Next Ball
+         * @description Outcome probabilities for the next ball in a given situation (model estimate).
+         */
+        post: operations["predict_next_ball_api_v2__competition__predict_next_ball_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate Match
+         * @description Up to 10,000 Monte Carlo matches between two XIs (model simulation).
+         */
+        post: operations["simulate_match_api_v2__competition__simulate_match_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/seasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Seasons
+         * @description Every season, newest first, with the sides that played in it.
+         */
+        get: operations["read_seasons_api_v2__competition__simulate_seasons_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/squad/{season}/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Squad
+         * @description Everyone who played for a side in a season, with its last XI that season.
+         */
+        get: operations["read_squad_api_v2__competition__simulate_squad__season___franchise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate State
+         * @description What if a replay position were different: the rest of the match simulated from
+         *     the real and the edited score (model simulation).
+         */
+        post: operations["simulate_state_api_v2__competition__simulate_state_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/xi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Order Xi
+         * @description Any players in their usual batting order, with default bowling options.
+         */
+        post: operations["order_xi_api_v2__competition__simulate_xi_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/simulate/xi/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Latest Xi
+         * @description A franchise's most recent playing XI, in batting order, with its bowling options.
+         */
+        get: operations["read_latest_xi_api_v2__competition__simulate_xi__franchise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Overview
+         * @description Every franchise's record and titles, champions by season and league-wide trends.
+         */
+        get: operations["read_overview_api_v2__competition__teams_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/teams/h2h": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Head To Head
+         * @description Head-to-head record of two franchises, against what their form predicts.
+         */
+        get: operations["read_head_to_head_api_v2__competition__teams_h2h_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/teams/standings/{season}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Standings
+         * @description The league table for a season (points, net run rate, finish) and its playoffs.
+         */
+        get: operations["read_standings_api_v2__competition__teams_standings__season__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/teams/{franchise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Team
+         * @description A franchise's seasons, results by situation, phase profile, players and swings.
+         */
+        get: operations["read_team_api_v2__competition__teams__franchise_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -928,6 +848,22 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /** CompetitionInfo */
+        CompetitionInfo: {
+            /** Format */
+            format: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Short Name */
+            short_name: string;
+            /**
+             * Team Type
+             * @enum {string}
+             */
+            team_type: "club" | "national";
+        };
         /** CompetitionList */
         CompetitionList: {
             /** Data Version */
@@ -1053,6 +989,20 @@ export interface components {
             runs: number;
             /** Wicket */
             wicket: number;
+        };
+        /**
+         * Features
+         * @description What this competition's data supports.
+         */
+        Features: {
+            /** Ball Model */
+            ball_model: boolean;
+            /** Score Projection */
+            score_projection: boolean;
+            /** Simulator */
+            simulator: boolean;
+            /** Win Probability */
+            win_probability: boolean;
         };
         /** FieldingSummary */
         FieldingSummary: {
@@ -1485,11 +1435,13 @@ export interface components {
              * Api Version
              * @constant
              */
-            api_version: "v1";
+            api_version: "v2";
             /** App Version */
             app_version: string;
+            competition: components["schemas"]["CompetitionInfo"];
             /** Data Version */
             data_version: string;
+            features: components["schemas"]["Features"];
             /** Franchises */
             franchises: components["schemas"]["FranchiseInfo"][];
             last_update: components["schemas"]["DataUpdate"] | null;
@@ -2083,6 +2035,8 @@ export interface components {
         SeasonInfo: {
             /** Impact Player Rule */
             impact_player_rule: boolean;
+            /** Label */
+            label: string;
             /** Matches */
             matches: number;
             /** Year */
@@ -3186,693 +3140,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    list_matches_api_v1_matches_get: {
-        parameters: {
-            query?: {
-                season?: number | null;
-                /** @description Franchise id, e.g. MI */
-                team?: string | null;
-                /** @description Venue id */
-                venue?: string | null;
-                /** @description Only playoffs (true) or league */
-                playoffs?: boolean | null;
-                sort?: "latest" | "oldest";
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_match_api_v1_matches__match_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                match_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_timeline_api_v1_matches__match_id__timeline_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                match_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Timeline"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_matchups_api_v1_matchups_get: {
-        parameters: {
-            query?: {
-                batter?: string | null;
-                bowler?: string | null;
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-                min_balls?: number;
-                sort?: "balls" | "batter_edge" | "bowler_edge";
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchupList"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_matchup_api_v1_matchups__batter_id___bowler_id__get: {
-        parameters: {
-            query?: {
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-                phase?: ("powerplay" | "middle" | "death") | null;
-            };
-            header?: never;
-            path: {
-                batter_id: string;
-                bowler_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchupDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_meta_api_v1_meta_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Meta"];
-                };
-            };
-        };
-    };
-    list_players_api_v1_players_get: {
-        parameters: {
-            query?: {
-                /** @description Name search */
-                q?: string | null;
-                role?: ("batter" | "bowler" | "all_rounder" | "keeper") | null;
-                season?: number | null;
-                /** @description Franchise id, e.g. MI */
-                team?: string | null;
-                sort?: "matches" | "runs" | "wickets" | "recent" | "name";
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlayerPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_player_api_v1_players__player_id__get: {
-        parameters: {
-            query?: {
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-            };
-            header?: never;
-            path: {
-                player_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlayerProfile"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_similar_api_v1_players__player_id__similar_get: {
-        parameters: {
-            query?: {
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-            };
-            header?: never;
-            path: {
-                player_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimilarPlayers"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_splits_api_v1_players__player_id__splits_get: {
-        parameters: {
-            query?: {
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-            };
-            header?: never;
-            path: {
-                player_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlayerSplits"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    predict_next_ball_api_v1_predict_next_ball_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NextBallRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NextBallResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    simulate_match_api_v1_simulate_match_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SimulationRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimulationResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_seasons_api_v1_simulate_seasons_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimSeason"][];
-                };
-            };
-        };
-    };
-    read_squad_api_v1_simulate_squad__season___franchise_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                season: number;
-                franchise_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimSquad"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    simulate_state_api_v1_simulate_state_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StateResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    order_xi_api_v1_simulate_xi_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["XIRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimXI"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_latest_xi_api_v1_simulate_xi__franchise_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                franchise_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimXI"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_overview_api_v1_teams_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamsOverview"];
-                };
-            };
-        };
-    };
-    read_head_to_head_api_v1_teams_h2h_get: {
-        parameters: {
-            query: {
-                /** @description Franchise id, e.g. MI */
-                a: string;
-                /** @description Franchise id, e.g. MI */
-                b: string;
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamHeadToHead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_standings_api_v1_teams_standings__season__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                season: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Standings"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_team_api_v1_teams__franchise_id__get: {
-        parameters: {
-            query?: {
-                /** @description First season (inclusive). */
-                from?: number | null;
-                /** @description Last season (inclusive). */
-                to?: number | null;
-            };
-            header?: never;
-            path: {
-                franchise_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamProfile"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     list_competitions_api_v2_competitions_get: {
         parameters: {
             query?: never;
@@ -3911,6 +3178,230 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerCareers"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_matches_api_v2__competition__matches_get: {
+        parameters: {
+            query?: {
+                season?: number | null;
+                /** @description Franchise id, e.g. MI */
+                team?: string | null;
+                /** @description Venue id */
+                venue?: string | null;
+                /** @description Only playoffs (true) or league */
+                playoffs?: boolean | null;
+                sort?: "latest" | "oldest";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_match_api_v2__competition__matches__match_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_timeline_api_v2__competition__matches__match_id__timeline_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Timeline"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_matchups_api_v2__competition__matchups_get: {
+        parameters: {
+            query?: {
+                batter?: string | null;
+                bowler?: string | null;
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                min_balls?: number;
+                sort?: "balls" | "batter_edge" | "bowler_edge";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchupList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_matchup_api_v2__competition__matchups__batter_id___bowler_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                phase?: ("powerplay" | "middle" | "death") | null;
+            };
+            header?: never;
+            path: {
+                batter_id: string;
+                bowler_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchupDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_meta_api_v2__competition__meta_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meta"];
                 };
             };
             /** @description Validation Error */
@@ -4067,6 +3558,393 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerSplits"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    predict_next_ball_api_v2__competition__predict_next_ball_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NextBallRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextBallResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_match_api_v2__competition__simulate_match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_seasons_api_v2__competition__simulate_seasons_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimSeason"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_squad_api_v2__competition__simulate_squad__season___franchise_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                season: number;
+                franchise_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimSquad"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_state_api_v2__competition__simulate_state_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    order_xi_api_v2__competition__simulate_xi_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["XIRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimXI"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_latest_xi_api_v2__competition__simulate_xi__franchise_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                franchise_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimXI"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_overview_api_v2__competition__teams_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamsOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_head_to_head_api_v2__competition__teams_h2h_get: {
+        parameters: {
+            query: {
+                /** @description Franchise id, e.g. MI */
+                a: string;
+                /** @description Franchise id, e.g. MI */
+                b: string;
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamHeadToHead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_standings_api_v2__competition__teams_standings__season__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                season: number;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Standings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_team_api_v2__competition__teams__franchise_id__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+            };
+            header?: never;
+            path: {
+                franchise_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamProfile"];
                 };
             };
             /** @description Validation Error */

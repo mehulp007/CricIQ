@@ -19,14 +19,15 @@ export function Pagination({
   pageSize,
   total,
   params,
-  basePath = "/matches",
+  basePath,
   labels = { previous: "Newer", next: "Older" },
 }: {
   page: number;
   pageSize: number;
   total: number;
   params: Record<string, string>;
-  basePath?: string;
+  /** The list page, e.g. /ipl/matches. */
+  basePath: string;
   labels?: { previous: string; next: string };
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));

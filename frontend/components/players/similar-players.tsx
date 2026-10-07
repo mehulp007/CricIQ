@@ -1,10 +1,10 @@
 import { GitCompareArrows } from "lucide-react";
-import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import type { StyleGroup } from "@/lib/api/types";
 import { compareHref } from "@/lib/compare";
 import { roleLabel } from "@/lib/players";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 function Trait({ children }: { children: string }) {
   return (
@@ -53,12 +53,12 @@ export function SimilarPlayers({
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Link
+                <CompetitionLink
                   href={`/players/${p.player_id}${suffix}`}
                   className="truncate text-sm font-medium underline-offset-4 hover:text-primary hover:underline"
                 >
                   {p.name}
-                </Link>
+                </CompetitionLink>
                 {p.team && <TeamBadge shortName={p.team.franchise_id} color={p.team.color} />}
                 <span className="text-xs text-muted-foreground">{roleLabel(p.role, false)}</span>
               </span>
@@ -70,14 +70,14 @@ export function SimilarPlayers({
                 </ul>
               )}
             </div>
-            <Link
+            <CompetitionLink
               href={compareHref(playerId, p.player_id, { ...window, role })}
               className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label={`Compare with ${p.name}`}
             >
               <GitCompareArrows className="size-3.5" aria-hidden="true" />
               Compare
-            </Link>
+            </CompetitionLink>
           </li>
         ))}
       </ol>

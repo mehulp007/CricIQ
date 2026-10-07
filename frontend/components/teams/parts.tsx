@@ -1,9 +1,9 @@
-import Link from "next/link";
-
 import { TeamSwatch } from "@/components/match/team-badge";
 import type { FranchiseSummary, TeamRecord } from "@/lib/api/types";
-import { pct, recordText, seasonSpan } from "@/lib/teams";
+import { pct, recordText } from "@/lib/teams";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
+import { SeasonLabel, SeasonSpan } from "@/components/competition/season-label";
 
 /** Win percentage as a thin bar against an even (50%) mark; the number carries the value. */
 export function WinBar({
@@ -41,10 +41,17 @@ export function RecordCell({ record }: { record: TeamRecord }) {
   );
 }
 
-export function FranchiseCard({ team }: { team: FranchiseSummary }) {
+export function FranchiseCard({
+  team,
+  national = false,
+}: {
+  team: FranchiseSummary;
+  /** National sides have no titles or playoffs: show matches and years instead. */
+  national?: boolean;
+}) {
   const renamed = team.names.length > 1 || team.names[0]?.name !== team.name;
   return (
-    <Link
+    <CompetitionLink
       href={`/teams/${team.franchise_id}`}
       className="group flex flex-col gap-3 rounded-xl border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
@@ -56,9 +63,16 @@ export function FranchiseCard({ team }: { team: FranchiseSummary }) {
         <span className="font-mono text-xs text-muted-foreground">{team.franchise_id}</span>
       </div>
       <p className="text-xs text-muted-foreground">
-        {seasonSpan(team.first_season, team.last_season)}
+        <SeasonSpan first={team.first_season} last={team.last_season} />
         {" · "}
-        {team.seasons} {team.seasons === 1 ? "season" : "seasons"}
+        {team.seasons}{" "}
+        {national
+          ? team.seasons === 1
+            ? "year"
+            : "years"
+          : team.seasons === 1
+            ? "season"
+            : "seasons"}
         {renamed &&
           ` · was ${team.names
             .filter((n) => n.name !== team.name)
@@ -71,16 +85,20 @@ export function FranchiseCard({ team }: { team: FranchiseSummary }) {
           <dd className="font-mono text-sm tabular-nums">{pct(team.record.win_pct)}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Titles</dt>
-          <dd className="font-mono text-sm tabular-nums">{team.titles.length}</dd>
+          <dt className="text-muted-foreground">{national ? "Played" : "Titles"}</dt>
+          <dd className="font-mono text-sm tabular-nums">
+            {national ? team.record.played : team.titles.length}
+          </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Playoffs</dt>
-          <dd className="font-mono text-sm tabular-nums">{team.playoffs.length}</dd>
+          <dt className="text-muted-foreground">{national ? "Years" : "Playoffs"}</dt>
+          <dd className="font-mono text-sm tabular-nums">
+            {national ? team.seasons : team.playoffs.length}
+          </dd>
         </div>
       </dl>
       <WinBar value={team.record.win_pct} />
-    </Link>
+    </CompetitionLink>
   );
 }
 
@@ -100,7 +118,7 @@ export function SeasonChips({
           key={s}
           className="rounded-md border border-border px-1.5 py-0.5 font-mono text-xs tabular-nums"
         >
-          {s}
+          <SeasonLabel season={s} />
         </span>
       ))}
     </span>

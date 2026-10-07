@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { StateResult, Timeline } from "@/lib/api/types";
+import { competitionPath, type CompetitionId } from "@/lib/competitions";
 import {
   WHATIF_SIMULATIONS,
   type WhatIfPosition,
@@ -68,22 +69,40 @@ function Stepper({
  * simulated from the real and the edited score, and the difference moves the
  * win probability model's estimate.
  */
-export function WhatIfPanel({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
+export function WhatIfPanel({
+  timeline,
+  cursor,
+  competition,
+}: {
+  timeline: Timeline;
+  cursor: number;
+  competition: CompetitionId;
+}) {
   const position = whatIfPosition(timeline, cursor);
   const key = position ? `${position.inningsNo}:${position.seqNo}` : "none";
   // The API sleeps when idle: start waking it while the replay plays.
   useEffect(() => wakeSimulator(), []);
-  return <WhatIf key={key} timeline={timeline} cursor={cursor} position={position} />;
+  return (
+    <WhatIf
+      key={key}
+      timeline={timeline}
+      cursor={cursor}
+      position={position}
+      competition={competition}
+    />
+  );
 }
 
 function WhatIf({
   timeline,
   cursor,
   position,
+  competition,
 }: {
   timeline: Timeline;
   cursor: number;
   position: WhatIfPosition | null;
+  competition: CompetitionId;
 }) {
   const [runs, setRuns] = useState(0);
   const [wickets, setWickets] = useState(0);
@@ -112,7 +131,7 @@ function WhatIf({
     setStatus("running");
     try {
       const response = await fetchAwake(
-        "/api/simulate/state",
+        `/api/${competition}/simulate/state`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -248,7 +267,7 @@ function WhatIf({
                 ? "The win probability model's estimate at the real score, moved by how much the simulations change."
                 : "Simulated chance."}{" "}
               <Link
-                href="/models?tab=simulator#simulator"
+                href={competitionPath(competition, "/models?tab=simulator#simulator")}
                 className="text-foreground underline-offset-4 hover:underline"
               >
                 How

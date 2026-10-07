@@ -30,3 +30,30 @@ export function freshnessLabel(
   if (meta.latest_match_date) return `Data to ${formatDate(meta.latest_match_date)}`;
   return null;
 }
+
+type Freshness = Pick<Meta, "last_update" | "latest_match_date">;
+
+/**
+ * Every competition's freshness as one: a sync updates them together, so the
+ * newest update's matches are added up across the competitions it touched.
+ */
+export function combinedFreshness(metas: Freshness[]): Freshness {
+  const updates = metas.flatMap((m) => (m.last_update ? [m.last_update] : []));
+  const latest = updates
+    .map((u) => u.updated_at)
+    .sort()
+    .at(-1);
+  const dates = metas.flatMap((m) => (m.latest_match_date ? [m.latest_match_date] : []));
+  const sameRun = updates.filter((u) => u.updated_at === latest);
+  return {
+    latest_match_date: dates.sort().at(-1) ?? null,
+    last_update: latest
+      ? {
+          updated_at: latest,
+          new_matches: sameRun.reduce((n, u) => n + u.new_matches, 0),
+          corrected_matches: sameRun.reduce((n, u) => n + u.corrected_matches, 0),
+          withdrawn_matches: sameRun.reduce((n, u) => n + u.withdrawn_matches, 0),
+        }
+      : null,
+  };
+}

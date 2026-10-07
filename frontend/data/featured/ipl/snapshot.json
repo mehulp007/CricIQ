@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2026",
+  "matches": 74,
+  "champion": "Royal Challengers Bengaluru",
+  "first_innings_average": 195.3,
+  "previous_first_innings_average": 190.4,
+  "sixes": 1426,
+  "leaders": {
+    "runs": {
+      "player_id": "470f446b",
+      "name": "Vaibhav Suryavanshi",
+      "team": "RR",
+      "value": 776.0,
+      "detail": "strike rate 237.3"
+    },
+    "wickets": {
+      "player_id": "e62dd25d",
+      "name": "Kagiso Rabada",
+      "team": "GT",
+      "value": 29.0,
+      "detail": "economy 9.68"
+    },
+    "runs_above_par": {
+      "player_id": "470f446b",
+      "name": "Vaibhav Suryavanshi",
+      "team": "RR",
+      "value": 265.0,
+      "detail": "from 327 balls"
+    },
+    "runs_saved": {
+      "player_id": "9d430b40",
+      "name": "Sunil Narine",
+      "team": "KKR",
+      "value": 153.0,
+      "detail": "from 306 balls"
+    }
+  }
+}

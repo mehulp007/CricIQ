@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import type { SimSeasonTeam, SquadPlayer } from "@/lib/api/types";
 import { roleLabel } from "@/lib/players";
+import { useCompetition } from "@/components/competition/use-competition";
+import { seasonLabel } from "@/lib/competitions";
 import {
   MIN_BOWLERS,
   XI_SIZE,
@@ -68,6 +70,7 @@ export function XIEditor({
   onTeam: (team: string) => void;
   onChange: (xi: XIState) => void;
 }) {
+  const competition = useCompetition();
   const issue = sideIssue(xi);
   const bowlerCount = xi.bowlers.filter((id) => xi.players.some((p) => p.player_id === id)).length;
   const rest = bench(xi);
@@ -189,7 +192,9 @@ export function XIEditor({
             Rest of the squad · {rest.length}
           </h3>
           <p className="text-[11px] text-muted-foreground">
-            {teamName && season ? `Everyone else who played for ${teamName} in ${season}. ` : ""}
+            {teamName && season
+              ? `Everyone else who played for ${teamName} in ${seasonLabel(competition, season)}. `
+              : ""}
             {full ? "Leave someone out of the XI to bring a player in." : "Add players to the XI."}
           </p>
           <ul className="flex flex-col divide-y divide-border" aria-label={`${label} squad`}>

@@ -1,43 +1,53 @@
 import { describe, expect, it } from "vitest";
 
-import { PRIMARY_NAV, SECONDARY_NAV, isActive, isAvailable } from "@/lib/navigation";
+import {
+  PRIMARY_NAV,
+  SECONDARY_NAV,
+  isActive,
+  isAvailable,
+  isShown,
+  navHref,
+} from "@/lib/navigation";
 
-const overview = PRIMARY_NAV.find((i) => i.href === "/")!;
-const matches = PRIMARY_NAV.find((i) => i.href === "/matches")!;
-const players = PRIMARY_NAV.find((i) => i.href === "/players")!;
-const matchups = PRIMARY_NAV.find((i) => i.href === "/matchups")!;
-const compare = PRIMARY_NAV.find((i) => i.href === "/compare")!;
-const teams = PRIMARY_NAV.find((i) => i.href === "/teams")!;
-const simulator = PRIMARY_NAV.find((i) => i.href === "/simulator")!;
-const lab = PRIMARY_NAV.find((i) => i.href === "/lab")!;
-const models = PRIMARY_NAV.find((i) => i.href === "/models")!;
+const byLabel = (label: string) =>
+  [...PRIMARY_NAV, ...SECONDARY_NAV].find((i) => i.label === label)!;
+const overview = byLabel("Overview");
+const matches = byLabel("Matches");
+const lab = byLabel("Analytics Lab");
+const about = byLabel("About & Methodology");
 
 describe("navigation", () => {
-  it("has unique routes", () => {
-    const hrefs = [...PRIMARY_NAV, ...SECONDARY_NAV].map((i) => i.href);
-    expect(new Set(hrefs).size).toBe(hrefs.length);
+  it("has unique pages", () => {
+    const paths = [...PRIMARY_NAV, ...SECONDARY_NAV].map((i) => `${i.scope}:${i.path}`);
+    expect(new Set(paths).size).toBe(paths.length);
   });
 
   it("only exposes pages from shipped milestones", () => {
-    expect(isAvailable(overview)).toBe(true);
-    expect(isAvailable(matches)).toBe(true);
-    expect(isAvailable(models)).toBe(true);
-    expect(isAvailable(players)).toBe(true);
-    expect(isAvailable(matchups)).toBe(true);
-    expect(isAvailable(compare)).toBe(true);
-    expect(isAvailable(lab)).toBe(true);
-    expect(isAvailable(teams)).toBe(true);
-    expect(isAvailable(simulator)).toBe(true);
+    for (const item of [...PRIMARY_NAV, ...SECONDARY_NAV]) expect(isAvailable(item)).toBe(true);
   });
 
-  it("matches the root route exactly", () => {
-    expect(isActive(overview, "/")).toBe(true);
-    expect(isActive(overview, "/matches")).toBe(false);
+  it("links pages within the competition being browsed", () => {
+    expect(navHref(overview, "ipl")).toBe("/ipl");
+    expect(navHref(matches, "t20i")).toBe("/t20i/matches");
+    // Global pages are the same everywhere.
+    expect(navHref(about, "bbl")).toBe("/about");
   });
 
-  it("treats nested routes as active", () => {
-    expect(isActive(matches, "/matches")).toBe(true);
-    expect(isActive(matches, "/matches/1082591")).toBe(true);
-    expect(isActive(matches, "/matchesfoo")).toBe(false);
+  it("shows the Analytics Lab only where it has notes", () => {
+    expect(isShown(lab, "ipl")).toBe(true);
+    expect(isShown(lab, "t20i")).toBe(false);
+    expect(isShown(matches, "t20i")).toBe(true);
+  });
+
+  it("matches the overview exactly", () => {
+    expect(isActive(overview, "/ipl", "ipl")).toBe(true);
+    expect(isActive(overview, "/ipl/matches", "ipl")).toBe(false);
+  });
+
+  it("treats nested pages as active", () => {
+    expect(isActive(matches, "/t20i/matches", "t20i")).toBe(true);
+    expect(isActive(matches, "/t20i/matches/1082591", "t20i")).toBe(true);
+    expect(isActive(matches, "/t20i/matchesfoo", "t20i")).toBe(false);
+    expect(isActive(about, "/about", "ipl")).toBe(true);
   });
 });

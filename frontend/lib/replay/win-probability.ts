@@ -49,9 +49,30 @@ export function swingAt(timeline: Timeline, index: number): number | null {
   return after - before;
 }
 
-/** Match overs on a single axis: the chase starts at 20. */
-export function matchOvers(d: Pick<TimelineDelivery, "innings_no" | "legal_ball_no">): number {
-  return (d.innings_no - 1) * 20 + d.legal_ball_no / 6;
+/**
+ * Overs each side may face (20 in a T20), from the timeline: the longer of the two
+ * innings' allowances, so a chase shortened by rain keeps the full axis.
+ */
+export function inningsOvers(timeline: Pick<Timeline, "innings">): number {
+  const balls = Math.max(
+    0,
+    ...timeline.innings.filter((i) => i.innings_no <= 2).map((i) => i.max_balls ?? 0),
+  );
+  return balls > 0 ? Math.ceil(balls / 6) : 20;
+}
+
+/** Match overs on a single axis: the chase starts where the first innings' overs end. */
+export function matchOvers(
+  d: Pick<TimelineDelivery, "innings_no" | "legal_ball_no">,
+  overs = 20,
+): number {
+  return (d.innings_no - 1) * overs + d.legal_ball_no / 6;
+}
+
+/** Ticks for an overs axis from 0 to ``upTo``: every 5 overs, every 10 for longer formats. */
+export function overTicks(upTo: number, overs: number): number[] {
+  const step = overs > 25 ? 10 : 5;
+  return Array.from({ length: Math.floor(upTo / step) + 1 }, (_, i) => i * step);
 }
 
 export interface WpPoint {
@@ -63,6 +84,7 @@ export interface WpPoint {
 
 /** Team A's win probability over the match, up to the cursor. */
 export function wpSeries(timeline: Timeline, cursor: number): WpPoint[] {
+  const overs = inningsOvers(timeline);
   const points: WpPoint[] = [];
   const first = timeline.innings[0];
   if (first?.wp_start !== null && first?.wp_start !== undefined) {
@@ -75,14 +97,14 @@ export function wpSeries(timeline: Timeline, cursor: number): WpPoint[] {
       const start = inningsOf(timeline, d.innings_no)?.wp_start;
       if (start !== null && start !== undefined) {
         points.push({
-          x: (d.innings_no - 1) * 20,
+          x: (d.innings_no - 1) * overs,
           wp: start * 100,
           index: -1,
           label: "Innings break",
         });
       }
     }
-    points.push({ x: matchOvers(d), wp: d.wp * 100, index, label: d.ball_label ?? "" });
+    points.push({ x: matchOvers(d, overs), wp: d.wp * 100, index, label: d.ball_label ?? "" });
   });
   return points;
 }

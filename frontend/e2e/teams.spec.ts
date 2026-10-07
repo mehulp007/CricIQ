@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // is in every build of the data, including the test fixtures.
 test.describe("teams", () => {
   test("lists franchises and shows any season's league table", async ({ page }) => {
-    await page.goto("/teams");
+    await page.goto("/ipl/teams");
     await expect(page.getByRole("heading", { level: 1, name: "Teams" })).toBeVisible();
     await expect(page.getByRole("link", { name: /Mumbai Indians/ }).first()).toBeVisible();
 
@@ -19,7 +19,7 @@ test.describe("teams", () => {
   });
 
   test("a franchise page covers seasons, situations and rivals", async ({ page }) => {
-    await page.goto("/teams");
+    await page.goto("/ipl/teams");
     await page
       .getByRole("region", { name: "Franchises" })
       .getByRole("link", { name: /Mumbai Indians/ })
@@ -46,7 +46,7 @@ test.describe("teams", () => {
   });
 
   test("head to head picks two teams and sets the record against form", async ({ page }) => {
-    await page.goto("/teams/h2h");
+    await page.goto("/ipl/teams/h2h");
     await expect(page.getByRole("heading", { name: "Pick two teams" })).toBeVisible();
     await page.getByRole("combobox", { name: "First team" }).click();
     await page.getByRole("option", { name: "Mumbai Indians" }).click();
@@ -60,7 +60,7 @@ test.describe("teams", () => {
       "expected to win",
     );
     await expect(
-      page.getByRole("region", { name: "Every meeting" }).locator('a[href="/matches/1181768"]'),
+      page.getByRole("region", { name: "Every meeting" }).locator('a[href="/ipl/matches/1181768"]'),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Swap teams" }).click();
@@ -68,7 +68,7 @@ test.describe("teams", () => {
   });
 
   test("the rivalries note is in the Analytics Lab", async ({ page }) => {
-    await page.goto("/lab");
+    await page.goto("/ipl/lab");
     await page.getByRole("link", { name: /Do rivalries and close finishes repeat\?/ }).click();
     await expect(page).toHaveURL(/\/lab\/rivalries$/);
     await expect(

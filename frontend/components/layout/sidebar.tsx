@@ -19,7 +19,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <NavList group="secondary" onNavigate={onNavigate} />
         </nav>
         <p className="px-3 text-xs leading-relaxed text-muted-foreground">
-          Data: Cricsheet (ODC-BY). Not affiliated with the IPL or BCCI.
+          Data: Cricsheet (ODC-BY). Not affiliated with any league, board or the ICC.
         </p>
       </div>
     </div>

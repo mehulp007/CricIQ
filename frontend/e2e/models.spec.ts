@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("model insights overview", () => {
   test("sets every model against its baseline and links to its tab", async ({ page }) => {
-    await page.goto("/models");
+    await page.goto("/ipl/models");
     await expect(page.getByRole("tab", { name: "Overview", selected: true })).toBeVisible();
     const results = page.getByRole("region", { name: /Every model, tested once on/ });
     await expect(results.getByRole("row")).toHaveCount(6);

@@ -19,8 +19,8 @@ export function ModelEstimateNote() {
         Model estimate
       </TooltipTrigger>
       <TooltipContent className="max-w-64 leading-relaxed">
-        A calibrated estimate from how thousands of IPL matches in similar situations turned out. It
-        is not a prediction of this match and not betting advice.
+        A calibrated estimate from how thousands of matches in similar situations turned out. It is
+        not a prediction of this match and not betting advice.
       </TooltipContent>
     </Tooltip>
   );

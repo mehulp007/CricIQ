@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { TeamSwatch } from "@/components/match/team-badge";
 import type { Timeline } from "@/lib/api/types";
+import { competitionPath, type CompetitionId } from "@/lib/competitions";
 import { formatRate, oversNotation } from "@/lib/cricket";
 import { formatScore, inningsLabel } from "@/lib/format";
 import { type LiveInningsCard, playerName } from "@/lib/replay/engine";
@@ -11,10 +12,18 @@ import { scrollRegion } from "@/lib/a11y";
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2 text-right font-mono tabular-nums";
 
-function PlayerLink({ timeline, id }: { timeline: Timeline; id: string }) {
+function PlayerLink({
+  timeline,
+  id,
+  competition,
+}: {
+  timeline: Timeline;
+  id: string;
+  competition: CompetitionId;
+}) {
   return (
     <Link
-      href={`/players/${id}`}
+      href={competitionPath(competition, `/players/${id}`)}
       className="underline-offset-4 hover:text-primary hover:underline"
       prefetch={false}
     >
@@ -23,7 +32,15 @@ function PlayerLink({ timeline, id }: { timeline: Timeline; id: string }) {
   );
 }
 
-function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInningsCard }) {
+function InningsCard({
+  timeline,
+  card,
+  competition,
+}: {
+  timeline: Timeline;
+  card: LiveInningsCard;
+  competition: CompetitionId;
+}) {
   const team = timeline.teams[card.innings.batting_team_id];
   return (
     <section
@@ -73,7 +90,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
             {card.batting.map((b) => (
               <tr key={b.id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  <PlayerLink timeline={timeline} id={b.id} />
+                  <PlayerLink timeline={timeline} competition={competition} id={b.id} />
                   <span
                     className={cn(
                       "block text-xs",
@@ -127,7 +144,7 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
             {card.bowling.map((b) => (
               <tr key={b.id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  <PlayerLink timeline={timeline} id={b.id} />
+                  <PlayerLink timeline={timeline} competition={competition} id={b.id} />
                 </th>
                 <td className={td}>{oversNotation(b.legalBalls)}</td>
                 <td className={td}>{b.maidens}</td>
@@ -148,9 +165,11 @@ function InningsCard({ timeline, card }: { timeline: Timeline; card: LiveInnings
 export function LiveScorecard({
   timeline,
   cards,
+  competition,
 }: {
   timeline: Timeline;
   cards: LiveInningsCard[];
+  competition: CompetitionId;
 }) {
   if (cards.length === 0) {
     return (
@@ -162,7 +181,12 @@ export function LiveScorecard({
   return (
     <div className="flex flex-col gap-4">
       {cards.map((card) => (
-        <InningsCard key={card.innings.innings_no} timeline={timeline} card={card} />
+        <InningsCard
+          key={card.innings.innings_no}
+          timeline={timeline}
+          card={card}
+          competition={competition}
+        />
       ))}
     </div>
   );

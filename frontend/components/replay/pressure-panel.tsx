@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
+import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
 import {
   PRESSURE_BANDS,
   formatLeverage,
@@ -60,7 +61,16 @@ function MomentumBar({ points, color }: { points: number; color: string }) {
 }
 
 /** How much the next ball matters, and which way the last two overs went. */
-export function PressurePanel({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
+export function PressurePanel({
+  timeline,
+  cursor,
+  competition,
+}: {
+  timeline: Timeline;
+  cursor: number;
+  competition: CompetitionId;
+}) {
+  const c = getCompetition(competition);
   const reading = pressureAt(timeline, cursor);
   const momentum = momentumAt(timeline, cursor);
   if (!reading && !momentum) return null;
@@ -89,13 +99,15 @@ export function PressurePanel({ timeline, cursor }: { timeline: Timeline; cursor
               <span className="font-mono text-foreground tabular-nums">
                 {formatLeverage(reading.leverage)}
               </span>{" "}
-              as much as a typical IPL ball.{" "}
-              <Link
-                href="/lab/pressure"
-                className="text-foreground underline-offset-4 hover:underline"
-              >
-                About pressure
-              </Link>
+              as much as a typical {c.label} ball.{" "}
+              {c.lab && (
+                <Link
+                  href={competitionPath(competition, "/lab/pressure")}
+                  className="text-foreground underline-offset-4 hover:underline"
+                >
+                  About pressure
+                </Link>
+              )}
             </p>
           </>
         ) : (
@@ -124,12 +136,14 @@ export function PressurePanel({ timeline, cursor }: { timeline: Timeline; cursor
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {team.name}&apos;s change in win probability over the last 12 balls. It describes
                   what just happened; it barely predicts what comes next.{" "}
-                  <Link
-                    href="/lab/momentum"
-                    className="text-foreground underline-offset-4 hover:underline"
-                  >
-                    The evidence
-                  </Link>
+                  {c.lab && (
+                    <Link
+                      href={competitionPath(competition, "/lab/momentum")}
+                      className="text-foreground underline-offset-4 hover:underline"
+                    >
+                      The evidence
+                    </Link>
+                  )}
                 </p>
               </>
             );

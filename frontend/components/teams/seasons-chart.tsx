@@ -1,5 +1,6 @@
 "use client";
 
+import { SeasonLabel } from "@/components/competition/season-label";
 import {
   Bar,
   BarChart,
@@ -12,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { useCompetition } from "@/components/competition/use-competition";
+import { seasonLabel } from "@/lib/competitions";
 import type { Finish, TeamSeason } from "@/lib/api/types";
 import { finishLabel } from "@/lib/teams";
 
@@ -35,7 +38,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: readonly { paylo
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="mb-1 font-medium text-foreground">
-        {p.season} · {p.team_name}
+        <SeasonLabel season={p.season} /> · {p.team_name}
       </p>
       <p className="text-muted-foreground">
         League:{" "}
@@ -57,6 +60,7 @@ const color = "var(--chart-3)";
 
 /** League-stage win percentage each season, shaded by how far the side went. */
 export function SeasonsChart({ seasons }: { seasons: TeamSeason[] }) {
+  const competition = useCompetition();
   const data: Point[] = seasons.map((s) => ({
     ...s,
     win_pct: s.won + s.lost ? (100 * s.won) / (s.won + s.lost) : 0,
@@ -92,7 +96,13 @@ export function SeasonsChart({ seasons }: { seasons: TeamSeason[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
             <CartesianGrid stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="season" {...AXIS} tickLine={false} minTickGap={8} />
+            <XAxis
+              dataKey="season"
+              {...AXIS}
+              tickLine={false}
+              minTickGap={8}
+              tickFormatter={(s: number) => seasonLabel(competition, s)}
+            />
             <YAxis
               {...AXIS}
               tickLine={false}

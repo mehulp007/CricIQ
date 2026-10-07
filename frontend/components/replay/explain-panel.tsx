@@ -34,6 +34,8 @@ export function ExplainPanel({ timeline, cursor }: { timeline: Timeline; cursor:
   }
 
   const { summary } = timeline;
+  // The pooled T20 models use the sides' and batters' records (the "teams" factor).
+  const usesTeams = timeline.win_probability.factor_keys.includes("teams");
   if (cursor < 0) {
     return (
       <section
@@ -46,9 +48,9 @@ export function ExplainPanel({ timeline, cursor }: { timeline: Timeline; cursor:
           <span className="font-mono font-semibold text-foreground tabular-nums">
             {formatPercent(wp)}
           </span>
-          , close to how often sides batting first win in this era. Team and player records are not
-          used: in testing they did not improve the estimates. From the first ball, the score,
-          wickets and balls left take over.
+          {usesTeams
+            ? ", from how often sides batting first win in this era, adjusted for the two squads' records, the opening batters' records and whether it is international cricket. From the first ball, the score, wickets and balls left take over."
+            : ", close to how often sides batting first win in this era. Team and player records are not used: in testing they did not improve the estimates. From the first ball, the score, wickets and balls left take over."}
         </p>
       </section>
     );

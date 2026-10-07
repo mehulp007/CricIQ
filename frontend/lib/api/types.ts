@@ -96,3 +96,10 @@ export type SimBowler = Schemas["SimBowler"];
 export type SimDistribution = Schemas["Distribution"];
 export type StateRequest = Schemas["StateRequest"];
 export type StateResult = Schemas["StateResult"];
+
+export type CompetitionList = Schemas["CompetitionList"];
+export type CompetitionScope = Schemas["CompetitionScope"];
+export type PlayerCareers = Schemas["PlayerCareers"];
+export type CareerLine = Schemas["CareerLine"];
+export type CompetitionInfo = Schemas["CompetitionInfo"];
+export type MetaFeatures = Schemas["Features"];

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TeamSwatch } from "@/components/match/team-badge";
@@ -13,6 +12,7 @@ import { formatDate } from "@/lib/format";
 import { PLAYER_SERIES, dismissalLabel, formatWpa, isBetter, rate, signed } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { scrollRegion } from "@/lib/a11y";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 /** A difference from par, coloured by whether it helps the player (the sign carries it too). */
 export function ParDelta({
@@ -308,12 +308,12 @@ export function RecentBattingTable({ innings }: { innings: BattingInnings[] }) {
           {innings.map((i) => (
             <tr key={`${i.match_id}`}>
               <th scope="row" className="px-2 py-2.5 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/matches/${i.match_id}`}
                   className="underline-offset-4 hover:text-primary hover:underline"
                 >
                   {formatDate(i.date)}
-                </Link>
+                </CompetitionLink>
               </th>
               <td className="px-2 py-2.5">
                 <Opposition team={i.opposition} />
@@ -370,12 +370,12 @@ export function RecentBowlingTable({ innings }: { innings: BowlingInnings[] }) {
           {innings.map((i) => (
             <tr key={`${i.match_id}`}>
               <th scope="row" className="px-2 py-2.5 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/matches/${i.match_id}`}
                   className="underline-offset-4 hover:text-primary hover:underline"
                 >
                   {formatDate(i.date)}
-                </Link>
+                </CompetitionLink>
               </th>
               <td className="px-2 py-2.5">
                 <Opposition team={i.opposition} />

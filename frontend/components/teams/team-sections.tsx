@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TeamSwatch } from "@/components/match/team-badge";
@@ -20,13 +19,79 @@ import { formatDate } from "@/lib/format";
 import { ordinal, rate } from "@/lib/players";
 import { finishLabel, formatNrr, h2hHref } from "@/lib/teams";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
+import { SeasonLabel } from "@/components/competition/season-label";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
 
 // --------------------------------------------------------------------------- seasons
 
-export function SeasonsTable({ seasons }: { seasons: TeamSeason[] }) {
+function YearsTable({ seasons }: { seasons: TeamSeason[] }) {
+  return (
+    <div className="overflow-x-auto" {...scrollRegion("Year table")}>
+      <table className="w-full min-w-[28rem] text-sm">
+        <thead className="border-b border-border">
+          <tr>
+            <th scope="col" className={cn(th, "text-left")}>
+              Year
+            </th>
+            <th scope="col" className={th}>
+              Played
+            </th>
+            <th scope="col" className={th}>
+              <abbr title="Won–lost" className="no-underline">
+                W–L
+              </abbr>
+            </th>
+            <th scope="col" className={th}>
+              <abbr title="No result" className="no-underline">
+                NR
+              </abbr>
+            </th>
+            <th scope="col" className={th}>
+              <abbr title="Net run rate" className="no-underline">
+                NRR
+              </abbr>
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {[...seasons].reverse().map((s) => {
+            const won = s.won + s.playoff_won;
+            const lost = s.lost + s.playoff_lost;
+            return (
+              <tr key={s.season}>
+                <th
+                  scope="row"
+                  className="px-2 py-2.5 text-left font-mono font-normal tabular-nums"
+                >
+                  <SeasonLabel season={s.season} />
+                </th>
+                <td className={td}>{won + lost + s.no_result}</td>
+                <td className={td}>
+                  {won}–{lost}
+                </td>
+                <td className={td}>{s.no_result || ""}</td>
+                <td className={td}>{formatNrr(s.nrr)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function SeasonsTable({
+  seasons,
+  national = false,
+}: {
+  seasons: TeamSeason[];
+  /** National sides play no league: year by year, without finish, points or playoffs. */
+  national?: boolean;
+}) {
+  if (national) return <YearsTable seasons={seasons} />;
   return (
     <div className="overflow-x-auto" {...scrollRegion("Season table")}>
       <table className="w-full min-w-[42rem] text-sm">
@@ -65,12 +130,12 @@ export function SeasonsTable({ seasons }: { seasons: TeamSeason[] }) {
           {[...seasons].reverse().map((s) => (
             <tr key={s.season}>
               <th scope="row" className="px-2 py-2.5 text-left font-normal">
-                <Link
+                <CompetitionLink
                   href={`/teams?season=${s.season}#table`}
                   className="font-mono tabular-nums underline-offset-4 hover:text-primary hover:underline"
                 >
-                  {s.season}
-                </Link>
+                  <SeasonLabel season={s.season} />
+                </CompetitionLink>
                 <span className="ml-2 text-xs text-muted-foreground">{s.team_name}</span>
               </th>
               <td
@@ -255,7 +320,7 @@ export function TotalLine({
     <div className="flex flex-col gap-0.5 rounded-xl bg-muted/40 p-3">
       <span className="text-[11px] tracking-wide text-muted-foreground uppercase">{label}</span>
       {total ? (
-        <Link
+        <CompetitionLink
           href={`/matches/${total.match_id}`}
           className="font-mono text-lg font-semibold tabular-nums underline-offset-4 hover:text-primary hover:underline"
         >
@@ -263,7 +328,7 @@ export function TotalLine({
           <span className="ml-1.5 text-xs font-normal text-muted-foreground">
             ({total.overs} ov)
           </span>
-        </Link>
+        </CompetitionLink>
       ) : (
         <span className="text-muted-foreground">—</span>
       )}
@@ -288,12 +353,12 @@ export function MarginLine({
       <span className="text-[11px] tracking-wide text-muted-foreground uppercase">{label}</span>
       {margin ? (
         <>
-          <Link
+          <CompetitionLink
             href={`/matches/${margin.match_id}`}
             className="text-sm font-medium underline-offset-4 hover:text-primary hover:underline"
           >
             {margin.result_text}
-          </Link>
+          </CompetitionLink>
           <span className="text-xs text-muted-foreground">{formatDate(margin.date)}</span>
         </>
       ) : (
@@ -351,12 +416,12 @@ export function PlayerList({
                 {i + 1}
               </span>
               <span className="min-w-0 flex-1">
-                <Link
+                <CompetitionLink
                   href={`/players/${r.id}`}
                   className="text-sm underline-offset-4 hover:text-primary hover:underline"
                 >
                   {r.name}
-                </Link>
+                </CompetitionLink>
                 <span className="block text-xs text-muted-foreground">{r.detail}</span>
               </span>
               <span className="font-mono text-sm font-semibold tabular-nums">{r.main}</span>
@@ -414,13 +479,13 @@ export function OpponentsTable({
                 <RecordCell record={o.record} />
               </td>
               <td className="px-2 py-2.5 text-right">
-                <Link
+                <CompetitionLink
                   href={h2hHref(team, o.opponent.franchise_id, window)}
                   className="text-xs text-primary underline-offset-4 hover:underline"
                   aria-label={`${team} against ${o.opponent.franchise_id}, head to head`}
                 >
                   Head to head
-                </Link>
+                </CompetitionLink>
               </td>
             </tr>
           ))}
@@ -475,7 +540,7 @@ export function SwingList({ swings, kind }: { swings: Swing[]; kind: "comeback" 
     <ol className="flex flex-col gap-2">
       {swings.map((s) => (
         <li key={s.match_id}>
-          <Link
+          <CompetitionLink
             href={`/matches/${s.match_id}?ball=${s.innings_no}.${s.seq_no}`}
             className="flex items-start gap-3 rounded-xl bg-muted/40 p-3 transition-colors hover:bg-muted/70"
           >
@@ -495,14 +560,14 @@ export function SwingList({ swings, kind }: { swings: Swing[]; kind: "comeback" 
                 {s.result_text}
                 <span className="font-normal text-muted-foreground">
                   {" "}
-                  v {s.opponent.franchise_id}, {s.season}
+                  v {s.opponent.franchise_id}, <SeasonLabel season={s.season} />
                 </span>
               </span>
               <span className="block text-xs text-muted-foreground">
                 {kind === "comeback" ? "Lowest point" : "Highest point"}: {s.situation}
               </span>
             </span>
-          </Link>
+          </CompetitionLink>
         </li>
       ))}
     </ol>

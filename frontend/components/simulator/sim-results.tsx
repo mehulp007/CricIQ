@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { SimDistribution, SimSideResult, SimulationResult } from "@/lib/api/types";
@@ -8,6 +7,7 @@ import { scrollRegion } from "@/lib/a11y";
 import { rate } from "@/lib/players";
 import { SIM_SERIES, bowlingOvers, pct } from "@/lib/simulator";
 import { cn } from "@/lib/utils";
+import { CompetitionLink } from "@/components/competition/competition-link";
 
 const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
@@ -243,12 +243,12 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
             {side.batters.map((b) => (
               <tr key={b.player_id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  <Link
+                  <CompetitionLink
                     href={`/players/${b.player_id}`}
                     className="underline-offset-4 hover:text-primary hover:underline"
                   >
                     {b.name}
-                  </Link>
+                  </CompetitionLink>
                   <span className="block text-[11px] text-muted-foreground">
                     bats in {pct(b.batted_pct, 0)}
                   </span>
@@ -297,12 +297,12 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
             {side.bowlers.map((b) => (
               <tr key={b.player_id}>
                 <th scope="row" className="px-2 py-2 text-left font-normal">
-                  <Link
+                  <CompetitionLink
                     href={`/players/${b.player_id}`}
                     className="underline-offset-4 hover:text-primary hover:underline"
                   >
                     {b.name}
-                  </Link>
+                  </CompetitionLink>
                   <span className="block text-[11px] text-muted-foreground">
                     bowls in {pct(b.bowled_pct, 0)}
                   </span>
@@ -339,17 +339,17 @@ export function SimResults({ result }: { result: SimulationResult }) {
         </div>
         <WinShares result={result} names={names} />
         <p className="rounded-xl bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
-          A simulation, not a forecast. Simulated before a ball was bowled, every 2025 and 2026
-          match was called no better than a coin flip (see{" "}
-          <Link
+          A simulation, not a forecast. Simulated before a ball was bowled, the 2025 and 2026
+          matches were called no better than a coin flip (see{" "}
+          <CompetitionLink
             href="/models?tab=simulator#simulator"
             className="text-primary underline-offset-4 hover:underline"
           >
             the backtest
-          </Link>
-          ): T20 matches between IPL sides are close to even. What the simulation is good for is the
-          spread of scores, each player&apos;s likely contribution and what changes when you change
-          the XI.
+          </CompetitionLink>
+          ): T20 matches between these sides are close to even. What the simulation is good for is
+          the spread of scores, each player&apos;s likely contribution and what changes when you
+          change the XI.
         </p>
         {result.margin_runs && (
           <p className="text-sm text-muted-foreground">

@@ -3,6 +3,7 @@
  * arrive computed from the API; this module only labels and formats them.
  */
 import type { Finish, H2HExpectation, TeamRecord } from "@/lib/api/types";
+import { seasonLabel, type CompetitionId } from "@/lib/competitions";
 import { ordinal, signed } from "@/lib/players";
 
 /** Franchise ids are short upper-case codes, e.g. "MI" or "PBKS". */
@@ -80,7 +81,8 @@ export function expectationVerdict(e: H2HExpectation, a: string, b: string): str
   return `Within the range chance alone produces${size ? ` (${signed(diff, 1)} wins)` : ""}: no sign of a hold either way.`;
 }
 
-/** "2008–2026", or one year. */
-export function seasonSpan(first: number, last: number): string {
-  return first === last ? String(first) : `${first}–${last}`;
+/** "2008–2026", or one year; "2011/12–2025/26" for a competition named that way. */
+export function seasonSpan(first: number, last: number, competition?: CompetitionId): string {
+  const label = (year: number) => (competition ? seasonLabel(competition, year) : String(year));
+  return first === last ? label(first) : `${label(first)}–${label(last)}`;
 }

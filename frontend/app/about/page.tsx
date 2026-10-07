@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DATA_VERSION } from "@/lib/featured";
+import { dataVersion } from "@/lib/featured";
 import { BALL_OUTCOME, RATINGS, SCORE_PROJECTION, WIN_PROBABILITY, seasonSpan } from "@/lib/models";
 
 export const metadata: Metadata = {
@@ -84,10 +84,12 @@ export default function AboutPage() {
       <header>
         <h1 className="text-3xl font-semibold tracking-tight">About &amp; Methodology</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">
-          CricIQ is a full-stack cricket analytics platform. It takes every IPL ball since 2008 from
-          raw records through data engineering, leak-free feature engineering, tested machine
-          learning and explainability, all the way to this interface. This page explains how each
-          number on the site is made, and where it falls short.
+          CricIQ is a full-stack cricket analytics platform. It takes every ball of the IPL since
+          2008, men&apos;s T20 internationals since 2005 and the BBL, PSL, CPL and SA20 from raw
+          records through data engineering, leak-free feature engineering, tested machine learning
+          and explainability, all the way to this interface. This page explains how each number on
+          the site is made, and where it falls short. The model numbers quoted below are the
+          IPL&apos;s; each competition&apos;s are on its Model Insights page.
         </p>
       </header>
 
@@ -121,7 +123,32 @@ export default function AboutPage() {
         <p>
           Player names come from Cricsheet&apos;s register, never fuzzy matching. Batting hand and
           bowling style come from Wikidata and Wikipedia, with documented overrides. The current
-          dataset is version <span className="font-mono text-foreground">{DATA_VERSION}</span>.
+          dataset is version <span className="font-mono text-foreground">{dataVersion()}</span>.
+        </p>
+      </Section>
+
+      <Section id="competitions" title="Every competition">
+        <p>
+          Each competition has its own pages, served from its own data: matches, players, teams and
+          models. A player&apos;s numbers are always measured against par in their own competition,
+          so a PSL strike rate is judged against the PSL; every player page also lists their record
+          in every T20 competition they played.
+        </p>
+        <p>
+          <Strong>One model for all T20 cricket, except the IPL.</Strong> The win probability, score
+          projection and ball-outcome models for the BBL, PSL, CPL, SA20 and T20Is are trained on
+          every T20 competition at once, with players&apos; records shared across them. They were
+          also compared with the IPL&apos;s own models on the IPL&apos;s test seasons, and they were
+          not better there, so the IPL keeps its own. CricIQ Ratings are fitted on each
+          competition&apos;s own records.
+        </p>
+        <p>
+          <Strong>What is not there yet.</Strong> The match simulator serves the IPL, BBL, CPL and
+          SA20, where its backtests passed; for the PSL and T20Is its simulated first-innings totals
+          ran low (the ball model scores their recent seasons a little low), so it is not served
+          there. League tables outside the IPL are computed at two points a win and can differ from
+          official tables that used bonus points. National sides have records by year and by
+          opponent, not league tables. ODI and Test cricket come next.
         </p>
       </Section>
 
@@ -152,7 +179,7 @@ export default function AboutPage() {
         <p>
           Each model is tuned on one set of seasons, tested once on the latest, backtested season by
           season, and promoted only if it beats its baseline. The full protocols, results and
-          rejected ideas are on <A href="/models">Model Insights</A>.
+          rejected ideas are on <A href="/ipl/models">Model Insights</A>.
         </p>
       </Section>
 
@@ -201,7 +228,7 @@ export default function AboutPage() {
           Some ratings barely carry over from one season to the next (
           {low.map((c) => `${c.role} ${c.label.toLowerCase()}`).join(", ")}); they are marked{" "}
           <Strong>low stability</Strong>. The full evaluation is on{" "}
-          <A href="/models">Model Insights</A>.
+          <A href="/ipl/models">Model Insights</A>.
         </p>
         <p>
           <Strong>Similar players</Strong> compares style profiles: per-ball rates against par
@@ -226,7 +253,7 @@ export default function AboutPage() {
           <Strong>Momentum</Strong> is the batting side&apos;s change in win probability over the
           last 12 legal balls. It describes the match well but barely predicts the next overs and
           not the result, so it is shown and never used to adjust an estimate. The tests, and why
-          clutch is not rated, are in the <A href="/lab">Analytics Lab</A>.
+          clutch is not rated, are in the <A href="/ipl/lab">Analytics Lab</A>.
         </p>
       </Section>
 
@@ -242,7 +269,7 @@ export default function AboutPage() {
           Head-to-head records are set against what each side&apos;s <Strong>form</Strong> (its
           previous 14 results, pulled strongly toward even) predicted. Across every IPL rivalry,
           past meetings add nothing to form, and form itself is a weak guide: see{" "}
-          <A href="/lab/rivalries">Do rivalries and close finishes repeat?</A>
+          <A href="/ipl/lab/rivalries">Do rivalries and close finishes repeat?</A>
         </p>
       </Section>
 
@@ -259,9 +286,13 @@ export default function AboutPage() {
           (median) innings, so it reads in whole runs and wickets.
         </p>
         <p>
+          The BBL, CPL and SA20 are simulated the same way with the pooled ball model, each
+          backtested on its own 2025 and 2026 matches before it was served there.
+        </p>
+        <p>
           So the replay&apos;s what-if starts from the win probability model at the real score and
           adds only how much the simulations change when you edit it. Details are in{" "}
-          <A href="/models?tab=simulator">Model Insights</A>.
+          <A href="/ipl/models?tab=simulator">Model Insights</A>.
         </p>
       </Section>
 

@@ -9,7 +9,7 @@ const DELAYS_MS = [2_000, 4_000, 6_000, 8_000, 10_000, 10_000];
 
 /** Start waking the API in the background; safe to call often. */
 export function wakeSimulator(): void {
-  fetch("/api/simulate/warm", { cache: "no-store" }).catch(() => undefined);
+  fetch("/api/warm", { cache: "no-store" }).catch(() => undefined);
 }
 
 /**

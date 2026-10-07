@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import final2019 from "@/data/featured/1181768.json";
-import doubleSuperOver from "@/data/featured/1216517.json";
+import final2019 from "@/data/featured/ipl/1181768.json";
+import doubleSuperOver from "@/data/featured/ipl/1216517.json";
 import type { Timeline } from "@/lib/api/types";
 
 import {

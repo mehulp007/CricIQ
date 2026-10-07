@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2025/26",
+  "matches": 44,
+  "champion": "Perth Scorchers",
+  "first_innings_average": 164.6,
+  "previous_first_innings_average": 168.2,
+  "sixes": 551,
+  "leaders": {
+    "runs": {
+      "player_id": "bf74b130",
+      "name": "Finn Allen",
+      "team": "PRS",
+      "value": 466.0,
+      "detail": "strike rate 184.2"
+    },
+    "wickets": {
+      "player_id": "24bb1c2f",
+      "name": "Haris Rauf",
+      "team": "MLS",
+      "value": 20.0,
+      "detail": "economy 8.24"
+    },
+    "runs_above_par": {
+      "player_id": "bf74b130",
+      "name": "Finn Allen",
+      "team": "PRS",
+      "value": 132.0,
+      "detail": "from 253 balls"
+    },
+    "runs_saved": {
+      "player_id": "fe366f34",
+      "name": "Cooper Connolly",
+      "team": "PRS",
+      "value": 68.0,
+      "detail": "from 210 balls"
+    }
+  }
+}

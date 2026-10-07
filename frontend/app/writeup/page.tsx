@@ -345,10 +345,10 @@ export default function WriteupPage() {
           </li>
         </ul>
         <p>
-          Every number above is live on the site: <A href="/models">Model Insights</A> shows each
-          model against its baseline, the <A href="/lab">Analytics Lab</A> has the full tests, and{" "}
-          <A href="/about">About &amp; Methodology</A> explains every metric in plain terms. Or just{" "}
-          <A href="/matches/1181768">replay the 2019 final</A>.
+          Every number above is live on the site: <A href="/ipl/models">Model Insights</A> shows
+          each model against its baseline, the <A href="/ipl/lab">Analytics Lab</A> has the full
+          tests, and <A href="/about">About &amp; Methodology</A> explains every metric in plain
+          terms. Or just <A href="/ipl/matches/1181768">replay the 2019 final</A>.
         </p>
       </Section>
     </article>

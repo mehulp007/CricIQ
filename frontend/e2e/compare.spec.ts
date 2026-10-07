@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // The Compare page is served from the API.
 test.describe("compare", () => {
   test("picks two players by search and compares them", async ({ page }) => {
-    await page.goto("/compare");
+    await page.goto("/ipl/compare");
     await expect(page.getByRole("heading", { level: 1, name: "Compare players" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Try a classic" })).toBeVisible();
 
@@ -31,7 +31,7 @@ test.describe("compare", () => {
   });
 
   test("bowlers are compared as bowlers", async ({ page }) => {
-    await page.goto("/compare?a=462411b3&b=a12e1d51");
+    await page.goto("/ipl/compare?a=462411b3&b=a12e1d51");
     const numbers = page.getByRole("region", { name: "Bowling side by side" });
     await expect(numbers).toContainText("Economy");
     await expect(numbers).toContainText("Runs saved per over");
@@ -41,19 +41,19 @@ test.describe("compare", () => {
   });
 
   test("profiles link to a comparison", async ({ page }) => {
-    await page.goto("/players/ba607b88");
+    await page.goto("/ipl/players/ba607b88");
     await page.getByRole("main").getByRole("link", { name: "Compare", exact: true }).click();
     await expect(page).toHaveURL(/\/compare\?a=ba607b88$/);
     await expect(page.getByRole("button", { name: "Clear player a" })).toBeVisible();
   });
 
   test("unknown players are reported", async ({ page }) => {
-    await page.goto("/compare?a=ba607b88&b=nobody");
+    await page.goto("/ipl/compare?a=ba607b88&b=nobody");
     await expect(page.getByText("One of these players could not be found.")).toBeVisible();
   });
 
   test("model insights explain the ratings", async ({ page }) => {
-    await page.goto("/models");
+    await page.goto("/ipl/models");
     await page.getByRole("tab", { name: "Ratings" }).click();
     await expect(
       page.getByRole("heading", { name: "Bowling: runs conceded tell you more than wickets" }),

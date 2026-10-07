@@ -1,0 +1,299 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "matches": [
+    {
+      "match_id": 1493281,
+      "headline": "BBL 2025/26 final",
+      "summary": {
+        "match_id": 1493281,
+        "season": 2026,
+        "date": "2026-01-25",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "perth-stadium",
+          "name": "Perth Stadium",
+          "city": "Perth"
+        },
+        "team_a": {
+          "team_season_id": "SYS-2026",
+          "franchise_id": "SYS",
+          "name": "Sydney Sixers",
+          "color": "#E2007A",
+          "runs": 132,
+          "wickets": 10,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "PRS-2026",
+          "franchise_id": "PRS",
+          "name": "Perth Scorchers",
+          "color": "#F47920",
+          "runs": 133,
+          "wickets": 4,
+          "overs": "17.3"
+        },
+        "target_runs": 133,
+        "outcome_type": "win",
+        "winner_id": "PRS-2026",
+        "result_text": "Perth Scorchers won by 6 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "PRS-2026",
+          "winner_name": "Perth Scorchers",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "David Payne"
+        ]
+      }
+    },
+    {
+      "match_id": 1443100,
+      "headline": "BBL 2024/25 final",
+      "summary": {
+        "match_id": 1443100,
+        "season": 2025,
+        "date": "2025-01-27",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "bellerive-oval",
+          "name": "Bellerive Oval",
+          "city": "Hobart"
+        },
+        "team_a": {
+          "team_season_id": "SYT-2025",
+          "franchise_id": "SYT",
+          "name": "Sydney Thunder",
+          "color": "#8CC63F",
+          "runs": 182,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "HBH-2025",
+          "franchise_id": "HBH",
+          "name": "Hobart Hurricanes",
+          "color": "#6A2C91",
+          "runs": 185,
+          "wickets": 3,
+          "overs": "14.1"
+        },
+        "target_runs": 183,
+        "outcome_type": "win",
+        "winner_id": "HBH-2025",
+        "result_text": "Hobart Hurricanes won by 7 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "HBH-2025",
+          "winner_name": "Hobart Hurricanes",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Mitchell Owen"
+        ]
+      }
+    },
+    {
+      "match_id": 1386137,
+      "headline": "BBL 2023/24 final",
+      "summary": {
+        "match_id": 1386137,
+        "season": 2024,
+        "date": "2024-01-24",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "sydney-cricket-ground",
+          "name": "Sydney Cricket Ground",
+          "city": "Sydney"
+        },
+        "team_a": {
+          "team_season_id": "BRH-2024",
+          "franchise_id": "BRH",
+          "name": "Brisbane Heat",
+          "color": "#00B4D8",
+          "runs": 166,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "SYS-2024",
+          "franchise_id": "SYS",
+          "name": "Sydney Sixers",
+          "color": "#E2007A",
+          "runs": 112,
+          "wickets": 10,
+          "overs": "17.3"
+        },
+        "target_runs": 167,
+        "outcome_type": "win",
+        "winner_id": "BRH-2024",
+        "result_text": "Brisbane Heat won by 54 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SYS-2024",
+          "winner_name": "Sydney Sixers",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Spencer Johnson"
+        ]
+      }
+    },
+    {
+      "match_id": 1324684,
+      "headline": "BBL 2022/23 final",
+      "summary": {
+        "match_id": 1324684,
+        "season": 2023,
+        "date": "2023-02-04",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "perth-stadium",
+          "name": "Perth Stadium",
+          "city": "Perth"
+        },
+        "team_a": {
+          "team_season_id": "BRH-2023",
+          "franchise_id": "BRH",
+          "name": "Brisbane Heat",
+          "color": "#00B4D8",
+          "runs": 175,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "PRS-2023",
+          "franchise_id": "PRS",
+          "name": "Perth Scorchers",
+          "color": "#F47920",
+          "runs": 178,
+          "wickets": 5,
+          "overs": "19.2"
+        },
+        "target_runs": 176,
+        "outcome_type": "win",
+        "winner_id": "PRS-2023",
+        "result_text": "Perth Scorchers won by 5 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "BRH-2023",
+          "winner_name": "Brisbane Heat",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Ashton Turner"
+        ]
+      }
+    },
+    {
+      "match_id": 1269698,
+      "headline": "BBL 2021/22 final",
+      "summary": {
+        "match_id": 1269698,
+        "season": 2022,
+        "date": "2022-01-28",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "docklands-stadium",
+          "name": "Docklands Stadium",
+          "city": "Melbourne"
+        },
+        "team_a": {
+          "team_season_id": "PRS-2022",
+          "franchise_id": "PRS",
+          "name": "Perth Scorchers",
+          "color": "#F47920",
+          "runs": 171,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "SYS-2022",
+          "franchise_id": "SYS",
+          "name": "Sydney Sixers",
+          "color": "#E2007A",
+          "runs": 92,
+          "wickets": 10,
+          "overs": "16.2"
+        },
+        "target_runs": 172,
+        "outcome_type": "win",
+        "winner_id": "PRS-2022",
+        "result_text": "Perth Scorchers won by 79 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "SYS-2022",
+          "winner_name": "Sydney Sixers",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Laurie Evans"
+        ]
+      }
+    },
+    {
+      "match_id": 1226882,
+      "headline": "BBL 2020/21 final",
+      "summary": {
+        "match_id": 1226882,
+        "season": 2021,
+        "date": "2021-02-06",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "sydney-cricket-ground",
+          "name": "Sydney Cricket Ground",
+          "city": "Sydney"
+        },
+        "team_a": {
+          "team_season_id": "SYS-2021",
+          "franchise_id": "SYS",
+          "name": "Sydney Sixers",
+          "color": "#E2007A",
+          "runs": 188,
+          "wickets": 6,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "PRS-2021",
+          "franchise_id": "PRS",
+          "name": "Perth Scorchers",
+          "color": "#F47920",
+          "runs": 161,
+          "wickets": 9,
+          "overs": "20.0"
+        },
+        "target_runs": 189,
+        "outcome_type": "win",
+        "winner_id": "SYS-2021",
+        "result_text": "Sydney Sixers won by 27 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "PRS-2021",
+          "winner_name": "Perth Scorchers",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "James Vince"
+        ]
+      }
+    }
+  ]
+}

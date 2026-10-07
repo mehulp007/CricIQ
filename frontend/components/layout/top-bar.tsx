@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Logo } from "@/components/brand/logo";
-import { DataBadges, SeasonBadge } from "@/components/layout/data-badges";
+import { CompetitionSwitcher } from "@/components/competition/competition-switcher";
+import { DataFreshness } from "@/components/layout/data-badges";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
 export function TopBar() {
@@ -13,9 +14,10 @@ export function TopBar() {
         <Logo />
       </Link>
       <div className="ml-auto flex items-center gap-2">
-        <Suspense fallback={<SeasonBadge />}>
-          <DataBadges />
+        <Suspense fallback={null}>
+          <DataFreshness />
         </Suspense>
+        <CompetitionSwitcher />
       </div>
     </header>
   );

@@ -1,7 +1,10 @@
-"""Read-only access to the serving database and the players database.
+"""Read-only access to the serving databases and the players database.
 
-One DuckDB connection is opened per database at startup; each query runs on its
-own cursor, which DuckDB makes safe to use from FastAPI's worker threads.
+Each competition the site serves has its own serving database (the IPL's is
+``serving.duckdb``, the others ``serving-<competition>.duckdb`` beside it), all
+with the same tables; ``get_db`` picks the one a request's ``{competition}``
+names. One DuckDB connection is opened per database at startup; each query runs
+on its own cursor, which DuckDB makes safe to use from FastAPI's worker threads.
 
 The players database (``criciq_pipelines.player_db``) holds several competitions,
 each a schema of views named like the serving database's tables. A
@@ -20,13 +23,14 @@ from __future__ import annotations
 import os
 import threading
 import time
+from collections import OrderedDict
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
 import duckdb
-from fastapi import Request
+from fastapi import HTTPException, Request
 
 from criciq_core.publish import pending
 
@@ -34,6 +38,41 @@ Row = dict[str, Any]
 
 # How often requests look for a newly published database.
 REFRESH_INTERVAL_SECONDS = 2.0
+# Derived objects kept per database (model terms, simulator engines for points in
+# history, ...): the least recently used go first.
+CACHE_SIZE = 256
+
+
+class BoundedCache(OrderedDict[str, Any]):
+    """A dict that forgets its least recently used entries beyond ``maxsize``.
+
+    Everything cached is rebuilt on demand, so an evicted entry costs only time.
+    """
+
+    def __init__(self, maxsize: int = CACHE_SIZE) -> None:
+        super().__init__()
+        self.maxsize = maxsize
+        self._guard = threading.Lock()
+
+    def __getitem__(self, key: str) -> Any:
+        with self._guard:
+            value = super().__getitem__(key)
+            self.move_to_end(key)
+            return value
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        with self._guard:
+            super().__setitem__(key, value)
+            self.move_to_end(key)
+            while len(self) > self.maxsize:
+                self.popitem(last=False)
+
+    def setdefault(self, key: str, default: Any = None) -> Any:
+        # OrderedDict's own setdefault would skip the bound and the recency update.
+        if key in self:
+            return self[key]
+        self[key] = default
+        return default
 
 
 class ServingDataMissingError(RuntimeError):
@@ -67,7 +106,10 @@ class Database:
         # The serving database holds one competition; its format (T20, ODI or Test)
         # decides the innings phases. The players database holds several.
         self._format: str | None = None
-        competition = meta.get("competition_id")
+        self._competition: str | None = meta.get("competition_id")
+        # Seasons spanning the new year are named "2023/24", the others by their year.
+        self.season_spans_new_year = meta.get("season_spans_new_year") == "true"
+        competition = self._competition
         if competition is not None:
             found = self._con.execute(
                 "SELECT format FROM competitions WHERE competition_id = ?", [competition]
@@ -86,7 +128,12 @@ class Database:
             schemas.setdefault(schema, set()).add(name)
         self.schemas: dict[str, frozenset[str]] = {k: frozenset(v) for k, v in schemas.items()}
         # Small derived objects built once per dataset (e.g. model terms).
-        self.cache: dict[str, Any] = {}
+        self.cache: BoundedCache = BoundedCache()
+
+    @property
+    def competition_id(self) -> str | None:
+        """The competition a serving database holds (None for the players database)."""
+        return self._competition
 
     @property
     def match_format(self) -> str:
@@ -179,9 +226,12 @@ class ScopedDatabase(Database):
         self.tables = base.schemas.get(schema, frozenset()) | base.tables
 
     @property
-    def cache(self) -> dict[str, Any]:  # type: ignore[override]
+    def cache(self) -> BoundedCache:  # type: ignore[override]
         # Kept on the base so a swapped-in database starts with empty caches.
-        found: dict[str, Any] = self.base.cache.setdefault(f"scope:{self.schema}", {})
+        key = f"scope:{self.schema}"
+        if key not in self.base.cache:
+            self.base.cache[key] = BoundedCache()
+        found: BoundedCache = self.base.cache[key]
         return found
 
     def rows(self, sql: str, params: Sequence[Any] = (), *, schema: str | None = None) -> list[Row]:
@@ -194,6 +244,16 @@ class ScopedDatabase(Database):
         pass
 
 
+def serving_paths(ipl: Path) -> list[Path]:
+    """The IPL's serving database and every other competition's beside it."""
+    others = {p.name.split(".duckdb")[0] for p in ipl.parent.glob("serving-*.duckdb*")}
+    return [ipl, *(ipl.with_name(f"{name}.duckdb") for name in sorted(others))]
+
+
 def get_db(request: Request) -> Database:
-    db: Database = request.app.state.db
-    return db
+    """The serving database of the request's ``{competition}`` (404 if none)."""
+    competition = str(request.path_params.get("competition", "ipl")).lower()
+    found: Database | None = request.app.state.serving.get(competition)
+    if found is None:
+        raise HTTPException(status_code=404, detail=f"competition {competition} not found")
+    return found

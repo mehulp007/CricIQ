@@ -22,8 +22,18 @@ def client(
 
 
 @pytest.fixture(scope="session")
-def unscored_client(fixture_serving_db: Path) -> Iterator[TestClient]:
-    """An API over data that was never scored by a model, without a players database."""
+def unscored_client(fixture_serving_db: Path, fixture_players_db: Path) -> Iterator[TestClient]:
+    """An API over data that was never scored by a model."""
+    settings = Settings(
+        environment="test", serving_db=fixture_serving_db, players_db=fixture_players_db
+    )
+    with TestClient(create_app(settings)) as test_client:
+        yield test_client
+
+
+@pytest.fixture(scope="session")
+def no_players_client(fixture_serving_db: Path) -> Iterator[TestClient]:
+    """An API without a players database."""
     settings = Settings(
         environment="test",
         serving_db=fixture_serving_db,

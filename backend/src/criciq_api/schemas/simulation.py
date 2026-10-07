@@ -95,7 +95,7 @@ class SimulationRequest(BaseModel):
     b: SideRequest
     season: int | None = Field(
         default=None,
-        ge=2008,
+        ge=2000,
         le=2100,
         description=(
             "Play the match in this season: each side must come from its squad that season, "

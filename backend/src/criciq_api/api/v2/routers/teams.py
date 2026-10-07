@@ -13,10 +13,10 @@ router = APIRouter(prefix="/teams", tags=["teams"])
 
 DB = Annotated[Database, Depends(get_db)]
 FirstSeason = Annotated[
-    int | None, Query(alias="from", ge=2008, le=2100, description="First season (inclusive).")
+    int | None, Query(alias="from", ge=2000, le=2100, description="First season (inclusive).")
 ]
 LastSeason = Annotated[
-    int | None, Query(alias="to", ge=2008, le=2100, description="Last season (inclusive).")
+    int | None, Query(alias="to", ge=2000, le=2100, description="Last season (inclusive).")
 ]
 FranchiseId = Annotated[str, Query(min_length=2, max_length=8, description="Franchise id, e.g. MI")]
 
@@ -35,7 +35,7 @@ def read_overview(db: DB) -> TeamsOverview:
 
 
 @router.get("/standings/{season}")
-def read_standings(db: DB, season: Annotated[int, Path(ge=2008, le=2100)]) -> Standings:
+def read_standings(db: DB, season: Annotated[int, Path(ge=2000, le=2100)]) -> Standings:
     """The league table for a season (points, net run rate, finish) and its playoffs."""
     try:
         return service.get_standings(db, season)

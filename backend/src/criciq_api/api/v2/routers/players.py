@@ -1,7 +1,7 @@
-"""Player Lab for any T20 competition, and all T20 cricket together (/api/v2).
+"""Player Lab for any T20 competition, and all T20 cricket together.
 
-The same directory, profiles and splits as /api/v1/players, from the players
-database: ``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i or t20 (every T20
+Directory, profiles, splits and similar players from the players database:
+``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i or t20 (every T20
 competition). Par is always the player's own competition's: a PSL strike rate is
 judged against the PSL. Ratings use each competition's own shrinkage constants,
 and win probability added comes from the model serving that competition.

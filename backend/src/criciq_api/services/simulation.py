@@ -156,7 +156,7 @@ def season_engine(db: Database, season: int) -> Engine:
         return current
     end = repo.season_end(db, season)
     if end is None:
-        raise UnknownSquadError(f"no IPL season {season}")
+        raise UnknownSquadError(f"no season {season}")
     return _engine_at(db, f"sim_engine:season:{season}", end + 1, season)
 
 

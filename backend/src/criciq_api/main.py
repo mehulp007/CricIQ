@@ -14,10 +14,9 @@ from fastapi.middleware.gzip import GZipMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from criciq_api import __version__
-from criciq_api.api.v1.router import api_router
-from criciq_api.api.v2.router import api_router as api_v2_router
+from criciq_api.api.v2.router import api_router
 from criciq_api.core.config import Settings, get_settings
-from criciq_api.db import Database
+from criciq_api.db import Database, serving_paths
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
 from criciq_api.services import players as players_service
@@ -40,22 +39,38 @@ def _warm_up(db: Database) -> None:
     simulation_service.warm_up(db)
 
 
+def _data_version(request: Request, players: Database | None) -> str:
+    """The data version behind a response (every database shares the sync's)."""
+    parts = request.url.path.split("/")
+    competition = parts[3] if len(parts) > 3 else "ipl"
+    found: Database | None = request.app.state.serving.get(competition)
+    source = found or players or request.app.state.serving["ipl"]
+    return source.data_version
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        app.state.db = Database(settings.serving_db)
-        # The players database is optional: without it /api/v2 answers 503.
+        # One serving database per competition, keyed like the URLs ("ipl", "t20i").
+        app.state.serving = {}
+        for path in serving_paths(settings.serving_db):
+            if path == settings.serving_db or path.exists() or pending(path).exists():
+                db = Database(path)
+                app.state.serving[(db.competition_id or "IPL").lower()] = db
+        # The players database is optional: without it the Player Lab answers 503.
         players = settings.players_db
         app.state.players_db = (
             Database(players) if players.exists() or pending(players).exists() else None
         )
-        _warm_up(app.state.db)
+        for db in app.state.serving.values():
+            _warm_up(db)
         try:
             yield
         finally:
-            app.state.db.close()
+            for db in app.state.serving.values():
+                db.close()
             if app.state.players_db is not None:
                 app.state.players_db.close()
 
@@ -80,14 +95,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         # A sync may have published new data while the API runs (see criciq_api.db).
-        await run_in_threadpool(request.app.state.db.refresh)
+        for db in request.app.state.serving.values():
+            await run_in_threadpool(db.refresh)
         players: Database | None = request.app.state.players_db
         if players is not None:
             await run_in_threadpool(players.refresh)
         response = await call_next(request)
         if request.url.path.startswith("/api/") and request.method == "GET":
-            source = players if request.url.path.startswith("/api/v2/") else None
-            response.headers["X-Data-Version"] = (source or request.app.state.db).data_version
+            response.headers["X-Data-Version"] = _data_version(request, players)
             if response.status_code == 200:
                 response.headers["Cache-Control"] = (
                     f"public, max-age={settings.cache_max_age}, "
@@ -100,7 +115,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Health(status="ok", version=__version__)
 
     app.include_router(api_router)
-    app.include_router(api_v2_router)
     return app
 
 

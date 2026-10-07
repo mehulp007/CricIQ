@@ -17,7 +17,7 @@ DB = Annotated[Database, Depends(get_db)]
 @router.get("")
 def list_matches(
     db: DB,
-    season: Annotated[int | None, Query(ge=2008, le=2100)] = None,
+    season: Annotated[int | None, Query(ge=2000, le=2100)] = None,
     team: Annotated[str | None, Query(max_length=8, description="Franchise id, e.g. MI")] = None,
     venue: Annotated[str | None, Query(max_length=64, description="Venue id")] = None,
     playoffs: Annotated[bool | None, Query(description="Only playoffs (true) or league")] = None,

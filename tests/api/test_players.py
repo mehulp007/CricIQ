@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 
 def _find(client: TestClient, q: str) -> dict[str, Any]:
-    response = client.get("/api/v1/players", params={"q": q})
+    response = client.get("/api/v2/ipl/players", params={"q": q})
     assert response.status_code == 200
     items = response.json()["items"]
     assert len(items) == 1, items
@@ -22,44 +22,44 @@ def test_search_matches_name_tokens_in_any_order(client: TestClient) -> None:
     assert (
         _find(client, "Brendon McCullum")["player_id"] == _find(client, "mccullum b")["player_id"]
     )
-    assert client.get("/api/v1/players", params={"q": "zzzz"}).json()["total"] == 0
+    assert client.get("/api/v2/ipl/players", params={"q": "zzzz"}).json()["total"] == 0
 
 
 def test_directory_sorts_and_paginates(client: TestClient) -> None:
-    page = client.get("/api/v1/players", params={"sort": "runs", "page_size": 5}).json()
+    page = client.get("/api/v2/ipl/players", params={"sort": "runs", "page_size": 5}).json()
     runs = [p["runs"] for p in page["items"]]
     assert runs == sorted(runs, reverse=True)
     assert page["total"] > 5
     second = client.get(
-        "/api/v1/players", params={"sort": "runs", "page_size": 5, "page": 2}
+        "/api/v2/ipl/players", params={"sort": "runs", "page_size": 5, "page": 2}
     ).json()
     assert not {p["player_id"] for p in page["items"]} & {p["player_id"] for p in second["items"]}
 
 
 def test_directory_filters_scope_the_numbers(client: TestClient) -> None:
-    everyone = client.get("/api/v1/players", params={"page_size": 100}).json()
+    everyone = client.get("/api/v2/ipl/players", params={"page_size": 100}).json()
     mi_2019 = client.get(
-        "/api/v1/players", params={"season": 2019, "team": "mi", "page_size": 100}
+        "/api/v2/ipl/players", params={"season": 2019, "team": "mi", "page_size": 100}
     ).json()
     assert 11 <= mi_2019["total"] < everyone["total"]
     assert all(p["team"]["franchise_id"] == "MI" for p in mi_2019["items"])
     bumrah = next(p for p in mi_2019["items"] if p["name"] == "JJ Bumrah")
     assert bumrah["wickets"] == 2
     assert bumrah["economy"] == 3.5
-    bowlers = client.get("/api/v1/players", params={"role": "bowler", "page_size": 100}).json()
+    bowlers = client.get("/api/v2/ipl/players", params={"role": "bowler", "page_size": 100}).json()
     assert bowlers["items"]
     assert all(p["role"] == "bowler" for p in bowlers["items"])
 
 
 def test_directory_rejects_bad_parameters(client: TestClient) -> None:
-    assert client.get("/api/v1/players", params={"role": "captain"}).status_code == 422
-    assert client.get("/api/v1/players", params={"sort": "age"}).status_code == 422
-    assert client.get("/api/v1/players", params={"page_size": 500}).status_code == 422
+    assert client.get("/api/v2/ipl/players", params={"role": "captain"}).status_code == 422
+    assert client.get("/api/v2/ipl/players", params={"sort": "age"}).status_code == 422
+    assert client.get("/api/v2/ipl/players", params={"page_size": 500}).status_code == 422
 
 
 def test_profile_reads_like_a_career_record(client: TestClient) -> None:
     player = _find(client, "mccullum")
-    profile = client.get(f"/api/v1/players/{player['player_id']}").json()
+    profile = client.get(f"/api/v2/ipl/players/{player['player_id']}").json()
     batting = profile["batting"]
     assert profile["player"]["name"] == "BB McCullum"
     assert batting["highest"]["runs"] == 158
@@ -80,7 +80,7 @@ def test_profile_reads_like_a_career_record(client: TestClient) -> None:
 
 def test_bowling_profile(client: TestClient) -> None:
     bumrah = _find(client, "bumrah")
-    profile = client.get(f"/api/v1/players/{bumrah['player_id']}").json()
+    profile = client.get(f"/api/v2/ipl/players/{bumrah['player_id']}").json()
     bowling = profile["bowling"]
     assert bowling["best"]["wickets"] >= 2
     assert bowling["overs"] == f"{bowling['balls'] // 6}.{bowling['balls'] % 6}"
@@ -91,13 +91,13 @@ def test_bowling_profile(client: TestClient) -> None:
 
 def test_season_window_narrows_everything(client: TestClient) -> None:
     bumrah = _find(client, "bumrah")["player_id"]
-    full = client.get(f"/api/v1/players/{bumrah}").json()
-    final = client.get(f"/api/v1/players/{bumrah}", params={"from": 2019, "to": 2019}).json()
+    full = client.get(f"/api/v2/ipl/players/{bumrah}").json()
+    final = client.get(f"/api/v2/ipl/players/{bumrah}", params={"from": 2019, "to": 2019}).json()
     assert final["window"] == {"first": 2019, "last": 2019}
     assert [s["season"] for s in final["seasons"]] == [2019]
     assert final["bowling"]["wickets"] <= full["bowling"]["wickets"]
     assert (
-        client.get(f"/api/v1/players/{bumrah}", params={"from": 2020, "to": 2019}).status_code
+        client.get(f"/api/v2/ipl/players/{bumrah}", params={"from": 2020, "to": 2019}).status_code
         == 422
     )
 
@@ -106,7 +106,7 @@ def test_ratings_need_qualified_players_to_rank_against(client: TestClient) -> N
     # The fixtures are a handful of matches, so nobody reaches the 300-ball bar: estimates
     # are shown, but there is no population to rank them in.
     mccullum = _find(client, "mccullum")["player_id"]
-    group = client.get(f"/api/v1/players/{mccullum}").json()["ratings"]["batting"]
+    group = client.get(f"/api/v2/ipl/players/{mccullum}").json()["ratings"]["batting"]
     assert group["qualified"] is False
     assert group["population"] == 0
     assert {i["key"] for i in group["items"]} >= {"scoring", "survival", "death", "impact"}
@@ -120,8 +120,8 @@ def test_ratings_need_qualified_players_to_rank_against(client: TestClient) -> N
 
 def test_splits_partition_the_totals(client: TestClient) -> None:
     player = _find(client, "mccullum")["player_id"]
-    profile = client.get(f"/api/v1/players/{player}").json()
-    splits = client.get(f"/api/v1/players/{player}/splits").json()
+    profile = client.get(f"/api/v2/ipl/players/{player}").json()
+    splits = client.get(f"/api/v2/ipl/players/{player}/splits").json()
     groups = {g["key"]: g for g in splits["batting"]}
     assert {"phase", "bowling_type", "position", "innings", "opposition", "venue", "season"} <= set(
         groups
@@ -136,17 +136,17 @@ def test_splits_partition_the_totals(client: TestClient) -> None:
 
 
 def test_unknown_player_is_404(client: TestClient) -> None:
-    assert client.get("/api/v1/players/not-a-player").status_code == 404
-    assert client.get("/api/v1/players/not-a-player/splits").status_code == 404
-    assert client.get("/api/v1/players/not-a-player/similar").status_code == 404
+    assert client.get("/api/v2/ipl/players/not-a-player").status_code == 404
+    assert client.get("/api/v2/ipl/players/not-a-player/splits").status_code == 404
+    assert client.get("/api/v2/ipl/players/not-a-player/similar").status_code == 404
 
 
 def test_profile_without_model_scores(unscored_client: TestClient) -> None:
     player = _find(unscored_client, "mccullum")["player_id"]
-    profile = unscored_client.get(f"/api/v1/players/{player}").json()
+    profile = unscored_client.get(f"/api/v2/ipl/players/{player}").json()
     assert profile["batting"]["wpa"] is None
     assert profile["recent"]["batting"][0]["wpa"] is None
     # Rating constants are published by scoring, so there are no ratings without it.
     assert profile["ratings"] == {"batting": None, "bowling": None}
-    similar = unscored_client.get(f"/api/v1/players/{player}/similar")
+    similar = unscored_client.get(f"/api/v2/ipl/players/{player}/similar")
     assert similar.status_code == 200

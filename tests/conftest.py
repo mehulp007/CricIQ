@@ -19,6 +19,7 @@ from criciq_ml.data import load_inputs
 from criciq_ml.features import build_states
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
+from criciq_pipelines.pipeline import run_export_competition
 from criciq_pipelines.player_db import export_players
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
 from criciq_pipelines.scope import build_scope
@@ -126,14 +127,21 @@ def fixture_pooled_warehouse(
 def fixture_scored_serving_db(
     fixture_serving_db: Path,
     fixture_warehouse: Path,
+    fixture_full_warehouse: Path,
     fixture_pooled_warehouse: Path,
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
     """The fixture serving database scored as `criciq-ml score` scores the IPL's: with the
-    committed models serving the IPL, each from the data it was trained on."""
-    target = tmp_path_factory.mktemp("scored") / "serving.duckdb"
+    committed models serving the IPL, each from the data it was trained on. The men's
+    T20Is' serving database, scored with the models serving them, sits beside it."""
+    folder = tmp_path_factory.mktemp("scored")
+    target = folder / "serving.duckdb"
     shutil.copyfile(fixture_serving_db, target)
-    ml_cli._score_serving(target, ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse))
+    sources = ml_cli._Sources(fixture_warehouse, fixture_pooled_warehouse)
+    ml_cli._score_serving(target, sources)
+    t20i = folder / "serving-t20i.duckdb"
+    run_export_competition("T20I", t20i, warehouse=fixture_full_warehouse)
+    ml_cli._score_serving(t20i, sources, "T20I")
     return target
 
 

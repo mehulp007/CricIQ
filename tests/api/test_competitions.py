@@ -78,6 +78,10 @@ def test_unknown_competitions_and_players_are_not_found(client: TestClient) -> N
     assert client.get("/api/v2/BBL/players").status_code == 422  # lower-case ids only
 
 
-def test_without_a_players_database_v2_is_unavailable(unscored_client: TestClient) -> None:
-    assert unscored_client.get("/api/v2/competitions").status_code == 503
-    assert unscored_client.get("/api/v1/players").status_code == 200
+def test_without_a_players_database_the_player_lab_is_unavailable(
+    no_players_client: TestClient,
+) -> None:
+    assert no_players_client.get("/api/v2/competitions").status_code == 503
+    assert no_players_client.get("/api/v2/ipl/players").status_code == 503
+    # Everything else comes from the serving database.
+    assert no_players_client.get("/api/v2/ipl/matches").status_code == 200

@@ -20,10 +20,10 @@ router = APIRouter(tags=["matchups"])
 
 DB = Annotated[Database, Depends(get_db)]
 FirstSeason = Annotated[
-    int | None, Query(alias="from", ge=2008, le=2100, description="First season (inclusive).")
+    int | None, Query(alias="from", ge=2000, le=2100, description="First season (inclusive).")
 ]
 LastSeason = Annotated[
-    int | None, Query(alias="to", ge=2008, le=2100, description="Last season (inclusive).")
+    int | None, Query(alias="to", ge=2000, le=2100, description="Last season (inclusive).")
 ]
 PlayerId = Annotated[str | None, Query(max_length=32)]
 

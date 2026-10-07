@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 
 def _top_pair(client: TestClient) -> dict[str, Any]:
-    body = client.get("/api/v1/matchups", params={"min_balls": 1, "page_size": 5}).json()
+    body = client.get("/api/v2/ipl/matchups", params={"min_balls": 1, "page_size": 5}).json()
     assert body["items"], body
     pair: dict[str, Any] = body["items"][0]
     return pair
@@ -24,7 +24,7 @@ def _ids(pair: dict[str, Any]) -> tuple[str, str]:
 
 
 def test_list_sorts_by_balls_and_by_edge(client: TestClient) -> None:
-    body = client.get("/api/v1/matchups", params={"min_balls": 1, "page_size": 50}).json()
+    body = client.get("/api/v2/ipl/matchups", params={"min_balls": 1, "page_size": 50}).json()
     balls = [m["balls"] for m in body["items"]]
     assert balls == sorted(balls, reverse=True)
     assert body["kappa"] > 0
@@ -32,7 +32,7 @@ def test_list_sorts_by_balls_and_by_edge(client: TestClient) -> None:
         edges = [
             m["edge"]
             for m in client.get(
-                "/api/v1/matchups", params={"min_balls": 1, "sort": sort, "page_size": 50}
+                "/api/v2/ipl/matchups", params={"min_balls": 1, "sort": sort, "page_size": 50}
             ).json()["items"]
         ]
         assert edges == sorted(edges, reverse=reverse)
@@ -40,14 +40,14 @@ def test_list_sorts_by_balls_and_by_edge(client: TestClient) -> None:
 
 def test_list_filters_by_player(client: TestClient) -> None:
     batter, _ = _ids(_top_pair(client))
-    body = client.get("/api/v1/matchups", params={"batter": batter, "min_balls": 1}).json()
+    body = client.get("/api/v2/ipl/matchups", params={"batter": batter, "min_balls": 1}).json()
     assert body["total"] >= 1
     assert all(m["batter"]["player_id"] == batter for m in body["items"])
 
 
 def test_estimate_sits_between_the_record_and_the_expectation(client: TestClient) -> None:
     batter, bowler = _ids(_top_pair(client))
-    detail = client.get(f"/api/v1/matchups/{batter}/{bowler}").json()
+    detail = client.get(f"/api/v2/ipl/matchups/{batter}/{bowler}").json()
     h2h, sample = detail["head_to_head"], detail["sample"]
     assert h2h["balls"] == sum(r["balls"] for r in detail["by_phase"])
     assert h2h["dismissals"] == len(detail["dismissals"])
@@ -65,7 +65,7 @@ def test_estimate_sits_between_the_record_and_the_expectation(client: TestClient
 
 def test_next_ball_odds_are_distributions(client: TestClient) -> None:
     batter, bowler = _ids(_top_pair(client))
-    detail = client.get(f"/api/v1/matchups/{batter}/{bowler}").json()
+    detail = client.get(f"/api/v2/ipl/matchups/{batter}/{bowler}").json()
     assert [b["phase"] for b in detail["next_ball"]] == ["powerplay", "middle", "death"]
     for ball in detail["next_ball"]:
         for side in ("model", "with_history"):
@@ -85,15 +85,15 @@ def test_next_ball_odds_are_distributions(client: TestClient) -> None:
 
 def test_phase_filter_narrows_the_record(client: TestClient) -> None:
     batter, bowler = _ids(_top_pair(client))
-    full = client.get(f"/api/v1/matchups/{batter}/{bowler}").json()
+    full = client.get(f"/api/v2/ipl/matchups/{batter}/{bowler}").json()
     for row in full["by_phase"]:
         part = client.get(
-            f"/api/v1/matchups/{batter}/{bowler}", params={"phase": row["key"]}
+            f"/api/v2/ipl/matchups/{batter}/{bowler}", params={"phase": row["key"]}
         ).json()
         assert part["phase"] == row["key"]
         assert part["head_to_head"]["balls"] == row["balls"]
     assert (
-        client.get(f"/api/v1/matchups/{batter}/{bowler}", params={"phase": "tea"}).status_code
+        client.get(f"/api/v2/ipl/matchups/{batter}/{bowler}", params={"phase": "tea"}).status_code
         == 422
     )
 
@@ -101,7 +101,7 @@ def test_phase_filter_narrows_the_record(client: TestClient) -> None:
 def test_pairs_who_never_met(client: TestClient) -> None:
     batter, bowler = _ids(_top_pair(client))
     # A batter facing themself as a bowler: always a valid pair with no history.
-    detail = client.get(f"/api/v1/matchups/{batter}/{batter}").json()
+    detail = client.get(f"/api/v2/ipl/matchups/{batter}/{batter}").json()
     assert detail["head_to_head"]["balls"] == 0
     assert detail["sample"]["level"] == "none"
     assert detail["raw"] is None
@@ -112,28 +112,33 @@ def test_pairs_who_never_met(client: TestClient) -> None:
 
 
 def test_unknown_players_are_404(client: TestClient) -> None:
-    assert client.get("/api/v1/matchups/nobody/nobody").status_code == 404
+    assert client.get("/api/v2/ipl/matchups/nobody/nobody").status_code == 404
 
 
 def test_predict_next_ball(client: TestClient) -> None:
     batter, bowler = _ids(_top_pair(client))
     body = {"batter_id": batter, "bowler_id": bowler, "phase": "death", "innings": 2}
-    response = client.post("/api/v1/predict/next-ball", json=body)
+    response = client.post("/api/v2/ipl/predict/next-ball", json=body)
     assert response.status_code == 200
     result = response.json()
     assert sum(o["probability"] for o in result["model"]) == pytest.approx(1, abs=1e-3)
     assert result["history_balls"] > 0
-    calm = client.post("/api/v1/predict/next-ball", json={**body, "pressure": "low"}).json()
+    calm = client.post("/api/v2/ipl/predict/next-ball", json={**body, "pressure": "low"}).json()
     desperate = client.post(
-        "/api/v1/predict/next-ball", json={**body, "pressure": "extreme"}
+        "/api/v2/ipl/predict/next-ball", json={**body, "pressure": "extreme"}
     ).json()
     assert _wicket(desperate) > _wicket(calm)
-    assert client.post("/api/v1/predict/next-ball", json={**body, "wickets": 12}).status_code == 422
     assert (
-        client.post("/api/v1/predict/next-ball", json={**body, "batter_id": "nobody"}).status_code
+        client.post("/api/v2/ipl/predict/next-ball", json={**body, "wickets": 12}).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v2/ipl/predict/next-ball", json={**body, "batter_id": "nobody"}
+        ).status_code
         == 404
     )
 
 
 def test_matchups_need_the_scored_model(unscored_client: TestClient) -> None:
-    assert unscored_client.get("/api/v1/matchups").status_code == 503
+    assert unscored_client.get("/api/v2/ipl/matchups").status_code == 503

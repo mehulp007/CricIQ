@@ -1,20 +1,34 @@
-"""Service metadata: data version, seasons, franchises and venues."""
+"""Service metadata: the competition, data version, seasons, teams and venues."""
 
 from __future__ import annotations
 
 from criciq_api import __version__
 from criciq_api.db import Database
-from criciq_api.schemas.meta import DataUpdate, FranchiseInfo, Meta, SeasonInfo, VenueInfo
+from criciq_api.schemas.meta import (
+    CompetitionInfo,
+    DataUpdate,
+    Features,
+    FranchiseInfo,
+    Meta,
+    SeasonInfo,
+    VenueInfo,
+)
 
 
 def get_meta(db: Database) -> Meta:
     seasons = db.rows(
         """
-        SELECT s.year, count(m.match_id) AS matches, s.impact_player_rule
+        SELECT s.year, CASE WHEN ? THEN s.cricsheet_label ELSE s.year::VARCHAR END AS label,
+               count(m.match_id) AS matches, s.impact_player_rule
         FROM seasons s LEFT JOIN matches m USING (season_id)
-        GROUP BY s.year, s.impact_player_rule ORDER BY s.year
-        """
+        GROUP BY ALL ORDER BY s.year
+        """,
+        [db.season_spans_new_year],
     )
+    competition = db.row(
+        "SELECT competition_id, name, short_name, format, team_type FROM competitions LIMIT 1"
+    )
+    assert competition is not None
     franchises = db.rows(
         """
         SELECT franchise_id, name, primary_color, secondary_color, first_season, last_season,
@@ -48,9 +62,23 @@ def get_meta(db: Database) -> Meta:
         if db.has_table("data_updates")
         else None
     )
+    served = {r["name"] for r in models}
     return Meta(
-        api_version="v1",
+        api_version="v2",
         app_version=__version__,
+        competition=CompetitionInfo(
+            id=competition["competition_id"].lower(),
+            name=competition["name"],
+            short_name=competition["short_name"],
+            format=competition["format"],
+            team_type=competition["team_type"],
+        ),
+        features=Features(
+            win_probability="win_probability" in served,
+            score_projection="score_projection" in served,
+            ball_model="ball_outcome" in served,
+            simulator="simulator" in served,
+        ),
         data_version=db.data_version,
         model_versions={r["name"]: r["version"] for r in models},
         latest_match_date=db.scalar("SELECT max(match_date) FROM matches"),

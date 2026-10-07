@@ -14,30 +14,30 @@ def get(client: TestClient, path: str, **params: Any) -> Any:
 
 
 def test_list_is_paginated_newest_first(client: TestClient) -> None:
-    page = get(client, "/api/v1/matches", page_size=5)
+    page = get(client, "/api/v2/ipl/matches", page_size=5)
     assert page["total"] == 14
     assert len(page["items"]) == 5
     dates = [m["date"] for m in page["items"]]
     assert dates == sorted(dates, reverse=True)
 
-    oldest = get(client, "/api/v1/matches", sort="oldest", page_size=1)["items"][0]
+    oldest = get(client, "/api/v2/ipl/matches", sort="oldest", page_size=1)["items"][0]
     assert oldest["match_id"] == 335982
 
 
 def test_list_filters(client: TestClient) -> None:
-    assert get(client, "/api/v1/matches", season=2008)["total"] == 2
-    mi = get(client, "/api/v1/matches", team="MI")["items"]
+    assert get(client, "/api/v2/ipl/matches", season=2008)["total"] == 2
+    mi = get(client, "/api/v2/ipl/matches", team="MI")["items"]
     assert mi
     assert all("MI" in (m["team_a"]["franchise_id"], m["team_b"]["franchise_id"]) for m in mi)
-    finals = get(client, "/api/v1/matches", playoffs="true")["items"]
+    finals = get(client, "/api/v2/ipl/matches", playoffs="true")["items"]
     assert finals
     assert all(m["is_playoff"] for m in finals)
-    assert get(client, "/api/v1/matches", venue="nowhere")["total"] == 0
+    assert get(client, "/api/v2/ipl/matches", venue="nowhere")["total"] == 0
 
 
 def test_list_rejects_bad_parameters(client: TestClient) -> None:
-    assert client.get("/api/v1/matches", params={"page_size": 1000}).status_code == 422
-    assert client.get("/api/v1/matches", params={"sort": "random"}).status_code == 422
+    assert client.get("/api/v2/ipl/matches", params={"page_size": 1000}).status_code == 422
+    assert client.get("/api/v2/ipl/matches", params={"sort": "random"}).status_code == 422
 
 
 @pytest.mark.parametrize(
@@ -80,7 +80,7 @@ def test_summaries_read_like_scorecards(
     score_b: tuple[int | None, int | None, str | None],
     result: str,
 ) -> None:
-    summary = get(client, f"/api/v1/matches/{match_id}")["summary"]
+    summary = get(client, f"/api/v2/ipl/matches/{match_id}")["summary"]
     a, b = summary["team_a"], summary["team_b"]
     assert (a["franchise_id"], (a["runs"], a["wickets"], a["overs"])) == (team_a, score_a)
     assert (b["franchise_id"], (b["runs"], b["wickets"], b["overs"])) == (team_b, score_b)
@@ -91,7 +91,7 @@ def test_summaries_read_like_scorecards(
 
 
 def test_2019_final_scorecard(client: TestClient) -> None:
-    detail = get(client, "/api/v1/matches/1181768")
+    detail = get(client, "/api/v2/ipl/matches/1181768")
     assert detail["summary"]["player_of_match"] == ["Jasprit Bumrah"]
     chase = detail["innings"][1]
     batting = {b["name"]: b for b in chase["batting"]}
@@ -119,8 +119,8 @@ def test_2019_final_scorecard(client: TestClient) -> None:
 
 
 def test_scorecard_totals_are_consistent(client: TestClient) -> None:
-    for match in get(client, "/api/v1/matches", page_size=100)["items"]:
-        for innings in get(client, f"/api/v1/matches/{match['match_id']}")["innings"]:
+    for match in get(client, "/api/v2/ipl/matches", page_size=100)["items"]:
+        for innings in get(client, f"/api/v2/ipl/matches/{match['match_id']}")["innings"]:
             batting_runs = sum(b["runs"] for b in innings["batting"])
             assert batting_runs + innings["extras"]["total"] == innings["runs"]
             bowled = sum(
@@ -132,15 +132,15 @@ def test_scorecard_totals_are_consistent(client: TestClient) -> None:
 
 
 def test_unknown_match_is_404(client: TestClient) -> None:
-    assert client.get("/api/v1/matches/1").status_code == 404
-    assert client.get("/api/v1/matches/1/timeline").status_code == 404
+    assert client.get("/api/v2/ipl/matches/1").status_code == 404
+    assert client.get("/api/v2/ipl/matches/1/timeline").status_code == 404
 
 
 # --------------------------------------------------------------------------- timeline
 
 
 def test_timeline_replays_to_the_final_score(client: TestClient) -> None:
-    timeline = get(client, "/api/v1/matches/335982/timeline")
+    timeline = get(client, "/api/v2/ipl/matches/335982/timeline")
     deliveries = timeline["deliveries"]
     first = [d for d in deliveries if d["innings_no"] == 1]
     assert sum(d["runs_total"] for d in first) == first[-1]["team_runs"] == 222
@@ -155,17 +155,19 @@ def test_timeline_replays_to_the_final_score(client: TestClient) -> None:
 
 
 def test_timeline_marks_super_overs_and_substitutions(client: TestClient) -> None:
-    tie = get(client, "/api/v1/matches/1216517/timeline")
+    tie = get(client, "/api/v2/ipl/matches/1216517/timeline")
     assert [i["is_super_over"] for i in tie["innings"]] == [False, False, True, True, True, True]
     assert all(i["max_balls"] == 6 for i in tie["innings"] if i["is_super_over"])
 
-    final = get(client, "/api/v1/matches/1473511/timeline")
+    final = get(client, "/api/v2/ipl/matches/1473511/timeline")
     reasons = {s["reason"] for s in final["substitutions"]}
     assert reasons == {"impact_player"}
 
 
 def test_responses_are_cacheable_and_compressed(client: TestClient) -> None:
-    response = client.get("/api/v1/matches/1181768/timeline", headers={"Accept-Encoding": "gzip"})
+    response = client.get(
+        "/api/v2/ipl/matches/1181768/timeline", headers={"Accept-Encoding": "gzip"}
+    )
     assert "s-maxage" in response.headers["Cache-Control"]
     assert response.headers["Content-Encoding"] == "gzip"
 
@@ -174,7 +176,7 @@ def test_responses_are_cacheable_and_compressed(client: TestClient) -> None:
 
 
 def test_timeline_carries_win_probability(client: TestClient) -> None:
-    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    timeline = get(client, "/api/v2/ipl/matches/1181768/timeline")
     model = timeline["win_probability"]
     assert model["factor_keys"] == ["situation", "wickets", "recent"]
     assert model["trained_from"] == 2008
@@ -192,7 +194,7 @@ def test_timeline_carries_win_probability(client: TestClient) -> None:
 
 
 def test_ties_end_level_and_super_overs_are_not_modelled(client: TestClient) -> None:
-    timeline = get(client, "/api/v1/matches/1216517/timeline")
+    timeline = get(client, "/api/v2/ipl/matches/1216517/timeline")
     regulation = [d for d in timeline["deliveries"] if d["innings_no"] <= 2]
     super_overs = [d for d in timeline["deliveries"] if d["innings_no"] > 2]
     assert regulation[-1]["wp"] == 0.5
@@ -201,7 +203,7 @@ def test_ties_end_level_and_super_overs_are_not_modelled(client: TestClient) -> 
 
 
 def test_timeline_without_model_scores_still_replays(unscored_client: TestClient) -> None:
-    timeline = get(unscored_client, "/api/v1/matches/1181768/timeline")
+    timeline = get(unscored_client, "/api/v2/ipl/matches/1181768/timeline")
     assert timeline["win_probability"] is None
     assert all(d["wp"] is None for d in timeline["deliveries"])
     assert all(i["wp_start"] is None for i in timeline["innings"])
@@ -210,7 +212,7 @@ def test_timeline_without_model_scores_still_replays(unscored_client: TestClient
 
 def test_timeline_carries_pressure_and_momentum(client: TestClient) -> None:
     """The 2019 final: CSK needed two off the last ball."""
-    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    timeline = get(client, "/api/v2/ipl/matches/1181768/timeline")
     bands = timeline["win_probability"]["pressure_thresholds"]
     assert bands == sorted(bands)
     assert len(bands) == 3
@@ -229,7 +231,7 @@ def test_timeline_carries_pressure_and_momentum(client: TestClient) -> None:
 
 
 def test_first_innings_carries_score_projections(client: TestClient) -> None:
-    timeline = get(client, "/api/v1/matches/1181768/timeline")
+    timeline = get(client, "/api/v2/ipl/matches/1181768/timeline")
     model = timeline["score_projection"]
     assert model["levels"] == [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
     first = [d for d in timeline["deliveries"] if d["innings_no"] == 1]

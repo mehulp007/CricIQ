@@ -20,9 +20,9 @@ def test_healthz(client: TestClient) -> None:
 
 
 def test_meta_reports_dataset(client: TestClient) -> None:
-    response = client.get("/api/v1/meta")
+    response = client.get("/api/v2/ipl/meta")
     body = response.json()
-    assert body["api_version"] == "v1"
+    assert body["api_version"] == "v2"
     assert body["app_version"] == __version__
     assert body["data_version"].startswith("2025-06-03.")
     assert response.headers["X-Data-Version"] == body["data_version"]
@@ -45,9 +45,15 @@ def test_meta_reports_dataset(client: TestClient) -> None:
 
 def test_openapi_is_versioned(client: TestClient) -> None:
     spec = client.get("/openapi.json").json()
-    assert {"/api/v1/meta", "/api/v1/matches", "/api/v1/matches/{match_id}/timeline"} <= set(
-        spec["paths"]
-    )
+    found = set(spec["paths"])
+    assert {
+        "/api/v2/{competition}/meta",
+        "/api/v2/{competition}/matches",
+        "/api/v2/{competition}/matches/{match_id}/timeline",
+        "/api/v2/{competition}/players/{player_id}",
+    } <= found
+    # v1 lives on only on the main branch's live API.
+    assert not any(path.startswith("/api/v1") for path in found)
 
 
 def test_missing_serving_database_fails_fast(tmp_path: Path) -> None:
@@ -73,7 +79,7 @@ def test_database_knows_its_format(fixture_serving_db: Path) -> None:
 
 
 def test_meta_has_no_model_versions_before_scoring(unscored_client: TestClient) -> None:
-    assert unscored_client.get("/api/v1/meta").json()["model_versions"] == {}
+    assert unscored_client.get("/api/v2/ipl/meta").json()["model_versions"] == {}
 
 
 def test_meta_reports_the_latest_data_update(
@@ -95,7 +101,7 @@ def test_meta_reports_the_latest_data_update(
         environment="test", serving_db=serving, players_db=serving.with_name("no-players.duckdb")
     )
     with TestClient(create_app(settings)) as client:
-        body = client.get("/api/v1/meta").json()
+        body = client.get("/api/v2/ipl/meta").json()
     assert body["last_update"] == {
         "updated_at": "2027-04-02T06:00:00",
         "new_matches": 2,
@@ -106,7 +112,7 @@ def test_meta_reports_the_latest_data_update(
 
 
 def test_meta_has_no_update_after_only_the_first_load(client: TestClient) -> None:
-    assert client.get("/api/v1/meta").json()["last_update"] is None
+    assert client.get("/api/v2/ipl/meta").json()["last_update"] is None
 
 
 def test_the_api_swaps_in_newly_published_data(

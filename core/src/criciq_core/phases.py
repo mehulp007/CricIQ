@@ -6,7 +6,9 @@ format instead of being hardcoded across features, models and UI.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import cache
 from pathlib import Path
 
@@ -127,20 +129,39 @@ def default_phase_config() -> PhaseConfig:
     return load_phase_config()
 
 
-# The format the v1 models (win probability, projection, ball outcome, ratings,
-# similar players) and the simulator are built for. Data code phases each match by
-# its own format; model code uses this one until per-format models arrive.
+# The format the models (win probability, projection, ball outcome, ratings, similar
+# players) and the simulator are built for. Data code phases each match by its own
+# format. Model code reads the current one, which entry points set with
+# ``use_format`` (T20 unless told otherwise): each format has its own models.
 MODEL_FORMAT = "T20"
+_FORMAT: ContextVar[str] = ContextVar("criciq_model_format", default=MODEL_FORMAT)
+
+
+def model_format() -> str:
+    """The format the models being trained, scored or reported are for."""
+    return _FORMAT.get()
+
+
+@contextmanager
+def use_format(match_format: str) -> Iterator[None]:
+    """Work with another format's models inside this block (``"ODI"``)."""
+    default_phase_config().for_format(match_format)  # fails on an unknown format
+    token = _FORMAT.set(match_format)
+    try:
+        yield
+    finally:
+        _FORMAT.reset(token)
 
 
 def model_phases() -> FormatPhases:
-    return default_phase_config().for_format(MODEL_FORMAT)
+    return default_phase_config().for_format(model_format())
 
 
 def check_model_format(formats: Iterable[str]) -> None:
-    """Fail loudly instead of feeding another format's balls to a T20 model."""
-    other = sorted(set(formats) - {MODEL_FORMAT})
+    """Fail loudly instead of feeding another format's balls to a model."""
+    current = model_format()
+    other = sorted(set(formats) - {current})
     if other:
         raise ValueError(
-            f"the models are {MODEL_FORMAT} models but the data holds {', '.join(other)} matches"
+            f"the models are {current} models but the data holds {', '.join(other)} matches"
         )

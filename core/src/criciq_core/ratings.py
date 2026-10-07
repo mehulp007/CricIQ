@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import cache
 from typing import Literal
 
-from criciq_core.phases import model_phases
+from criciq_core.phases import default_phase_config, model_format
 
 Role = Literal["batting", "bowling"]
 Unit = Literal[
@@ -66,13 +66,19 @@ _WPA = """
 """
 
 
-def _phases() -> list[tuple[str, str, int, int]]:
-    phases = model_phases().phases
+def _phases(match_format: str) -> list[tuple[str, str, int, int]]:
+    phases = default_phase_config().for_format(match_format).phases
     return [(p.key, p.label, p.first_over, p.last_over) for p in phases if p.last_over]
 
 
+def components(match_format: str | None = None) -> tuple[Component, ...]:
+    """Every component in a format (the models' current one by default): the phase
+    components follow its phases."""
+    return _components(match_format or model_format())
+
+
 @cache
-def components() -> tuple[Component, ...]:
+def _components(match_format: str) -> tuple[Component, ...]:
     batting = [
         Component(
             key="scoring",
@@ -101,7 +107,7 @@ def components() -> tuple[Component, ...]:
             show=MIN_RATED_BALLS,
         ),
     ]
-    for key, label, first, last in _phases():
+    for key, label, first, last in _phases(match_format):
         batting.append(
             Component(
                 key=key,
@@ -187,7 +193,7 @@ def components() -> tuple[Component, ...]:
             show=MIN_RATED_BALLS,
         ),
     ]
-    for key, label, first, last in _phases():
+    for key, label, first, last in _phases(match_format):
         bowling.append(
             Component(
                 key=key,
@@ -247,11 +253,15 @@ def components() -> tuple[Component, ...]:
     return (*batting, *bowling)
 
 
-def role_components(role: Role, tables: frozenset[str] | set[str] | None = None) -> list[Component]:
+def role_components(
+    role: Role,
+    tables: frozenset[str] | set[str] | None = None,
+    match_format: str | None = None,
+) -> list[Component]:
     """A role's components, skipping any whose source table is missing."""
     return [
         c
-        for c in components()
+        for c in components(match_format)
         if c.role == role and (tables is None or c.requires is None or c.requires in tables)
     ]
 
@@ -261,20 +271,28 @@ def role_balls_key(role: Role) -> str:
     return "scoring" if role == "batting" else "economy"
 
 
-def units_sql(role: Role, tables: frozenset[str] | set[str] | None = None) -> str:
+def units_sql(
+    role: Role,
+    tables: frozenset[str] | set[str] | None = None,
+    match_format: str | None = None,
+) -> str:
     """Every component of a role as one query: component, player_id, season, e, n."""
     return "\nUNION ALL\n".join(
         f"SELECT '{c.key}' AS component, player_id, season, e::DOUBLE AS e, n::DOUBLE AS n "
         f"FROM ({c.sql})"
-        for c in role_components(role, tables)
+        for c in role_components(role, tables, match_format)
     )
 
 
-def window_sums_sql(role: Role, tables: frozenset[str] | set[str] | None = None) -> str:
+def window_sums_sql(
+    role: Role,
+    tables: frozenset[str] | set[str] | None = None,
+    match_format: str | None = None,
+) -> str:
     """Per player and component: sum(e) and sum(n) for seasons between two parameters."""
     return f"""
         SELECT component, player_id, sum(e) AS e, sum(n) AS n
-        FROM ({units_sql(role, tables)})
+        FROM ({units_sql(role, tables, match_format)})
         WHERE season BETWEEN ? AND ?
         GROUP BY ALL
     """

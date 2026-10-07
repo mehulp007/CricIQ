@@ -20,23 +20,26 @@ On each legal ball:
 
 Odd runs change the strike, as does the end of an over. A dismissed batter is
 replaced by the next in the batting order. At the start of each over the
-fielding captain picks a bowler: one who has overs left (four each) and did not
-bowl the previous over, chosen in proportion to how often that bowler bowled
-that over in real matches; towards the end of the innings, bowlers with more
-overs left are favoured so the quota is used up. An innings ends after 120
-legal balls, when the side is all out, or when the target is reached. A tie is
-reported as a tie (a super over is not simulated).
+fielding captain picks a bowler: one who has overs left (four each in a T20, ten
+in an ODI) and did not bowl the previous over, chosen in proportion to how often
+that bowler bowled that over in real matches; towards the end of the innings,
+bowlers with more overs left are favoured so the quota is used up. An innings
+ends when its overs are up (120 legal balls in a T20, 300 in an ODI), when the
+side is all out, or when the target is reached. A tie is reported as a tie (a
+super over is not simulated). The format's rules (:class:`FormatRules`) travel
+with each :class:`Side`.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import cache
 
 import numpy as np
 import numpy.typing as npt
 
-from criciq_core.phases import model_phases
+from criciq_core.phases import default_phase_config
 
 FloatArray = npt.NDArray[np.float64]
 IntArray = npt.NDArray[np.int64]
@@ -52,13 +55,7 @@ PRESSURE_LEVELS = ("none", "low", "par", "high", "extreme")
 # Required rate over par at which a chase moves to the next pressure level.
 PRESSURE_EDGES = (0.8, 1.1, 1.4)
 
-OVERS = 20
-BALLS_PER_OVER = 6
-MAX_BALLS = OVERS * BALLS_PER_OVER
-QUOTA = 4
 EXTRA_RUNS = np.arange(6, dtype=np.int64)  # 0..5 extra runs with a legal ball
-# From this over on, bowlers with more overs left are favoured (weight x overs left squared).
-URGENT_FROM_OVER = 12
 # Match conditions (pitch, ground, weather) the model cannot see: each simulated
 # match draws a shift, shared by both innings, that moves logits along this
 # direction (more boundaries, fewer dots and wickets when positive). Its spread is
@@ -66,14 +63,76 @@ URGENT_FROM_OVER = 12
 CONDITIONS = np.array([-0.5, 0.0, 0.0, 0.0, 0.5, 0.5, -0.5])
 CONDITIONS_SD = 0.0
 
-_PHASE_CONFIG = model_phases()
-PHASES: tuple[str, ...] = tuple(
-    p.key for p in sorted(_PHASE_CONFIG.phases, key=lambda p: p.first_over)
-)
-OVER_PHASE = np.array(
-    [PHASES.index(_PHASE_CONFIG.phase_for_over_index(o).key) for o in range(OVERS)],
-    dtype=np.int64,
-)
+
+# --------------------------------------------------------------------------- formats
+
+# Overs a bowler may bowl in an innings, and the over from which (0-indexed) bowlers
+# with more overs left are favoured (weight x overs left squared), by format.
+QUOTAS = {"T20": 4, "ODI": 10}
+URGENT_FROM = {"T20": 12, "ODI": 30}
+
+
+@dataclass(frozen=True)
+class FormatRules:
+    """A limited-overs format's innings: its overs, each bowler's quota and its phases."""
+
+    name: str
+    overs: int
+    quota: int
+    urgent_from_over: int
+    phases: tuple[str, ...]
+    balls_per_over: int = 6
+
+    @property
+    def max_balls(self) -> int:
+        return self.overs * self.balls_per_over
+
+    @property
+    def min_bowling_options(self) -> int:
+        """Bowlers needed to cover the innings within the quota."""
+        return -(-self.overs // self.quota)
+
+    @property
+    def over_phase(self) -> IntArray:
+        """The phase index of every over (0-indexed)."""
+        return _over_phase(self.name)
+
+
+@cache
+def _over_phase(match_format: str) -> IntArray:
+    phases = default_phase_config().for_format(match_format)
+    keys = tuple(p.key for p in sorted(phases.phases, key=lambda p: p.first_over))
+    return np.array(
+        [keys.index(phases.phase_for_over_index(o).key) for o in range(phases.limit)],
+        dtype=np.int64,
+    )
+
+
+@cache
+def rules_for(match_format: str) -> FormatRules:
+    """The simulator's rules for a limited-overs format (``T20``, ``ODI``)."""
+    phases = default_phase_config().for_format(match_format)
+    if match_format not in QUOTAS:
+        raise ValueError(f"the simulator does not play {match_format} matches")
+    return FormatRules(
+        name=match_format,
+        overs=phases.limit,
+        quota=QUOTAS[match_format],
+        urgent_from_over=URGENT_FROM[match_format],
+        phases=tuple(p.key for p in sorted(phases.phases, key=lambda p: p.first_over)),
+        balls_per_over=phases.balls_per_over,
+    )
+
+
+T20 = rules_for("T20")
+# The T20 rules under their v1 names.
+OVERS = T20.overs
+BALLS_PER_OVER = T20.balls_per_over
+MAX_BALLS = T20.max_balls
+QUOTA = T20.quota
+URGENT_FROM_OVER = T20.urgent_from_over
+PHASES: tuple[str, ...] = T20.phases
+OVER_PHASE = T20.over_phase
 
 
 # --------------------------------------------------------------------------- inputs
@@ -93,15 +152,18 @@ class Side:
     name: str
     batters: tuple[Player, ...]
     bowlers: tuple[Player, ...]
-    # How often each bowler bowled each over (rows follow ``bowlers``; 20 columns).
+    # How often each bowler bowled each over (rows follow ``bowlers``; a column per over).
     usage: FloatArray
+    rules: FormatRules = T20
 
     def __post_init__(self) -> None:
         if not 2 <= len(self.batters) <= 11:
             raise ValueError("a side bats 2 to 11 players")
-        if len(self.bowlers) * QUOTA < OVERS:
-            raise ValueError(f"a side needs at least {OVERS // QUOTA} bowling options")
-        if self.usage.shape != (len(self.bowlers), OVERS):
+        if len(self.bowlers) < self.rules.min_bowling_options:
+            raise ValueError(
+                f"a side needs at least {self.rules.min_bowling_options} bowling options"
+            )
+        if self.usage.shape != (len(self.bowlers), self.rules.overs):
             raise ValueError("usage needs one row per bowler and one column per over")
 
 
@@ -171,8 +233,9 @@ def _level(value: IntArray, levels: tuple[tuple[str, int], ...]) -> IntArray:
 def _base_logits(model: BallModel, bat: Side, bowl: Side, innings: int) -> FloatArray:
     """Logits that do not change ball to ball: (phase, batter, bowler, outcome)."""
     era = model.era * model.term("env")
-    out = np.zeros((len(PHASES), len(bat.batters), len(bowl.bowlers), len(CLASSES)))
-    for p, phase in enumerate(PHASES):
+    phases = bowl.rules.phases
+    out = np.zeros((len(phases), len(bat.batters), len(bowl.bowlers), len(CLASSES)))
+    for p, phase in enumerate(phases):
         fixed = model.term("intercept") + model.term(f"phase={phase}_{innings}") + era
         for i, batter in enumerate(bat.batters):
             b = model.term(f"batter={batter.player_id}") + model.term(
@@ -211,7 +274,7 @@ def _tally(
     return np.asarray(np.rint(sums).reshape(len(rows), width), dtype=np.int64)
 
 
-def _can_finish(left: IntArray, over: int) -> BoolArray:
+def _can_finish(left: IntArray, over: int, overs: int = OVERS) -> BoolArray:
     """Whether the remaining overs can still be covered if each bowler takes this one.
 
     After bowler j takes ``over``, the R overs that follow need bowlers with overs
@@ -220,7 +283,7 @@ def _can_finish(left: IntArray, over: int) -> BoolArray:
     add up to R. Taking one over lowers that sum by at most two, so only
     simulations within two of the limit need the check bowler by bowler.
     """
-    rest = OVERS - over - 1
+    rest = overs - over - 1
     cap = (rest + 1) // 2
     out = np.ones(left.shape, dtype=bool)
     tight = np.minimum(left, cap).sum(axis=1) - 2 < rest
@@ -242,14 +305,17 @@ def _pick_bowlers(
     overs_used: IntArray,
     last: IntArray,
     rng: np.random.Generator,
+    rules: FormatRules = T20,
 ) -> tuple[IntArray, int]:
     """Bowler of ``over`` for each simulation, and how many had no eligible bowler."""
     n, bowlers = overs_used.shape
-    left = QUOTA - overs_used
+    left = rules.quota - overs_used
     weight = np.broadcast_to(usage[:, over], (n, bowlers)).astype(float)
-    if over >= URGENT_FROM_OVER:
+    if over >= rules.urgent_from_over:
         weight = weight * left.astype(float) ** 2
-    eligible = (left > 0) & (np.arange(bowlers) != last[:, None]) & _can_finish(left, over)
+    eligible = (
+        (left > 0) & (np.arange(bowlers) != last[:, None]) & _can_finish(left, over, rules.overs)
+    )
     weight = np.where(eligible, weight, 0.0)
     # Anyone eligible with no history of that over still gets a small chance.
     weight = np.where(eligible, weight + 1e-3, 0.0)
@@ -274,11 +340,18 @@ def simulate_innings(
     rng: np.random.Generator,
     target: IntArray | None = None,
     start: InningsState | None = None,
-    max_balls: int = MAX_BALLS,
+    max_balls: int | None = None,
     conditions: FloatArray | None = None,
 ) -> InningsResult:
-    """Play the rest of an innings ``n`` times; ``target`` makes it a chase."""
+    """Play the rest of an innings ``n`` times; ``target`` makes it a chase. The
+    innings lasts the format's overs (the bowling side's rules) unless ``max_balls``
+    is shorter (a rain-revised chase)."""
     s = start or InningsState()
+    rules = bowl.rules
+    if max_balls is None:
+        max_balls = rules.max_balls
+    over_phase = rules.over_phase
+    last_over = rules.overs - 1
     nbat, nbowl = len(bat.batters), len(bowl.bowlers)
     nw, ns, npr = len(WICKET_LEVELS), len(SETTLED_LEVELS), len(PRESSURE_LEVELS)
     # Every combination of phase, batter, bowler and situation level is a small
@@ -329,10 +402,12 @@ def simulate_innings(
         live = ~done
         if not live.any():
             break
-        over, in_over = divmod(ball, BALLS_PER_OVER)
-        phase = OVER_PHASE[min(over, OVERS - 1)]
+        over, in_over = divmod(ball, rules.balls_per_over)
+        phase = over_phase[min(over, last_over)]
         if in_over == 0 or (live & (current < 0)).any():
-            pick, stuck = _pick_bowlers(bowl.usage, min(over, OVERS - 1), bowl_overs, last, rng)
+            pick, stuck = _pick_bowlers(
+                bowl.usage, min(over, last_over), bowl_overs, last, rng, rules
+            )
             choose = live & ((current < 0) | (in_over == 0))
             current = np.where(choose, pick, current)
             forced += int(stuck)
@@ -383,7 +458,7 @@ def simulate_innings(
             next_in += out
 
         swap = live & ~out & (scored % 2 == 1)
-        if in_over == BALLS_PER_OVER - 1:
+        if in_over == rules.balls_per_over - 1:
             swap = swap ^ live
             ended = live
             bowl_overs[rows[ended], current[ended]] += 1
@@ -477,10 +552,11 @@ def simulate_match(
 # A bowler's own usage pattern is shrunk toward the league's for their type,
 # worth this many overs.
 USAGE_STRENGTH = 8.0
-# Bowlers with at least this many recent overs are bowling options by default.
-MIN_BOWLING_OVERS = 4.0
+# Bowlers with at least a quota of recent overs (four in T20s) are bowling options by
+# default.
+MIN_BOWLING_OVERS = float(QUOTA)
 MAX_BOWLING_OPTIONS = 6
-MIN_BOWLING_OPTIONS = OVERS // QUOTA
+MIN_BOWLING_OPTIONS = T20.min_bowling_options
 # Typical batting position for a player with no batting record.
 UNKNOWN_POSITION = 9.0
 
@@ -491,21 +567,24 @@ class Candidate:
 
     player: Player
     position: float | None  # average batting position, if they have batted
-    overs_by_over: FloatArray  # recent overs bowled at each over number (20)
+    overs_by_over: FloatArray  # recent overs bowled at each over number (one per over)
 
     @property
     def overs(self) -> float:
         return float(self.overs_by_over.sum())
 
 
-def league_rates(rows: Sequence[Sequence[float | int | str]], env: float) -> LeagueRates:
+def league_rates(
+    rows: Sequence[Sequence[float | int | str]], env: float, rules: FormatRules = T20
+) -> LeagueRates:
     """League rates from ``sim_league_rates`` rows summed over the chosen seasons:
     (innings_no, phase, legal_balls, run_outs, x0, ..., x5)."""
-    balls = np.zeros((2, len(PHASES)))
-    run_outs = np.zeros((2, len(PHASES)))
-    extras = np.zeros((2, len(PHASES), len(EXTRA_RUNS)))
+    phases = rules.phases
+    balls = np.zeros((2, len(phases)))
+    run_outs = np.zeros((2, len(phases)))
+    extras = np.zeros((2, len(phases), len(EXTRA_RUNS)))
     for innings, phase, legal, outs, *xs in rows:
-        i, p = int(innings) - 1, PHASES.index(str(phase))
+        i, p = int(innings) - 1, phases.index(str(phase))
         balls[i, p] += float(legal)
         run_outs[i, p] += float(outs)
         extras[i, p] += np.asarray(xs, dtype=float)
@@ -515,25 +594,29 @@ def league_rates(rows: Sequence[Sequence[float | int | str]], env: float) -> Lea
     return LeagueRates(extras=probs, run_out=run_outs / safe, env=env)
 
 
-def usage_priors(rows: Sequence[tuple[str | None, int, float]]) -> dict[str, FloatArray]:
+def usage_priors(
+    rows: Sequence[tuple[str | None, int, float]], rules: FormatRules = T20
+) -> dict[str, FloatArray]:
     """League shape of overs bowled by over number, per bowling type, from
     (bowling_type, over_no, overs) rows; ``"any"`` pools every type."""
-    shapes: dict[str, FloatArray] = {"any": np.zeros(OVERS)}
+    width = rules.overs
+    shapes: dict[str, FloatArray] = {"any": np.zeros(width)}
     for kind, over, overs in rows:
-        if 0 <= int(over) < OVERS:
+        if 0 <= int(over) < width:
             key = kind or "any"
-            shapes.setdefault(key, np.zeros(OVERS))[int(over)] += float(overs)
+            shapes.setdefault(key, np.zeros(width))[int(over)] += float(overs)
             if key != "any":
                 shapes["any"][int(over)] += float(overs)
-    return {k: v / v.sum() if v.sum() else np.full(OVERS, 1 / OVERS) for k, v in shapes.items()}
+    return {k: v / v.sum() if v.sum() else np.full(width, 1 / width) for k, v in shapes.items()}
 
 
-def default_bowlers(candidates: Sequence[Candidate]) -> list[str]:
-    """The XI's bowling options: regular bowlers by recent overs, topped up to five."""
+def default_bowlers(candidates: Sequence[Candidate], rules: FormatRules = T20) -> list[str]:
+    """The XI's bowling options: regular bowlers by recent overs (at least a quota's
+    worth), topped up to as many as the innings needs."""
     ranked = sorted(candidates, key=lambda c: -c.overs)
-    chosen = [c for c in ranked if c.overs >= MIN_BOWLING_OVERS][:MAX_BOWLING_OPTIONS]
+    chosen = [c for c in ranked if c.overs >= rules.quota][:MAX_BOWLING_OPTIONS]
     for c in ranked:  # part-timers next, by how much they have bowled
-        if len(chosen) >= MIN_BOWLING_OPTIONS:
+        if len(chosen) >= rules.min_bowling_options:
             break
         if c not in chosen:
             chosen.append(c)
@@ -554,6 +637,7 @@ def build_side(
     bowler_ids: Sequence[str],
     priors: Mapping[str, FloatArray],
     strength: float = USAGE_STRENGTH,
+    rules: FormatRules = T20,
 ) -> Side:
     """A simulated side from an XI in batting order and its bowling options."""
     by_id = {c.player.player_id: c for c in batting_order}
@@ -569,4 +653,5 @@ def build_side(
         batters=tuple(c.player for c in batting_order),
         bowlers=tuple(c.player for c in bowlers),
         usage=usage,
+        rules=rules,
     )

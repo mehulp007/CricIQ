@@ -4,7 +4,14 @@ import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { dataVersion } from "@/lib/featured";
-import { BALL_OUTCOME, RATINGS, SCORE_PROJECTION, WIN_PROBABILITY, seasonSpan } from "@/lib/models";
+import {
+  BALL_OUTCOME,
+  RATINGS,
+  SCORE_PROJECTION,
+  WIN_PROBABILITY,
+  modelsFor,
+  seasonSpan,
+} from "@/lib/models";
 
 export const metadata: Metadata = {
   title: "About & Methodology",
@@ -78,6 +85,15 @@ export default function AboutPage() {
   const wickets = RATINGS.components.find((c) => c.role === "bowling" && c.key === "wickets");
   const scoring = RATINGS.components.find((c) => c.role === "batting" && c.key === "scoring");
   const low = RATINGS.components.filter((c) => c.stability === "low");
+  const odiModels = modelsFor("odi");
+  const odi = {
+    trainedMatches: odiModels.winProbability.trained_on.matches.toLocaleString("en-IN"),
+    tested: seasonSpan(odiModels.winProbability.splits.test),
+    projectionMae: Math.round(odiModels.scoreProjection.test.model.mae),
+    parMae: Math.round(odiModels.scoreProjection.test.par_baseline.mae),
+    wp: odiModels.winProbability.test.model.log_loss.toFixed(3),
+    baseline: odiModels.winProbability.test.baseline.log_loss.toFixed(3),
+  };
 
   return (
     <div className="flex max-w-3xl flex-col gap-12">
@@ -85,11 +101,12 @@ export default function AboutPage() {
         <h1 className="text-3xl font-semibold tracking-tight">About &amp; Methodology</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">
           CricIQ is a full-stack cricket analytics platform. It takes every ball of the IPL since
-          2008, men&apos;s T20 internationals since 2005 and the BBL, PSL, CPL and SA20 from raw
-          records through data engineering, leak-free feature engineering, tested machine learning
-          and explainability, all the way to this interface. This page explains how each number on
-          the site is made, and where it falls short. The model numbers quoted below are the
-          IPL&apos;s; each competition&apos;s are on its Model Insights page.
+          2008, men&apos;s T20 internationals since 2005, men&apos;s ODIs since 2002 and the BBL,
+          PSL, CPL and SA20 from raw records through data engineering, leak-free feature
+          engineering, tested machine learning and explainability, all the way to this interface.
+          This page explains how each number on the site is made, and where it falls short. The
+          model numbers quoted below are the IPL&apos;s; each competition&apos;s are on its Model
+          Insights page.
         </p>
       </header>
 
@@ -132,7 +149,7 @@ export default function AboutPage() {
           Each competition has its own pages, served from its own data: matches, players, teams and
           models. A player&apos;s numbers are always measured against par in their own competition,
           so a PSL strike rate is judged against the PSL; every player page also lists their record
-          in every T20 competition they played.
+          in every competition they played, and all their T20 cricket together.
         </p>
         <p>
           <Strong>One model for all T20 cricket, except the IPL.</Strong> The win probability, score
@@ -143,12 +160,22 @@ export default function AboutPage() {
           competition&apos;s own records.
         </p>
         <p>
-          <Strong>What is not there yet.</Strong> The match simulator serves the IPL, BBL, CPL and
-          SA20, where its backtests passed; for the PSL and T20Is its simulated first-innings totals
-          ran low (the ball model scores their recent seasons a little low), so it is not served
-          there. League tables outside the IPL are computed at two points a win and can differ from
-          official tables that used bonus points. National sides have records by year and by
-          opponent, not league tables. ODI and Test cricket come next.
+          <Strong>ODIs have models of their own.</Strong> A 50-over match paces itself differently,
+          so ODIs are not pooled with T20: their models are trained on {odi.trainedMatches} ODIs
+          alone with the same features and tests, and judged on {odi.tested}. The score projection
+          misses by about {odi.projectionMae} runs against {odi.parMae} for par, the ball model
+          beats ODIs&apos; own frequencies in every backtest year, and the simulator plays 50 overs
+          with ten overs a bowler and passed its backtest. The win probability model is only level
+          with a logistic regression on the match state (log loss {odi.wp} against {odi.baseline}),
+          and its Model Insights page says so.
+        </p>
+        <p>
+          <Strong>What is not there yet.</Strong> The match simulator serves the IPL, BBL, CPL, SA20
+          and ODIs, where its backtests passed; for the PSL and T20Is its simulated first-innings
+          totals ran low (the ball model scores their recent seasons a little low), so it is not
+          served there. League tables outside the IPL are computed at two points a win and can
+          differ from official tables that used bonus points. National sides have records by year
+          and by opponent, not league tables. Test cricket comes next.
         </p>
       </Section>
 

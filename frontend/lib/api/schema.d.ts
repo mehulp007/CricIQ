@@ -33,7 +33,8 @@ export interface paths {
         };
         /**
          * Read Careers
-         * @description A player's headline numbers in every competition, then all T20 cricket together.
+         * @description A player's headline numbers in every competition, with all T20 cricket together
+         *     after the T20 competitions.
          */
         get: operations["read_careers_api_v2_players__player_id__get"];
         put?: never;
@@ -1688,7 +1689,7 @@ export interface components {
         PlayerCareers: {
             /**
              * Careers
-             * @description One line per competition played, then all T20 cricket together.
+             * @description One line per competition played, with all T20 cricket together after the T20 competitions.
              */
             careers: components["schemas"]["CareerLine"][];
             /** Country */
@@ -2762,7 +2763,7 @@ export interface components {
             /** First Innings */
             first_innings: number;
             highest: components["schemas"]["TeamTotal"] | null;
-            /** @description Lowest completed total (bowled out or 20 overs). */
+            /** @description Lowest completed total (bowled out or all the overs batted). */
             lowest: components["schemas"]["TeamTotal"] | null;
         };
         /** TeamSeason */
@@ -3207,7 +3208,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3240,7 +3241,7 @@ export interface operations {
             header?: never;
             path: {
                 match_id: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3273,7 +3274,7 @@ export interface operations {
             header?: never;
             path: {
                 match_id: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3316,7 +3317,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3356,7 +3357,7 @@ export interface operations {
             path: {
                 batter_id: string;
                 bowler_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3388,7 +3389,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3430,7 +3431,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3467,7 +3468,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3505,7 +3506,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3543,7 +3544,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3576,7 +3577,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3612,7 +3613,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3648,7 +3649,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3682,7 +3683,7 @@ export interface operations {
             path: {
                 season: number;
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3714,7 +3715,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3750,7 +3751,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3787,7 +3788,7 @@ export interface operations {
             header?: never;
             path: {
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3819,7 +3820,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3860,7 +3861,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3893,7 +3894,7 @@ export interface operations {
             header?: never;
             path: {
                 season: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3931,7 +3932,7 @@ export interface operations {
             header?: never;
             path: {
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;

@@ -32,7 +32,7 @@ export async function generateMetadata({
       competition === "ipl"
         ? "Every IPL franchise since 2008: records, titles, league tables that match the official ones, and what the toss, home ground and chasing are worth."
         : c.teamType === "national"
-          ? `Every side in men's T20 internationals since ${c.firstSeason}: records by year and by opponent, and what the toss, home ground and chasing are worth.`
+          ? `Every side in ${c.collective} since ${c.firstSeason}: records by year and by opponent, and what the toss, home ground and chasing are worth.`
           : `Every ${c.label} franchise since ${c.firstSeason}: records, titles, league tables and what the toss, home ground and chasing are worth.`,
   };
 }
@@ -205,7 +205,7 @@ function NationalTeams({
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Teams</h1>
         <p className="max-w-3xl text-muted-foreground">
-          Every side in men&apos;s T20 internationals since{" "}
+          Every side in {getCompetition(competition).collective} since{" "}
           {getCompetition(competition).firstSeason}, {sides.length} in all, from the full members to
           the newest associates. Each side&apos;s page has its record year by year and against every
           opponent.

@@ -95,7 +95,8 @@ function Row({ line, total }: { line: CareerLine; total: boolean }) {
   );
 }
 
-/** One line per competition played, then all T20 cricket together, each against its own par. */
+/** One line per competition played, with all T20 cricket together after the T20 lines, each
+ * against its own par. */
 export function CareerTable({ careers }: { careers: PlayerCareers }) {
   if (careers.careers.length < 2) return null;
   const th = "px-3 py-2 text-right text-xs font-medium text-muted-foreground";
@@ -103,14 +104,14 @@ export function CareerTable({ careers }: { careers: PlayerCareers }) {
     <section id="careers" aria-labelledby="careers-heading" className="flex flex-col gap-3">
       <div>
         <h2 id="careers-heading" className="text-lg font-semibold tracking-tight">
-          Every T20 competition
+          Every competition
         </h2>
         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
           The player&apos;s record in each competition, each measured against that
-          competition&apos;s own par, and all T20 cricket together.
+          competition&apos;s own par, and all their T20 cricket together.
         </p>
       </div>
-      <div className="overflow-x-auto" {...scrollRegion("Career in every T20 competition")}>
+      <div className="overflow-x-auto" {...scrollRegion("Career in every competition")}>
         <table className="w-full min-w-[36rem] text-sm">
           <thead className="border-b border-border">
             <tr>

@@ -7,6 +7,7 @@ import { getMeta, getPlayers, type PlayerRoleFilter, type PlayerSort } from "@/l
 import {
   competitionPath,
   getCompetition,
+  possessive,
   isCompetitionId,
   type CompetitionId,
 } from "@/lib/competitions";
@@ -67,8 +68,8 @@ export default async function PlayersPage({
         <h1 className="text-3xl font-semibold tracking-tight">Player Lab</h1>
         <p className="max-w-3xl text-muted-foreground">
           Every {c.label} player since {c.firstSeason}. Profiles measure batting and bowling against
-          par (the {c.label}&apos;s own): what an average player would have done in the same seasons
-          and phases.
+          par ({possessive(competition)} own): what an average player would have done in the same
+          seasons and phases.
         </p>
       </header>
 

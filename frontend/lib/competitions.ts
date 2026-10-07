@@ -1,11 +1,13 @@
 /**
  * The competitions in the switcher. Each live competition has its own pages
- * under `/[competition]/...` (`/ipl/matches`, `/t20i/players/[id]`), served from
- * its own data by `/api/v2/{competition}/...`. ODI and Test cricket are listed
- * as coming, never linked to placeholder data.
+ * under `/[competition]/...` (`/ipl/matches`, `/odi/players/[id]`), served from
+ * its own data by `/api/v2/{competition}/...`. Test cricket is listed as coming,
+ * never linked to placeholder data.
  */
 
-export type CompetitionId = "ipl" | "t20i" | "bbl" | "psl" | "cpl" | "sa20";
+export type CompetitionId = "ipl" | "t20i" | "odi" | "bbl" | "psl" | "cpl" | "sa20";
+
+export type MatchFormat = "T20" | "ODI";
 
 export interface Competition {
   id: CompetitionId;
@@ -21,6 +23,12 @@ export interface Competition {
   firstSeason: number;
   /** How its matches are described in prose ("every IPL match", "every men's T20I"). */
   noun: string;
+  /** All of it in a sentence ("the IPL", "men's T20 internationals"). */
+  collective: string;
+  format: MatchFormat;
+  /** Overs an innings lasts, and the most one bowler may bowl. */
+  overs: number;
+  quota: number;
 }
 
 export interface UpcomingFormat {
@@ -39,6 +47,10 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: true,
     firstSeason: 2008,
     noun: "IPL match",
+    collective: "the IPL",
+    format: "T20",
+    overs: 20,
+    quota: 4,
   },
   {
     id: "t20i",
@@ -49,6 +61,24 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: false,
     firstSeason: 2005,
     noun: "men's T20 international",
+    collective: "men's T20 internationals",
+    format: "T20",
+    overs: 20,
+    quota: 4,
+  },
+  {
+    id: "odi",
+    label: "ODI",
+    name: "Men's One-Day Internationals",
+    teamType: "national",
+    spansNewYear: false,
+    lab: false,
+    firstSeason: 2002,
+    noun: "men's ODI",
+    collective: "men's ODIs",
+    format: "ODI",
+    overs: 50,
+    quota: 10,
   },
   {
     id: "bbl",
@@ -59,6 +89,10 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: false,
     firstSeason: 2012,
     noun: "BBL match",
+    collective: "the BBL",
+    format: "T20",
+    overs: 20,
+    quota: 4,
   },
   {
     id: "psl",
@@ -69,6 +103,10 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: false,
     firstSeason: 2016,
     noun: "PSL match",
+    collective: "the PSL",
+    format: "T20",
+    overs: 20,
+    quota: 4,
   },
   {
     id: "cpl",
@@ -79,6 +117,10 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: false,
     firstSeason: 2013,
     noun: "CPL match",
+    collective: "the CPL",
+    format: "T20",
+    overs: 20,
+    quota: 4,
   },
   {
     id: "sa20",
@@ -89,12 +131,15 @@ export const COMPETITIONS: readonly Competition[] = [
     lab: false,
     firstSeason: 2023,
     noun: "SA20 match",
+    collective: "the SA20",
+    format: "T20",
+    overs: 20,
+    quota: 4,
   },
 ];
 
 /** Formats on their way (shown in the switcher, never linked). */
 export const UPCOMING: readonly UpcomingFormat[] = [
-  { label: "ODI", name: "Men's One-Day Internationals", milestone: "V2-5" },
   { label: "Test", name: "Men's Test cricket", milestone: "V2-6" },
 ];
 

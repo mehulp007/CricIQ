@@ -251,7 +251,7 @@ function Expectation({ h2h }: { h2h: HeadToHead }) {
       <p className="rounded-xl bg-muted/40 p-3 text-sm">{expectationVerdict(e, a, b)}</p>
       <p className="text-xs leading-relaxed text-muted-foreground">
         Form is a side&rsquo;s results in its previous 14 matches, pulled strongly toward an even
-        record, because T20 results are noisy: even the side in better form wins only about 53% of
+        record, because match results are noisy: even the side in better form wins only about 53% of
         the time in the IPL. Across every IPL rivalry, past head-to-head records add nothing to
         that. See{" "}
         <Link href="/ipl/lab/rivalries" className="text-primary underline-offset-4 hover:underline">

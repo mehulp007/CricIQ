@@ -3,11 +3,17 @@
  * `criciq-ml report` from the model registry (the same numbers as the model
  * card), and bundled so the page never depends on the API being awake. The
  * files in `data/models/` are the IPL's models; `data/models/t20/` holds the
- * pooled versions trained on every T20 competition, which serve the others.
+ * pooled versions trained on every T20 competition, which serve the other T20
+ * competitions, and `data/models/odi/` the ODIs' own models.
  */
 import ballOutcomeData from "@/data/models/ball-outcome.json";
 import projectionData from "@/data/models/score-projection.json";
 import ratingsData from "@/data/models/ratings.json";
+import odiBallOutcomeData from "@/data/models/odi/ball-outcome.json";
+import odiProjectionData from "@/data/models/odi/score-projection.json";
+import odiRatingsData from "@/data/models/odi/ratings.json";
+import odiSimulatorData from "@/data/models/odi/simulator.json";
+import odiWinProbabilityData from "@/data/models/odi/win-probability.json";
 import simulatorData from "@/data/models/simulator.json";
 import t20BallOutcomeData from "@/data/models/t20/ball-outcome.json";
 import t20ProjectionData from "@/data/models/t20/score-projection.json";
@@ -511,10 +517,22 @@ const T20_SIMULATOR = t20SimulatorData as unknown as {
   competitions: Record<string, SimulatorInsights & { gate: string[] }>;
 };
 
+/** The ODIs' own models (trained on ODIs alone), and their simulator's backtest. */
+const ODI = {
+  winProbability: odiWinProbabilityData as unknown as ModelInsights,
+  scoreProjection: odiProjectionData as unknown as ScoreProjectionInsights,
+  ballOutcome: odiBallOutcomeData as unknown as BallOutcomeInsights,
+  ratings: odiRatingsData as unknown as RatingsInsights,
+  simulator: odiSimulatorData as unknown as SimulatorInsights & {
+    gate: string[];
+    served: boolean;
+  },
+};
+
 /** The models serving one competition, as Model Insights shows them. */
 export interface ModelSet {
   competition: CompetitionId;
-  /** Trained on every T20 competition (every competition but the IPL so far). */
+  /** Trained on every T20 competition (every T20 competition but the IPL). */
   pooled: boolean;
   winProbability: ModelInsights;
   scoreProjection: ScoreProjectionInsights;
@@ -552,6 +570,20 @@ export function modelsFor(competition: CompetitionId): ModelSet {
       simulator: SIMULATOR,
       simulatorBacktest: { ...SIMULATOR, gate: [] },
       swings: WIN_PROBABILITY.swings,
+      results: { winProbability: null, scoreProjection: null, ballOutcome: null },
+    };
+  }
+  if (competition === "odi") {
+    return {
+      competition,
+      pooled: false,
+      winProbability: ODI.winProbability,
+      scoreProjection: ODI.scoreProjection,
+      ballOutcome: ODI.ballOutcome,
+      ratings: ODI.ratings,
+      simulator: ODI.simulator.served ? ODI.simulator : null,
+      simulatorBacktest: ODI.simulator,
+      swings: ODI.winProbability.swings,
       results: { winProbability: null, scoreProjection: null, ballOutcome: null },
     };
   }

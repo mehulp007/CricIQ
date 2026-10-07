@@ -10,10 +10,10 @@ import type {
   Timeline,
 } from "@/lib/api/types";
 
-/** The engine needs this many bowling options: 20 overs at four each. */
+/** The engine needs this many bowling options: 20 overs at four each, or 50 at ten. */
 export const MIN_BOWLERS = 5;
 export const XI_SIZE = 11;
-/** A player added to the XI bowls by default with this many recent overs. */
+/** A player added to the XI bowls by default with a quota of recent overs (four in a T20). */
 export const REGULAR_BOWLER_OVERS = 4;
 export const DEFAULT_SIMULATIONS = 10_000;
 export const WHATIF_SIMULATIONS = 4_000;
@@ -83,14 +83,19 @@ export function bench(xi: XIState): SquadPlayer[] {
   return xi.squad.filter((p) => !picked.has(p.player_id));
 }
 
-/** Add a squad player at the end of the batting order; regular bowlers bowl. */
-export function addPlayer(xi: XIState, playerId: string): XIState {
+/** Add a squad player at the end of the batting order; regular bowlers (a quota of recent
+ * overs: four in a T20, ten in an ODI) bowl. */
+export function addPlayer(
+  xi: XIState,
+  playerId: string,
+  regularOvers: number = REGULAR_BOWLER_OVERS,
+): XIState {
   const player = xi.squad.find((p) => p.player_id === playerId);
   if (!player || xi.players.length >= XI_SIZE || xi.players.includes(player)) return xi;
   return {
     ...xi,
     players: [...xi.players, player],
-    bowlers: player.recent_overs >= REGULAR_BOWLER_OVERS ? [...xi.bowlers, playerId] : xi.bowlers,
+    bowlers: player.recent_overs >= regularOvers ? [...xi.bowlers, playerId] : xi.bowlers,
   };
 }
 

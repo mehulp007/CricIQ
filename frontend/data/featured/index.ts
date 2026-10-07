@@ -10,6 +10,9 @@ import bblSnapshot from "./bbl/snapshot.json";
 import cplIndex from "./cpl/index.json";
 import { featuredTimelines as cplTimelines } from "./cpl/manifest";
 import cplSnapshot from "./cpl/snapshot.json";
+import odiIndex from "./odi/index.json";
+import { featuredTimelines as odiTimelines } from "./odi/manifest";
+import odiSnapshot from "./odi/snapshot.json";
 import pslIndex from "./psl/index.json";
 import { featuredTimelines as pslTimelines } from "./psl/manifest";
 import pslSnapshot from "./psl/snapshot.json";
@@ -30,6 +33,7 @@ export const featuredBundles: Record<string, FeaturedBundle> = {
   ipl: { index: iplIndex, snapshot: iplSnapshot, timelines: iplTimelines },
   bbl: { index: bblIndex, snapshot: bblSnapshot, timelines: bblTimelines },
   cpl: { index: cplIndex, snapshot: cplSnapshot, timelines: cplTimelines },
+  odi: { index: odiIndex, snapshot: odiSnapshot, timelines: odiTimelines },
   psl: { index: pslIndex, snapshot: pslSnapshot, timelines: pslTimelines },
   sa20: { index: sa20Index, snapshot: sa20Snapshot, timelines: sa20Timelines },
   t20i: { index: t20iIndex, snapshot: t20iSnapshot, timelines: t20iTimelines },

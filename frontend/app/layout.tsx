@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 const DESCRIPTION =
-  "T20 cricket analytics for the IPL, men's T20 internationals, BBL, PSL, CPL and SA20, ball by ball: match replay with calibrated win probability and score projection, player profiles against par, and sample-size-aware batter vs bowler matchups.";
+  "Cricket analytics for the IPL, men's T20 internationals and ODIs, BBL, PSL, CPL and SA20, ball by ball: match replay with calibrated win probability and score projection, player profiles against par, and sample-size-aware batter vs bowler matchups.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -1,0 +1,496 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "matches": [
+    {
+      "match_id": 1384439,
+      "headline": "World Cup 2023 final",
+      "summary": {
+        "match_id": 1384439,
+        "season": 2023,
+        "date": "2023-11-19",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "narendra-modi",
+          "name": "Narendra Modi Stadium",
+          "city": "Ahmedabad"
+        },
+        "team_a": {
+          "team_season_id": "ODI-IND-2023",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 240,
+          "wickets": 10,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-AUS-2023",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 241,
+          "wickets": 4,
+          "overs": "43.0"
+        },
+        "target_runs": 241,
+        "outcome_type": "win",
+        "winner_id": "ODI-AUS-2023",
+        "result_text": "Australia won by 6 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-AUS-2023",
+          "winner_name": "Australia",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Travis Head"
+        ]
+      }
+    },
+    {
+      "match_id": 1144530,
+      "headline": "World Cup 2019 final: tied, then a tied super over, won on boundaries",
+      "summary": {
+        "match_id": 1144530,
+        "season": 2019,
+        "date": "2019-07-14",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "lord-s",
+          "name": "Lord's",
+          "city": "London"
+        },
+        "team_a": {
+          "team_season_id": "ODI-NZ-2019",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 241,
+          "wickets": 8,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-ENG-2019",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 241,
+          "wickets": 10,
+          "overs": "50.0"
+        },
+        "target_runs": 242,
+        "outcome_type": "tie",
+        "winner_id": "ODI-ENG-2019",
+        "result_text": "Match tied (England won on boundaries after a tied super over)",
+        "win_method": null,
+        "decided_by_super_over": true,
+        "toss": {
+          "winner_id": "ODI-NZ-2019",
+          "winner_name": "New Zealand",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Ben Stokes"
+        ]
+      }
+    },
+    {
+      "match_id": 656495,
+      "headline": "World Cup 2015 final",
+      "summary": {
+        "match_id": 656495,
+        "season": 2015,
+        "date": "2015-03-29",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "melbourne-cricket-ground",
+          "name": "Melbourne Cricket Ground",
+          "city": "Melbourne"
+        },
+        "team_a": {
+          "team_season_id": "ODI-NZ-2015",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 183,
+          "wickets": 10,
+          "overs": "45.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-AUS-2015",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 186,
+          "wickets": 3,
+          "overs": "33.1"
+        },
+        "target_runs": 184,
+        "outcome_type": "win",
+        "winner_id": "ODI-AUS-2015",
+        "result_text": "Australia won by 7 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-NZ-2015",
+          "winner_name": "New Zealand",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "James Faulkner"
+        ]
+      }
+    },
+    {
+      "match_id": 433606,
+      "headline": "World Cup 2011 final: India win at home",
+      "summary": {
+        "match_id": 433606,
+        "season": 2011,
+        "date": "2011-04-02",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "wankhede",
+          "name": "Wankhede Stadium",
+          "city": "Mumbai"
+        },
+        "team_a": {
+          "team_season_id": "ODI-SL-2011",
+          "franchise_id": "SL",
+          "name": "Sri Lanka",
+          "color": "#2B4BA8",
+          "runs": 274,
+          "wickets": 6,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-IND-2011",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 277,
+          "wickets": 4,
+          "overs": "48.2"
+        },
+        "target_runs": 275,
+        "outcome_type": "win",
+        "winner_id": "ODI-IND-2011",
+        "result_text": "India won by 6 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-SL-2011",
+          "winner_name": "Sri Lanka",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "MS Dhoni"
+        ]
+      }
+    },
+    {
+      "match_id": 247507,
+      "headline": "World Cup 2007 final, cut to 38 overs by rain",
+      "summary": {
+        "match_id": 247507,
+        "season": 2007,
+        "date": "2007-04-28",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "kensington-oval",
+          "name": "Kensington Oval",
+          "city": "Bridgetown"
+        },
+        "team_a": {
+          "team_season_id": "ODI-AUS-2007",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 281,
+          "wickets": 4,
+          "overs": "38.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-SL-2007",
+          "franchise_id": "SL",
+          "name": "Sri Lanka",
+          "color": "#2B4BA8",
+          "runs": 215,
+          "wickets": 8,
+          "overs": "36.0"
+        },
+        "target_runs": 269,
+        "outcome_type": "win",
+        "winner_id": "ODI-AUS-2007",
+        "result_text": "Australia won by 53 runs (D/L)",
+        "win_method": "D/L",
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-AUS-2007",
+          "winner_name": "Australia",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Adam Gilchrist"
+        ]
+      }
+    },
+    {
+      "match_id": 65286,
+      "headline": "World Cup 2003 final",
+      "summary": {
+        "match_id": 65286,
+        "season": 2003,
+        "date": "2003-03-23",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "wanderers",
+          "name": "New Wanderers Stadium",
+          "city": "Johannesburg"
+        },
+        "team_a": {
+          "team_season_id": "ODI-AUS-2003",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 359,
+          "wickets": 2,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-IND-2003",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 234,
+          "wickets": 10,
+          "overs": "39.2"
+        },
+        "target_runs": 360,
+        "outcome_type": "win",
+        "winner_id": "ODI-AUS-2003",
+        "result_text": "Australia won by 125 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-IND-2003",
+          "winner_name": "India",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Ricky Ponting"
+        ]
+      }
+    },
+    {
+      "match_id": 1466428,
+      "headline": "Champions Trophy 2025 final",
+      "summary": {
+        "match_id": 1466428,
+        "season": 2025,
+        "date": "2025-03-09",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "dubai",
+          "name": "Dubai International Cricket Stadium",
+          "city": "Dubai"
+        },
+        "team_a": {
+          "team_season_id": "ODI-NZ-2025",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 251,
+          "wickets": 7,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-IND-2025",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 254,
+          "wickets": 6,
+          "overs": "49.0"
+        },
+        "target_runs": 252,
+        "outcome_type": "win",
+        "winner_id": "ODI-IND-2025",
+        "result_text": "India won by 4 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-NZ-2025",
+          "winner_name": "New Zealand",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Rohit Sharma"
+        ]
+      }
+    },
+    {
+      "match_id": 1022375,
+      "headline": "Champions Trophy 2017 final",
+      "summary": {
+        "match_id": 1022375,
+        "season": 2017,
+        "date": "2017-06-18",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "kennington-oval",
+          "name": "Kennington Oval",
+          "city": "London"
+        },
+        "team_a": {
+          "team_season_id": "ODI-PAK-2017",
+          "franchise_id": "PAK",
+          "name": "Pakistan",
+          "color": "#1E8E3E",
+          "runs": 338,
+          "wickets": 4,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-IND-2017",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 158,
+          "wickets": 10,
+          "overs": "30.3"
+        },
+        "target_runs": 339,
+        "outcome_type": "win",
+        "winner_id": "ODI-PAK-2017",
+        "result_text": "Pakistan won by 180 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-IND-2017",
+          "winner_name": "India",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Fakhar Zaman"
+        ]
+      }
+    },
+    {
+      "match_id": 566948,
+      "headline": "Champions Trophy 2013 final, reduced to 20 overs",
+      "summary": {
+        "match_id": 566948,
+        "season": 2013,
+        "date": "2013-06-23",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "edgbaston",
+          "name": "Edgbaston",
+          "city": "Birmingham"
+        },
+        "team_a": {
+          "team_season_id": "ODI-IND-2013",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 129,
+          "wickets": 7,
+          "overs": "20.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-ENG-2013",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 124,
+          "wickets": 8,
+          "overs": "20.0"
+        },
+        "target_runs": 130,
+        "outcome_type": "win",
+        "winner_id": "ODI-IND-2013",
+        "result_text": "India won by 5 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-ENG-2013",
+          "winner_name": "England",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Ravindra Jadeja"
+        ]
+      }
+    },
+    {
+      "match_id": 238200,
+      "headline": "South Africa chase 435 against Australia, the highest chase in ODI history",
+      "summary": {
+        "match_id": 238200,
+        "season": 2006,
+        "date": "2006-03-12",
+        "match_number": 5,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "wanderers",
+          "name": "New Wanderers Stadium",
+          "city": "Johannesburg"
+        },
+        "team_a": {
+          "team_season_id": "ODI-AUS-2006",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 434,
+          "wickets": 4,
+          "overs": "50.0"
+        },
+        "team_b": {
+          "team_season_id": "ODI-SA-2006",
+          "franchise_id": "SA",
+          "name": "South Africa",
+          "color": "#007A4D",
+          "runs": 438,
+          "wickets": 9,
+          "overs": "49.5"
+        },
+        "target_runs": 435,
+        "outcome_type": "win",
+        "winner_id": "ODI-SA-2006",
+        "result_text": "South Africa won by 1 wicket",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "toss": {
+          "winner_id": "ODI-AUS-2006",
+          "winner_name": "Australia",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Herschelle Gibbs",
+          "Ricky Ponting"
+        ]
+      }
+    }
+  ]
+}

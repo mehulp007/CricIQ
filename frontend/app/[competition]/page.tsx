@@ -22,6 +22,7 @@ import {
   competitionPath,
   getCompetition,
   isCompetitionId,
+  phrase,
   type Competition,
   type CompetitionId,
 } from "@/lib/competitions";
@@ -89,6 +90,7 @@ function capabilities(c: Competition): {
 // The overview's first call to action (by default the first featured replay).
 const HERO_REPLAY: Partial<Record<CompetitionId, { matchId: number; label: string }>> = {
   ipl: { matchId: 1181768, label: "2019 final" },
+  odi: { matchId: 1144530, label: "2019 World Cup final" },
 };
 
 const LEADERS: { key: keyof SeasonSnapshot["leaders"]; label: string; unit: string }[] = [
@@ -105,7 +107,8 @@ function SeasonSnapshotSection({ competition }: { competition: CompetitionId }) 
     s.previous_first_innings_average !== null
       ? s.first_innings_average - s.previous_first_innings_average
       : null;
-  const title = c.teamType === "national" ? `T20Is in ${s.label}` : `${c.label} ${s.label}`;
+  const title =
+    c.teamType === "national" ? `${phrase(competition)} in ${s.label}` : `${c.label} ${s.label}`;
   return (
     <section aria-labelledby="season-heading" className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -238,7 +241,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
   };
   const prose =
     c.teamType === "national"
-      ? `CricIQ turns every men's T20 international delivery since ${c.firstSeason} into interactive analytics, from World Cup finals to associate qualifiers.`
+      ? `CricIQ turns every ${c.noun} delivery since ${c.firstSeason} into interactive analytics, from World Cup finals to associate qualifiers.`
       : `CricIQ turns every ${c.label} delivery since ${c.spansNewYear ? `${c.firstSeason - 1}/${String(c.firstSeason % 100).padStart(2, "0")}` : c.firstSeason} into interactive analytics.`;
   return (
     <div className="flex flex-col gap-14">
@@ -298,7 +301,9 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
                 ? "Iconic IPL matches, ready to replay ball by ball."
                 : competition === "t20i"
                   ? "Every men's T20 World Cup final, ready to replay ball by ball."
-                  : `The latest ${c.label} finals, ready to replay ball by ball.`}
+                  : competition === "odi"
+                    ? "Every men's World Cup final since 2003, the Champions Trophy finals and the highest chase, ready to replay ball by ball."
+                    : `The latest ${c.label} finals, ready to replay ball by ball.`}
             </p>
           </div>
           <Link

@@ -12,7 +12,7 @@ import {
 import type { SimSeasonTeam, SquadPlayer } from "@/lib/api/types";
 import { roleLabel } from "@/lib/players";
 import { useCompetition } from "@/components/competition/use-competition";
-import { seasonLabel } from "@/lib/competitions";
+import { getCompetition, seasonLabel } from "@/lib/competitions";
 import {
   MIN_BOWLERS,
   XI_SIZE,
@@ -208,7 +208,9 @@ export function XIEditor({
                 </span>
                 <button
                   type="button"
-                  onClick={() => onChange(addPlayer(xi, p.player_id))}
+                  onClick={() =>
+                    onChange(addPlayer(xi, p.player_id, getCompetition(competition).quota))
+                  }
                   disabled={full}
                   className="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
                   aria-label={`Add ${p.name} to the XI`}

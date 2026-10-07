@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { BallOutcomeInsights } from "@/components/models/ball-outcome-insights";
+import { FormatOverview } from "@/components/models/format-overview";
 import { ModelsOverview } from "@/components/models/overview";
 import { PooledOverview } from "@/components/models/pooled-overview";
 import { RatingsInsights } from "@/components/models/ratings-insights";
@@ -56,9 +57,11 @@ export default async function ModelInsightsPage({
           {c.label} Model Insights
         </h1>
         <p className="max-w-3xl leading-relaxed text-muted-foreground">
-          {models.pooled
-            ? `Win probability, projected totals and next-ball odds for ${phrase(competition)} come from models trained on every T20 competition at once, and CricIQ Ratings are fitted on ${possessive(competition)} own records. The overview shows how each model did on ${possessive(competition)} own test matches; each tab shows how it was built and tested on every competition together.`
-            : "Three models: each side's chance of winning after every ball, the projected total during the first innings, and the outcome of the next ball behind the Matchup Lab; plus CricIQ Ratings, which rate players with honest allowances for sample size, and the match simulator built on the ball model. The overview shows how accurate each one is on seasons it never saw; each tab shows how it was built and tested, and where it falls short."}
+          {competition === "odi"
+            ? "ODIs have models of their own, trained on ODIs alone: each side's chance of winning after every ball, the projected 50-over total, the next ball's odds behind the Matchup Lab, CricIQ Ratings and the match simulator. The overview shows how each did on years it never saw, whichever way it came out; each tab shows how it was built and tested."
+            : models.pooled
+              ? `Win probability, projected totals and next-ball odds for ${phrase(competition)} come from models trained on every T20 competition at once, and CricIQ Ratings are fitted on ${possessive(competition)} own records. The overview shows how each model did on ${possessive(competition)} own test matches; each tab shows how it was built and tested on every competition together.`
+              : "Three models: each side's chance of winning after every ball, the projected total during the first innings, and the outcome of the next ball behind the Matchup Lab; plus CricIQ Ratings, which rate players with honest allowances for sample size, and the match simulator built on the ball model. The overview shows how accurate each one is on seasons it never saw; each tab shows how it was built and tested, and where it falls short."}
         </p>
       </header>
 
@@ -72,7 +75,13 @@ export default async function ModelInsightsPage({
           {models.simulator && <TabsTrigger value="simulator">Simulator</TabsTrigger>}
         </TabsList>
         <TabsContent value="overview" className="mt-6">
-          {models.pooled ? <PooledOverview models={models} /> : <ModelsOverview />}
+          {competition === "odi" ? (
+            <FormatOverview models={models} />
+          ) : models.pooled ? (
+            <PooledOverview models={models} />
+          ) : (
+            <ModelsOverview />
+          )}
         </TabsContent>
         <TabsContent value="win-probability" className="mt-6">
           <WinProbabilityInsights

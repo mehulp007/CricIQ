@@ -45,16 +45,16 @@ export default function HomePage() {
     <div className="flex flex-col gap-14">
       <section className="glass relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16">
         <Badge variant="outline" className="mb-6 font-mono text-[11px] tracking-wide text-primary">
-          T20 cricket · ball by ball
+          T20 and one-day cricket · ball by ball
         </Badge>
         <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
           Decode the game.
           <span className="block text-muted-foreground">Predict the next move.</span>
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          CricIQ turns every delivery of the IPL, men&apos;s T20 internationals and the BBL, PSL,
-          CPL and SA20 into interactive analytics: replay any match with each side&apos;s chance of
-          winning after every ball, explore any player&apos;s career against par in every
+          CricIQ turns every delivery of the IPL, men&apos;s T20 internationals and ODIs, and the
+          BBL, PSL, CPL and SA20 into interactive analytics: replay any match with each side&apos;s
+          chance of winning after every ball, explore any player&apos;s career against par in every
           competition, and read any batter-vs-bowler rivalry without over-reading small samples.
           Every number comes from a tested model you can inspect.
         </p>

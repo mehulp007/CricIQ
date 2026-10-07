@@ -104,6 +104,7 @@ export function SimulatorInsights({
   const { win, chase, first_innings: first } = s;
   const test = seasonSpan(s.test);
   const label = getCompetition(competition).label;
+  const match = getCompetition(competition).format === "ODI" ? "an ODI" : `a ${label} match`;
   // What each backtest found decides how it is described.
   const coinFlip = win.gain_vs_coin_flip.low <= 0;
   const worse = win.gain_vs_coin_flip.high < 0;
@@ -265,10 +266,10 @@ export function SimulatorInsights({
               ) : worse ? (
                 `worse: before a ball is bowled, its chances for a ${label} match lean the wrong way more often than not.`
               ) : (
-                `no better: before a ball is bowled, who wins a ${label} match is close to unpredictable from XIs and form.`
+                `no better: before a ball is bowled, who wins ${match} is close to unpredictable from XIs and form.`
               )
             ) : (
-              `better: the XIs say something about who wins a ${label} match, where sides differ more in strength.`
+              `better: the XIs say something about who wins ${match}, where sides differ more in strength.`
             )}{" "}
             The simulator is for distributions and what-ifs, and every page says so.
           </p>

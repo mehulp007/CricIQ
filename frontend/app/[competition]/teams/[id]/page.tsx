@@ -57,8 +57,8 @@ export async function generateMetadata({
     const span = seasonSpan(team.first_season, team.last_season, competition);
     if (c.teamType === "national") {
       return {
-        title: `${team.name}: T20I record`,
-        description: `${team.name} in men's T20 internationals, ${span}: won ${pct(team.record.win_pct)} of decided matches. Year by year, against every opponent, by situation, by phase against par, players and comebacks.`,
+        title: `${team.name}: ${c.label} record`,
+        description: `${team.name} in ${c.collective}, ${span}: won ${pct(team.record.win_pct)} of decided matches. Year by year, against every opponent, by situation, by phase against par, players and comebacks.`,
       };
     }
     const titles = team.titles.length

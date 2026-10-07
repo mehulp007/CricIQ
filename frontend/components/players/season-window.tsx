@@ -10,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCompetition } from "@/components/competition/use-competition";
 import { cn } from "@/lib/utils";
 
-/** First season of the Impact Player rule, which changed scoring rates. */
+/** First season of the IPL's Impact Player rule, which changed scoring rates. */
 const IMPACT_PLAYER_ERA = 2023;
 
 /**
@@ -31,6 +32,7 @@ export function SeasonWindow({
   /** Label of the preset covering every season. */
   allLabel?: string;
 }) {
+  const competition = useCompetition();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -53,7 +55,7 @@ export function SeasonWindow({
   const presets = [
     { label: allLabel, from: career[0], to: career[1] },
     { label: "Last 3 seasons", from: Math.max(career[0], career[1] - 2), to: career[1] },
-    ...(career[1] >= IMPACT_PLAYER_ERA && career[0] < IMPACT_PLAYER_ERA
+    ...(competition === "ipl" && career[1] >= IMPACT_PLAYER_ERA && career[0] < IMPACT_PLAYER_ERA
       ? [{ label: "Impact Player era", from: IMPACT_PLAYER_ERA, to: career[1] }]
       : []),
   ].filter((p, i, all) => all.findIndex((q) => q.from === p.from && q.to === p.to) === i);

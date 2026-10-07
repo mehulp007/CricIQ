@@ -10,12 +10,20 @@ import {
 } from "@/lib/competitions";
 
 describe("competitions", () => {
-  it("lists the six served competitions once each", () => {
+  it("lists the seven served competitions once each", () => {
     const ids = COMPETITIONS.map((c) => c.id);
-    expect(ids).toEqual(["ipl", "t20i", "bbl", "psl", "cpl", "sa20"]);
-    expect(isCompetitionId("t20i")).toBe(true);
-    expect(isCompetitionId("odi")).toBe(false);
+    expect(ids).toEqual(["ipl", "t20i", "odi", "bbl", "psl", "cpl", "sa20"]);
+    expect(isCompetitionId("odi")).toBe(true);
+    expect(isCompetitionId("test")).toBe(false);
     expect(isCompetitionId(undefined)).toBe(false);
+  });
+
+  it("knows each format's innings", () => {
+    const odi = COMPETITIONS.find((c) => c.id === "odi");
+    expect([odi?.format, odi?.overs, odi?.quota]).toEqual(["ODI", 50, 10]);
+    for (const c of COMPETITIONS.filter((c) => c.format === "T20")) {
+      expect([c.overs, c.quota]).toEqual([20, 4]);
+    }
   });
 
   it("builds and reads competition paths", () => {

@@ -230,7 +230,7 @@ export function WinProbabilityInsights({
       <Section
         id="selection-heading"
         title="What didn't make the cut"
-        lede={`Player, venue and squad strength were each built leak-free: they use only matches played earlier, shrunk toward the league average. Each was then added to the model and scored season by season on ${seasonSpan(candidates[0]?.seasons ?? [])}, before the test seasons. None beat the simpler model, so none is used. Once a match is under way, the score, wickets and balls left carry the signal.`}
+        lede={`Player, venue and squad strength were each built leak-free: they use only matches played earlier, shrunk toward the league average. Each one the model does not already use was then added to it and scored season by season on ${seasonSpan(candidates[0]?.seasons ?? [])}, before the test seasons. ${candidates.some((r) => r.log_loss < served[r.innings_no]) ? "Those that beat the served model are below with a negative change." : "None beat the served model, so none was added."} Once a match is under way, the score, wickets and balls left carry most of the signal.`}
       >
         <ul className="flex flex-col gap-3">
           {candidates.map((r) => {

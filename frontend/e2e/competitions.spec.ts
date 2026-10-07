@@ -7,12 +7,12 @@ test.describe("competitions", () => {
   test("the home page leads with every competition", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Choose a competition" })).toBeVisible();
-    for (const label of ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I"]) {
+    for (const label of ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I", "ODI"]) {
       await expect(page.getByRole("link", { name: new RegExp(`^${label}\\b`) })).toBeVisible();
     }
-    // ODI and Test cricket are listed, never linked.
-    await expect(page.getByText("Coming in V2-5")).toBeVisible();
-    await expect(page.getByRole("link", { name: /^ODI/ })).toHaveCount(0);
+    // Test cricket is listed, never linked.
+    await expect(page.getByText("Coming in V2-6")).toBeVisible();
+    await expect(page.getByRole("link", { name: /^Test/ })).toHaveCount(0);
     await page.getByRole("link", { name: /^T20I\b/ }).click();
     await expect(page).toHaveURL(/\/t20i$/);
     await expect(page.getByText("T20I · 2005 onward")).toBeVisible();
@@ -48,6 +48,29 @@ test.describe("competitions", () => {
     await expect(page.getByRole("region", { name: "What if?" })).toHaveCount(0);
   });
 
+  test("an ODI replays over fifty overs with its own model", async ({ page }) => {
+    // The 2019 World Cup final is a bundled featured replay.
+    await page.goto("/odi/matches/1144530");
+    await expect(page.getByRole("heading", { name: /New Zealand\s+vs\s+England/ })).toBeVisible();
+    await expect(page.getByTestId("win-probability")).toBeVisible();
+    await page.locator("[data-replay-ready]").waitFor();
+    await page.getByRole("button", { name: "Jump to end" }).click();
+    // Tied at 241, then a tied super over (15 each), settled on boundaries.
+    await expect(page.getByText("Super over 1").first()).toBeVisible();
+    await expect(
+      page.getByText("Match tied (England won on boundaries after a tied super over)").first(),
+    ).toBeVisible();
+  });
+
+  test("ODI sides have records by year and by opponent", async ({ page }) => {
+    await page.goto("/odi/teams");
+    await expect(page.getByRole("heading", { name: "Teams", level: 1 })).toBeVisible();
+    await expect(page.getByText(/Every side in men's ODIs since 2002/)).toBeVisible();
+    await page.goto("/odi/teams/ENG");
+    await expect(page.getByRole("heading", { name: "England", level: 1 })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Year by year", exact: true })).toBeVisible();
+  });
+
   test("a bowl-out tie says so", async ({ page }) => {
     await page.goto("/t20i/matches?season=2007");
     await expect(page.getByText("Match tied (India won the bowl-out)").first()).toBeVisible();
@@ -70,7 +93,7 @@ test.describe("competitions", () => {
     const tabs = page.getByRole("navigation", { name: "Competitions" });
     await expect(tabs.getByRole("link", { name: "T20I" })).toHaveAttribute("aria-current", "page");
     await expect(
-      page.getByRole("region", { name: "Every T20 competition", exact: true }),
+      page.getByRole("region", { name: "Every competition", exact: true }),
     ).toBeVisible();
     await tabs.getByRole("link", { name: "IPL" }).click();
     await expect(page).toHaveURL(/\/ipl\/players\/4a8a2e3b$/);

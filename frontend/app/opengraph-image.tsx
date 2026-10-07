@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "CricIQ: T20 cricket analytics with replay, win probability, players and matchups";
+  "CricIQ: T20 and ODI cricket analytics with replay, win probability, players and matchups";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,7 +43,7 @@ export default function Image() {
         </div>
       </div>
       <div style={{ display: "flex", marginTop: 44, fontSize: 30, color: "#c6ccd6" }}>
-        IPL, T20Is, BBL, PSL, CPL and SA20: replay, win probability, players and matchups
+        IPL, T20Is, ODIs, BBL, PSL, CPL and SA20: replay, win probability, players and matchups
       </div>
     </div>,
     size,

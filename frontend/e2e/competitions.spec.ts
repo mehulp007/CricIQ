@@ -154,15 +154,19 @@ test.describe("competitions", () => {
     await expect(panel).toContainText("win chance", { timeout: 60_000 });
   });
 
-  test("model insights show the pooled models on the competition's own matches", async ({
-    page,
-  }) => {
+  test("model insights show each competition's own models", async ({ page }) => {
     await page.goto("/t20i/models");
     await expect(
       page.getByRole("heading", { name: "T20I Model Insights", level: 1 }),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "How the models did on T20Is" })).toBeVisible();
+    await expect(page.getByText(/trained on T20Is alone/)).toBeVisible();
     await expect(page.getByRole("tab", { name: "Simulator" })).toHaveCount(0);
+    // The leagues share models trained on the four leagues only.
+    await page.goto("/bbl/models");
+    await expect(page.getByRole("heading", { name: "Models of the leagues' own" })).toBeVisible();
+    await expect(page.getByText(/no IPL and no international matches/).first()).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Simulator" })).toHaveCount(1);
   });
 
   test("the Analytics Lab covers the IPL only", async ({ page }) => {

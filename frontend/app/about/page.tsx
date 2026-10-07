@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { COMPETITIONS, type CompetitionId } from "@/lib/competitions";
 import { dataVersion } from "@/lib/featured";
 import {
   BALL_OUTCOME,
@@ -75,6 +76,13 @@ function Strong({ children }: { children: ReactNode }) {
   return <span className="font-medium text-foreground">{children}</span>;
 }
 
+/** "A", "A and B", "A, B and C". */
+function listed(labels: string[]): string {
+  return labels.length > 1
+    ? `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`
+    : (labels[0] ?? "");
+}
+
 export default function AboutPage() {
   const wp = WIN_PROBABILITY.test;
   const sp = SCORE_PROJECTION.test;
@@ -86,6 +94,26 @@ export default function AboutPage() {
   const scoring = RATINGS.components.find((c) => c.role === "batting" && c.key === "scoring");
   const low = RATINGS.components.filter((c) => c.stability === "low");
   const odiModels = modelsFor("odi");
+  const group = (id: CompetitionId) => {
+    const m = modelsFor(id);
+    const wpTest = m.winProbability.test;
+    return {
+      trainedMatches: m.winProbability.trained_on.matches.toLocaleString("en-IN"),
+      tested: wpTest.matches,
+      wp: wpTest.model.log_loss.toFixed(3),
+      baseline: wpTest.baseline.log_loss.toFixed(3),
+    };
+  };
+  const leagues = group("bbl");
+  const t20i = group("t20i");
+  const servedBy = (served: boolean) =>
+    listed(
+      COMPETITIONS.filter((c) => (modelsFor(c.id).simulator !== null) === served).map(
+        (c) => c.label,
+      ),
+    );
+  const simulated = servedBy(true);
+  const unsimulated = servedBy(false);
   const odi = {
     trainedMatches: odiModels.winProbability.trained_on.matches.toLocaleString("en-IN"),
     tested: seasonSpan(odiModels.winProbability.splits.test),
@@ -152,12 +180,16 @@ export default function AboutPage() {
           in every competition they played, and all their T20 cricket together.
         </p>
         <p>
-          <Strong>One model for all T20 cricket, except the IPL.</Strong> The win probability, score
-          projection and ball-outcome models for the BBL, PSL, CPL, SA20 and T20Is are trained on
-          every T20 competition at once, with players&apos; records shared across them. They were
-          also compared with the IPL&apos;s own models on the IPL&apos;s test seasons, and they were
-          not better there, so the IPL keeps its own. CricIQ Ratings are fitted on each
-          competition&apos;s own records.
+          <Strong>Every kind of cricket has models of its own.</Strong> The IPL&apos;s models learn
+          from IPL matches only; the BBL, CPL, PSL and SA20 share one set trained on those four
+          leagues alone ({leagues.trainedMatches} matches, no IPL and no internationals); men&apos;s
+          T20Is have theirs, trained on {t20i.trainedMatches} T20Is; and ODIs theirs. A
+          player&apos;s record inside a model counts only that kind of cricket. On their{" "}
+          {leagues.tested} test matches the leagues&apos; win probability scores a log loss of{" "}
+          {leagues.wp} against {leagues.baseline} for a logistic regression on the match state, and
+          the T20Is&apos; {t20i.wp} against {t20i.baseline}. Until these models, the leagues and
+          T20Is shared one model trained on every T20 competition at once; their Model Insights
+          pages compare the two. CricIQ Ratings are fitted on each competition&apos;s own records.
         </p>
         <p>
           <Strong>ODIs have models of their own.</Strong> A 50-over match paces itself differently,
@@ -170,12 +202,14 @@ export default function AboutPage() {
           and its Model Insights page says so.
         </p>
         <p>
-          <Strong>What is not there yet.</Strong> The match simulator serves the IPL, BBL, CPL, SA20
-          and ODIs, where its backtests passed; for the PSL and T20Is its simulated first-innings
-          totals ran low (the ball model scores their recent seasons a little low), so it is not
-          served there. League tables outside the IPL are computed at two points a win and can
-          differ from official tables that used bonus points. National sides have records by year
-          and by opponent, not league tables. Test cricket comes next.
+          <Strong>What is not there yet.</Strong> The match simulator serves {simulated}, where its
+          backtests passed
+          {unsimulated.length > 0
+            ? `; for ${unsimulated} its simulated first-innings totals did not pass the gate, so it is not served there`
+            : ""}
+          . League tables outside the IPL are computed at two points a win and can differ from
+          official tables that used bonus points. National sides have records by year and by
+          opponent, not league tables. Test cricket comes next.
         </p>
       </Section>
 
@@ -313,8 +347,9 @@ export default function AboutPage() {
           (median) innings, so it reads in whole runs and wickets.
         </p>
         <p>
-          The BBL, CPL and SA20 are simulated the same way with the pooled ball model, each
-          backtested on its own 2025 and 2026 matches before it was served there.
+          The other competitions are simulated the same way with their own model group&apos;s ball
+          model, each backtested on its own 2025 and 2026 matches and served only where it passed:{" "}
+          {simulated}.
         </p>
         <p>
           So the replay&apos;s what-if starts from the win probability model at the real score and

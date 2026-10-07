@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BallOutcomeInsights } from "@/components/models/ball-outcome-insights";
 import { FormatOverview } from "@/components/models/format-overview";
 import { ModelsOverview } from "@/components/models/overview";
-import { PooledOverview } from "@/components/models/pooled-overview";
+import { GroupOverview } from "@/components/models/group-overview";
 import { RatingsInsights } from "@/components/models/ratings-insights";
 import { ScoreProjectionInsights } from "@/components/models/score-projection-insights";
 import { SimulatorInsights } from "@/components/models/simulator-insights";
@@ -57,11 +57,13 @@ export default async function ModelInsightsPage({
           {c.label} Model Insights
         </h1>
         <p className="max-w-3xl leading-relaxed text-muted-foreground">
-          {competition === "odi"
+          {models.group === "odi"
             ? "ODIs have models of their own, trained on ODIs alone: each side's chance of winning after every ball, the projected 50-over total, the next ball's odds behind the Matchup Lab, CricIQ Ratings and the match simulator. The overview shows how each did on years it never saw, whichever way it came out; each tab shows how it was built and tested."
-            : models.pooled
-              ? `Win probability, projected totals and next-ball odds for ${phrase(competition)} come from models trained on every T20 competition at once, and CricIQ Ratings are fitted on ${possessive(competition)} own records. The overview shows how each model did on ${possessive(competition)} own test matches; each tab shows how it was built and tested on every competition together.`
-              : "Three models: each side's chance of winning after every ball, the projected total during the first innings, and the outcome of the next ball behind the Matchup Lab; plus CricIQ Ratings, which rate players with honest allowances for sample size, and the match simulator built on the ball model. The overview shows how accurate each one is on seasons it never saw; each tab shows how it was built and tested, and where it falls short."}
+            : models.group === "t20i"
+              ? "Men's T20 internationals have models of their own, trained on T20Is alone: each side's chance of winning after every ball, the projected first-innings total, the next ball's odds behind the Matchup Lab and CricIQ Ratings. The overview shows how each did on years it never saw, whichever way it came out; each tab shows how it was built and tested."
+              : models.group === "leagues"
+                ? `Win probability, projected totals, next-ball odds${models.simulator ? " and the simulator" : ""} for ${phrase(competition)} come from models trained on the BBL, CPL, PSL and SA20 only, with no IPL or international matches, and CricIQ Ratings are fitted on ${possessive(competition)} own records. The overview shows how each model did on ${possessive(competition)} own test matches; each tab shows how it was built and tested on the four leagues together.`
+                : "Three models: each side's chance of winning after every ball, the projected total during the first innings, and the outcome of the next ball behind the Matchup Lab; plus CricIQ Ratings, which rate players with honest allowances for sample size, and the match simulator built on the ball model. The overview shows how accurate each one is on seasons it never saw; each tab shows how it was built and tested, and where it falls short."}
         </p>
       </header>
 
@@ -75,10 +77,10 @@ export default async function ModelInsightsPage({
           {models.simulator && <TabsTrigger value="simulator">Simulator</TabsTrigger>}
         </TabsList>
         <TabsContent value="overview" className="mt-6">
-          {competition === "odi" ? (
+          {models.group === "odi" || models.group === "t20i" ? (
             <FormatOverview models={models} />
-          ) : models.pooled ? (
-            <PooledOverview models={models} />
+          ) : models.group === "leagues" ? (
+            <GroupOverview models={models} />
           ) : (
             <ModelsOverview />
           )}

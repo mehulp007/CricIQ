@@ -1,8 +1,9 @@
 import Link from "next/link";
 
+import { tradeOff, winProbabilityVerdict } from "@/components/models/group-overview";
 import { Section, Stat } from "@/components/models/section";
 import { scrollRegion } from "@/lib/a11y";
-import { competitionPath, getCompetition, phrase } from "@/lib/competitions";
+import { type CompetitionId, competitionPath, getCompetition, phrase } from "@/lib/competitions";
 import { type ModelSet, favouriteAccuracy, seasonSpan } from "@/lib/models";
 
 function pct(value: number, digits = 1): string {
@@ -39,9 +40,15 @@ function simulatorRow(models: ModelSet): Row | null {
   };
 }
 
+/** Why a competition's models are its own, for the "Trained on" card. */
+const OWN_MODELS: Partial<Record<CompetitionId, string>> = {
+  odi: "a 50-over match is its own game, so it has its own models.",
+  t20i: "no league matches, so a player's record counts their international cricket only.",
+};
+
 /**
- * Model Insights for a format with models of its own (ODIs): every model against its
- * baseline on the test years, stated whichever way it came out.
+ * Model Insights for a competition with models of its own (T20Is, ODIs): every model
+ * against its baseline on the test years, stated whichever way it came out.
  */
 export function FormatOverview({ models }: { models: ModelSet }) {
   const c = getCompetition(models.competition);
@@ -51,10 +58,10 @@ export function FormatOverview({ models }: { models: ModelSet }) {
   const sp = models.scoreProjection.test;
   const bo = models.ballOutcome.test;
   const tested = seasonSpan(wpData.splits.test);
+  const pooled = models.pooledWinProbability;
   const gain = wp.vs_baseline;
   // Better only when the whole 95% interval of the gain is above zero.
   const wpBetter = gain.ci_low > 0;
-  const wpAhead = gain.improvement > 0;
   const wpSeasons = wpData.backtest.filter((r) => r.model_log_loss < r.baseline_log_loss);
   const spBetter = sp.model.mae < sp.par_baseline.mae;
   const ballGain = 1 - bo.model.log_loss / bo.baseline.log_loss;
@@ -70,7 +77,7 @@ export function FormatOverview({ models }: { models: ModelSet }) {
       baseline: `${wp.baseline.log_loss.toFixed(3)} · ${(wp.baseline.auc ?? 0).toFixed(2)} (logistic regression on the match state)`,
       verdict: wpBetter
         ? `The side it favours goes on to win after ${pct(favouriteAccuracy(wp.reliability))} of balls, and its chances are off by ${(100 * wp.model.ece).toFixed(1)} points on average. Better than the baseline in ${wpSeasons.length} of ${wpData.backtest.length} backtest years.`
-        : `Level with the baseline over ${wp.matches} test matches: ${wpAhead ? "ahead" : "behind"} by ${Math.abs(gain.improvement).toFixed(3)}, but the 95% interval (${gain.ci_low.toFixed(3)} to ${gain.ci_high.toFixed(3)}) includes no gain, and it beat the baseline in ${wpSeasons.length} of ${wpData.backtest.length} backtest years. A logistic regression on the score, wickets and balls left does about as well. Its chances are off by ${(100 * wp.model.ece).toFixed(1)} points on average.`,
+        : `${winProbabilityVerdict(gain, wp.matches)} It beat the baseline in ${wpSeasons.length} of ${wpData.backtest.length} backtest years, and its chances are off by ${(100 * wp.model.ece).toFixed(1)} points on average.`,
     },
     {
       key: "score-projection",
@@ -112,7 +119,7 @@ export function FormatOverview({ models }: { models: ModelSet }) {
         <Stat
           label="Trained on"
           value={`${count(wpData.trained_on.matches)} matches`}
-          context={`${on} alone, from ${seasonSpan(wpData.trained_on.seasons)}: a 50-over match is its own game, so it has its own models.`}
+          context={`${on} alone, from ${seasonSpan(wpData.trained_on.seasons)}: ${OWN_MODELS[models.competition] ?? "no other cricket is mixed in."}`}
         />
         <Stat
           label={`${c.label} test matches`}
@@ -184,6 +191,14 @@ export function FormatOverview({ models }: { models: ModelSet }) {
             </tbody>
           </table>
         </div>
+        {pooled && (
+          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-muted-foreground">
+            Before these models, one model trained on every T20 competition, leagues included,
+            served {on}. On the same test matches its win probability scored{" "}
+            {pooled.model.log_loss.toFixed(3)} against {wp.model.log_loss.toFixed(3)} now (lower is
+            better): {tradeOff(pooled.model.log_loss, wp.model.log_loss, on)}
+          </p>
+        )}
       </Section>
     </div>
   );

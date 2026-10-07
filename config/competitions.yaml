@@ -16,8 +16,10 @@
 #   otherwise by their year (Cricsheet labels even IPL 2008 "2007/08").
 # strict: an unknown team or venue fails the build (curated competitions);
 #   otherwise new teams and venues are added automatically and reported.
-# switcher: shown in the site's competition switcher; the other leagues feed
-#   the models and players' careers.
+# switcher: shown in the site's competition switcher (each gets its own pages).
+# home_country: a league's home grounds only count in this country (the IPL's
+#   seasons abroad had no home sides); otherwise a ground used mostly by one side
+#   is its home wherever it is.
 
 competitions:
   - id: IPL
@@ -30,6 +32,7 @@ competitions:
     strict: true
     season_basis: label
     switcher: true
+    home_country: India
     cricsheet:
       archive: ipl_json.zip
       match: { event_name: Indian Premier League }
@@ -46,6 +49,7 @@ competitions:
     teams: bbl
     season_basis: label
     season_spans_new_year: true
+    switcher: true
     cricsheet:
       archive: bbl_json.zip
       match: { event_name: Big Bash League }
@@ -58,6 +62,7 @@ competitions:
     team_type: club
     teams: psl
     season_basis: calendar
+    switcher: true
     cricsheet:
       archive: psl_json.zip
       match: { event_name: Pakistan Super League }
@@ -70,6 +75,7 @@ competitions:
     team_type: club
     teams: cpl
     season_basis: calendar
+    switcher: true
     cricsheet:
       archive: cpl_json.zip
       match: { event_name: Caribbean Premier League }
@@ -82,6 +88,7 @@ competitions:
     team_type: club
     teams: sa20
     season_basis: calendar
+    switcher: true
     cricsheet:
       archive: sat_json.zip
       match: { event_name: SA20 }

@@ -4,6 +4,7 @@
 # (no season ranges); Swaziland and Eswatini are the same side. Ids follow the
 # usual cricket abbreviations. Colours are optional data accents for the
 # established sides; the UI falls back to neutral tones for the rest.
+# A side is at home in the country it is named after, or in its home_countries.
 #
 # Cricsheet holds no Afghanistan matches, so Afghanistan is not listed.
 
@@ -11,14 +12,33 @@ teams:
   # Full members
   - { id: AUS, name: Australia, colors: { primary: "#FFCD00", secondary: "#00843D" } }
   - { id: BAN, name: Bangladesh, colors: { primary: "#006A4E", secondary: "#F42A41" } }
-  - { id: ENG, name: England, colors: { primary: "#1D4FA0", secondary: "#C8102E" } }
+  - id: ENG
+    name: England
+    colors: { primary: "#1D4FA0", secondary: "#C8102E" }
+    home_countries: [England, Wales]
   - { id: IND, name: India, colors: { primary: "#1C6FD1", secondary: "#FF9933" } }
-  - { id: IRE, name: Ireland, colors: { primary: "#169B62", secondary: "#7A7A7A" } }
+  - id: IRE
+    name: Ireland
+    colors: { primary: "#169B62", secondary: "#7A7A7A" }
+    home_countries: [Ireland, Northern Ireland]
   - { id: NZ, name: New Zealand, colors: { primary: "#A8A8A8", secondary: "#4A4A4A" } }
   - { id: PAK, name: Pakistan, colors: { primary: "#1E8E3E", secondary: "#A3D977" } }
   - { id: SA, name: South Africa, colors: { primary: "#007A4D", secondary: "#FFB612" } }
   - { id: SL, name: Sri Lanka, colors: { primary: "#2B4BA8", secondary: "#FFC72C" } }
-  - { id: WI, name: West Indies, colors: { primary: "#9B1B3A", secondary: "#FFC72C" } }
+  - id: WI
+    name: West Indies
+    colors: { primary: "#9B1B3A", secondary: "#FFC72C" }
+    home_countries:
+      - Antigua and Barbuda
+      - Barbados
+      - Dominica
+      - Grenada
+      - Guyana
+      - Jamaica
+      - St Kitts and Nevis
+      - St Lucia
+      - St Vincent and the Grenadines
+      - Trinidad and Tobago
   - { id: ZIM, name: Zimbabwe, colors: { primary: "#D40000", secondary: "#FCE300" } }
   # Associates
   - { id: ARG, name: Argentina }

@@ -13,6 +13,7 @@ from criciq_pipelines.reference import (
     LeagueTablesConfig,
     TableRow,
     VoidedMatch,
+    load_teams,
 )
 from criciq_pipelines.teams import (
     FORM_MATCHES,
@@ -47,7 +48,7 @@ def _rebuilt(serving: Path, tables: LeagueTablesConfig) -> duckdb.DuckDBPyConnec
     for table in CORE:
         mem.execute(f"CREATE TABLE {table} AS SELECT * FROM src.{table}")
     mem.execute("DETACH src")
-    build_team_tables(mem, tables)
+    build_team_tables(mem, tables, home_country="India")
     return mem
 
 
@@ -239,3 +240,22 @@ def test_league_table_check(con: duckdb.DuckDBPyConnection) -> None:
     # A season the data does not fully cover is not checked.
     padded = [official[0].model_copy(update={"won": official[0].won + 5}), *official[1:]]
     assert check_league_tables(con, LeagueTablesConfig(seasons={season: padded})) == []
+
+
+def test_national_sides_are_at_home_in_their_own_country(fixture_scored_serving_db: Path) -> None:
+    home_in = {t.id: t.home_in for t in load_teams("national").teams}
+    con = duckdb.connect(
+        str(fixture_scored_serving_db.with_name("serving-t20i.duckdb")), read_only=True
+    )
+    try:
+        rows = con.execute(
+            """
+            SELECT t.franchise_id, v.country, t.venue_type
+            FROM team_matches t JOIN venues v USING (venue_id)
+            """
+        ).fetchall()
+    finally:
+        con.close()
+    assert rows
+    for team, country, venue_type in rows:
+        assert (venue_type == "home") == (country in home_in[team]), (team, country)

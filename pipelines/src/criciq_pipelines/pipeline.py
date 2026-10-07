@@ -45,6 +45,8 @@ SCOPED = ("IPL",)
 # The pooled copy of every selected T20 competition, in one time order: what the
 # models train on and score from (criciq_ml).
 POOLED = "T20"
+# Formats the site serves so far (ODI and Test arrive in V2-5 and V2-6).
+SERVED_FORMATS = ("T20",)
 
 
 def selected_competitions() -> list[Competition]:
@@ -160,6 +162,17 @@ def pooled_competitions() -> list[str]:
     return [c.id for c in selected_competitions() if c.format == "T20"]
 
 
+def served_competitions() -> list[str]:
+    """The selected switcher competitions the site serves, each from its own serving
+    database (the IPL's from its scoped copy, the others exported from the warehouse)."""
+    return [c.id for c in selected_competitions() if c.switcher and c.format in SERVED_FORMATS]
+
+
+def exported_competitions() -> list[str]:
+    """The served competitions without a scoped copy of their own."""
+    return [c for c in served_competitions() if c not in SCOPED]
+
+
 def serving_path() -> Path:
     return paths.serving_path()
 
@@ -185,15 +198,41 @@ def run_export(
     return counts
 
 
-def run_export_competition(competition: str, target: Path) -> dict[str, int]:
+def run_export_competition(
+    competition: str,
+    target: Path,
+    *,
+    warehouse: Path | None = None,
+    updates: Path | None = None,
+) -> dict[str, int]:
     """One competition's serving-shaped database, from its v1-shaped copy of the full
     warehouse (written beside ``target`` and removed afterwards)."""
     scoped = target.with_name(target.stem + "-scope.duckdb")
-    build_scope(paths.cricket_warehouse_path(), competition, scoped)
+    build_scope(warehouse or paths.cricket_warehouse_path(), competition, scoped)
     try:
-        return export_serving(scoped, target)
+        return export_serving(scoped, target, updates=updates)
     finally:
         scoped.unlink(missing_ok=True)
+
+
+def run_export_competitions(
+    *, warehouse: Path | None = None, updates: Path | None = None
+) -> dict[str, dict[str, int]]:
+    """Export and put in place the serving database of every served competition
+    besides the IPL's (``run_export``); row counts by competition."""
+    ingest = updates or paths.sync_dir() / "ingest.duckdb"
+    found: dict[str, dict[str, int]] = {}
+    for competition in exported_competitions():
+        final = paths.serving_path(competition)
+        staging = final.with_name(final.name + ".export")
+        found[competition] = run_export_competition(
+            competition,
+            staging,
+            warehouse=warehouse,
+            updates=ingest if ingest.exists() else None,
+        )
+        publish(staging, final)
+    return found
 
 
 def player_competitions() -> list[str]:

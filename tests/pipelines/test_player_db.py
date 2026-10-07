@@ -9,9 +9,9 @@ import duckdb
 import pytest
 
 from criciq_core.phases import default_phase_config
+from criciq_pipelines.export import NEUTRAL_COLOR
 from criciq_pipelines.player_db import (
     ALL_T20,
-    NEUTRAL_COLOR,
     PlayerDatabaseError,
     export_players,
 )

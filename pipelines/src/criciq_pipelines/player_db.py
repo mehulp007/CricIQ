@@ -32,7 +32,7 @@ from pathlib import Path
 import duckdb
 
 from criciq_pipelines import __version__
-from criciq_pipelines.export import copy_core_tables
+from criciq_pipelines.export import NEUTRAL_COLOR, copy_core_tables
 from criciq_pipelines.players import INDEX_QUERY, PLAYER_TABLES, build_player_tables
 from criciq_pipelines.reference import load_competitions
 from criciq_pipelines.scope import build_scope
@@ -41,8 +41,6 @@ from criciq_pipelines.scope import build_scope
 FORMATS = ("T20",)
 # The scope holding every T20 competition.
 ALL_T20 = "T20"
-# The colour of teams without a curated one (most associate nations).
-NEUTRAL_COLOR = "#7A7A7A"
 
 # Player tables with one row per innings, which also carry the global match order.
 _INNINGS_TABLES = ("player_batting_innings", "player_bowling_innings")

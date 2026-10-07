@@ -54,9 +54,11 @@ def exports_dir() -> Path:
     return data_dir() / "exports"
 
 
-def serving_path() -> Path:
-    """The read-only database the API serves."""
-    return exports_dir() / "serving.duckdb"
+def serving_path(competition: str = "IPL") -> Path:
+    """The read-only database the API serves for one competition (the IPL's keeps v1's name)."""
+    if competition.upper() == "IPL":
+        return exports_dir() / "serving.duckdb"
+    return exports_dir() / f"serving-{competition.lower()}.duckdb"
 
 
 def players_path() -> Path:

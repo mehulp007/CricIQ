@@ -389,6 +389,8 @@ class _Workspace:
     scopes: dict[str, Path]
     serving: Path
     players: Path
+    # Serving databases of the other served competitions (pipeline.exported_competitions).
+    servings: dict[str, Path]
     report: ValidationReport | None = None
 
     @classmethod
@@ -403,11 +405,20 @@ class _Workspace:
             },
             serving=_beside(paths.serving_path(), ".sync"),
             players=_beside(paths.players_path(), ".sync"),
+            servings={
+                c: _beside(paths.serving_path(c), ".sync") for c in pipeline.exported_competitions()
+            },
         )
 
     def clean(self) -> None:
         shutil.rmtree(self.interim, ignore_errors=True)
-        for path in (self.warehouse, *self.scopes.values(), self.serving, self.players):
+        for path in (
+            self.warehouse,
+            *self.scopes.values(),
+            self.serving,
+            self.players,
+            *self.servings.values(),
+        ):
             path.unlink(missing_ok=True)
 
 
@@ -585,10 +596,14 @@ def _apply(
     if pooled := pipeline.pooled_competitions():
         build_scope(workspace.warehouse, pooled, workspace.scopes[pipeline.POOLED])
     if scoped:
-        log("> exporting the serving database ...")
+        log("> exporting the serving databases ...")
         updates = _updates_with(con, result, started)
         try:
             export_serving(workspace.scopes[scoped[0]], workspace.serving, updates=updates)
+            for competition, target in workspace.servings.items():
+                pipeline.run_export_competition(
+                    competition, target, warehouse=workspace.warehouse, updates=updates
+                )
         finally:
             updates.unlink(missing_ok=True)
     players = pipeline.player_competitions()
@@ -730,6 +745,9 @@ def _score(workspace: _Workspace, competition: str) -> None:
     ]
     if workspace.players.exists():
         arguments += ["--players", str(workspace.players)]
+    for other, path in workspace.servings.items():
+        if path.exists():
+            arguments += ["--serving-db", f"{other}={path}"]
     subprocess.run(arguments, check=True, env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
 
@@ -776,6 +794,9 @@ def _commit(
         result.serving = publish(workspace.serving, paths.serving_path())
     if workspace.players.exists():
         publish(workspace.players, paths.players_path())
+    for competition, path in workspace.servings.items():
+        if path.exists():
+            publish(path, paths.serving_path(competition))
 
     source = (store / "matches.zip").relative_to(paths.raw_dir()).as_posix()
     quarantined = {q.match_id: q for q in result.quarantined}

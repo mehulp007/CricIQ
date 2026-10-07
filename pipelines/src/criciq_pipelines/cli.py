@@ -122,9 +122,18 @@ def build() -> None:
 
 @app.command()
 def export() -> None:
-    """Export the read-only serving database the API ships with."""
+    """Export the read-only serving databases the API ships with (one per competition)."""
     _print_counts(_timed("exporting serving database", pipeline.run_export))
     typer.echo(f"  wrote {pipeline.serving_path()}")
+    _export_competitions()
+
+
+def _export_competitions() -> None:
+    counts = _timed("exporting the other competitions", pipeline.run_export_competitions)
+    for competition, found in counts.items():
+        typer.echo(
+            f"  {competition}: {found['matches']:,} matches -> {paths.serving_path(competition)}"
+        )
 
 
 @app.command("export-competition")
@@ -224,6 +233,7 @@ def run(
     )
     _print_changes(recorded)
     _print_counts(_timed("exporting serving database", pipeline.run_export))
+    _export_competitions()
     _print_counts(_timed("exporting players database", pipeline.run_export_players))
 
 

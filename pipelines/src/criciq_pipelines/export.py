@@ -13,9 +13,17 @@ from pathlib import Path
 import duckdb
 
 from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
-from criciq_pipelines.reference import load_league_tables
+from criciq_pipelines.reference import (
+    LeagueTablesConfig,
+    load_competitions,
+    load_league_tables,
+    load_teams,
+)
 from criciq_pipelines.simulation import SIMULATION_TABLES, build_simulation_tables
 from criciq_pipelines.teams import TEAM_TABLES, build_team_tables, check_league_tables
+
+# The colour of teams without a curated one (most associate nations).
+NEUTRAL_COLOR = "#7A7A7A"
 
 # Warehouse tables copied as-is.
 COPIED_TABLES = (
@@ -115,7 +123,12 @@ SELECT
     m.decided_by_super_over,
     CASE
         WHEN m.outcome_type = 'no_result' THEN 'No result'
-        WHEN m.outcome_type = 'tie' THEN 'Match tied (' || tw.display_name || ' won the super over)'
+        -- Ties without a winner, and the bowl-outs that settled ties before super overs.
+        WHEN m.outcome_type = 'tie' AND tw.display_name IS NULL THEN 'Match tied'
+            || CASE WHEN m.win_method IS NOT NULL THEN ' (' || m.win_method || ')' ELSE '' END
+        WHEN m.outcome_type = 'tie' AND m.decided_by_super_over
+            THEN 'Match tied (' || tw.display_name || ' won the super over)'
+        WHEN m.outcome_type = 'tie' THEN 'Match tied (' || tw.display_name || ' won the bowl-out)'
         WHEN m.win_by_runs IS NOT NULL THEN
             tw.display_name || ' won by ' || m.win_by_runs
             || CASE WHEN m.win_by_runs = 1 THEN ' run' ELSE ' runs' END
@@ -150,6 +163,16 @@ def copy_core_tables(con: duckdb.DuckDBPyConnection) -> None:
     """Copy the tables the serving database keeps from the attached warehouse ``wh``."""
     for table in COPIED_TABLES:
         con.execute(f"CREATE TABLE {table} AS SELECT * FROM wh.{table}")
+    # Every team gets a colour (the IPL's all have curated ones).
+    con.execute(
+        """
+        UPDATE franchises
+        SET primary_color = coalesce(primary_color, $neutral),
+            secondary_color = coalesce(secondary_color, $neutral)
+        WHERE primary_color IS NULL OR secondary_color IS NULL
+        """,
+        {"neutral": NEUTRAL_COLOR},
+    )
     con.execute(
         """
         CREATE TABLE players AS
@@ -164,8 +187,10 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
     """Write the serving database to ``target`` atomically; return row counts.
 
     Fails if a computed league table differs from the official one for any season
-    the data fully covers. ``updates`` is the sync's ingest database: its record of
-    data updates for the served competitions goes into ``data_updates``.
+    the data fully covers. The league-tables config (official tables, abandoned
+    fixtures, voided matches) is the IPL's; other competitions are built without
+    it. ``updates`` is the sync's ingest database: its record of data updates for
+    the served competitions goes into ``data_updates``.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
     staging = target.with_name(target.name + ".building")
@@ -192,8 +217,24 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
             )
             con.execute("DETACH ingest")
         build_player_tables(con)
-        league_tables = load_league_tables()
-        build_team_tables(con, league_tables)
+        served = {r[0] for r in con.execute("SELECT competition_id FROM competitions").fetchall()}
+        league_tables = load_league_tables() if served == {"IPL"} else LeagueTablesConfig()
+        # How the API names seasons: "2023/24" where they span the new year, else the year.
+        configured = load_competitions()
+        spans = any(configured.get(c).season_spans_new_year for c in served)
+        con.execute("INSERT INTO meta VALUES ('season_spans_new_year', ?)", [str(spans).lower()])
+        competitions = [configured.get(c) for c in sorted(served)]
+        national = [c for c in competitions if c.team_type == "national"]
+        build_team_tables(
+            con,
+            league_tables,
+            home_country=competitions[0].home_country if len(competitions) == 1 else None,
+            national_homes=(
+                {t.id: t.home_in for c in national for t in load_teams(c.teams).teams}
+                if national
+                else None
+            ),
+        )
         build_simulation_tables(con)
         failed = [c for c in check_league_tables(con, league_tables) if not c.passed]
         if failed:

@@ -15,11 +15,15 @@ batting first is credited with the target minus one from the overs the chasing
 side had; overs an umpire miscounted count as bowled. No results are left out.
 The computed tables reproduce every official table (see config/league_tables.yaml).
 
-A ground in India is a side's home in a season when the side played at least
+In a league, a ground is a side's home in a season when the side played at least
 ``HOME_MIN_MATCHES`` league matches there and was in at least ``HOME_SHARE`` of
-the league matches played there. Seasons played abroad or at shared neutral
-venues (2009, 2020-2022, the UAE leg of 2014) therefore have no home sides, and
-adopted grounds such as Ranchi for CSK in 2014 count as home.
+the league matches played there (in the IPL, only grounds in India count).
+Seasons played at shared neutral venues (the IPL's 2009, 2020-2022 and UAE leg
+of 2014, the PSL in the UAE, the CPL's single-island seasons) therefore have no
+home sides, and adopted grounds such as Ranchi for CSK in 2014 count as home.
+A national side is at home in its own country (``home_countries`` in
+config/teams/national.yaml where that is more than one country, e.g. the West
+Indies).
 """
 
 from __future__ import annotations
@@ -33,7 +37,6 @@ from criciq_pipelines.reference import LeagueTablesConfig
 
 TEAM_TABLES = ("team_matches", "team_innings_phases", "team_season_records")
 
-HOME_COUNTRY = "India"
 HOME_MIN_MATCHES = 2
 HOME_SHARE = 0.75
 # A close finish: a margin of at most this many runs, or a chase completed with at
@@ -73,8 +76,16 @@ league_venue AS (
     FROM matches m JOIN seasons s USING (season_id)
     JOIN venues v USING (venue_id)
     JOIN team_seasons t ON t.team_season_id IN (m.team1_id, m.team2_id)
-    WHERE m.stage = 'League' AND v.country = '{HOME_COUNTRY}'
+    WHERE m.stage = 'League'
+      AND (getvariable('home_country') IS NULL OR v.country = getvariable('home_country'))
     GROUP BY s.year, m.venue_id, t.franchise_id
+),
+national_home AS (
+    SELECT DISTINCT s.year AS season, m.venue_id, t.franchise_id
+    FROM matches m JOIN seasons s USING (season_id)
+    JOIN venues v USING (venue_id)
+    JOIN team_seasons t ON t.team_season_id IN (m.team1_id, m.team2_id)
+    JOIN home_countries h ON h.franchise_id = t.franchise_id AND h.country = v.country
 ),
 home AS (
     SELECT season, venue_id, franchise_id
@@ -83,6 +94,9 @@ home AS (
         FROM league_venue
     )
     WHERE n >= {HOME_MIN_MATCHES} AND n >= {HOME_SHARE} * venue_matches
+      AND NOT getvariable('national')
+    UNION ALL
+    SELECT season, venue_id, franchise_id FROM national_home
 ),
 sides AS (
     SELECT m.*, s.year AS season,
@@ -255,15 +269,36 @@ RECORDS_SQL = """
 """
 
 
-def build_team_tables(con: duckdb.DuckDBPyConnection, tables: LeagueTablesConfig) -> None:
-    """Create the Team Analytics tables from the serving copies of the core tables."""
+def build_team_tables(
+    con: duckdb.DuckDBPyConnection,
+    tables: LeagueTablesConfig,
+    *,
+    home_country: str | None = None,
+    national_homes: dict[str, list[str]] | None = None,
+) -> None:
+    """Create the Team Analytics tables from the serving copies of the core tables.
+
+    ``home_country`` limits a league's home grounds to one country (the IPL's
+    India); ``national_homes`` maps each national side to the countries it is at
+    home in, and makes the competition an international one.
+    """
+    con.execute("SET VARIABLE home_country = ?", [home_country])
+    con.execute("SET VARIABLE national = ?", [national_homes is not None])
+    con.execute("CREATE TEMP TABLE home_countries (franchise_id VARCHAR, country VARCHAR)")
+    homes = [(team, country) for team, cs in (national_homes or {}).items() for country in cs]
+    if homes:
+        con.executemany("INSERT INTO home_countries VALUES (?, ?)", homes)
     con.execute("CREATE TEMP TABLE voided_matches (match_id BIGINT)")
-    con.executemany("INSERT INTO voided_matches VALUES (?)", [(v.match_id,) for v in tables.voided])
+    if tables.voided:
+        con.executemany(
+            "INSERT INTO voided_matches VALUES (?)", [(v.match_id,) for v in tables.voided]
+        )
     con.execute("CREATE TEMP TABLE abandoned_fixtures (season INTEGER, franchise_id VARCHAR)")
-    con.executemany(
-        "INSERT INTO abandoned_fixtures VALUES (?, ?)",
-        [(f.season, team) for f in tables.abandoned for team in f.teams],
-    )
+    if tables.abandoned:
+        con.executemany(
+            "INSERT INTO abandoned_fixtures VALUES (?, ?)",
+            [(f.season, team) for f in tables.abandoned for team in f.teams],
+        )
     con.execute(TEAM_MATCHES_SQL)
     con.execute(FORM_SQL)
     con.execute("DROP TABLE team_matches_base")
@@ -271,6 +306,7 @@ def build_team_tables(con: duckdb.DuckDBPyConnection, tables: LeagueTablesConfig
     con.execute(RECORDS_SQL)
     con.execute("DROP TABLE voided_matches")
     con.execute("DROP TABLE abandoned_fixtures")
+    con.execute("DROP TABLE home_countries")
 
 
 @dataclass(frozen=True)

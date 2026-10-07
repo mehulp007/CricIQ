@@ -61,6 +61,8 @@ class Competition(BaseModel):
     season_basis: Literal["label", "calendar"]
     season_spans_new_year: bool = False
     switcher: bool = False
+    # A league's home grounds only count in this country (the IPL's seasons abroad).
+    home_country: str | None = None
     cricsheet: CricsheetSource
     rules: CompetitionRules = CompetitionRules()
 
@@ -137,12 +139,19 @@ class Team(BaseModel):
     name: str
     colors: TeamColors | None = None
     names: list[TeamName] = []
+    # A national side's home countries, where not just the one it is named after.
+    home_countries: list[str] = []
 
     @model_validator(mode="after")
     def _default_names(self) -> Team:
         if not self.names:
             self.names = [TeamName(name=self.name)]
         return self
+
+    @property
+    def home_in(self) -> list[str]:
+        """The countries a national side plays at home in."""
+        return self.home_countries or [self.name]
 
     @property
     def first_season(self) -> int:

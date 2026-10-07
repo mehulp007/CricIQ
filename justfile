@@ -65,6 +65,20 @@ sync-status:
 ml *args:
     uv run criciq-ml {{args}}
 
+# Train one model group's models in order (ipl, leagues, t20i or odi), each on its own
+# competitions only; writes data/training/<group>/summary.md. Resumes an interrupted run.
+# e.g. `just train-group leagues`, `just train-group t20i --only simulator`, `--fresh`
+train-group group *args:
+    uv run python scripts/train_group.py train {{group}} {{args}}
+
+# Put every group's current models on the site's data: score, model cards, featured replays
+publish-models:
+    uv run python scripts/train_group.py publish
+
+# Which models serve each model group (and which still use the pooled T20 fallback)
+model-status:
+    uv run python scripts/train_group.py status
+
 # Re-execute notebooks in place so their outputs are stored (needs a built warehouse)
 notebooks *args:
     uv run --group notebooks python scripts/run_notebooks.py {{args}}

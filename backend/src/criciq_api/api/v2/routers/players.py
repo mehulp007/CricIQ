@@ -1,7 +1,7 @@
-"""Player Lab for any T20 competition, and all T20 cricket together.
+"""Player Lab for any competition, and all T20 cricket together.
 
 Directory, profiles, splits and similar players from the players database:
-``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i or t20 (every T20
+``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i, odi or t20 (every T20
 competition). Par is always the player's own competition's: a PSL strike rate is
 judged against the PSL. Ratings use each competition's own shrinkage constants,
 and win probability added comes from the model serving that competition.
@@ -38,7 +38,7 @@ Competition = Annotated[
     str,
     Path(
         pattern=r"^[a-z0-9]{2,8}$",
-        description="ipl, bbl, psl, cpl, sa20, t20i, or t20 for all T20 cricket.",
+        description="ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
     ),
 ]
 FirstSeason = Annotated[
@@ -70,7 +70,8 @@ def list_competitions(db: PlayersDB) -> CompetitionList:
 
 @router.get("/players/{player_id}")
 def read_careers(db: PlayersDB, player_id: str) -> PlayerCareers:
-    """A player's headline numbers in every competition, then all T20 cricket together."""
+    """A player's headline numbers in every competition, with all T20 cricket together
+    after the T20 competitions."""
     try:
         return competitions_service.get_careers(db, player_id)
     except service.PlayerNotFoundError:

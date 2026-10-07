@@ -186,7 +186,9 @@ class TeamScoring(BaseModel):
     avg_first_innings: float | None
     first_innings: int
     highest: TeamTotal | None
-    lowest: TeamTotal | None = Field(description="Lowest completed total (bowled out or 20 overs).")
+    lowest: TeamTotal | None = Field(
+        description="Lowest completed total (bowled out or all the overs batted)."
+    )
     biggest_win_runs: TeamMargin | None
     biggest_win_wickets: TeamMargin | None
 

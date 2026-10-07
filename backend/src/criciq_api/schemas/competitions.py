@@ -56,5 +56,6 @@ class PlayerCareers(BaseModel):
     full_name: str | None
     country: str | None
     careers: list[CareerLine] = Field(
-        description="One line per competition played, then all T20 cricket together."
+        description="One line per competition played, with all T20 cricket together after "
+        "the T20 competitions."
     )

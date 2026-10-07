@@ -1,7 +1,7 @@
 """The players database's competitions (scopes) and players' careers across them.
 
 Each scope is a schema of the players database (``criciq_pipelines.player_db``):
-one per T20 competition, and ``t20`` for all of them together. ``scoped`` gives
+one per competition, and ``t20`` for every T20 competition together. ``scoped`` gives
 the Player Lab services a database restricted to one scope.
 """
 

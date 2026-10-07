@@ -50,7 +50,25 @@ T20I_FEATURED: dict[int, str] = {
     356017: "T20 World Cup 2009 final",
     287879: "T20 World Cup 2007 final, the first",
 }
-FEATURED: dict[str, dict[int, str]] = {"ipl": IPL_FEATURED, "t20i": T20I_FEATURED}
+# Every men's ODI World Cup final in the data, the Champions Trophy finals, and the
+# highest chase.
+ODI_FEATURED: dict[int, str] = {
+    1384439: "World Cup 2023 final",
+    1144530: "World Cup 2019 final: tied, then a tied super over, won on boundaries",
+    656495: "World Cup 2015 final",
+    433606: "World Cup 2011 final: India win at home",
+    247507: "World Cup 2007 final, cut to 38 overs by rain",
+    65286: "World Cup 2003 final",
+    1466428: "Champions Trophy 2025 final",
+    1022375: "Champions Trophy 2017 final",
+    566948: "Champions Trophy 2013 final, reduced to 20 overs",
+    238200: "South Africa chase 435 against Australia, the highest chase in ODI history",
+}
+FEATURED: dict[str, dict[int, str]] = {
+    "ipl": IPL_FEATURED,
+    "t20i": T20I_FEATURED,
+    "odi": ODI_FEATURED,
+}
 # Other competitions feature their latest finals.
 FINALS = 6
 

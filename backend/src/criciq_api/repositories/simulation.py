@@ -109,9 +109,14 @@ def usage_priors(db: Database, first: int, last: int) -> list[tuple[str | None, 
 
 
 def candidates(
-    db: Database, player_ids: Sequence[str], history: int, upto: int | None = None
+    db: Database,
+    player_ids: Sequence[str],
+    history: int,
+    upto: int | None = None,
+    overs: int = 20,
 ) -> list[Row]:
-    """Players with their usual batting position and recent bowling usage.
+    """Players with their usual batting position and recent bowling usage (in the
+    format's ``overs``).
 
     Both come from each player's own last ``history`` seasons up to ``upto`` (any
     season when empty), so a player from any era can be picked as they were then.
@@ -141,7 +146,7 @@ def candidates(
                     WHERE player_id IN (SELECT player_id FROM picked) AND season <= ?
                     GROUP BY player_id
                 ) l USING (player_id)
-                WHERE u.season > l.last - ? AND u.season <= l.last AND u.over_no < 20
+                WHERE u.season > l.last - ? AND u.season <= l.last AND u.over_no < {overs}
                 GROUP BY ALL
             ) u
             GROUP BY u.player_id

@@ -1,4 +1,4 @@
-"""/api/v2: Player Lab for every T20 competition and all T20, over the fixture matches."""
+"""/api/v2: Player Lab for every T20 competition, all T20 and ODIs, over the fixture matches."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 T20 = ["ipl", "bbl", "psl", "cpl", "sa20", "t20i", "t20"]
+SCOPES = [*T20, "odi"]
 
 
 def _get(client: TestClient, path: str, **params: Any) -> Any:
@@ -20,16 +21,17 @@ def test_competitions_list_their_seasons(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.headers["X-Data-Version"] == response.json()["data_version"]
     items = {c["id"]: c for c in response.json()["items"]}
-    assert list(items) == T20
+    assert list(items) == SCOPES
     assert items["t20"]["competitions"] == ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I"]
     assert {"year": 2024, "label": "2023/24"} in items["bbl"]["seasons"]
     assert {"year": 2008, "label": "2008"} in items["ipl"]["seasons"]
     assert items["t20"]["matches"] == sum(items[c]["matches"] for c in T20[:-1])
-    assert all(items[c]["players"] > 0 for c in T20)
+    assert all(items[c]["players"] > 0 for c in SCOPES)
+    assert items["odi"]["competitions"] == ["ODI"]
 
 
 def test_every_competition_has_a_directory_profile_and_splits(client: TestClient) -> None:
-    for competition in T20:
+    for competition in SCOPES:
         page = _get(client, f"/api/v2/{competition}/players", sort="runs", page_size=5)
         assert page["total"] > 0
         busiest = page["items"][0]
@@ -59,10 +61,12 @@ def test_all_t20_adds_up_a_players_competitions(client: TestClient) -> None:
     assert whole["batting"]["runs"] == sum(i["runs"] for i in played)
 
     careers = _get(client, f"/api/v2/players/{player_id}")
-    assert [c["competition"] for c in careers["careers"]][-1] == "t20"
-    assert len(careers["careers"]) == len(played) + 1
-    assert careers["careers"][-1]["matches"] == whole["player"]["matches"]
-    assert careers["careers"][-1]["runs"] == whole["batting"]["runs"]
+    # Their T20 lines, then All T20 (ODIs, if any, come after).
+    t20 = [c for c in careers["careers"] if c["competition"] in T20]
+    assert t20[-1]["competition"] == "t20"
+    assert len(t20) == len(played) + 1
+    assert t20[-1]["matches"] == whole["player"]["matches"]
+    assert t20[-1]["runs"] == whole["batting"]["runs"]
 
 
 def test_a_bbl_season_is_filtered_by_its_year(client: TestClient) -> None:
@@ -72,7 +76,7 @@ def test_a_bbl_season_is_filtered_by_its_year(client: TestClient) -> None:
 
 
 def test_unknown_competitions_and_players_are_not_found(client: TestClient) -> None:
-    assert client.get("/api/v2/odi/players").status_code == 404
+    assert client.get("/api/v2/test/players").status_code == 404
     assert client.get("/api/v2/bbl/players/nobody").status_code == 404
     assert client.get("/api/v2/players/nobody").status_code == 404
     assert client.get("/api/v2/BBL/players").status_code == 422  # lower-case ids only

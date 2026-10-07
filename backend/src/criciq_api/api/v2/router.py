@@ -1,7 +1,7 @@
 """The API, /api/v2: everything the site shows, for any competition it serves.
 
 ``/api/v2/{competition}/...`` (``ipl``, ``bbl``, ``psl``, ``cpl``, ``sa20``,
-``t20i``) reads that competition's serving database (``criciq_api.db.get_db``);
+``t20i``, ``odi``) reads that competition's serving database (``criciq_api.db.get_db``);
 the Player Lab routes read the players database, which also has ``t20`` (every
 T20 competition together) and players' careers across competitions.
 """

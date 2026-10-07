@@ -89,6 +89,13 @@ class Engine:
     version: str
     # Players' batting positions and bowling usage come from seasons up to this one.
     season: int | None = None
+    # The format's innings: overs, each bowler's quota and phases (T20 or ODI).
+    rules: sim.FormatRules = sim.T20
+
+
+def rules(db: Database) -> sim.FormatRules:
+    """The simulator's rules for the database's format."""
+    return sim.rules_for(db.match_format)
 
 
 def engine(db: Database) -> Engine:
@@ -103,13 +110,15 @@ def engine(db: Database) -> Engine:
         era = (math.log(env) - float(ball["env_mean"])) / float(ball["env_std"])
         last = repo.latest_season(db)
         first = last - HISTORY + 1
+        r = rules(db)
         db.cache["sim_engine"] = Engine(
             model=sim.BallModel(terms=matchups_repo.terms(db), era=era),
-            rates=sim.league_rates(repo.league_rates(db, first, last), env),
-            priors=sim.usage_priors(repo.usage_priors(db, first, last)),
+            rates=sim.league_rates(repo.league_rates(db, first, last), env, r),
+            priors=sim.usage_priors(repo.usage_priors(db, first, last), r),
             conditions_sd=float(settings["conditions_sd"]),
             ball_version=str(ball["version"]),
             version=str(settings["version"]),
+            rules=r,
         )
     out: Engine = db.cache["sim_engine"]
     return out
@@ -128,12 +137,13 @@ def _engine_at(db: Database, key: str, match_order: int, season: int) -> Engine:
         first = season - HISTORY + 1
         db.cache[key] = Engine(
             model=sim.BallModel(terms=base.model.terms, era=era),
-            rates=sim.league_rates(repo.league_rates(db, first, season), env),
-            priors=sim.usage_priors(repo.usage_priors(db, first, season)),
+            rates=sim.league_rates(repo.league_rates(db, first, season), env, base.rules),
+            priors=sim.usage_priors(repo.usage_priors(db, first, season), base.rules),
             conditions_sd=base.conditions_sd,
             ball_version=base.ball_version,
             version=base.version,
             season=season,
+            rules=base.rules,
         )
     out: Engine = db.cache[key]
     return out
@@ -190,13 +200,14 @@ class Picked:
 
 
 def _picked(db: Database, ids: list[str], upto: int | None = None) -> dict[str, Picked]:
-    rows = {r["player_id"]: r for r in repo.candidates(db, ids, HISTORY, upto)}
+    width = rules(db).overs
+    rows = {r["player_id"]: r for r in repo.candidates(db, ids, HISTORY, upto, width)}
     missing = [pid for pid in ids if pid not in rows]
     if missing:
         raise UnknownPlayerError(missing[0])
     out = {}
     for pid, r in rows.items():
-        overs = np.zeros(sim.OVERS)
+        overs = np.zeros(width)
         for item in r["overs"] or []:
             overs[int(item["over_no"])] = float(item["overs"])
         out[pid] = Picked(
@@ -244,7 +255,7 @@ def xi_for_players(db: Database, ids: list[str], team: TeamTag | None = None) ->
         from_match=None,
         match_date=None,
         players=[_sim_player(picked[c.player.player_id]) for c in ordered],
-        bowlers=sim.default_bowlers(candidates),
+        bowlers=sim.default_bowlers(candidates, rules(db)),
     )
 
 
@@ -260,7 +271,7 @@ def latest_xi(db: Database, franchise_id: str) -> SimXI:
         from_match=int(match["match_id"]),
         match_date=match["match_date"],
         players=[_sim_player(picked[pid]) for pid in ids],
-        bowlers=sim.default_bowlers([picked[pid].candidate for pid in ids]),
+        bowlers=sim.default_bowlers([picked[pid].candidate for pid in ids], rules(db)),
     )
 
 
@@ -301,7 +312,7 @@ def squad(db: Database, season: int, franchise_id: str) -> SimSquad:
             for r in rows
         ],
         xi=xi,
-        bowlers=sim.default_bowlers([picked[pid].candidate for pid in xi]) if xi else [],
+        bowlers=sim.default_bowlers([picked[pid].candidate for pid in xi], rules(db)) if xi else [],
         from_match=None if match is None else int(match["match_id"]),
         match_date=None if match is None else match["match_date"],
     )
@@ -326,13 +337,14 @@ def _check_squad(db: Database, season: int, side: SideRequest, names: dict[str, 
 
 def _side(e: Engine, name: str, order: list[Picked], bowler_ids: list[str] | None) -> sim.Side:
     candidates = [p.candidate for p in order]
-    bowlers = bowler_ids or sim.default_bowlers(candidates)
+    bowlers = bowler_ids or sim.default_bowlers(candidates, e.rules)
     ids = {c.player.player_id for c in candidates}
     if any(b not in ids for b in bowlers):
         raise InvalidSideError("bowlers must come from the same XI")
-    if len(set(bowlers)) < sim.MIN_BOWLING_OPTIONS:
-        raise InvalidSideError(f"pick at least {sim.MIN_BOWLING_OPTIONS} bowling options")
-    return sim.build_side(name, candidates, bowlers, e.priors)
+    needed = e.rules.min_bowling_options
+    if len(set(bowlers)) < needed:
+        raise InvalidSideError(f"pick at least {needed} bowling options")
+    return sim.build_side(name, candidates, bowlers, e.priors, rules=e.rules)
 
 
 def _distribution(values: np.ndarray) -> Distribution:
@@ -572,6 +584,9 @@ class _Position:
     state: sim.InningsState
     target: int | None
     finished: bool
+    # The balls the innings could last: a rain-revised chase's allocation, else the
+    # scheduled overs.
+    max_balls: int
 
 
 def _order_for(
@@ -586,9 +601,9 @@ def _order_for(
 def _fielding_side(e: Engine, db: Database, squad: list[str], bowled: list[str]) -> sim.Side:
     picked = _picked(db, squad, e.season)
     candidates = [picked[pid].candidate for pid in squad]
-    ids = list(dict.fromkeys([*bowled, *sim.default_bowlers(candidates)]))
-    for c in sorted(candidates, key=lambda c: -c.overs):  # top up to five options
-        if len(ids) >= sim.MIN_BOWLING_OPTIONS:
+    ids = list(dict.fromkeys([*bowled, *sim.default_bowlers(candidates, e.rules)]))
+    for c in sorted(candidates, key=lambda c: -c.overs):  # top up to enough options
+        if len(ids) >= e.rules.min_bowling_options:
             break
         if c.player.player_id not in ids:
             ids.append(c.player.player_id)
@@ -596,14 +611,16 @@ def _fielding_side(e: Engine, db: Database, squad: list[str], bowled: list[str])
     for pid in ids:  # every bowler must be in the side passed to the engine
         if all(c.player.player_id != pid for c in order):
             order.append(picked[pid].candidate)
-    return sim.build_side("", order, ids, e.priors)
+    return sim.build_side("", order, ids, e.priors, rules=e.rules)
 
 
 def _position(db: Database, e: Engine, request: StateRequest) -> _Position:
     m, inn, seq = request.match_id, request.innings_no, request.seq_no
     teams = db.row(
-        "SELECT batting_team_id, bowling_team_id, target_runs FROM innings "
-        "WHERE match_id = ? AND innings_no = ? AND NOT is_super_over",
+        "SELECT i.batting_team_id, i.bowling_team_id, i.target_runs, "
+        "coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over) AS max_balls "
+        "FROM innings i JOIN matches m USING (match_id) "
+        "WHERE i.match_id = ? AND i.innings_no = ? AND NOT i.is_super_over",
         [m, inn],
     )
     if teams is None:
@@ -679,6 +696,7 @@ def _position(db: Database, e: Engine, request: StateRequest) -> _Position:
         state=state,
         target=teams["target_runs"],
         finished=finished,
+        max_balls=min(int(teams["max_balls"] or e.rules.max_balls), e.rules.max_balls),
     )
 
 
@@ -711,7 +729,9 @@ def _play_from(
     conditions = rng.normal(0.0, e.conditions_sd, n) if e.conditions_sd > 0 else None
     candidates = [p.candidate for p in pos.order]
     # The batting side's own bowlers only matter when it bowls the second innings.
-    batting = sim.build_side("", candidates, sim.default_bowlers(candidates), e.priors)
+    batting = sim.build_side(
+        "", candidates, sim.default_bowlers(candidates, e.rules), e.priors, rules=e.rules
+    )
     target = None if innings == 1 or pos.target is None else np.full(n, int(pos.target))
     current = sim.simulate_innings(
         e.model,
@@ -723,6 +743,7 @@ def _play_from(
         rng=rng,
         target=target,
         start=state,
+        max_balls=pos.max_balls,
         conditions=conditions,
     )
     if innings == 2:
@@ -779,7 +800,11 @@ def what_if(db: Database, request: StateRequest) -> StateResult:
         picked = _picked(db, fielding, e.season)
         cands = [picked[pid].candidate for pid in fielding]
         chasing = sim.build_side(
-            "", sim.typical_order(cands)[:11], sim.default_bowlers(cands), e.priors
+            "",
+            sim.typical_order(cands)[:11],
+            sim.default_bowlers(cands, e.rules),
+            e.priors,
+            rules=e.rules,
         )
     edited_state = _edited(pos.state, request.runs, request.wickets)
     seed = _seed(f"{request.match_id}:{request.innings_no}:{request.seq_no}")

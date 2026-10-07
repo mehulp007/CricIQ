@@ -13,6 +13,7 @@ from criciq_api.featured import (
     season_snapshot,
 )
 from criciq_api.schemas.matches import Timeline
+from criciq_core.phases import use_format
 from criciq_ml import registry
 
 # Every competition the web app bundles replays for.
@@ -26,7 +27,7 @@ def _index(competition: str) -> FeaturedIndex:
 
 
 def test_every_served_competition_is_bundled() -> None:
-    assert {"ipl", "t20i", "bbl", "psl", "cpl", "sa20"} <= set(BUNDLED)
+    assert {"ipl", "t20i", "odi", "bbl", "psl", "cpl", "sa20"} <= set(BUNDLED)
     index_ts = (OUT_DIR / "index.ts").read_text("utf-8")
     for competition in BUNDLED:
         assert f'from "./{competition}/index.json"' in index_ts
@@ -50,15 +51,19 @@ def test_bundled_featured_timelines_match_the_api_schema(competition: str) -> No
 
 
 def test_featured_files_are_compact() -> None:
-    sizes = [p.stat().st_size for p in OUT_DIR.glob("*/*.json")]
-    assert max(sizes) < 150_000
+    # About 150 KB for a T20's 240 balls; an ODI has up to 600.
+    limits = {"odi": 375_000}
+    for path in OUT_DIR.glob("*/*.json"):
+        assert path.stat().st_size < limits.get(path.parent.name, 150_000), path
     for competition in BUNDLED:
         assert json.loads((OUT_DIR / competition / "index.json").read_text("utf-8"))["data_version"]
 
 
 @pytest.mark.parametrize("competition", BUNDLED)
 def test_featured_replays_carry_the_model_serving_them(competition: str) -> None:
-    current = registry.current_version(registry.NAME, competition.upper())
+    # Each format's models are its own (ADR-0012).
+    with use_format("ODI" if competition == "odi" else "T20"):
+        current = registry.current_version(registry.NAME, competition.upper())
     for entry in _index(competition).matches:
         timeline = Timeline.model_validate_json(
             (OUT_DIR / competition / f"{entry.match_id}.json").read_text("utf-8")

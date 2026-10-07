@@ -111,11 +111,11 @@ def _population(db: Database, role: Role, first: int, last: int) -> RolePopulati
     if fitted is None:
         return None
     sums: dict[str, dict[str, tuple[float, float]]] = {}
-    for r in db.rows(window_sums_sql(role, db.tables), [first, last]):
+    for r in db.rows(window_sums_sql(role, db.tables, db.match_format), [first, last]):
         sums.setdefault(r["component"], {})[r["player_id"]] = (float(r["e"]), float(r["n"]))
     role_balls = {pid: n for pid, (_, n) in sums.get(role_balls_key(role), {}).items()}
     populations = []
-    for component in role_components(role, db.tables):
+    for component in role_components(role, db.tables, db.match_format):
         fit = fitted.get((role, component.key))
         evidence = sums.get(component.key, {})
         if fit is None or not evidence:

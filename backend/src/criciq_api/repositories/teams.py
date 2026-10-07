@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from criciq_api.db import Database, Row
+from criciq_core.phases import default_phase_config
 
 # Results from one side's point of view; `played` counts no results too.
 RECORD_SUMS = """
@@ -260,9 +261,12 @@ def first_innings(db: Database, franchise_id: str, first: int, last: int) -> Row
 def extreme_total(
     db: Database, franchise_id: str, first: int, last: int, *, highest: bool
 ) -> Row | None:
-    # The lowest total only counts completed innings: bowled out or batted out the 20 overs.
+    # The lowest total only counts completed innings: bowled out or batted out the overs
+    # (20 in a T20, 50 in an ODI).
+    full = default_phase_config().for_format(db.match_format)
+    balls = full.limit * full.balls_per_over
     completed = (
-        "" if highest else "AND (wickets_for >= 10 OR balls_for >= 120) AND win_method IS NULL"
+        "" if highest else f"AND (wickets_for >= 10 OR balls_for >= {balls}) AND win_method IS NULL"
     )
     order = "runs_for DESC" if highest else "runs_for ASC"
     return db.row(

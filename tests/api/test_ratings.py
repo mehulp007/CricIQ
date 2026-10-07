@@ -25,7 +25,7 @@ def db(fixture_scored_serving_db: Path, monkeypatch: pytest.MonkeyPatch) -> Iter
         dataclasses.replace(c, qualify=min(c.qualify, 5), show=min(c.show, 3))
         for c in core.components()
     )
-    monkeypatch.setattr(core, "components", lambda: lowered)
+    monkeypatch.setattr(core, "components", lambda match_format=None: lowered)
     monkeypatch.setattr(service, "MIN_BALLS", 40)
     monkeypatch.setattr(service, "MIN_RATED_BALLS", 10)
     monkeypatch.setattr(style, "MIN_BALLS", 40)

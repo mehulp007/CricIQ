@@ -1,0 +1,76 @@
+{
+  "calibrated_on": [
+    2025,
+    2026
+  ],
+  "feature_config": {
+    "bat_prior_balls": 100,
+    "bowl_prior_balls": 120,
+    "env_window_matches": 60,
+    "initial_rpb": 1.3,
+    "player_decay": 0.97,
+    "stable": true,
+    "venue_prior_balls": 1500
+  },
+  "features": [
+    "legal_balls",
+    "balls_remaining",
+    "wickets",
+    "runs_vs_par",
+    "run_rate_rel",
+    "runs_last_12",
+    "wickets_last_12",
+    "crease_sr_idx",
+    "crease_avg_idx",
+    "crease_balls"
+  ],
+  "headline": {
+    "test_coverage80": 0.8259105010411797,
+    "test_mae": 31.226457109339055
+  },
+  "levels": [
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95
+  ],
+  "lightgbm": "4.7.0",
+  "name": "score_projection",
+  "params": {
+    "min_data_in_leaf": 3000,
+    "num_leaves": 15
+  },
+  "rounds": {
+    "0.05": 265,
+    "0.1": 154,
+    "0.25": 250,
+    "0.5": 301,
+    "0.75": 181,
+    "0.9": 99,
+    "0.95": 142
+  },
+  "shifts": [
+    -0.04412914242872076,
+    -0.02916088634885807,
+    -0.018624635910990534,
+    -0.019374346612273885,
+    -0.012568134455405361,
+    -0.0041025094926884645,
+    0.006955858784365053
+  ],
+  "trained_on": {
+    "competitions": [
+      "ODI"
+    ],
+    "innings": 2381,
+    "rows": 703023,
+    "seasons": [
+      2002,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

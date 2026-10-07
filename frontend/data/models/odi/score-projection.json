@@ -1,0 +1,492 @@
+{
+  "name": "score_projection",
+  "version": "1.0.0",
+  "data_version": "2026-09-17.103eadea",
+  "trained_on": {
+    "competitions": [
+      "ODI"
+    ],
+    "innings": 2381,
+    "rows": 703023,
+    "seasons": [
+      2002,
+      2026
+    ]
+  },
+  "calibrated_on": [
+    2025,
+    2026
+  ],
+  "levels": [
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95
+  ],
+  "splits": {
+    "backtest_from": 2016,
+    "calibrate": [
+      2023,
+      2024
+    ],
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "tune_train_through": 2020,
+    "tune_valid": [
+      2021,
+      2022
+    ]
+  },
+  "features": [
+    {
+      "key": "legal_balls",
+      "label": "Legal balls bowled"
+    },
+    {
+      "key": "balls_remaining",
+      "label": "Balls remaining"
+    },
+    {
+      "key": "wickets",
+      "label": "Wickets lost"
+    },
+    {
+      "key": "runs_vs_par",
+      "label": "Runs above the era's par for this stage"
+    },
+    {
+      "key": "run_rate_rel",
+      "label": "Run rate relative to the era's scoring rate"
+    },
+    {
+      "key": "runs_last_12",
+      "label": "Runs in the last 12 legal balls"
+    },
+    {
+      "key": "wickets_last_12",
+      "label": "Wickets in the last 12 legal balls"
+    },
+    {
+      "key": "crease_sr_idx",
+      "label": "Batters at the crease: career strike rate"
+    },
+    {
+      "key": "crease_avg_idx",
+      "label": "Batters at the crease: career average"
+    },
+    {
+      "key": "crease_balls",
+      "label": "Batters at the crease: balls faced so far"
+    }
+  ],
+  "test": {
+    "by_competition": [],
+    "by_phase": [
+      {
+        "model_coverage80": 0.8259867761971549,
+        "model_mae": 48.77786710405607,
+        "model_width80": 171.91411322098787,
+        "par_mae": 50.87601727061381,
+        "phase": "powerplay",
+        "rows": 9982,
+        "run_rate_mae": 91.96578717496466
+      },
+      {
+        "model_coverage80": 0.8297960738150469,
+        "model_mae": 30.80777048731952,
+        "model_width80": 109.04750138120765,
+        "par_mae": 40.00423679171961,
+        "phase": "middle",
+        "rows": 28883,
+        "run_rate_mae": 45.26074909099344
+      },
+      {
+        "model_coverage80": 0.8121263877028181,
+        "model_mae": 11.328293285565131,
+        "model_width80": 37.41561432645259,
+        "par_mae": 15.195177709557647,
+        "phase": "death",
+        "rows": 8197,
+        "run_rate_mae": 18.698674571213107
+      }
+    ],
+    "model": {
+      "bias": 0.046349345675646095,
+      "coverage80": 0.8259105010411797,
+      "innings": 160,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.04379329395265819
+        },
+        {
+          "level": 0.1,
+          "observed": 0.08922272746589605
+        },
+        {
+          "level": 0.25,
+          "observed": 0.2299732268071905
+        },
+        {
+          "level": 0.5,
+          "observed": 0.4879520632357316
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7688581020781097
+        },
+        {
+          "level": 0.9,
+          "observed": 0.9126046491861799
+        },
+        {
+          "level": 0.95,
+          "observed": 0.9592452509455611
+        }
+      ],
+      "mae": 31.226457109339055,
+      "pinball": 9.04452427836743,
+      "rows": 47062,
+      "threshold_brier": 0.1048422881138765,
+      "width80": 109.90526223278343
+    },
+    "par_baseline": {
+      "bias": -0.3569983365667427,
+      "coverage80": 0.8258892524754579,
+      "innings": 160,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.0305341889422464
+        },
+        {
+          "level": 0.1,
+          "observed": 0.073711274488972
+        },
+        {
+          "level": 0.25,
+          "observed": 0.2086821639539331
+        },
+        {
+          "level": 0.5,
+          "observed": 0.46570481492499255
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7825421784029578
+        },
+        {
+          "level": 0.9,
+          "observed": 0.8996005269644299
+        },
+        {
+          "level": 0.95,
+          "observed": 0.9484722281246016
+        }
+      ],
+      "mae": 37.98907074360947,
+      "pinball": 11.148217553444146,
+      "rows": 47062,
+      "threshold_brier": 0.12761731906176862,
+      "width80": 146.893676839746
+    },
+    "run_rate": {
+      "bias": -22.86722600906537,
+      "mae": 50.54060046398144,
+      "rows": 47062
+    },
+    "thresholds": [
+      250,
+      275,
+      300,
+      325,
+      350
+    ],
+    "uncalibrated": {
+      "bias": 4.891077876496007,
+      "coverage80": 0.7758488802005865,
+      "innings": 160,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.07781224767328206
+        },
+        {
+          "level": 0.1,
+          "observed": 0.12468658365560324
+        },
+        {
+          "level": 0.25,
+          "observed": 0.2862181802728316
+        },
+        {
+          "level": 0.5,
+          "observed": 0.5342739365092857
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7677956737920191
+        },
+        {
+          "level": 0.9,
+          "observed": 0.8994092898729336
+        },
+        {
+          "level": 0.95,
+          "observed": 0.9432238323913136
+        }
+      ],
+      "mae": 31.350025943250603,
+      "pinball": 9.088209791704955,
+      "rows": 47062,
+      "threshold_brier": 0.10582535061166409,
+      "width80": 96.86645906092377
+    }
+  },
+  "feature_selection": [
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "mae": 31.347138615504612,
+      "pinball": 9.010880032230334,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served",
+      "label": "Served features"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "depth_avg_sum"
+      ],
+      "mae": 31.204347503866373,
+      "pinball": 8.98831086999334,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth",
+      "label": "+ Batting still to come (career averages)"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "bowl_left_econ_idx"
+      ],
+      "mae": 31.262455029759458,
+      "pinball": 9.031716395181377,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling",
+      "label": "+ Bowling still to come (career economy, 4-over quotas)"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "venue_idx"
+      ],
+      "mae": 31.634615269868732,
+      "pinball": 9.083666141759284,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue",
+      "label": "+ Venue scoring index"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "env_rpb"
+      ],
+      "mae": 31.50253107152095,
+      "pinball": 9.067709420897447,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+era",
+      "label": "+ The competition's scoring rate"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "international"
+      ],
+      "mae": 31.347138615504612,
+      "pinball": 9.010880032230334,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+international",
+      "label": "+ International cricket"
+    }
+  ],
+  "backtest": [
+    {
+      "bias": 10.00114158776531,
+      "coverage80": 0.8506679599664918,
+      "innings": 76,
+      "mae": 29.557078456067224,
+      "mean_total": 271.9342105263158,
+      "par_mae": 34.98634329285126,
+      "season": 2016
+    },
+    {
+      "bias": 8.050350130350031,
+      "coverage80": 0.8328290211811104,
+      "innings": 99,
+      "mae": 31.550840506177085,
+      "mean_total": 266.44444444444446,
+      "par_mae": 38.977432446422114,
+      "season": 2017
+    },
+    {
+      "bias": 0.41078881896210845,
+      "coverage80": 0.7979180887372014,
+      "innings": 100,
+      "mae": 30.007993462732802,
+      "mean_total": 252.85,
+      "par_mae": 36.832064868774005,
+      "season": 2018
+    },
+    {
+      "bias": -5.254272945816056,
+      "coverage80": 0.7983991854512543,
+      "innings": 119,
+      "mae": 29.756979629538368,
+      "mean_total": 266.05882352941177,
+      "par_mae": 37.46501278347239,
+      "season": 2019
+    },
+    {
+      "bias": -10.58320592362331,
+      "coverage80": 0.8362332850008055,
+      "innings": 42,
+      "mae": 27.815280444773506,
+      "mean_total": 260.1904761904762,
+      "par_mae": 34.244558672583544,
+      "season": 2020
+    },
+    {
+      "bias": 5.686006660272841,
+      "coverage80": 0.7838671005309128,
+      "innings": 60,
+      "mae": 30.7129736004031,
+      "mean_total": 235.33333333333334,
+      "par_mae": 41.30196956132631,
+      "season": 2021
+    },
+    {
+      "bias": 5.120801655690724,
+      "coverage80": 0.7770585764755293,
+      "innings": 138,
+      "mae": 29.553822266960793,
+      "mean_total": 238.94202898550725,
+      "par_mae": 36.072452837556405,
+      "season": 2022
+    },
+    {
+      "bias": 1.7023728095844486,
+      "coverage80": 0.74315100514259,
+      "innings": 184,
+      "mae": 34.878288012301894,
+      "mean_total": 265.3369565217391,
+      "par_mae": 43.75644916018799,
+      "season": 2023
+    },
+    {
+      "bias": 13.383564180462164,
+      "coverage80": 0.7831722417709679,
+      "innings": 80,
+      "mae": 34.410792027652626,
+      "mean_total": 223.55,
+      "par_mae": 45.85760907607128,
+      "season": 2024
+    },
+    {
+      "bias": -2.2650952128442863,
+      "coverage80": 0.8330275852697377,
+      "innings": 100,
+      "mae": 30.452461207547763,
+      "mean_total": 262.7,
+      "par_mae": 38.06633995367234,
+      "season": 2025
+    },
+    {
+      "bias": 3.4459698830113803,
+      "coverage80": 0.7929195506637922,
+      "innings": 60,
+      "mae": 32.4749814446322,
+      "mean_total": 243.58333333333334,
+      "par_mae": 37.88712337855602,
+      "season": 2026
+    }
+  ]
+}

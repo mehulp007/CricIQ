@@ -14,7 +14,9 @@ from criciq_ml.report_common import (
     by_competition,
     comparison_section,
     competitions_of,
+    format_path,
     ipl_card_path,
+    phase_labels,
     pooled,
     pooled_path,
     write_json,
@@ -33,11 +35,6 @@ OUTCOME_LABELS = {
     "four": "Four",
     "six": "Six",
     "out": "Wicket",
-}
-PHASE_LABELS = {
-    "powerplay": "Powerplay (overs 1-6)",
-    "middle": "Middle (7-15)",
-    "death": "Death (16-20)",
 }
 HISTORY_LABELS = {"1-9": "1-9 balls", "10-29": "10-29 balls", "30+": "30 balls or more"}
 
@@ -209,7 +206,7 @@ def model_card(data: dict[str, Any]) -> str:
     ]
     for r in test["by_phase"]:
         lines.append(
-            f"| {PHASE_LABELS[r['phase']]} | {r['balls']:,} | {_f(r['model_log_loss'])} |"
+            f"| {phase_labels()[r['phase']]} | {r['balls']:,} | {_f(r['model_log_loss'])} |"
             f" {_f(r['baseline_log_loss'])} |"
         )
     if test.get("by_competition"):
@@ -303,6 +300,18 @@ def model_card(data: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def write_format() -> list[Path]:
+    """Another format's current version (see ``report.write_format``)."""
+    version = registry.current_version(registry.BALL_OUTCOME)
+    if version is None:
+        return []
+    data = insights(version)
+    return [
+        write_json(format_path(INSIGHTS_PATH), data),
+        write_text(format_path(MODEL_CARD_PATH), model_card(data)),
+    ]
 
 
 def write_all() -> list[Path]:

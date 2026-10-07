@@ -187,3 +187,26 @@ def test_sides_are_validated() -> None:
         sim.Side("x", players, players[:4], np.ones((4, sim.OVERS)))
     with pytest.raises(ValueError, match="bats"):
         sim.Side("x", players[:1], players[:5], np.ones((5, sim.OVERS)))
+
+
+def test_an_odi_innings_follows_the_odi_rules() -> None:
+    odi = sim.rules_for("ODI")
+    assert (odi.overs, odi.quota, odi.max_balls, odi.min_bowling_options) == (50, 10, 300, 5)
+    # Powerplay overs 1-10, middle 11-40, death 41-50.
+    assert odi.over_phase.tolist() == [0] * 10 + [1] * 30 + [2] * 10
+    rng = np.random.default_rng(11)
+    batters = tuple(sim.Player(f"o{i}", "right", "pace") for i in range(11))
+    side = sim.Side("o", batters, batters[6:], np.ones((5, odi.overs)), odi)
+    r = sim.simulate_innings(_model(), _rates(), side, side, innings=1, n=2000, rng=rng)
+    assert (r.balls <= 300).all()
+    assert ((r.balls == 300) | (r.wickets == 10)).all()
+    # Five bowlers share fifty overs: ten each, never more.
+    assert (r.bowl_balls <= 10 * 6).all()
+    assert r.forced_overs == 0
+    with pytest.raises(ValueError, match="at least 5 bowling options"):
+        sim.Side("o", batters, batters[7:], np.ones((4, odi.overs)), odi)
+
+
+def test_only_limited_overs_formats_are_simulated() -> None:
+    with pytest.raises(ValueError, match="does not play Test"):
+        sim.rules_for("Test")

@@ -25,8 +25,8 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel, Field
 
-from criciq_core.paths import config_dir
 from criciq_core.phases import model_phases
+from criciq_ml import formats
 from criciq_ml.projection import (
     CANDIDATES,
     FEATURES,
@@ -89,7 +89,7 @@ class ProjectionConfig(BaseModel):
 
 
 def load_projection_config(path: Path | None = None) -> ProjectionConfig:
-    source = path or config_dir() / "models" / "score_projection.yaml"
+    source = path or formats.config_path("score_projection")
     with source.open(encoding="utf-8") as fh:
         return ProjectionConfig.model_validate(yaml.safe_load(fh))
 
@@ -153,21 +153,26 @@ def run_rate_projection(frame: pd.DataFrame) -> FloatArray:
     return np.asarray(np.where(legal > 0, runs + rate * left, par), dtype=np.float64)
 
 
-BUCKETS = [0, 30, 60, 90, 121]
+def buckets() -> list[int]:
+    """Quarters of the format's innings by balls remaining (0-30-60-90-120 in a T20)."""
+    phases = model_phases()
+    balls = phases.limit * phases.balls_per_over
+    return [0, balls // 4, balls // 2, 3 * balls // 4, balls + 1]
 
 
 class ParBaseline:
     """Par for the era, spread by how that ratio historically varied at this stage."""
 
     def __init__(self, calibration: pd.DataFrame) -> None:
-        bucket = pd.cut(calibration["balls_remaining"], BUCKETS, right=True)
+        self.edges = buckets()
+        bucket = pd.cut(calibration["balls_remaining"], self.edges, right=True)
         self.table = {
             interval: np.quantile(group[TARGET].to_numpy(), LEVELS)
             for interval, group in calibration.groupby(bucket, observed=True)
         }
 
     def predict(self, frame: pd.DataFrame) -> FloatArray:
-        bucket = pd.cut(frame["balls_remaining"], BUCKETS, right=True)
+        bucket = pd.cut(frame["balls_remaining"], self.edges, right=True)
         ratios = np.vstack([self.table[b] for b in bucket])
         return to_totals(ratios, frame)
 

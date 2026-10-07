@@ -31,7 +31,8 @@ import yaml
 from joblib import Parallel, delayed
 from pydantic import BaseModel
 
-from criciq_core import paths
+from criciq_core.phases import model_format, use_format
+from criciq_ml import formats
 from criciq_ml.ball_outcome import (
     CLASSES,
     PHASES,
@@ -86,7 +87,7 @@ class BallOutcomeConfig(BaseModel):
 
 
 def load_ball_outcome_config(path: Path | None = None) -> BallOutcomeConfig:
-    source = path or paths.config_dir() / "models" / "ball_outcome.yaml"
+    source = path or formats.config_path("ball_outcome")
     with source.open(encoding="utf-8") as fh:
         return BallOutcomeConfig.model_validate(yaml.safe_load(fh))
 
@@ -167,15 +168,24 @@ def _fit(
     )
 
 
+def _fit_in(
+    match_format: str, balls: pd.DataFrame, cfg: BallOutcomeConfig, scale: float, phase: bool
+) -> BallOutcomeModel:
+    """``_fit`` in a worker process, which starts in the default format."""
+    with use_format(match_format):
+        return _fit(balls, cfg, scale, phase)
+
+
 def _fit_many(
     jobs: list[tuple[pd.DataFrame, float, bool]], cfg: BallOutcomeConfig
 ) -> list[BallOutcomeModel]:
     """Fit (balls, player scale, phase players) jobs, in parallel processes."""
     if cfg.model.n_jobs <= 1 or len(jobs) == 1:
         return [_fit(balls, cfg, scale, phase) for balls, scale, phase in jobs]
+    match_format = model_format()
     models: list[BallOutcomeModel] = Parallel(
         n_jobs=min(cfg.model.n_jobs, len(jobs)), backend="loky"
-    )(delayed(_fit)(balls, cfg, scale, phase) for balls, scale, phase in jobs)
+    )(delayed(_fit_in)(match_format, balls, cfg, scale, phase) for balls, scale, phase in jobs)
     return models
 
 
@@ -391,9 +401,11 @@ def train_ball_outcome(
             "trained_on": {
                 "seasons": seasons,
                 "balls": len(balls),
+                # Listed unless the IPL alone (v1's manifest), so scoring finds the
+                # copy the model was fitted on (the pooled one, or the ODIs').
                 **(
                     {"competitions": sorted(balls["competition_id"].unique().tolist())}
-                    if balls["competition_id"].nunique() > 1
+                    if set(balls["competition_id"].unique()) != {"IPL"}
                     else {}
                 ),
             },

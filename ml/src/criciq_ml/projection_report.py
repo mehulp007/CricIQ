@@ -13,7 +13,9 @@ from criciq_ml.report_common import (
     by_competition,
     comparison_section,
     competitions_of,
+    format_path,
     ipl_card_path,
+    phase_labels,
     pooled,
     pooled_path,
     write_json,
@@ -50,12 +52,6 @@ CANDIDATE_LABELS = {
     "+venue": "+ Venue scoring index",
     "+era": "+ The competition's scoring rate",
     "+international": "+ International cricket",
-}
-
-PHASE_LABELS = {
-    "powerplay": "Powerplay (overs 1-6)",
-    "middle": "Middle (7-15)",
-    "death": "Death (16-20)",
 }
 
 
@@ -209,7 +205,7 @@ def model_card(data: dict[str, Any]) -> str:
     ]
     for r in test["by_phase"]:
         lines.append(
-            f"| {PHASE_LABELS[r['phase']]} | {r['rows']:,} | {_f(r['model_mae'])} | {_f(r['par_mae'])} | "
+            f"| {phase_labels()[r['phase']]} | {r['rows']:,} | {_f(r['model_mae'])} | {_f(r['par_mae'])} | "
             f"{_f(r['run_rate_mae'])} | {_pct(r['model_coverage80'])} | {_f(r['model_width80'], 1)} |"
         )
     if test.get("by_competition"):
@@ -281,7 +277,7 @@ def model_card(data: dict[str, Any]) -> str:
         "",
         "- The range is calibrated on average over all balls, so coverage varies by phase: "
         + ", ".join(
-            f"{PHASE_LABELS[k].split(' (')[0].lower()} {_pct(v)}" for k, v in coverage.items()
+            f"{phase_labels()[k].split(' (')[0].lower()} {_pct(v)}" for k, v in coverage.items()
         )
         + f" on the test {period}.",
         "- Weather, pitch and team news are not in the data. The model knows the era, not the venue "
@@ -290,6 +286,18 @@ def model_card(data: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def write_format() -> list[Path]:
+    """Another format's current version (see ``report.write_format``)."""
+    version = registry.current_version(registry.PROJECTION)
+    if version is None:
+        return []
+    data = insights(version)
+    return [
+        write_json(format_path(INSIGHTS_PATH), data),
+        write_text(format_path(MODEL_CARD_PATH), model_card(data)),
+    ]
 
 
 def write_all() -> list[Path]:

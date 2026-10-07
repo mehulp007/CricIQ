@@ -1,0 +1,44 @@
+# Score projection for ODIs: training configuration.
+#
+# The first innings' final total projected to 50 overs, with the same features
+# and protocol as the T20 model (../score_projection.yaml).
+
+name: score_projection
+version: 1.0.0
+scope: ODI
+
+# Candidate groups served on top of the core features (projection.CANDIDATES),
+# chosen by forward selection on the pre-test rolling origin: the batters at the
+# crease cut the pinball loss from 9.188 to 9.029 runs. In the next step the batting
+# depth gained only 0.02 runs (the served T20 groups each gained over 0.05), so the
+# selection stops there. The venue and the era made it worse.
+served_extras: [crease]
+
+splits:
+  tune_train_through: 2020   # grid candidates are fit on matches up to 2020 ...
+  tune_valid: [2021, 2022]   # ... with early stopping and selection here
+  calibrate: [2023, 2024]    # conformal shifts for the headline model
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit < y-2, calibrate y-2 and y-1, test y
+
+lightgbm:
+  base:
+    learning_rate: 0.05
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    max_rounds: 1500
+    early_stopping_rounds: 100
+    seed: 7
+    num_threads: 12
+  grid:
+    num_leaves: [15, 31]
+    # A total is shared by a whole innings (~300 rows in an ODI).
+    min_data_in_leaf: [3000, 9000]
+
+# Totals used to evaluate "P(total >= X)".
+thresholds: [250, 275, 300, 325, 350]
+
+gate:
+  coverage_band: [0.75, 0.85]   # 80% range must cover 75-85% of test totals

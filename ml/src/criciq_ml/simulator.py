@@ -40,9 +40,10 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel
 
-from criciq_core import paths
 from criciq_core import simulation as sim
+from criciq_core.phases import model_format
 from criciq_core.teams import form_probability, log5
+from criciq_ml import formats
 from criciq_ml.ball_outcome import BallOutcomeModel
 
 Log = Callable[[str], None]
@@ -70,7 +71,7 @@ class SimulatorConfig(BaseModel):
 
 
 def load_simulator_config(path: Path | None = None) -> SimulatorConfig:
-    source = path or paths.config_dir() / "models" / "simulator.yaml"
+    source = path or formats.config_path("simulator")
     with source.open(encoding="utf-8") as fh:
         return SimulatorConfig.model_validate(yaml.safe_load(fh))
 
@@ -121,18 +122,24 @@ def ball_model_inputs(
     return sim.BallModel(terms=terms, era=era)
 
 
+def rules() -> sim.FormatRules:
+    """The simulator's rules in the models' format (a 20- or 50-over innings)."""
+    return sim.rules_for(model_format())
+
+
 def test_matches(con: duckdb.DuckDBPyConnection, seasons: list[int]) -> pd.DataFrame:
     """Test matches with a result, who batted first, and whether the first innings
-    ran its full course (20 overs or all out, no rain revision)."""
+    ran its full course (all its overs or all out, no rain revision)."""
     marks = ", ".join("?" for _ in seasons)
+    r = rules()
     return con.execute(
         f"""
         SELECT m.match_id, m.match_order, s.year AS season,
                i1.batting_team_id AS first_id, i1.bowling_team_id AS second_id,
                i1.runs AS first_runs, i1.wickets AS first_wickets,
                m.winner_id, m.outcome_type,
-               m.win_method IS NULL AND m.scheduled_overs = 20
-                   AND (i1.legal_balls >= 120 OR i1.wickets >= 10) AS full_first
+               m.win_method IS NULL AND m.scheduled_overs = {r.overs}
+                   AND (i1.legal_balls >= {r.max_balls} OR i1.wickets >= 10) AS full_first
         FROM matches m
         JOIN seasons s USING (season_id)
         JOIN innings i1 ON i1.match_id = m.match_id AND i1.innings_no = 1
@@ -153,8 +160,9 @@ def candidates(
 ) -> list[sim.Candidate]:
     """A side's playing XI with batting positions from earlier matches and bowling
     usage from the previous ``history`` seasons."""
+    r = rules()
     rows = con.execute(
-        """
+        f"""
         WITH xi AS (
             SELECT player_id, list_position FROM match_players
             WHERE match_id = ? AND team_season_id = ? AND selection = 'playing_xi'
@@ -168,7 +176,7 @@ def candidates(
             SELECT player_id, list(struct_pack(over_no := over_no, overs := overs)) AS overs
             FROM (
                 SELECT player_id, over_no, sum(overs) AS overs FROM bowling_usage
-                WHERE season BETWEEN ? AND ? AND over_no < 20
+                WHERE season BETWEEN ? AND ? AND over_no < {r.overs}
                   AND player_id IN (SELECT player_id FROM xi)
                 GROUP BY ALL
             )
@@ -183,7 +191,7 @@ def candidates(
     ).fetchall()
     out = []
     for pid, hand, kind, position, overs in rows:
-        by_over = np.zeros(sim.OVERS)
+        by_over = np.zeros(r.overs)
         for item in overs or []:
             by_over[int(item["over_no"])] = float(item["overs"])
         out.append(
@@ -205,7 +213,7 @@ def priors(con: duckdb.DuckDBPyConnection, first: int, last: int) -> dict[str, A
         """,
         [first, last],
     ).fetchall()
-    return sim.usage_priors(rows)
+    return sim.usage_priors(rows, rules())
 
 
 def rates(con: duckdb.DuckDBPyConnection, first: int, last: int, env: float) -> sim.LeagueRates:
@@ -217,7 +225,7 @@ def rates(con: duckdb.DuckDBPyConnection, first: int, last: int, env: float) -> 
         """,
         [first, last],
     ).fetchall()
-    return sim.league_rates(rows, env)
+    return sim.league_rates(rows, env, rules())
 
 
 def franchise(con: duckdb.DuckDBPyConnection, team_season_id: str) -> str:
@@ -231,7 +239,8 @@ def side_for(name: str, xi: list[sim.Candidate], shapes: dict[str, Any]) -> sim.
     # Under supersub rules (2005-06 T20Is, the BBL's X-factor, some associate T20Is) twelve are
     # named; the side is the eleven who usually bat highest.
     side = sim.typical_order(xi)[:XI]
-    return sim.build_side(name, side, sim.default_bowlers(side), shapes)
+    r = rules()
+    return sim.build_side(name, side, sim.default_bowlers(side, r), shapes, rules=r)
 
 
 # --------------------------------------------------------------------------- metrics
@@ -546,7 +555,7 @@ def gate(evaluation: dict[str, Any]) -> list[str]:
     first = evaluation["first_innings"]
     if first["pit_chi2"] > first["pit_chi2_critical"]:
         problems.append("first-innings PIT is not uniform at the 5% level")
-    overs = evaluation["matches"] * evaluation["simulations_per_match"] * 2 * sim.OVERS
+    overs = evaluation["matches"] * evaluation["simulations_per_match"] * 2 * rules().overs
     if evaluation["forced_overs"] > 0.001 * overs:
         problems.append("more than 0.1% of simulated overs broke a bowling rule")
     return problems
@@ -623,8 +632,8 @@ def run(
         "conditions_sd": conditions_sd,
         "history_seasons": cfg.history_seasons,
         "usage_strength": sim.USAGE_STRENGTH,
-        "urgent_from_over": sim.URGENT_FROM_OVER,
-        "min_bowling_overs": sim.MIN_BOWLING_OVERS,
+        "urgent_from_over": rules().urgent_from_over,
+        "min_bowling_overs": float(rules().quota),
     }
     evaluation = {
         "name": cfg.name,

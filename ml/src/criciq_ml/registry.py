@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from criciq_core import paths
+from criciq_ml import formats
 from criciq_ml.ball_outcome import BallOutcomeModel
 from criciq_ml.model import WinProbabilityModel
 from criciq_ml.projection import ScoreProjectionModel
@@ -29,7 +29,7 @@ SIMULATOR = "simulator"
 
 
 def root(name: str = NAME) -> Path:
-    return paths.models_dir() / name
+    return formats.models_root() / name
 
 
 def version_dir(version: str, name: str = NAME) -> Path:

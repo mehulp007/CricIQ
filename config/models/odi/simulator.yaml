@@ -1,0 +1,18 @@
+# Match simulator for ODIs: backtest configuration.
+#
+# The same backtest as the T20 simulator (../simulator.yaml): 50-over innings,
+# ten overs a bowler and the ODI phases, played with the ODI ball-outcome model
+# refit before the validation and test years. Served only if it passes its gate.
+
+name: simulator
+version: 1.0.0
+competitions: [ODI]
+
+valid: [2023, 2024]      # the conditions spread is tuned here ...
+conditions_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+tuning_simulations: 1000
+test: [2025, 2026]       # ... and every match with a result here is simulated once
+simulations: 1000        # per test match
+history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
+timing_simulations: 10000
+seed: 2026

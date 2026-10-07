@@ -28,10 +28,12 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Annotated, Any
 
+import duckdb
 import pandas as pd
 import typer
 
 from criciq_core import paths
+from criciq_core.phases import MODEL_FORMAT, default_phase_config, model_format, use_format
 from criciq_core.publish import current, publish
 from criciq_ml import (
     ball_outcome_training,
@@ -83,6 +85,17 @@ def _states(
     target.parent.mkdir(parents=True, exist_ok=True)
     states.to_parquet(target, index=False)
     return states, inputs.data_version
+
+
+def _data_version(warehouse: Path) -> str:
+    """The data version of a warehouse copy (of any format)."""
+    con = duckdb.connect(str(warehouse), read_only=True)
+    try:
+        row = con.execute("SELECT value FROM meta WHERE key = 'data_version'").fetchone()
+    finally:
+        con.close()
+    assert row is not None
+    return str(row[0])
 
 
 def _for_training(states: pd.DataFrame) -> pd.DataFrame:
@@ -339,10 +352,14 @@ def _train_ratings(force: bool, promote: bool) -> None:
     if target.exists() and not force:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
-    data_version = load_inputs(paths.warehouse_path()).data_version
+    data_version = _data_version(paths.warehouse_path())
     if cfg.source == "players":
         players = current(paths.players_path())
-        scopes = [(s["scope_id"], s["schema_name"]) for s in players_scoring.scopes(players)]
+        scopes = [
+            (s["scope_id"], s["schema_name"])
+            for s in players_scoring.scopes(players)
+            if s["format"] == model_format()
+        ]
         model, evaluation = _timed(
             "fitting ratings for every scope",
             lambda: ratings.train_scopes(
@@ -373,7 +390,7 @@ def _train_simulator(force: bool, promote: bool) -> None:
         typer.echo(f"version {cfg.version} already exists; bump `version` or pass --force")
         raise typer.Exit(code=1)
     ball_cfg = ball_outcome_training.load_ball_outcome_config()
-    data_version = load_inputs(paths.warehouse_path()).data_version
+    data_version = _data_version(paths.warehouse_path())
     settings: dict[str, Any] = {}
     evaluations: dict[str, Any] = {}
     # Competitions served by one pooled ball model refit it on the same years: fit once.
@@ -478,13 +495,37 @@ def _finish(problems: list[str], promote: bool, version: str, name: str) -> None
         typer.echo(f"  promoted {name} {version} to current")
 
 
+FormatOption = Annotated[
+    str,
+    typer.Option(
+        "--format",
+        help="The format's models: T20 (config/models/, models/) or ODI "
+        "(config/models/odi/, models/odi/).",
+    ),
+]
+
+
 @app.command()
 def train(
     model: Annotated[ModelName, typer.Argument(help="Which model to train.")],
     promote: Annotated[bool, typer.Option(help="Make it current if the gate passes.")] = True,
     force: Annotated[bool, typer.Option(help="Overwrite an existing version.")] = False,
+    match_format: FormatOption = MODEL_FORMAT,
 ) -> None:
     """Tune, evaluate and backtest a new model version, then register it."""
+    with use_format(_format(match_format)):
+        _train(model, force, promote)
+
+
+def _format(value: str) -> str:
+    """A format's configured name, whatever its case (``odi`` -> ``ODI``)."""
+    for name in default_phase_config().formats:
+        if name.lower() == value.lower():
+            return name
+    raise typer.BadParameter(f"unknown format {value!r}")
+
+
+def _train(model: ModelName, force: bool, promote: bool) -> None:
     if model is ModelName.win_probability:
         _train_win_probability(force, promote)
     elif model is ModelName.score_projection:
@@ -501,19 +542,26 @@ class _Sources:
     """Inputs, match states and balls, each built once per warehouse and settings.
 
     A model fitted on several competitions (its manifest lists them) scores from
-    the pooled copy; a model of one competition from that competition's copy.
+    the pooled copy; a model of one competition from that competition's copy (the
+    IPL's, or another format's such as the ODIs').
     """
 
-    def __init__(self, ipl: Path, pooled: Path) -> None:
+    def __init__(self, ipl: Path, pooled: Path, copies: dict[str, Path] | None = None) -> None:
         self.ipl = ipl
         self.pooled = pooled
+        self.copies = copies or {}
         self._inputs: dict[Path, Inputs] = {}
         self._states: dict[tuple[Path, FeatureConfig], pd.DataFrame] = {}
         self._balls: dict[Path, pd.DataFrame] = {}
 
     def warehouse(self, manifest: dict[str, Any]) -> Path:
         competitions = manifest.get("trained_on", {}).get("competitions", [])
-        return self.pooled if len(competitions) > 1 else self.ipl
+        if len(competitions) > 1:
+            return self.pooled
+        if not competitions or competitions == [IPL]:
+            return self.ipl
+        only = str(competitions[0])
+        return self.copies.get(only) or paths.warehouse_path(only)
 
     def inputs(self, warehouse: Path) -> Inputs:
         if warehouse not in self._inputs:
@@ -548,6 +596,13 @@ def score(
     serving: Annotated[Path | None, typer.Option(help="The IPL's serving database.")] = None,
     warehouse: Annotated[Path | None, typer.Option(help="The IPL's warehouse copy.")] = None,
     pooled: Annotated[Path | None, typer.Option(help="The pooled T20 warehouse copy.")] = None,
+    copy: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Another format's warehouse copy, as FORMAT=PATH (repeatable; by default "
+            "data/warehouse/<format>.duckdb)."
+        ),
+    ] = None,
     players: Annotated[Path | None, typer.Option(help="Players database to update.")] = None,
     serving_db: Annotated[
         list[str] | None,
@@ -560,17 +615,34 @@ def score(
     """Score every historical ball with the models serving each competition: the IPL's
     serving database, every other competition's, then the players database."""
     sources = _Sources(
-        warehouse or paths.warehouse_path(IPL), pooled or paths.warehouse_path(POOLED)
+        warehouse or paths.warehouse_path(IPL),
+        pooled or paths.warehouse_path(POOLED),
+        _parse_serving(copy or []),
     )
     _score_serving(serving, sources)
     others = _parse_serving(serving_db) if serving_db is not None else _exported_servings()
     if others and not sources.pooled.exists():
         raise typer.BadParameter(f"the pooled warehouse {sources.pooled} is missing")
     for competition, path in others.items():
-        _score_serving(path, sources, competition)
+        match_format = _format_of(path)
+        with use_format(match_format):
+            if registry.current_version(registry.NAME, competition) is None:
+                typer.echo(f"> no {match_format} models yet: {competition} is not scored")
+                continue
+            _score_serving(path, sources, competition)
     target = players or paths.players_path()
     if current(target).exists() and sources.pooled.exists():
         _score_players(target, sources)
+
+
+def _format_of(serving: Path) -> str:
+    """The format of a serving database's competition (its models' format)."""
+    con = duckdb.connect(str(current(serving)), read_only=True)
+    try:
+        row = con.execute("SELECT format FROM competitions LIMIT 1").fetchone()
+    finally:
+        con.close()
+    return str(row[0]) if row else MODEL_FORMAT
 
 
 def _parse_serving(values: list[str]) -> dict[str, Path]:
@@ -648,15 +720,23 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
         )
         typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version} -> {target}")
 
-        rating_constants = registry.load_current_ratings()
-        _timed(
-            "publishing ratings",
-            lambda: scoring.publish_ratings(target, rating_constants, competition),
-        )
-        typer.echo(f"  rating constants {rating_constants.version} -> {target}")
+        if registry.current_version(registry.RATINGS) is None:
+            # A new format's ratings are fitted on its scored players (win probability
+            # added); the next scoring publishes them.
+            typer.echo(f"  no ratings for {competition} yet")
+        else:
+            rating_constants = registry.load_current_ratings()
+            _timed(
+                "publishing ratings",
+                lambda: scoring.publish_ratings(target, rating_constants, competition),
+            )
+            typer.echo(f"  rating constants {rating_constants.version} -> {target}")
 
-        simulator_model = registry.load_current_simulator(competition)
-        if _serves_simulator(simulator_model, competition):
+        simulator_version = registry.current_version(registry.SIMULATOR, competition)
+        simulator_model = (
+            None if simulator_version is None else registry.load_current_simulator(competition)
+        )
+        if simulator_model is not None and _serves_simulator(simulator_model, competition):
             settings = simulator_model.for_competition(competition)
             _timed(
                 "publishing simulator settings",
@@ -673,16 +753,38 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
 
 
 def _score_players(players: Path, sources: _Sources) -> None:
-    """Win probability added and rating constants for every competition's scope."""
-    competitions = [
-        s["scope_id"]
-        for s in players_scoring.scopes(current(players))
-        if len(s["competition_ids"]) == 1
-    ]
+    """Win probability added and rating constants for every competition's scope, each
+    format's with its own models."""
+    by_format: dict[str, list[str]] = {}
+    for s in players_scoring.scopes(current(players)):
+        if len(s["competition_ids"]) == 1:
+            by_format.setdefault(str(s["format"]), []).append(s["scope_id"])
+    frames = []
+    ratings_models = []
+    for match_format, competitions in by_format.items():
+        with use_format(match_format):
+            frames += _players_wpa(competitions, sources)
+            try:
+                ratings_models.append(registry.load_current_ratings())
+            except FileNotFoundError:
+                typer.echo(f"  no {match_format} ratings yet")
+    placed = _timed(
+        "publishing to the players database",
+        lambda: players_scoring.publish(
+            current(players), pd.concat(frames) if frames else None, ratings_models
+        ),
+    )
+    typer.echo(f"  win probability added and rating constants -> {placed}")
+
+
+def _players_wpa(competitions: list[str], sources: _Sources) -> list[pd.DataFrame]:
+    """Win probability added in some competitions of the current format."""
     by_version: dict[str, list[str]] = {}
     for competition in competitions:
         version = registry.current_version(registry.NAME, competition)
-        assert version is not None
+        if version is None:
+            typer.echo(f"  no win probability model for {competition} yet")
+            continue
         by_version.setdefault(version, []).append(competition)
     frames = []
     for version, members in by_version.items():
@@ -699,21 +801,25 @@ def _score_players(players: Path, sources: _Sources) -> None:
         wpa = players_scoring.player_wpa(predictions, sources.inputs(source).deliveries)
         competition_of = states.drop_duplicates("match_id").set_index("match_id")["competition_id"]
         frames.append(wpa.assign(competition_id=wpa["match_id"].map(competition_of)))
-    ratings_model = registry.load_current_ratings()
-    placed = _timed(
-        "publishing to the players database",
-        lambda: players_scoring.publish(
-            current(players), pd.concat(frames) if frames else None, ratings_model
-        ),
-    )
-    typer.echo(f"  win probability added and rating constants -> {placed}")
+    return frames
 
 
 @app.command("report")
-def report_cmd() -> None:
+def report_cmd(match_format: FormatOption = MODEL_FORMAT) -> None:
     """Write the model cards and the Model Insights data for the web app."""
-    others = {c: current(p) for c, p in _exported_servings().items() if current(p).exists()}
-    for path in report.write_all(_serving_path(), others):
+    match_format = _format(match_format)
+    others = {
+        c: current(p)
+        for c, p in _exported_servings().items()
+        if current(p).exists() and _format_of(p) == match_format
+    }
+    with use_format(match_format):
+        written = (
+            report.write_all(_serving_path(), others)
+            if match_format == MODEL_FORMAT
+            else report.write_format(others)
+        )
+    for path in written:
         typer.echo(f"wrote {path}")
 
 

@@ -34,21 +34,26 @@ coalesce(i.target_runs,
                     WHERE f.match_id = i.match_id AND f.innings_no = 1) END)
 """
 
-# The balls an innings could last: its revised allocation, else the scheduled
-# overs, never more than the models' format allows (Cricsheet records a few
-# T20Is as 50-over matches).
-MAX_BALLS_SQL = f"""
-least(coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over),
-      {model_phases().limit} * m.balls_per_over)
-"""
 
-INNINGS_SQL = f"""
-SELECT i.match_id, i.innings_no, i.batting_team_id, i.bowling_team_id, i.is_super_over,
-       {TARGET_SQL} AS target_runs,
-       {MAX_BALLS_SQL} AS max_balls
-FROM innings i JOIN matches m USING (match_id)
-ORDER BY m.match_order, i.innings_no
-"""
+def max_balls_sql() -> str:
+    """The balls an innings could last: its revised allocation (a rain-shortened
+    chase), else the scheduled overs, never more than the models' format allows
+    (Cricsheet records a few T20Is as 50-over matches)."""
+    return f"""
+    least(coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over),
+          {model_phases().limit} * m.balls_per_over)
+    """
+
+
+def innings_sql() -> str:
+    return f"""
+    SELECT i.match_id, i.innings_no, i.batting_team_id, i.bowling_team_id, i.is_super_over,
+           {TARGET_SQL} AS target_runs,
+           {max_balls_sql()} AS max_balls
+    FROM innings i JOIN matches m USING (match_id)
+    ORDER BY m.match_order, i.innings_no
+    """
+
 
 DELIVERIES_SQL = """
 WITH outs AS (
@@ -136,7 +141,7 @@ def load_inputs(database: Path) -> Inputs:
         version = con.execute("SELECT value FROM meta WHERE key = 'data_version'").fetchone()
         return Inputs(
             matches=con.execute(MATCHES_SQL).df(),
-            innings=con.execute(INNINGS_SQL).df(),
+            innings=con.execute(innings_sql()).df(),
             deliveries=con.execute(DELIVERIES_SQL).df(),
             squads=con.execute(SQUADS_SQL).df(),
             substitutions=con.execute(SUBSTITUTIONS_SQL).df(),

@@ -42,7 +42,7 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel
 
-from criciq_core import paths, style
+from criciq_core import style
 from criciq_core.ratings import (
     MIN_BALLS,
     Component,
@@ -51,6 +51,7 @@ from criciq_core.ratings import (
     role_components,
     units_sql,
 )
+from criciq_ml import formats
 
 Log = Callable[[str], None]
 ROLES: tuple[Role, ...] = ("batting", "bowling")
@@ -92,7 +93,7 @@ class RatingsConfig(BaseModel):
 
 
 def load_ratings_config(path: Path | None = None) -> RatingsConfig:
-    source = path or paths.config_dir() / "models" / "ratings.yaml"
+    source = path or formats.config_path("ratings")
     return RatingsConfig.model_validate(yaml.safe_load(source.read_text(encoding="utf-8")))
 
 
@@ -463,13 +464,14 @@ def train_scopes(
         fitted[scope_id] = train_ratings(
             players, cfg, data_version=data_version, log=log, schema=schema
         )
-    pooled_model = fitted[ALL_T20][0]
+    # Another format has no all-T20 scope to borrow from: its scopes keep their own fits.
+    pooled_model = fitted[ALL_T20][0] if ALL_T20 in fitted else None
     manifest_scopes: dict[str, Any] = {}
     evaluation_scopes: dict[str, Any] = {}
     for scope_id, (model, evaluation) in fitted.items():
         components = model.manifest["components"]
         for line in evaluation["components"]:
-            if scope_id == ALL_T20 or line["pairs"] >= cfg.min_pairs:
+            if pooled_model is None or scope_id == ALL_T20 or line["pairs"] >= cfg.min_pairs:
                 continue
             pooled = pooled_model.manifest["components"][line["role"]][line["key"]]
             served = components[line["role"]][line["key"]]

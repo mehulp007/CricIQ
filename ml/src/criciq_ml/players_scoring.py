@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -54,11 +55,13 @@ def scopes(players: Path) -> list[dict[str, Any]]:
 def publish(
     players: Path,
     wpa: pd.DataFrame | None,
-    ratings: RatingsModel | None,
+    ratings: RatingsModel | Sequence[RatingsModel] | None,
 ) -> Path:
-    """Write ``wpa`` (with ``competition_id``) and each scope's rating constants into a
-    copy of the players database, then put it in place (beside it while the API has it
-    open); returns where it went."""
+    """Write ``wpa`` (with ``competition_id``) and each scope's rating constants (from
+    whichever ratings fitted it: each format has its own) into a copy of the players
+    database, then put it in place (beside it while the API has it open); returns where
+    it went."""
+    models = [] if ratings is None else [ratings] if isinstance(ratings, RatingsModel) else ratings
     staging = players.with_name(players.name + ".scoring")
     shutil.copyfile(players, staging)
     con = duckdb.connect(str(staging))
@@ -86,32 +89,32 @@ def publish(
                     WHERE competition_id IN ({within})
                     """
                 )
-        if ratings is not None:
-            for scope_id, schema, _ in rows:
-                fitted = ratings.for_scope(scope_id)
-                if fitted is None:
-                    continue
-                con.execute(f"DROP TABLE IF EXISTS {schema}.models")
-                con.execute(
-                    f"""
-                    CREATE TABLE {schema}.models (
-                        name VARCHAR PRIMARY KEY, version VARCHAR NOT NULL,
-                        trained_from INTEGER NOT NULL, trained_through INTEGER NOT NULL,
-                        info JSON NOT NULL
-                    )
-                    """
+        for scope_id, schema, _ in rows:
+            fitted_by = [(m, f) for m in models if (f := m.for_scope(scope_id)) is not None]
+            if not fitted_by:
+                continue
+            model, fitted = fitted_by[0]
+            con.execute(f"DROP TABLE IF EXISTS {schema}.models")
+            con.execute(
+                f"""
+                CREATE TABLE {schema}.models (
+                    name VARCHAR PRIMARY KEY, version VARCHAR NOT NULL,
+                    trained_from INTEGER NOT NULL, trained_through INTEGER NOT NULL,
+                    info JSON NOT NULL
                 )
-                first, last = fitted["trained_on"]["seasons"]
-                con.execute(
-                    f"INSERT INTO {schema}.models VALUES (?, ?, ?, ?, ?)",
-                    [
-                        ratings.manifest["name"],
-                        ratings.version,
-                        int(first),
-                        int(last),
-                        json.dumps({"components": fitted["components"]}),
-                    ],
-                )
+                """
+            )
+            first, last = fitted["trained_on"]["seasons"]
+            con.execute(
+                f"INSERT INTO {schema}.models VALUES (?, ?, ?, ?, ?)",
+                [
+                    model.manifest["name"],
+                    model.version,
+                    int(first),
+                    int(last),
+                    json.dumps({"components": fitted["components"]}),
+                ],
+            )
         con.execute("CHECKPOINT")
     except BaseException:
         con.close()

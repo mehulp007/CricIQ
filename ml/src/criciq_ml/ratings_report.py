@@ -15,7 +15,7 @@ from criciq_core import paths
 from criciq_core.ratings import MIN_BALLS, MIN_INNINGS, MIN_RATED_BALLS, MIN_SUBSET_BALLS
 from criciq_core.style import MIN_PROFILE_BALLS
 from criciq_ml import registry
-from criciq_ml.report_common import IPL, pooled_path, write_json, write_text
+from criciq_ml.report_common import IPL, format_path, pooled_path, write_json, write_text
 from criciq_ml.report_common import label as competition_label
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "ratings.json"
@@ -70,6 +70,13 @@ def insights(version: str, scope: str = IPL) -> dict[str, Any]:
         ],
         "similarity": evaluation["similarity"],
     }
+
+
+def _players_of(data: dict[str, Any]) -> str:
+    """Whose regulars a rating compares a player with."""
+    return {IPL: "IPL players", "ODI": "ODI players", "T20": "T20 players"}.get(
+        data["scope"], f"{competition_label(data['scope'])} players"
+    )
 
 
 def _r(value: float | None) -> str:
@@ -134,7 +141,8 @@ def model_card(data: dict[str, Any], scopes: dict[str, dict[str, Any]] | None = 
         "",
         "## What a rating is",
         "",
-        "A CricIQ Rating says where a player stands among regular IPL players on one thing they",
+        f"A CricIQ Rating says where a player stands among regular {_players_of(data)} on one "
+        "thing they",
         "do, over any span of seasons, after allowing for how much their record can be trusted.",
         "Ratings are a profile, never a single verdict: there is no overall number.",
         "",
@@ -239,6 +247,22 @@ def model_card(data: dict[str, Any], scopes: dict[str, dict[str, Any]] | None = 
         "",
     ]
     return "\n".join(lines)
+
+
+def write_format() -> list[Path]:
+    """Another format's current ratings (see ``report.write_format``): one scope, the
+    format's competition."""
+    version = registry.current_version(registry.RATINGS)
+    if version is None:
+        return []
+    scopes = {scope: insights(version, scope) for scope in scopes_of(version)}
+    data = next(iter(scopes.values()))
+    return [
+        write_json(format_path(INSIGHTS_PATH), data),
+        write_text(
+            format_path(MODEL_CARD_PATH), model_card(data, scopes if len(scopes) > 1 else None)
+        ),
+    ]
 
 
 def write_all() -> list[Path]:

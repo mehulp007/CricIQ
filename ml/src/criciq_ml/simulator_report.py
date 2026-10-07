@@ -10,8 +10,10 @@ from pathlib import Path
 from typing import Any
 
 from criciq_core import paths
+from criciq_core import simulation as sim
+from criciq_core.phases import model_format
 from criciq_ml import registry
-from criciq_ml.report_common import IPL, pooled_path, write_json, write_text
+from criciq_ml.report_common import IPL, format_path, pooled_path, write_json, write_text
 from criciq_ml.report_common import label as competition_label
 from criciq_ml.simulator import gate
 
@@ -47,6 +49,9 @@ def insights(version: str, competition: str = IPL) -> dict[str, Any]:
         "timing",
     )
     return {**{k: evaluation[k] for k in keep}, "competition": competition}
+
+
+_QUOTA_WORDS = {4: "four", 10: "ten"}
 
 
 def _seasons(values: list[int]) -> str:
@@ -138,7 +143,8 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
         "",
         "## Intended use",
         "",
-        "Monte Carlo simulation of a T20 match between two chosen XIs, and of the rest of a",
+        f"Monte Carlo simulation of {'an ODI' if model_format() == 'ODI' else 'a T20 match'} "
+        "between two chosen XIs, and of the rest of a",
         "real match from any ball with an edited score (the replay's what-if sandbox). It shows",
         "distributions (totals, margins, each player's likely contribution) and how they move",
         "when the XI or the score changes. It is labelled a model simulation everywhere; it is",
@@ -151,7 +157,8 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
         "run outs at the league rate. The strike changes on odd runs and at the end of an over.",
         "Each over's bowler is drawn from how often each bowler bowled that over in their last",
         f"{s['history_seasons']} seasons, shrunk toward their type's league pattern (worth "
-        f"{s['usage_strength']:g} overs), within the four-over quota, never twice in a row, and",
+        f"{s['usage_strength']:g} overs), within the {_QUOTA_WORDS[sim.rules_for(model_format()).quota]}"
+        "-over quota, never twice in a row, and",
         "only if the rest of the innings can still be covered. Each simulated match draws its",
         "own conditions (how good the pitch and ground are for batting), shared by both innings,",
         f"with a spread of {s['conditions_sd']} on the log-odds scale: on the validation seasons,",
@@ -301,6 +308,25 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
         "",
     ]
     return lines
+
+
+def write_format() -> list[Path]:
+    """Another format's newest simulator backtest (see ``report.write_format``), served
+    or not: one competition."""
+    root = registry.root(registry.SIMULATOR)
+    if not root.exists():
+        return []
+    trained = sorted((d.name for d in root.iterdir() if (d / "evaluation.json").exists()), key=_key)
+    if not trained:
+        return []
+    version = trained[-1]
+    competition = competitions_of(version)[0]
+    part = insights(version, competition)
+    data = {**part, "gate": gate(part), "served": serves(version, competition)}
+    return [
+        write_json(format_path(INSIGHTS_PATH), data),
+        write_text(format_path(MODEL_CARD_PATH), model_card([part])),
+    ]
 
 
 def write_all() -> list[Path]:

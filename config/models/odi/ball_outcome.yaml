@@ -1,0 +1,26 @@
+# Ball-outcome model for ODIs: training configuration.
+#
+# Same model and protocol as the T20 one (../ball_outcome.yaml), fitted on ODIs
+# alone (`scope: ODI`): one effect per player, the scoring era, and a term per
+# national side so a player with few balls starts from their side's level.
+
+name: ball_outcome
+version: 1.0.0
+scope: ODI
+
+splits:
+  tune_train_through: 2022   # candidates are fit on matches up to 2022 ...
+  tune_valid: [2023, 2024]   # ... and compared here
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling origin: fit on every year before y, test on y
+
+model:
+  c: 1.0             # inverse L2 strength for the situation terms
+  max_iter: 3000
+  competition_terms: false   # one competition
+  side_terms: true
+  n_jobs: 12         # independent fits (grid, test, backtest seasons) run in parallel
+  player_scale_grid: [0.05, 0.1, 0.2]
+
+gate:
+  must_beat_baseline: true

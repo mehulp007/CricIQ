@@ -60,8 +60,9 @@ SMOOTHING: tuple[tuple[int, float], ...] = tuple((d, (5 - abs(d)) / 25) for d in
 
 def _phase_keys(over_index: np.ndarray) -> np.ndarray:
     phases = model_phases()
-    lookup = {o: phases.phase_for_over_index(min(o, phases.limit - 1)).key for o in range(40)}
-    return np.array([lookup[min(int(o), 39)] for o in over_index])
+    last = phases.limit - 1
+    lookup = {o: phases.phase_for_over_index(o).key for o in range(phases.limit)}
+    return np.array([lookup[min(max(int(o), 0), last)] for o in over_index])
 
 
 def _in_hand_bucket(in_hand: np.ndarray) -> np.ndarray:
@@ -202,13 +203,15 @@ def _after(
             s["competition_id"].to_numpy() if "competition_id" in s else np.full(len(s), "")
         )
         w = (10 - nxt["wickets"].to_numpy()).clip(0, 10).astype(int)
-        b = left.to_numpy().clip(0, chase.MAX_BALLS).astype(int)
-        r = needed.fillna(0).to_numpy().clip(0, chase.MAX_RUNS).astype(int)
+        b = left.to_numpy().clip(min=0).astype(int)
+        r = needed.fillna(0).to_numpy().clip(min=0).astype(int)
         cells = {(int(y), str(c)) for y, c in zip(years, competitions, strict=True)}
         for year, competition in cells:
             mask = (years == year) & (competitions == competition)
             table = tables.for_season(year, competition)
-            dp[mask] = table[w[mask], b[mask], r[mask]]
+            balls = b[mask].clip(max=table.shape[1] - 1)
+            runs = r[mask].clip(max=table.shape[2] - 1)
+            dp[mask] = table[w[mask], balls, runs]
         nxt["chase_dp"] = dp
     if stable:
         for column in STABLE_COLUMNS:

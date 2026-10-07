@@ -13,6 +13,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+from criciq_core.phases import model_phases
+from criciq_ml import formats
+
 IPL = "IPL"
 
 COMPETITION_LABELS: dict[str, str] = {
@@ -23,6 +26,7 @@ COMPETITION_LABELS: dict[str, str] = {
     "SA20": "SA20",
     "T20I": "Men's T20 internationals",
     "T20": "All T20 cricket",
+    "ODI": "Men's ODIs",
 }
 
 
@@ -45,6 +49,36 @@ def by_competition(lines: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def pooled_path(path: Path) -> Path:
     """Where the pooled T20 version's Model Insights data goes, beside the IPL's."""
     return path.parent / "t20" / path.name
+
+
+_PHASE_NAMES = {"powerplay": "Powerplay", "middle": "Middle", "death": "Death"}
+
+
+def phase_labels() -> dict[str, str]:
+    """Each phase with its overs in the models' format: "Powerplay (overs 1-6)",
+    "Middle (7-15)", "Death (16-20)" in a T20."""
+    phases = sorted(model_phases().phases, key=lambda p: p.first_over)
+    labels = {}
+    for i, p in enumerate(phases):
+        overs = f"{p.first_over}-{p.last_over}"
+        labels[p.key] = f"{_PHASE_NAMES.get(p.key, p.label)} ({'overs ' if i == 0 else ''}{overs})"
+    return labels
+
+
+def match_phrase(competitions: list[str]) -> str:
+    """What one model covers, as "an IPL match", "a T20 match (BBL, ...)" or "an ODI"."""
+    if len(competitions) > 1:
+        return "a T20 match (" + ", ".join(label(c) for c in competitions) + ")"
+    only = competitions[0] if competitions else IPL
+    return {IPL: "an IPL match", "ODI": "an ODI"}.get(only, f"a {label(only)} match")
+
+
+def format_path(path: Path) -> Path:
+    """Where the current format's version of a T20 file goes: ``odi/<name>`` beside it."""
+    sub = formats.folder()
+    if sub is None:
+        raise ValueError("the T20 models' files keep their own places")
+    return path.parent / sub / path.name
 
 
 def ipl_card_path(path: Path) -> Path:

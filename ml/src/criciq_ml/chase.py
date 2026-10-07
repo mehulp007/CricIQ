@@ -8,8 +8,8 @@ that simplified game, so it is sharp exactly where tree models are coarse (the
 last few balls, where data is thin) and it knows that 13 off the last ball is
 impossible.
 
-The outcome rates come from the death overs (16-20) of the previous seasons
-only, so the table used for a season never sees that season. With several
+The outcome rates come from the death overs (16-20 in a T20, 41-50 in an ODI)
+of the previous seasons only, so the table used for a season never sees that season. With several
 competitions, each uses its own death overs while it has enough of them, and
 the pooled ones otherwise.
 """
@@ -23,13 +23,29 @@ import pandas as pd
 from numpy.typing import NDArray
 from scipy.signal import lfilter
 
+from criciq_core.phases import model_phases
+
 RUN_OUTCOMES = (0, 1, 2, 3, 4, 6)
+# The table's limits in a T20 (the models' format sets them: an ODI's are 300 balls
+# and 500 runs).
 MAX_RUNS = 300
 MAX_BALLS = 120
 # Wickets in hand -> rate bucket: tail-enders score slower and get out more.
 BUCKETS = ((1, 2), (3, 4), (5, 10))
 
 Table = NDArray[np.float32]
+
+
+def limits() -> tuple[int, int]:
+    """Balls and runs the table covers in the models' format."""
+    phases = model_phases()
+    balls = phases.limit * phases.balls_per_over
+    return balls, MAX_RUNS if balls <= MAX_BALLS else 500
+
+
+def death_from() -> int:
+    """The first over (0-indexed) of the format's last phase."""
+    return max(p.first_over for p in model_phases().phases) - 1
 
 
 @dataclass(frozen=True)
@@ -59,7 +75,7 @@ def estimate_rates(deliveries: pd.DataFrame) -> dict[int, OutcomeRates]:
     Expects ``over_no`` (0-based), ``is_legal``, ``runs_batter``, ``team_wickets``
     and ``out_ids`` columns. Buckets with little data fall back to the prior.
     """
-    death = deliveries[deliveries["over_no"] >= 15]
+    death = deliveries[deliveries["over_no"] >= death_from()]
     outs = death["out_ids"].map(len).to_numpy()
     in_hand = 10 - (death["team_wickets"].to_numpy() - outs)
     legal = death["is_legal"].to_numpy()
@@ -89,22 +105,23 @@ def _rates_for(rates: dict[int, OutcomeRates], wickets_in_hand: int) -> OutcomeR
 
 
 def solve(rates: dict[int, OutcomeRates]) -> Table:
-    """``V[w, b, r]`` for w in 0..10, b in 0..MAX_BALLS, r in 0..MAX_RUNS."""
-    r = np.arange(MAX_RUNS + 1)
+    """``V[w, b, r]`` for w in 0..10, b in 0..balls, r in 0..runs (the format's limits)."""
+    max_balls, max_runs = limits()
+    r = np.arange(max_runs + 1)
     terminal = np.where(r == 0, 1.0, np.where(r == 1, 0.5, 0.0))
-    table = np.zeros((11, MAX_BALLS + 1, MAX_RUNS + 1))
+    table = np.zeros((11, max_balls + 1, max_runs + 1))
     table[0, :, :] = terminal
     table[:, 0, :] = terminal
     for w in range(1, 11):
         rw = _rates_for(rates, w)
-        for b in range(1, MAX_BALLS + 1):
+        for b in range(1, max_balls + 1):
             prev = table[w, b - 1]
             fall = table[w - 1, b - 1]
             s = rw.wicket * fall
             for k, p in rw.runs.items():
                 s = s + p * prev[np.maximum(r - k, 0)]
             # V[r] = extra * V[r-1] + s[r] for r >= 1, with V[0] = 1: a first-order recurrence.
-            v = np.empty(MAX_RUNS + 1)
+            v = np.empty(max_runs + 1)
             v[0] = 1.0
             v[1:], _ = lfilter([1.0], [1.0, -rw.extra], s[1:], zi=[rw.extra * 1.0])
             table[w, b] = v
@@ -113,8 +130,8 @@ def solve(rates: dict[int, OutcomeRates]) -> Table:
 
 def lookup(table: Table, runs_needed: int, balls_left: int, wickets_lost: int) -> float:
     w = min(max(10 - wickets_lost, 0), 10)
-    b = min(max(balls_left, 0), MAX_BALLS)
-    r = min(max(runs_needed, 0), MAX_RUNS)
+    b = min(max(balls_left, 0), table.shape[1] - 1)
+    r = min(max(runs_needed, 0), table.shape[2] - 1)
     return float(table[w, b, r])
 
 

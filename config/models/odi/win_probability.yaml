@@ -1,0 +1,60 @@
+# Win probability for ODIs: training configuration.
+#
+# ODIs have models of their own (`scope: ODI`, the ODI copy of the warehouse),
+# built with the same features and protocol as the T20 models
+# (../win_probability.yaml): splits by calendar year, hyperparameters searched on
+# the validation years only, the test years touched once.
+
+name: win_probability
+version: 1.0.0
+scope: ODI
+
+splits:
+  train_through: 2022        # headline evaluation: fit on matches up to 2022
+  validation: [2023, 2024]   # tuning, early stopping and calibration
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2016        # rolling-origin: for each year y, fit < y-1, calibrate y-1, test y
+
+features:
+  bat_prior_balls: 100       # empirical-Bayes shrinkage toward the league average
+  bowl_prior_balls: 120
+  venue_prior_balls: 1500
+  player_decay: 0.97         # per match played
+  env_window_matches: 60     # rolling scoring rate of ODIs ("era")
+  stable: true               # derived ratios rounded so every CPU agrees (see features.py)
+
+# Candidate groups served on top of the core features (features.CANDIDATES), per
+# innings, chosen by forward selection on the pre-test rolling origin. The batters at
+# the crease improved a chase (log loss 0.3904 -> 0.3884, and 0.3852 once re-tuned).
+# The batting depth looked better next (0.3838), but with both served and the
+# settings re-tuned the chase scored 0.3875, worse than the crease alone, so it is
+# left out. Nothing improved the first innings: the squads' records, the venue and
+# the era each made it worse.
+served_extras:
+  1: []
+  2: [crease]
+
+lightgbm:
+  base:
+    objective: cross_entropy  # accepts 0.5 labels for tied matches
+    learning_rate: 0.03
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    monotone_constraints_method: intermediate
+    max_rounds: 2000
+    early_stopping_rounds: 100
+    num_threads: 12
+    seed: 7
+  grid:
+    num_leaves: [15, 31]
+    # Rows are balls, but the outcome is shared by a whole match (~600 rows in an
+    # ODI): leaves must span many matches or the trees memorise individual games.
+    min_data_in_leaf: [6000, 20000]
+    recency_half_life: [0, 6]  # years; 0 = every year weighted equally
+
+calibration_recent_seasons: 3
+
+gate:
+  max_log_loss_regression: 0.002

@@ -323,7 +323,9 @@ class _Squads:
 
 
 # Competitions of international sides (the others are club leagues).
-INTERNATIONAL = frozenset({"T20I"})
+# International cricket (national sides): the pooled T20 models' flag, and the ball
+# model's side terms.
+INTERNATIONAL = frozenset({"T20I", "ODI"})
 # Decimals kept by stable features.
 STABLE_DECIMALS = 9
 # Balls the batters at the crease have faced, as a feature, are capped here.

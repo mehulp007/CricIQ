@@ -1,0 +1,27 @@
+# CricIQ Ratings for ODIs: fitting configuration.
+#
+# The same components and protocol as the T20 ratings (../ratings.yaml), fitted
+# on the ODI scope of the players database. The phase components follow the ODI
+# phases (overs 1-10, 11-40 and 41-50).
+
+name: ratings
+version: 1.0.0
+
+source: players
+min_pairs: 100
+
+splits:
+  test_from: 2023
+
+k_grid:
+  low: 1
+  high: 20000
+  points: 161
+
+season_factor: 0.5
+
+stability:
+  high: 0.3
+  moderate: 0.15
+
+style_min_balls: 150

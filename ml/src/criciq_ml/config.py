@@ -9,7 +9,7 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, Field
 
-from criciq_core.paths import config_dir
+from criciq_ml import formats
 from criciq_ml.features import CANDIDATES, FEATURES, FeatureConfig
 
 
@@ -63,6 +63,6 @@ class WinProbabilityConfig(BaseModel):
 
 
 def load_config(path: Path | None = None) -> WinProbabilityConfig:
-    source = path or config_dir() / "models" / "win_probability.yaml"
+    source = path or formats.config_path("win_probability")
     with source.open(encoding="utf-8") as fh:
         return WinProbabilityConfig.model_validate(yaml.safe_load(fh))

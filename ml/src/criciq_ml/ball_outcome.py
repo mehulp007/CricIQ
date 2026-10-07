@@ -42,7 +42,7 @@ from scipy import sparse
 from sklearn.linear_model import LogisticRegression
 
 from criciq_core.phases import model_phases
-from criciq_ml.data import MAX_BALLS_SQL, TARGET_SQL, check_formats
+from criciq_ml.data import TARGET_SQL, check_formats, max_balls_sql
 from criciq_ml.features import INTERNATIONAL
 
 FloatArray = npt.NDArray[np.float64]
@@ -94,7 +94,7 @@ def _balls_sql() -> str:
            d.team_wickets - coalesce(o.dismissals, 0) AS wickets_before,
            d.legal_ball_no - d.is_legal::INTEGER AS balls_before,
            {TARGET_SQL} AS target_runs,
-           {MAX_BALLS_SQL} AS max_balls,
+           {max_balls_sql()} AS max_balls,
            (row_number() OVER (PARTITION BY d.match_id, d.innings_no, d.batter_id
                                ORDER BY d.seq_no) - 1)::INTEGER AS batter_balls,
            tb.franchise_id AS batting_side, tw.franchise_id AS bowling_side

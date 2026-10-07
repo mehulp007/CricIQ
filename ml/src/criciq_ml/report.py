@@ -30,7 +30,10 @@ from criciq_ml.report_common import (
     by_competition,
     comparison_section,
     competitions_of,
+    format_path,
     ipl_card_path,
+    match_phrase,
+    phase_labels,
     pooled_path,
     write_json,
     write_text,
@@ -82,11 +85,6 @@ GROUP_LABELS: dict[str, str] = {
     "teams": "Who is playing (the XIs' records, international cricket)",
 }
 
-PHASE_LABELS = {
-    "powerplay": "Powerplay (overs 1-6)",
-    "middle": "Middle (7-15)",
-    "death": "Death (16-20)",
-}
 
 INSIGHTS_PATH = paths.repo_root() / "frontend" / "data" / "models" / "win-probability.json"
 MODEL_CARD_PATH = paths.repo_root() / "docs" / "model-cards" / "win-probability.md"
@@ -235,11 +233,7 @@ def model_card(data: dict[str, Any]) -> str:
     pooled = len(competitions) > 1
     # Pooled versions split by calendar year (a BBL season spans two).
     period = "years" if pooled else "seasons"
-    covers = (
-        "a T20 match (" + ", ".join(competition_label(c) for c in competitions) + ")"
-        if pooled
-        else "an IPL match"
-    )
+    covers = match_phrase(competitions)
 
     def method(key: str) -> str:
         return METHOD_LABELS[key].replace("season", period[:-1])
@@ -341,7 +335,7 @@ def model_card(data: dict[str, Any]) -> str:
     ]
     for r in test["by_phase"]:
         lines.append(
-            f"| {r['innings_no']} | {PHASE_LABELS[r['phase']]} | {r['rows']:,} | "
+            f"| {r['innings_no']} | {phase_labels()[r['phase']]} | {r['rows']:,} | "
             f"{_f(r['model_log_loss'])} | {_f(r['baseline_log_loss'])} | "
             f"{_f(r['model_brier'])} | {_f(r['baseline_brier'])} |"
         )
@@ -516,8 +510,14 @@ def model_card(data: dict[str, Any]) -> str:
             "which is where the squads' records help most. Outside T20Is a competition's test "
             "set is 60-150 matches, so its own results are noisy."
             if pooled
-            else "- About 1,200 matches is a small sample. Gains over a strong baseline are real "
-            "but modest, and single-season results are noisy."
+            else f"- About {round(data['trained_on']['matches'], -2):,} matches is a small sample. "
+            + (
+                "Gains over a strong baseline are real but modest"
+                if vs_base["ci_low"] > 0
+                else "On the test matches the model is ahead of a strong baseline, but the 95% "
+                "interval includes no gain"
+            )
+            + ", and single-season results are noisy."
         ),
         "- Rain-revised targets are only known in their final form, so the few interrupted "
         "chases use the revised target from the first ball.",
@@ -526,6 +526,28 @@ def model_card(data: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def write_format(servings: dict[str, Path]) -> list[Path]:
+    """Model cards and Model Insights data of another format's models (the current one,
+    ``criciq_core.phases.use_format``): ``docs/model-cards/<format>/`` and
+    ``frontend/data/models/<format>/``. ``servings`` are its competitions' serving
+    databases (ODIs: one), whose replays give the biggest swings."""
+    written = [
+        *projection_report.write_format(),
+        *ball_outcome_report.write_format(),
+        *ratings_report.write_format(),
+        *simulator_report.write_format(),
+    ]
+    version = registry.current_version()
+    if version is None or not servings:
+        return written
+    data = insights(version, next(iter(servings.values())))
+    return [
+        write_json(format_path(INSIGHTS_PATH), data),
+        write_text(format_path(MODEL_CARD_PATH), model_card(data)),
+        *written,
+    ]
 
 
 def write_all(serving: Path, others: dict[str, Path] | None = None) -> list[Path]:

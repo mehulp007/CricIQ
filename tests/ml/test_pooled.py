@@ -14,7 +14,7 @@ import pytest
 
 from criciq_ml import comparison, players_scoring, ratings, registry
 from criciq_ml.ball_outcome import BallOutcomeModel, load_balls
-from criciq_ml.data import MAX_BALLS_SQL, TARGET_SQL, Inputs, load_inputs
+from criciq_ml.data import TARGET_SQL, Inputs, load_inputs, max_balls_sql
 from criciq_ml.features import STABLE_DECIMALS, FeatureConfig, build_states
 from criciq_ml.simulator import SimulatorSettings
 
@@ -88,7 +88,7 @@ def test_missing_targets_and_overlong_innings_are_read_sensibly() -> None:
         )
         rows = con.execute(
             f"""
-            SELECT i.innings_no, {TARGET_SQL} AS target, {MAX_BALLS_SQL} AS max_balls
+            SELECT i.innings_no, {TARGET_SQL} AS target, {max_balls_sql()} AS max_balls
             FROM innings i JOIN matches m USING (match_id) ORDER BY i.innings_no
             """
         ).fetchall()

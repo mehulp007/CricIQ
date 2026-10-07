@@ -100,11 +100,319 @@ overs are not simulated): 2.03% of simulated test matches.
   jumps (as in 2023) simulated totals lag behind.
 - Pre-match win chances are no better than a coin flip in the backtest.
 
-# Backtested, not served: version 2.0.0
+# Version 2.1.0: the other competitions
 
-Version 2.0.0 was backtested on Men's T20 internationals and failed the gate (Men's T20 internationals: first-innings PIT is not uniform at the 5% level), so no competition is simulated with it. Its backtest is published here as it came out.
+Version 2.1.0 plays matches with the pooled ball model (every T20 competition) and was backtested on each competition below on its own matches. Each competition is simulated with it only where its own backtest passed the gate. It serves Big Bash League, Caribbean Premier League and SA20. It does not serve Pakistan Super League (first-innings PIT is not uniform at the 5% level). It does not serve Men's T20 internationals (first-innings PIT is not uniform at the 5% level).
 
-# Men's T20 internationals
+# Big Bash League
+
+Served: this backtest passed the gate.
+
+Conditions spread 0.3 (tuned on 2023-2024).
+
+## Intended use
+
+Monte Carlo simulation of a T20 match between two chosen XIs, and of the rest of a
+real match from any ball with an edited score (the replay's what-if sandbox). It shows
+distributions (totals, margins, each player's likely contribution) and how they move
+when the XI or the score changes. It is labelled a model simulation everywhere; it is
+not a forecast and not for betting.
+
+## How a match is simulated
+
+Every legal ball: extras from league rates for the innings and phase; the ball faced
+from the ball-outcome model (situation, era, striker and bowler; see its model card);
+run outs at the league rate. The strike changes on odd runs and at the end of an over.
+Each over's bowler is drawn from how often each bowler bowled that over in their last
+3 seasons, shrunk toward their type's league pattern (worth 8 overs), within the four-over quota, never twice in a row, and
+only if the rest of the innings can still be covered. Each simulated match draws its
+own conditions (how good the pitch and ground are for batting), shared by both innings,
+with a spread of 0.3 on the log-odds scale: on the validation seasons,
+the value whose 80% range held closest to 80% of first-innings totals (coverage, not CRPS, decides):
+
+| Spread | CRPS | 80% coverage | Brier |
+|---|---|---|---|
+| 0.0 | 16.608 | 72.8% | 0.2547 |
+| 0.1 | 16.589 | 72.8% | 0.2560 |
+| 0.2 | 16.5 | 73.9% | 0.2549 |
+| 0.3 | 16.49 | 80.4% | 0.2542 |
+| 0.4 | 16.627 | 87.0% | 0.2532 |
+| 0.5 | 16.984 | 91.3% | 0.2509 |
+| 0.6 | 17.49 | 96.7% | 0.2519 |
+| 0.7 | 18.173 | 98.9% | 0.2510 |
+| 0.8 | 18.973 | 98.9% | 0.2509 |
+
+## Backtest
+
+Every match with a result in 2025-2026 (84 matches), simulated
+2,000 times before a ball was bowled, with a ball-outcome model
+refit on the seasons before, the actual XIs in each player's usual batting order, bowling
+usage, extras and run outs from the three previous seasons, and the actual side batting
+first.
+
+### Who wins, before a ball is bowled
+
+| Chance the side batting first wins | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.2579** | **0.7091** |
+| Coin flip | 0.2500 | 0.6931 |
+| Batting-first rate before the test (49.2%) | 0.2476 | 0.6883 |
+| Both sides' recent form (log5) | 0.2502 | 0.6936 |
+
+Against a coin flip the simulator's Brier score is -0.0079 (90%: -0.0157 to -0.0003; positive is better). Before a ball is bowled the simulator calls winners worse than a coin flip would (its chances lean the wrong way more often than not); the simulator predicted the side batting first 52.3% on average, and it won 34.5% of these matches.
+
+### From the first ball of a chase
+
+With the actual target, the simulated chance of chasing it (80 chases):
+
+| | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.2360** | **0.6770** |
+| Chase success rate before the test (50.8%) | 0.2475 | 0.6881 |
+
+Gain over the base rate +0.0115 (90%: -0.0304 to +0.0518). The simulated chances rank chases well but are too low: 45.0% on average against 66.2% chased successfully, most for modest targets. Real chasers manage risk to see a gettable target home in ways the ball-by-ball model does not capture. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
+
+| Predicted (fifths) | Matches | Simulated | Chased |
+|---|---|---|---|
+| 1 | 16 | 10.5% | 31.2% |
+| 2 | 16 | 29.2% | 68.8% |
+| 3 | 16 | 43.8% | 62.5% |
+| 4 | 16 | 57.3% | 75.0% |
+| 5 | 16 | 84.1% | 93.8% |
+
+### First-innings totals
+
+80 full first innings. If the simulated distributions are right, the
+actual total's percentile within its simulation (PIT) is uniform:
+
+| PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Matches | 6 | 4 | 10 | 8 | 13 | 8 | 6 | 8 | 8 | 9 |
+
+Chi-square 6.75 (uniform at the 5% level below 16.92). The simulated 80% range held 82.5% of actual totals and the 50% range 60.0%; CRPS 18.27 runs. Average total 165.0 simulated against 168.0 actual; wickets 6.59 against 7.24.
+
+## Speed and rules
+
+10,000 complete matches in 0.384 s on the
+development machine (numpy, all simulations stepped together). Bowling rules gave way in
+0 simulated overs of the backtest. Ties are reported as ties (super
+overs are not simulated): 1.91% of simulated test matches.
+
+## Limitations
+
+- No venue, weather or toss effects beyond the shared conditions draw; no Impact Player
+  substitutions (an XI of 11); of twelve named under supersub rules, the usual top eleven bat.
+- Batting order is fixed; real sides promote and demote batters during an innings.
+- The scoring era is the one before the simulated match, so when scoring rises simulated totals lag behind.
+- Pre-match win chances are worse than a coin flip in the backtest.
+
+# Caribbean Premier League
+
+Served: this backtest passed the gate.
+
+Conditions spread 0.2 (tuned on 2023-2024).
+
+## Intended use
+
+Monte Carlo simulation of a T20 match between two chosen XIs, and of the rest of a
+real match from any ball with an edited score (the replay's what-if sandbox). It shows
+distributions (totals, margins, each player's likely contribution) and how they move
+when the XI or the score changes. It is labelled a model simulation everywhere; it is
+not a forecast and not for betting.
+
+## How a match is simulated
+
+Every legal ball: extras from league rates for the innings and phase; the ball faced
+from the ball-outcome model (situation, era, striker and bowler; see its model card);
+run outs at the league rate. The strike changes on odd runs and at the end of an over.
+Each over's bowler is drawn from how often each bowler bowled that over in their last
+3 seasons, shrunk toward their type's league pattern (worth 8 overs), within the four-over quota, never twice in a row, and
+only if the rest of the innings can still be covered. Each simulated match draws its
+own conditions (how good the pitch and ground are for batting), shared by both innings,
+with a spread of 0.2 on the log-odds scale: on the validation seasons,
+the value whose 80% range held closest to 80% of first-innings totals (coverage, not CRPS, decides):
+
+| Spread | CRPS | 80% coverage | Brier |
+|---|---|---|---|
+| 0.0 | 20.536 | 62.3% | 0.2393 |
+| 0.1 | 20.341 | 62.3% | 0.2399 |
+| 0.2 | 20.14 | 78.7% | 0.2398 |
+| 0.3 | 20.015 | 82.0% | 0.2394 |
+| 0.4 | 20.097 | 85.2% | 0.2372 |
+| 0.5 | 20.389 | 90.2% | 0.2365 |
+| 0.6 | 20.902 | 93.4% | 0.2353 |
+| 0.7 | 21.595 | 96.7% | 0.2363 |
+| 0.8 | 22.456 | 98.4% | 0.2355 |
+
+## Backtest
+
+Every match with a result in 2025-2026 (67 matches), simulated
+2,000 times before a ball was bowled, with a ball-outcome model
+refit on the seasons before, the actual XIs in each player's usual batting order, bowling
+usage, extras and run outs from the three previous seasons, and the actual side batting
+first.
+
+### Who wins, before a ball is bowled
+
+| Chance the side batting first wins | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.2505** | **0.6952** |
+| Coin flip | 0.2500 | 0.6931 |
+| Batting-first rate before the test (46.2%) | 0.2418 | 0.6766 |
+| Both sides' recent form (log5) | 0.2484 | 0.6900 |
+
+Against a coin flip the simulator's Brier score is -0.0005 (90%: -0.0224 to +0.0204; positive is better). Before a ball is bowled, who wins is close to unpredictable from XIs and form; the simulator predicted the side batting first 50.4% on average, and it won 37.3% of these matches.
+
+### From the first ball of a chase
+
+With the actual target, the simulated chance of chasing it (62 chases):
+
+| | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.1894** | **0.5535** |
+| Chase success rate before the test (53.8%) | 0.2416 | 0.6763 |
+
+Gain over the base rate +0.0522 (90%: +0.0067 to +0.0966). The simulated chances rank chases well but are too low: 51.6% on average against 62.9% chased successfully, most for modest targets. Real chasers manage risk to see a gettable target home in ways the ball-by-ball model does not capture. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
+
+| Predicted (fifths) | Matches | Simulated | Chased |
+|---|---|---|---|
+| 1 | 13 | 14.2% | 30.8% |
+| 2 | 13 | 34.1% | 53.8% |
+| 3 | 12 | 52.2% | 50.0% |
+| 4 | 12 | 70.1% | 83.3% |
+| 5 | 12 | 91.8% | 100.0% |
+
+### First-innings totals
+
+62 full first innings. If the simulated distributions are right, the
+actual total's percentile within its simulation (PIT) is uniform:
+
+| PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Matches | 9 | 5 | 4 | 8 | 8 | 4 | 5 | 10 | 3 | 6 |
+
+Chi-square 8.32 (uniform at the 5% level below 16.92). The simulated 80% range held 75.8% of actual totals and the 50% range 51.6%; CRPS 17.84 runs. Average total 166.1 simulated against 164.2 actual; wickets 6.75 against 6.81.
+
+## Speed and rules
+
+10,000 complete matches in 0.401 s on the
+development machine (numpy, all simulations stepped together). Bowling rules gave way in
+0 simulated overs of the backtest. Ties are reported as ties (super
+overs are not simulated): 1.89% of simulated test matches.
+
+## Limitations
+
+- No venue, weather or toss effects beyond the shared conditions draw; no Impact Player
+  substitutions (an XI of 11); of twelve named under supersub rules, the usual top eleven bat.
+- Batting order is fixed; real sides promote and demote batters during an innings.
+- The scoring era is the one before the simulated match, so when scoring rises simulated totals lag behind.
+- Pre-match win chances are no better than a coin flip in the backtest.
+
+# Pakistan Super League
+
+Not served: first-innings PIT is not uniform at the 5% level.
+
+Conditions spread 0.2 (tuned on 2023-2024).
+
+## Intended use
+
+Monte Carlo simulation of a T20 match between two chosen XIs, and of the rest of a
+real match from any ball with an edited score (the replay's what-if sandbox). It shows
+distributions (totals, margins, each player's likely contribution) and how they move
+when the XI or the score changes. It is labelled a model simulation everywhere; it is
+not a forecast and not for betting.
+
+## How a match is simulated
+
+Every legal ball: extras from league rates for the innings and phase; the ball faced
+from the ball-outcome model (situation, era, striker and bowler; see its model card);
+run outs at the league rate. The strike changes on odd runs and at the end of an over.
+Each over's bowler is drawn from how often each bowler bowled that over in their last
+3 seasons, shrunk toward their type's league pattern (worth 8 overs), within the four-over quota, never twice in a row, and
+only if the rest of the innings can still be covered. Each simulated match draws its
+own conditions (how good the pitch and ground are for batting), shared by both innings,
+with a spread of 0.2 on the log-odds scale: on the validation seasons,
+the value whose 80% range held closest to 80% of first-innings totals (coverage, not CRPS, decides):
+
+| Spread | CRPS | 80% coverage | Brier |
+|---|---|---|---|
+| 0.0 | 18.127 | 72.7% | 0.2388 |
+| 0.1 | 18.063 | 72.7% | 0.2363 |
+| 0.2 | 17.938 | 81.8% | 0.2365 |
+| 0.3 | 17.948 | 84.8% | 0.2392 |
+| 0.4 | 18.143 | 87.9% | 0.2399 |
+| 0.5 | 18.576 | 90.9% | 0.2398 |
+| 0.6 | 19.204 | 95.5% | 0.2427 |
+| 0.7 | 20.002 | 98.5% | 0.2435 |
+| 0.8 | 20.943 | 100.0% | 0.2449 |
+
+## Backtest
+
+Every match with a result in 2025-2026 (76 matches), simulated
+2,000 times before a ball was bowled, with a ball-outcome model
+refit on the seasons before, the actual XIs in each player's usual batting order, bowling
+usage, extras and run outs from the three previous seasons, and the actual side batting
+first.
+
+### Who wins, before a ball is bowled
+
+| Chance the side batting first wins | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.2387** | **0.6704** |
+| Coin flip | 0.2500 | 0.6931 |
+| Batting-first rate before the test (43.8%) | 0.2457 | 0.6845 |
+| Both sides' recent form (log5) | 0.2535 | 0.7003 |
+
+Against a coin flip the simulator's Brier score is +0.0113 (90%: +0.0018 to +0.0206; positive is better). The XIs say a good deal about who wins here (sides differ widely in strength); the simulator predicted the side batting first 52.6% on average, and it won 43.4% of these matches.
+
+### From the first ball of a chase
+
+With the actual target, the simulated chance of chasing it (73 chases):
+
+| | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.1912** | **0.5600** |
+| Chase success rate before the test (56.2%) | 0.2445 | 0.6821 |
+
+Gain over the base rate +0.0533 (90%: -0.0039 to +0.1061). The simulated chances rank chases well but are too low: 40.2% on average against 57.5% chased successfully, most for modest targets. Real chasers manage risk to see a gettable target home in ways the ball-by-ball model does not capture. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
+
+| Predicted (fifths) | Matches | Simulated | Chased |
+|---|---|---|---|
+| 1 | 15 | 5.2% | 13.3% |
+| 2 | 15 | 17.0% | 33.3% |
+| 3 | 15 | 31.9% | 66.7% |
+| 4 | 14 | 60.6% | 85.7% |
+| 5 | 14 | 90.8% | 92.9% |
+
+### First-innings totals
+
+73 full first innings. If the simulated distributions are right, the
+actual total's percentile within its simulation (PIT) is uniform:
+
+| PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Matches | 8 | 8 | 2 | 5 | 4 | 4 | 7 | 6 | 12 | 17 |
+
+Chi-square 23.85 (uniform at the 5% level below 16.92). The simulated 80% range held 65.8% of actual totals and the 50% range 34.2%; CRPS 24.02 runs. Average total 171.9 simulated against 182.2 actual; wickets 6.63 against 6.85.
+
+## Speed and rules
+
+10,000 complete matches in 0.427 s on the
+development machine (numpy, all simulations stepped together). Bowling rules gave way in
+0 simulated overs of the backtest. Ties are reported as ties (super
+overs are not simulated): 2.01% of simulated test matches.
+
+## Limitations
+
+- No venue, weather or toss effects beyond the shared conditions draw; no Impact Player
+  substitutions (an XI of 11); of twelve named under supersub rules, the usual top eleven bat.
+- Batting order is fixed; real sides promote and demote batters during an innings.
+- The scoring era is the one before the simulated match, so when scoring rises simulated totals lag behind.
+- Win chances are too close to even between unequal sides: in the fifth of matches it rated most one-sided the side batting first was given 59.5% and won 73.3%. Players with few balls (most associate players) are shrunk toward the average player, so mismatches look closer than they are.
+
+# SA20
+
+Served: this backtest passed the gate.
 
 Conditions spread 0.5 (tuned on 2023-2024).
 
@@ -130,15 +438,117 @@ the value whose 80% range held closest to 80% of first-innings totals (coverage,
 
 | Spread | CRPS | 80% coverage | Brier |
 |---|---|---|---|
-| 0.0 | 26.215 | 51.9% | 0.2398 |
-| 0.1 | 26.076 | 54.6% | 0.2394 |
-| 0.2 | 25.709 | 58.3% | 0.2392 |
-| 0.3 | 25.283 | 66.7% | 0.2390 |
-| 0.4 | 24.952 | 72.4% | 0.2387 |
-| 0.5 | 24.792 | 78.3% | 0.2378 |
-| 0.6 | 24.818 | 83.2% | 0.2380 |
-| 0.7 | 25.013 | 87.0% | 0.2377 |
-| 0.8 | 25.379 | 89.9% | 0.2380 |
+| 0.0 | 25.454 | 52.5% | 0.2505 |
+| 0.1 | 25.336 | 54.1% | 0.2504 |
+| 0.2 | 24.943 | 59.0% | 0.2513 |
+| 0.3 | 24.549 | 72.1% | 0.2505 |
+| 0.4 | 24.267 | 72.1% | 0.2507 |
+| 0.5 | 24.174 | 78.7% | 0.2519 |
+| 0.6 | 24.287 | 86.9% | 0.2517 |
+| 0.7 | 24.614 | 88.5% | 0.2533 |
+| 0.8 | 25.107 | 91.8% | 0.2528 |
+
+## Backtest
+
+Every match with a result in 2025-2026 (60 matches), simulated
+2,000 times before a ball was bowled, with a ball-outcome model
+refit on the seasons before, the actual XIs in each player's usual batting order, bowling
+usage, extras and run outs from the three previous seasons, and the actual side batting
+first.
+
+### Who wins, before a ball is bowled
+
+| Chance the side batting first wins | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.2524** | **0.6981** |
+| Coin flip | 0.2500 | 0.6931 |
+| Batting-first rate before the test (54.0%) | 0.2503 | 0.6937 |
+| Both sides' recent form (log5) | 0.2524 | 0.6980 |
+
+Against a coin flip the simulator's Brier score is -0.0024 (90%: -0.0140 to +0.0086; positive is better). Before a ball is bowled, who wins is close to unpredictable from XIs and form; the simulator predicted the side batting first 48.4% on average, and it won 51.7% of these matches.
+
+### From the first ball of a chase
+
+With the actual target, the simulated chance of chasing it (57 chases):
+
+| | Brier | Log loss |
+|---|---|---|
+| **Simulator** | **0.1673** | **0.5032** |
+| Chase success rate before the test (46.0%) | 0.2495 | 0.6921 |
+
+Gain over the base rate +0.0822 (90%: +0.0498 to +0.1133). On average the simulated chance was 48.9%, and 47.4% of the chases succeeded. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
+
+| Predicted (fifths) | Matches | Simulated | Chased |
+|---|---|---|---|
+| 1 | 12 | 21.2% | 8.3% |
+| 2 | 12 | 35.0% | 25.0% |
+| 3 | 11 | 45.5% | 54.5% |
+| 4 | 11 | 61.8% | 63.6% |
+| 5 | 11 | 84.8% | 90.9% |
+
+### First-innings totals
+
+57 full first innings. If the simulated distributions are right, the
+actual total's percentile within its simulation (PIT) is uniform:
+
+| PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Matches | 4 | 4 | 5 | 7 | 5 | 10 | 7 | 8 | 4 | 3 |
+
+Chi-square 7.74 (uniform at the 5% level below 16.92). The simulated 80% range held 87.7% of actual totals and the 50% range 64.9%; CRPS 20.39 runs. Average total 164.7 simulated against 164.5 actual; wickets 6.72 against 6.32.
+
+## Speed and rules
+
+10,000 complete matches in 0.416 s on the
+development machine (numpy, all simulations stepped together). Bowling rules gave way in
+0 simulated overs of the backtest. Ties are reported as ties (super
+overs are not simulated): 1.83% of simulated test matches.
+
+## Limitations
+
+- No venue, weather or toss effects beyond the shared conditions draw; no Impact Player
+  substitutions (an XI of 11); of twelve named under supersub rules, the usual top eleven bat.
+- Batting order is fixed; real sides promote and demote batters during an innings.
+- The scoring era is the one before the simulated match, so when scoring rises simulated totals lag behind.
+- Pre-match win chances are no better than a coin flip in the backtest.
+
+# Men's T20 internationals
+
+Not served: first-innings PIT is not uniform at the 5% level.
+
+Conditions spread 0.5 (tuned on 2023-2024).
+
+## Intended use
+
+Monte Carlo simulation of a T20 match between two chosen XIs, and of the rest of a
+real match from any ball with an edited score (the replay's what-if sandbox). It shows
+distributions (totals, margins, each player's likely contribution) and how they move
+when the XI or the score changes. It is labelled a model simulation everywhere; it is
+not a forecast and not for betting.
+
+## How a match is simulated
+
+Every legal ball: extras from league rates for the innings and phase; the ball faced
+from the ball-outcome model (situation, era, striker and bowler; see its model card);
+run outs at the league rate. The strike changes on odd runs and at the end of an over.
+Each over's bowler is drawn from how often each bowler bowled that over in their last
+3 seasons, shrunk toward their type's league pattern (worth 8 overs), within the four-over quota, never twice in a row, and
+only if the rest of the innings can still be covered. Each simulated match draws its
+own conditions (how good the pitch and ground are for batting), shared by both innings,
+with a spread of 0.5 on the log-odds scale: on the validation seasons,
+the value whose 80% range held closest to 80% of first-innings totals (coverage, not CRPS, decides):
+
+| Spread | CRPS | 80% coverage | Brier |
+|---|---|---|---|
+| 0.0 | 23.457 | 58.3% | 0.2124 |
+| 0.1 | 23.342 | 59.3% | 0.2120 |
+| 0.2 | 23.049 | 63.3% | 0.2118 |
+| 0.3 | 22.755 | 67.7% | 0.2121 |
+| 0.4 | 22.558 | 73.1% | 0.2115 |
+| 0.5 | 22.537 | 79.6% | 0.2115 |
+| 0.6 | 22.637 | 84.4% | 0.2108 |
+| 0.7 | 22.906 | 87.7% | 0.2105 |
+| 0.8 | 23.35 | 90.9% | 0.2101 |
 
 ## Backtest
 
@@ -152,12 +562,12 @@ first.
 
 | Chance the side batting first wins | Brier | Log loss |
 |---|---|---|
-| **Simulator** | **0.2314** | **0.6554** |
+| **Simulator** | **0.1729** | **0.5354** |
 | Coin flip | 0.2500 | 0.6931 |
 | Batting-first rate before the test (49.5%) | 0.2499 | 0.6930 |
 | Both sides' recent form (log5) | 0.2386 | 0.6701 |
 
-Against a coin flip the simulator's Brier score is +0.0186 (90%: +0.0149 to +0.0219; positive is better). The XIs say a good deal about who wins here (sides differ widely in strength); the simulator predicted the side batting first 51.7% on average, and it won 49.1% of these matches.
+Against a coin flip the simulator's Brier score is +0.0771 (90%: +0.0650 to +0.0892; positive is better). The XIs say a good deal about who wins here (sides differ widely in strength); the simulator predicted the side batting first 51.7% on average, and it won 49.1% of these matches.
 
 ### From the first ball of a chase
 
@@ -165,18 +575,18 @@ With the actual target, the simulated chance of chasing it (884 chases):
 
 | | Brier | Log loss |
 |---|---|---|
-| **Simulator** | **0.1542** | **0.4669** |
+| **Simulator** | **0.1332** | **0.4062** |
 | Chase success rate before the test (50.5%) | 0.2499 | 0.6930 |
 
-Gain over the base rate +0.0957 (90%: +0.0849 to +0.1064). The simulated chances rank chases well but are too low: 44.1% on average against 50.9% chased successfully, most for modest targets. Real chasers manage risk to see a gettable target home in ways the ball-by-ball model does not capture. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
+Gain over the base rate +0.1167 (90%: +0.1061 to +0.1273). The simulated chances rank chases well but are too low: 44.2% on average against 50.9% chased successfully, most for modest targets. Real chasers manage risk to see a gettable target home in ways the ball-by-ball model does not capture. The what-if sandbox starts from the win probability model's estimate at the real score and moves it by the simulated change (on the log-odds scale) rather than showing the simulated level.
 
 | Predicted (fifths) | Matches | Simulated | Chased |
 |---|---|---|---|
-| 1 | 177 | 8.3% | 10.7% |
-| 2 | 177 | 23.3% | 23.7% |
-| 3 | 177 | 39.0% | 50.3% |
-| 4 | 177 | 61.0% | 73.4% |
-| 5 | 176 | 89.4% | 96.6% |
+| 1 | 177 | 3.5% | 4.0% |
+| 2 | 177 | 18.5% | 23.2% |
+| 3 | 177 | 39.9% | 52.0% |
+| 4 | 177 | 66.3% | 78.5% |
+| 5 | 176 | 92.9% | 97.2% |
 
 ### First-innings totals
 
@@ -185,16 +595,16 @@ actual total's percentile within its simulation (PIT) is uniform:
 
 | PIT tenth | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Matches | 77 | 68 | 82 | 70 | 83 | 77 | 116 | 84 | 104 | 123 |
+| Matches | 51 | 60 | 64 | 89 | 101 | 102 | 115 | 98 | 120 | 84 |
 
-Chi-square 37.4 (uniform at the 5% level below 16.92). The simulated 80% range held 77.9% of actual totals and the 50% range 50.2%; CRPS 25.31 runs. Average total 147.2 simulated against 154.1 actual; wickets 7.12 against 7.24.
+Chi-square 56.14 (uniform at the 5% level below 16.92). The simulated 80% range held 85.2% of actual totals and the 50% range 55.5%; CRPS 21.49 runs. Average total 147.1 simulated against 154.1 actual; wickets 7.1 against 7.24.
 
 ## Speed and rules
 
-10,000 complete matches in 0.444 s on the
+10,000 complete matches in 0.525 s on the
 development machine (numpy, all simulations stepped together). Bowling rules gave way in
 0 simulated overs of the backtest. Ties are reported as ties (super
-overs are not simulated): 1.57% of simulated test matches.
+overs are not simulated): 1.16% of simulated test matches.
 
 ## Limitations
 
@@ -202,4 +612,3 @@ overs are not simulated): 1.57% of simulated test matches.
   substitutions (an XI of 11); of twelve named under supersub rules, the usual top eleven bat.
 - Batting order is fixed; real sides promote and demote batters during an innings.
 - The scoring era is the one before the simulated match, so when scoring rises simulated totals lag behind.
-- Win chances are too close to even between unequal sides: in the fifth of matches it rated most one-sided the side batting first was given 61.5% and won 75.1%. Players with few balls (most associate players) are shrunk toward the average player, so mismatches look closer than they are.

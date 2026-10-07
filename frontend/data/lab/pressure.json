@@ -32,15 +32,15 @@
       "balls": 91373,
       "share": 0.6167,
       "strike_rate": 134.0,
-      "expected_strike_rate": 134.5,
+      "expected_strike_rate": 133.6,
       "dot_pct": 36.4,
       "boundary_pct": 17.4,
       "dismissals_per_100": 4.6,
-      "expected_dismissals_per_100": 4.62,
+      "expected_dismissals_per_100": 4.58,
       "runs_above_expected_per_100": {
-        "value": -0.48,
-        "low": -1.55,
-        "high": 0.64
+        "value": 0.44,
+        "low": -0.65,
+        "high": 1.54
       }
     },
     {
@@ -51,15 +51,15 @@
       "balls": 51476,
       "share": 0.3745,
       "strike_rate": 129.7,
-      "expected_strike_rate": 131.6,
+      "expected_strike_rate": 131.3,
       "dot_pct": 39.4,
       "boundary_pct": 17.2,
       "dismissals_per_100": 4.96,
-      "expected_dismissals_per_100": 4.88,
+      "expected_dismissals_per_100": 4.9,
       "runs_above_expected_per_100": {
-        "value": -1.87,
-        "low": -3.43,
-        "high": -0.48
+        "value": -1.6,
+        "low": -3.06,
+        "high": -0.12
       }
     },
     {
@@ -70,15 +70,15 @@
       "balls": 45560,
       "share": 0.3075,
       "strike_rate": 131.9,
-      "expected_strike_rate": 134.6,
+      "expected_strike_rate": 133.5,
       "dot_pct": 38.3,
       "boundary_pct": 17.4,
       "dismissals_per_100": 4.64,
-      "expected_dismissals_per_100": 4.74,
+      "expected_dismissals_per_100": 4.7,
       "runs_above_expected_per_100": {
-        "value": -2.71,
-        "low": -3.99,
-        "high": -1.16
+        "value": -1.65,
+        "low": -2.93,
+        "high": -0.21
       }
     },
     {
@@ -89,15 +89,15 @@
       "balls": 40128,
       "share": 0.2919,
       "strike_rate": 127.5,
-      "expected_strike_rate": 127.7,
+      "expected_strike_rate": 128.6,
       "dot_pct": 39.5,
       "boundary_pct": 17.1,
       "dismissals_per_100": 4.0,
-      "expected_dismissals_per_100": 4.18,
+      "expected_dismissals_per_100": 4.14,
       "runs_above_expected_per_100": {
-        "value": -0.17,
-        "low": -1.59,
-        "high": 1.26
+        "value": -1.14,
+        "low": -2.54,
+        "high": 0.24
       }
     },
     {
@@ -108,15 +108,15 @@
       "balls": 10685,
       "share": 0.0721,
       "strike_rate": 147.3,
-      "expected_strike_rate": 144.9,
+      "expected_strike_rate": 144.2,
       "dot_pct": 34.7,
       "boundary_pct": 20.2,
       "dismissals_per_100": 5.31,
-      "expected_dismissals_per_100": 5.15,
+      "expected_dismissals_per_100": 5.19,
       "runs_above_expected_per_100": {
-        "value": 2.39,
-        "low": -0.62,
-        "high": 4.97
+        "value": 3.1,
+        "low": 0.14,
+        "high": 5.66
       }
     },
     {
@@ -127,15 +127,15 @@
       "balls": 32215,
       "share": 0.2344,
       "strike_rate": 133.5,
-      "expected_strike_rate": 130.8,
+      "expected_strike_rate": 132.6,
       "dot_pct": 37.0,
       "boundary_pct": 17.6,
       "dismissals_per_100": 4.39,
-      "expected_dismissals_per_100": 4.41,
+      "expected_dismissals_per_100": 4.45,
       "runs_above_expected_per_100": {
-        "value": 2.74,
-        "low": 1.0,
-        "high": 4.32
+        "value": 0.92,
+        "low": -0.74,
+        "high": 2.56
       }
     },
     {
@@ -146,15 +146,15 @@
       "balls": 550,
       "share": 0.0037,
       "strike_rate": 145.8,
-      "expected_strike_rate": 131.4,
+      "expected_strike_rate": 129.5,
       "dot_pct": 38.7,
       "boundary_pct": 22.2,
       "dismissals_per_100": 2.73,
-      "expected_dismissals_per_100": 4.25,
+      "expected_dismissals_per_100": 4.2,
       "runs_above_expected_per_100": {
-        "value": 14.4,
-        "low": 2.91,
-        "high": 27.16
+        "value": 16.28,
+        "low": 4.77,
+        "high": 29.07
       }
     },
     {
@@ -165,15 +165,15 @@
       "balls": 13641,
       "share": 0.0992,
       "strike_rate": 155.2,
-      "expected_strike_rate": 143.1,
+      "expected_strike_rate": 147.4,
       "dot_pct": 29.9,
       "boundary_pct": 19.7,
       "dismissals_per_100": 6.9,
-      "expected_dismissals_per_100": 6.27,
+      "expected_dismissals_per_100": 6.53,
       "runs_above_expected_per_100": {
-        "value": 12.1,
-        "low": 9.25,
-        "high": 14.45
+        "value": 7.84,
+        "low": 5.04,
+        "high": 10.19
       }
     }
   ],
@@ -344,7 +344,7 @@
       "leverage": 0.362,
       "realised": {
         "value": 0.363,
-        "low": 0.358,
+        "low": 0.357,
         "high": 0.369
       }
     },
@@ -352,7 +352,7 @@
       "balls": 29549,
       "leverage": 0.529,
       "realised": {
-        "value": 0.506,
+        "value": 0.507,
         "low": 0.499,
         "high": 0.514
       }
@@ -370,9 +370,9 @@
       "balls": 29549,
       "leverage": 0.761,
       "realised": {
-        "value": 0.751,
-        "low": 0.742,
-        "high": 0.761
+        "value": 0.752,
+        "low": 0.743,
+        "high": 0.762
       }
     },
     {
@@ -388,9 +388,9 @@
       "balls": 29549,
       "leverage": 1.033,
       "realised": {
-        "value": 1.02,
+        "value": 1.019,
         "low": 1.007,
-        "high": 1.034
+        "high": 1.033
       }
     },
     {
@@ -406,7 +406,7 @@
       "balls": 29549,
       "leverage": 1.564,
       "realised": {
-        "value": 1.604,
+        "value": 1.603,
         "low": 1.586,
         "high": 1.623
       }
@@ -415,7 +415,7 @@
       "balls": 29550,
       "leverage": 2.879,
       "realised": {
-        "value": 2.925,
+        "value": 2.926,
         "low": 2.885,
         "high": 2.968
       }

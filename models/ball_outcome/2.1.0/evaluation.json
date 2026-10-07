@@ -1,66 +1,82 @@
 {
-  "name": "ball_outcome",
-  "version": "2.1.0",
-  "data_version": "2026-09-17.103eadea",
-  "trained_on": {
-    "balls": 1412900,
-    "competitions": [
-      "BBL",
-      "CPL",
-      "IPL",
-      "PSL",
-      "SA20",
-      "T20I"
-    ],
-    "seasons": [
-      2005,
-      2026
-    ]
-  },
-  "kappa": 247.04796639215985,
-  "player_scale": 0.1,
-  "splits": {
-    "served_through": 2026,
-    "test": [
-      2025,
-      2026
-    ],
-    "tune_train_through": 2022,
-    "tune_valid": [
-      2023,
-      2024
-    ]
-  },
-  "outcomes": [
+  "backtest": [
     {
-      "key": "dot",
-      "label": "Dot"
+      "balls": 50687,
+      "baseline_log_loss": 1.447274967660771,
+      "model_log_loss": 1.4308500553211059,
+      "season": 2016
     },
     {
-      "key": "one",
-      "label": "1 run"
+      "balls": 46241,
+      "baseline_log_loss": 1.4556958745115571,
+      "model_log_loss": 1.4378289620887672,
+      "season": 2017
     },
     {
-      "key": "two",
-      "label": "2 runs"
+      "balls": 55568,
+      "baseline_log_loss": 1.4626734535324302,
+      "model_log_loss": 1.4447084798615233,
+      "season": 2018
     },
     {
-      "key": "three",
-      "label": "3 runs"
+      "balls": 88452,
+      "baseline_log_loss": 1.442713840216031,
+      "model_log_loss": 1.4296491206074056,
+      "season": 2019
     },
     {
-      "key": "four",
-      "label": "Four"
+      "balls": 57561,
+      "baseline_log_loss": 1.4581511006686543,
+      "model_log_loss": 1.4381989619460802,
+      "season": 2020
     },
     {
-      "key": "six",
-      "label": "Six"
+      "balls": 107598,
+      "baseline_log_loss": 1.450139590100344,
+      "model_log_loss": 1.4368930925129988,
+      "season": 2021
     },
     {
-      "key": "out",
-      "label": "Wicket"
+      "balls": 141140,
+      "baseline_log_loss": 1.4586827231460333,
+      "model_log_loss": 1.444897239026766,
+      "season": 2022
+    },
+    {
+      "balls": 126053,
+      "baseline_log_loss": 1.4601319409109899,
+      "model_log_loss": 1.4434200809963809,
+      "season": 2023
+    },
+    {
+      "balls": 178599,
+      "baseline_log_loss": 1.4538869421420146,
+      "model_log_loss": 1.4349161905955865,
+      "season": 2024
+    },
+    {
+      "balls": 161912,
+      "baseline_log_loss": 1.4723579038634398,
+      "model_log_loss": 1.4544792548744838,
+      "season": 2025
+    },
+    {
+      "balls": 141282,
+      "baseline_log_loss": 1.473397436476252,
+      "model_log_loss": 1.4501785487728416,
+      "season": 2026
     }
   ],
+  "classes": [
+    "dot",
+    "one",
+    "two",
+    "three",
+    "four",
+    "six",
+    "out"
+  ],
+  "data_version": "2026-09-17.103eadea",
   "feature_selection": [
     {
       "label": "Phase and wickets only",
@@ -83,23 +99,78 @@
       "variant": "phase_players"
     }
   ],
-  "candidate_min_gain": 0.001,
-  "phase_players": false,
+  "ipl_comparison": {
+    "better": false,
+    "competition": "IPL",
+    "no_worse": false,
+    "v1": {
+      "balls": 33303,
+      "brier": 0.7190175638099201,
+      "log_loss": 1.4895268953190552,
+      "version": "1.0.0"
+    },
+    "v2": {
+      "balls": 33303,
+      "brier": 0.7194868974842358,
+      "log_loss": 1.4923678096454216,
+      "version": "2.1.0"
+    },
+    "v2_gain": {
+      "ci_high": -0.0015474700049738427,
+      "ci_low": -0.004199072169474232,
+      "improvement": -0.002840914326366259,
+      "matches": 148
+    }
+  },
+  "matchups": {
+    "all": {
+      "balls": 76443,
+      "model": 1.4617892216541641,
+      "raw": 1.6751703399114277,
+      "shrunk": 1.4615340334264055
+    },
+    "by_history": [
+      {
+        "balls": 38769,
+        "history": "1-9",
+        "model": 1.4649750065861058,
+        "raw": 1.7551520865992423,
+        "shrunk": 1.4648550552811934
+      },
+      {
+        "balls": 28431,
+        "history": "10-29",
+        "model": 1.4578157152413949,
+        "raw": 1.6080855399791116,
+        "shrunk": 1.4573100079736705
+      },
+      {
+        "balls": 9243,
+        "history": "30+",
+        "model": 1.4606490144481714,
+        "raw": 1.5460429580587605,
+        "shrunk": 1.4605971700009406
+      }
+    ],
+    "kappa": 259.0266217558395,
+    "pairs_in_history": 147680,
+    "served_kappa": 247.04796639215985,
+    "test_pairs": 10527
+  },
+  "name": "ball_outcome",
+  "splits": {
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "tune_train_through": 2022,
+    "tune_valid": [
+      2023,
+      2024
+    ]
+  },
   "test": {
-    "model": {
-      "actual_runs": 1.2656582913909906,
-      "balls": 303194,
-      "brier": 0.7043650762557654,
-      "expected_runs": 1.204920924800713,
-      "log_loss": 1.4542346354359188
-    },
-    "situation_only": {
-      "actual_runs": 1.2656582913909906,
-      "balls": 303194,
-      "brier": 0.7058985231962586,
-      "expected_runs": 1.1993042520343724,
-      "log_loss": 1.4585040925423098
-    },
     "baseline": {
       "actual_runs": 1.2656582913909906,
       "balls": 303194,
@@ -107,26 +178,6 @@
       "expected_runs": 1.211962637889703,
       "log_loss": 1.4731373100439389
     },
-    "by_phase": [
-      {
-        "balls": 99705,
-        "baseline_log_loss": 1.4544557164137095,
-        "model_log_loss": 1.438042692088451,
-        "phase": "powerplay"
-      },
-      {
-        "balls": 141261,
-        "baseline_log_loss": 1.433827461668267,
-        "model_log_loss": 1.4119546880439826,
-        "phase": "middle"
-      },
-      {
-        "balls": 62228,
-        "baseline_log_loss": 1.5923054784616573,
-        "model_log_loss": 1.5761560431622086,
-        "phase": "death"
-      }
-    ],
     "by_competition": [
       {
         "baseline": {
@@ -229,6 +280,26 @@
           "expected_runs": 1.1398926265927491,
           "log_loss": 1.4430482078495053
         }
+      }
+    ],
+    "by_phase": [
+      {
+        "balls": 99705,
+        "baseline_log_loss": 1.4544557164137095,
+        "model_log_loss": 1.438042692088451,
+        "phase": "powerplay"
+      },
+      {
+        "balls": 141261,
+        "baseline_log_loss": 1.433827461668267,
+        "model_log_loss": 1.4119546880439826,
+        "phase": "middle"
+      },
+      {
+        "balls": 62228,
+        "baseline_log_loss": 1.5923054784616573,
+        "model_log_loss": 1.5761560431622086,
+        "phase": "death"
       }
     ],
     "calibration": {
@@ -632,6 +703,13 @@
         "predicted": 0.07239317539403349
       }
     },
+    "model": {
+      "actual_runs": 1.2656582913909906,
+      "balls": 303194,
+      "brier": 0.7043650762557654,
+      "expected_runs": 1.204920924800713,
+      "log_loss": 1.4542346354359188
+    },
     "runs_calibration": [
       {
         "count": 30318,
@@ -683,133 +761,40 @@
         "observed": 1.8162511542012927,
         "predicted": 1.8110828680320508
       }
+    ],
+    "situation_only": {
+      "actual_runs": 1.2656582913909906,
+      "balls": 303194,
+      "brier": 0.7058985231962586,
+      "expected_runs": 1.1993042520343724,
+      "log_loss": 1.4585040925423098
+    }
+  },
+  "trained_on": {
+    "balls": 1412900,
+    "seasons": [
+      2005,
+      2026
     ]
   },
-  "matchups": {
-    "all": {
-      "balls": 76443,
-      "model": 1.4617892216541641,
-      "raw": 1.6751703399114277,
-      "shrunk": 1.4615340334264055
-    },
-    "by_history": [
+  "tuning": {
+    "candidate_min_gain": 0.001,
+    "grid": [
       {
-        "balls": 38769,
-        "history": "1-9",
-        "model": 1.4649750065861058,
-        "raw": 1.7551520865992423,
-        "shrunk": 1.4648550552811934
+        "log_loss": 1.442494992615429,
+        "player_scale": 0.05
       },
       {
-        "balls": 28431,
-        "history": "10-29",
-        "model": 1.4578157152413949,
-        "raw": 1.6080855399791116,
-        "shrunk": 1.4573100079736705
+        "log_loss": 1.4413729377668674,
+        "player_scale": 0.1
       },
       {
-        "balls": 9243,
-        "history": "30+",
-        "model": 1.4606490144481714,
-        "raw": 1.5460429580587605,
-        "shrunk": 1.4605971700009406
+        "log_loss": 1.4419400509779978,
+        "player_scale": 0.2
       }
     ],
-    "kappa": 259.0266217558395,
-    "pairs_in_history": 147680,
-    "served_kappa": 247.04796639215985,
-    "test_pairs": 10527
+    "phase_players": false,
+    "player_scale": 0.1
   },
-  "backtest": [
-    {
-      "balls": 50687,
-      "baseline_log_loss": 1.447274967660771,
-      "model_log_loss": 1.4308500553211059,
-      "season": 2016
-    },
-    {
-      "balls": 46241,
-      "baseline_log_loss": 1.4556958745115571,
-      "model_log_loss": 1.4378289620887672,
-      "season": 2017
-    },
-    {
-      "balls": 55568,
-      "baseline_log_loss": 1.4626734535324302,
-      "model_log_loss": 1.4447084798615233,
-      "season": 2018
-    },
-    {
-      "balls": 88452,
-      "baseline_log_loss": 1.442713840216031,
-      "model_log_loss": 1.4296491206074056,
-      "season": 2019
-    },
-    {
-      "balls": 57561,
-      "baseline_log_loss": 1.4581511006686543,
-      "model_log_loss": 1.4381989619460802,
-      "season": 2020
-    },
-    {
-      "balls": 107598,
-      "baseline_log_loss": 1.450139590100344,
-      "model_log_loss": 1.4368930925129988,
-      "season": 2021
-    },
-    {
-      "balls": 141140,
-      "baseline_log_loss": 1.4586827231460333,
-      "model_log_loss": 1.444897239026766,
-      "season": 2022
-    },
-    {
-      "balls": 126053,
-      "baseline_log_loss": 1.4601319409109899,
-      "model_log_loss": 1.4434200809963809,
-      "season": 2023
-    },
-    {
-      "balls": 178599,
-      "baseline_log_loss": 1.4538869421420146,
-      "model_log_loss": 1.4349161905955865,
-      "season": 2024
-    },
-    {
-      "balls": 161912,
-      "baseline_log_loss": 1.4723579038634398,
-      "model_log_loss": 1.4544792548744838,
-      "season": 2025
-    },
-    {
-      "balls": 141282,
-      "baseline_log_loss": 1.473397436476252,
-      "model_log_loss": 1.4501785487728416,
-      "season": 2026
-    }
-  ],
-  "competition_terms": true,
-  "ipl_comparison": {
-    "better": false,
-    "competition": "IPL",
-    "no_worse": false,
-    "v1": {
-      "balls": 33303,
-      "brier": 0.7190175638099201,
-      "log_loss": 1.4895268953190552,
-      "version": "1.0.0"
-    },
-    "v2": {
-      "balls": 33303,
-      "brier": 0.7194868974842358,
-      "log_loss": 1.4923678096454216,
-      "version": "2.1.0"
-    },
-    "v2_gain": {
-      "ci_high": -0.0015474700049738427,
-      "ci_low": -0.004199072169474232,
-      "improvement": -0.002840914326366259,
-      "matches": 148
-    }
-  }
+  "version": "2.1.0"
 }

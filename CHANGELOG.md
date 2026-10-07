@@ -148,6 +148,10 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     KKR v RR), read "won the super over"; it now says so.
   - The replay's what-if played a rain-revised chase over its full overs instead of its revised
     allocation.
+  - Under `/[competition]/`, only the featured replays opened: every other match page was a 404
+    (since V2-4). The competition layout turns dynamic params off, Next applies that to the whole
+    route, and the match page listed only the featured replays as its params; it now lists none,
+    like the player and team pages.
 - **V2-4:**
   - A tie with no winner had no result text, and a match settled by a bowl-out said "won the
     super over"; they now read "Match tied" and "won the bowl-out".

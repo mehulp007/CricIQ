@@ -13,20 +13,18 @@ import {
   seasonLabel,
   type CompetitionId,
 } from "@/lib/competitions";
-import { featuredMatches, isFeatured, loadFeaturedTimeline } from "@/lib/featured";
+import { isFeatured, loadFeaturedTimeline } from "@/lib/featured";
 import { formatDate, stageLabel } from "@/lib/format";
 import { modelsFor } from "@/lib/models";
 
-// Featured replays are prerendered from bundled data; any other match renders
-// on first request and is then cached.
-export function generateStaticParams({ params }: { params: { competition: string } }) {
-  if (!isCompetitionId(params.competition)) return [];
-  return featuredMatches(params.competition).map((m) => ({ id: String(m.match_id) }));
-}
+// Featured replays read bundled data; any other match comes from the API (cached
+// for a day). No generateStaticParams: the competition layout sets
+// `dynamicParams = false`, and Next applies that to the whole route, so listing
+// the featured replays here would make every other match a 404.
 
-async function loadTimeline(competition: CompetitionId, id: string): Promise<Timeline> {
+async function loadTimeline(competition: string, id: string): Promise<Timeline> {
   const matchId = Number(id);
-  if (!Number.isInteger(matchId) || matchId <= 0) notFound();
+  if (!isCompetitionId(competition) || !Number.isInteger(matchId) || matchId <= 0) notFound();
   if (isFeatured(competition, matchId)) {
     return (await loadFeaturedTimeline(competition, matchId))!;
   }
@@ -43,7 +41,7 @@ export async function generateMetadata({
 }: PageProps<"/[competition]/matches/[id]">): Promise<Metadata> {
   const { competition, id } = await params;
   try {
-    const { summary } = await loadTimeline(competition as CompetitionId, id);
+    const { summary } = await loadTimeline(competition, id);
     return {
       title: `${summary.team_a.franchise_id} vs ${summary.team_b.franchise_id}, ${seasonLabel(competition as CompetitionId, summary.season)} replay`,
       description: `${summary.team_a.name} vs ${summary.team_b.name}, ${formatDate(summary.date)}. ${summary.result_text}. Replay it ball by ball.`,

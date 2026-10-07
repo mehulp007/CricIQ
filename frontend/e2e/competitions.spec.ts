@@ -62,6 +62,26 @@ test.describe("competitions", () => {
     ).toBeVisible();
   });
 
+  test("every competition opens matches that are not featured replays", async ({ page }) => {
+    // Featured replays come from bundled data; these come from the API.
+    const matches = {
+      ipl: 335988,
+      bbl: 1386128,
+      cpl: 635216,
+      psl: 1211672,
+      t20i: 287862,
+      odi: 224227,
+    };
+    for (const [competition, id] of Object.entries(matches)) {
+      const response = await page.goto(`/${competition}/matches/${id}`);
+      expect(response?.status(), `${competition} ${id}`).toBe(200);
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(" vs ");
+      await expect(page.getByTestId("win-probability")).toBeVisible();
+    }
+    await page.goto("/t20i/matches/99999999");
+    await expect(page.getByRole("heading", { name: "This page doesn't exist." })).toBeVisible();
+  });
+
   test("ODI sides have records by year and by opponent", async ({ page }) => {
     await page.goto("/odi/teams");
     await expect(page.getByRole("heading", { name: "Teams", level: 1 })).toBeVisible();

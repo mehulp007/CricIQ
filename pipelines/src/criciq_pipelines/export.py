@@ -77,6 +77,18 @@ teams AS (
     SELECT t.team_season_id, t.display_name, f.franchise_id, f.primary_color
     FROM team_seasons t JOIN franchises f USING (franchise_id)
 ),
+last_super_over AS (
+    -- The final pair of super-over innings: level means boundaries decided it (the 2019
+    -- World Cup final, IPL 2014 KKR v RR).
+    SELECT match_id, bool_and(runs = max_runs) AND count(*) = 2 AS level
+    FROM (
+        SELECT match_id, runs, max(runs) OVER (PARTITION BY match_id) AS max_runs,
+               row_number() OVER (PARTITION BY match_id ORDER BY innings_no DESC) AS rank
+        FROM innings WHERE is_super_over
+    )
+    WHERE rank <= 2
+    GROUP BY match_id
+),
 awards AS (
     SELECT x.match_id, list(coalesce(p.full_name, p.name, x.player_id)) AS names
     FROM (SELECT match_id, unnest(player_of_match_ids) AS player_id FROM matches) x
@@ -126,6 +138,8 @@ SELECT
         -- Ties without a winner, and the bowl-outs that settled ties before super overs.
         WHEN m.outcome_type = 'tie' AND tw.display_name IS NULL THEN 'Match tied'
             || CASE WHEN m.win_method IS NOT NULL THEN ' (' || m.win_method || ')' ELSE '' END
+        WHEN m.outcome_type = 'tie' AND m.decided_by_super_over AND so.level
+            THEN 'Match tied (' || tw.display_name || ' won on boundaries after a tied super over)'
         WHEN m.outcome_type = 'tie' AND m.decided_by_super_over
             THEN 'Match tied (' || tw.display_name || ' won the super over)'
         WHEN m.outcome_type = 'tie' THEN 'Match tied (' || tw.display_name || ' won the bowl-out)'
@@ -151,6 +165,7 @@ LEFT JOIN teams tw ON tw.team_season_id = m.winner_id
 LEFT JOIN main_innings ia ON ia.match_id = m.match_id AND ia.batting_team_id = sd.team_a_id
 LEFT JOIN main_innings ib ON ib.match_id = m.match_id AND ib.batting_team_id = sd.team_b_id
 LEFT JOIN awards aw ON aw.match_id = m.match_id
+LEFT JOIN last_super_over so ON so.match_id = m.match_id
 ORDER BY m.match_order
 """
 

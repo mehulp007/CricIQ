@@ -60,3 +60,43 @@ def test_ties_are_worded_by_how_they_were_settled(
     )
     con.execute(MATCH_SUMMARIES_SQL)
     assert con.execute("SELECT result_text FROM match_summaries").fetchone() == (expected,)
+
+
+@pytest.mark.parametrize(
+    ("super_overs", "expected"),
+    [
+        ([(3, "A", 11), (4, "B", 9)], "Match tied (India won the super over)"),
+        # A tied super over settled on boundaries (the 2019 World Cup final).
+        (
+            [(3, "B", 15), (4, "A", 15)],
+            "Match tied (India won on boundaries after a tied super over)",
+        ),
+        # A second super over after a tied first one decides it.
+        (
+            [(3, "A", 6), (4, "B", 6), (5, "B", 11), (6, "A", 12)],
+            "Match tied (India won the super over)",
+        ),
+    ],
+)
+def test_a_super_over_tie_is_worded_by_how_it_ended(
+    super_overs: list[tuple[int, str, int]], expected: str
+) -> None:
+    con = duckdb.connect()
+    con.execute(SCHEMA)
+    con.execute(
+        """
+        INSERT INTO matches VALUES (1, 1, 'S', DATE '2019-07-14', 1, 'Final', true, 'V',
+            'A', 'B', 'A', 'bat', 'tie', 'A', NULL, NULL, NULL, true, [])
+        """
+    )
+    con.execute(
+        "INSERT INTO innings VALUES (1, 1, 'A', 241, 8, 300, NULL, NULL, false),"
+        " (1, 2, 'B', 241, 10, 300, 242, 300, false)"
+    )
+    for innings_no, team, runs in super_overs:
+        con.execute(
+            "INSERT INTO innings VALUES (1, ?, ?, ?, 0, 6, NULL, NULL, true)",
+            [innings_no, team, runs],
+        )
+    con.execute(MATCH_SUMMARIES_SQL)
+    assert con.execute("SELECT result_text FROM match_summaries").fetchone() == (expected,)

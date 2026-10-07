@@ -1,4 +1,4 @@
-"""The players database: Player Lab tables for every T20 competition and all T20.
+"""The players database: Player Lab tables for every T20 competition, all T20 and ODIs.
 
 Each competition's tables are built exactly as the IPL's are for the serving
 database (``criciq_pipelines.players``), from that competition's v1-shaped copy
@@ -37,8 +37,8 @@ from criciq_pipelines.players import INDEX_QUERY, PLAYER_TABLES, build_player_ta
 from criciq_pipelines.reference import load_competitions
 from criciq_pipelines.scope import build_scope
 
-# The formats in the players database so far (ODI and Test follow in V2-5 and V2-6).
-FORMATS = ("T20",)
+# The formats in the players database so far (Test cricket follows in V2-6).
+FORMATS = ("T20", "ODI")
 # The scope holding every T20 competition.
 ALL_T20 = "T20"
 
@@ -67,7 +67,7 @@ class PlayerDatabaseError(RuntimeError):
 def export_players(
     warehouse: Path, target: Path, competitions: Sequence[str] | None = None
 ) -> dict[str, int]:
-    """Write the players database for the T20 competitions in the full ``warehouse``
+    """Write the players database for the competitions in the full ``warehouse``
     (or those of ``competitions``) to ``target`` atomically; return row counts."""
     included = _included(warehouse, competitions)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -98,7 +98,8 @@ def export_players(
 
 
 def _included(warehouse: Path, competitions: Sequence[str] | None) -> list[str]:
-    """The T20 competitions with matches in ``warehouse``, in config order."""
+    """The competitions of the database's formats with matches in ``warehouse``, in
+    config order."""
     con = duckdb.connect(str(warehouse), read_only=True)
     try:
         present = {
@@ -244,13 +245,19 @@ def _add_scopes(con: duckdb.DuckDBPyConnection, included: list[str]) -> None:
         (cid, cid.lower(), config[cid].name, config[cid].short_name, config[cid].format, [cid])
         for cid in included
     ]
-    scopes.append((ALL_T20, ALL_T20.lower(), "All T20 cricket", "All T20", "T20", included))
+    t20 = [cid for cid in included if config[cid].format == "T20"]
+    if t20:
+        # All T20 follows the T20 competitions, before the other formats.
+        after = max(i for i, scope in enumerate(scopes) if scope[4] == "T20") + 1
+        scopes.insert(after, (ALL_T20, ALL_T20.lower(), "All T20 cricket", "All T20", "T20", t20))
     for order, (scope_id, schema, name, short_name, fmt, members) in enumerate(scopes):
         con.execute(
             "INSERT INTO scopes VALUES (?, ?, ?, ?, ?, ?, ?)",
             [scope_id, schema, name, short_name, fmt, members, order],
         )
         _scope_views(con, scope_id, schema, members)
+    if not t20:
+        return
     # The All T20 directory: computed over the union, through its scope's views.
     con.execute(f"SET search_path = '{ALL_T20.lower()},main'")
     try:

@@ -45,8 +45,11 @@ SCOPED = ("IPL",)
 # The pooled copy of every selected T20 competition, in one time order: what the
 # models train on and score from (criciq_ml).
 POOLED = "T20"
-# Formats the site serves so far (ODI and Test arrive in V2-5 and V2-6).
-SERVED_FORMATS = ("T20",)
+# Formats with models of their own, each trained on and scored from one copy of the
+# format's competitions (``POOLED`` for T20, ``odi.duckdb`` for ODIs).
+MODEL_FORMATS = ("T20", "ODI")
+# Formats the site serves so far (Test cricket arrives in V2-6).
+SERVED_FORMATS = ("T20", "ODI")
 
 
 def selected_competitions() -> list[Competition]:
@@ -118,11 +121,11 @@ def run_build(
     scopes: dict[str, Path] | None = None,
 ) -> dict[str, int]:
     """Build the full warehouse, then the v1-shaped copy of each scoped competition
-    and the pooled T20 copy.
+    and each format's model copy (the pooled T20 copy, the ODIs').
 
     Without arguments this builds the current data state. ``scopes`` maps a scoped
-    competition (or ``POOLED``) to where its copy goes (default: its usual warehouse
-    path).
+    competition (or a model format) to where its copy goes (default: its usual
+    warehouse path).
     """
     if isinstance(snapshot, RawSnapshot):
         if not (interim_dir_for(snapshot) / "matches.parquet").exists():
@@ -145,9 +148,9 @@ def run_build(
     for competition in scoped_competitions():
         out = (scopes or {}).get(competition) or paths.warehouse_path(competition)
         build_scope(target, competition, out)
-    if pooled := pooled_competitions():
-        out = (scopes or {}).get(POOLED) or paths.warehouse_path(POOLED)
-        build_scope(target, pooled, out)
+    for match_format, members in model_copies().items():
+        out = (scopes or {}).get(match_format) or paths.warehouse_path(match_format)
+        build_scope(target, members, out)
     return counts
 
 
@@ -160,6 +163,15 @@ def scoped_competitions() -> list[str]:
 def pooled_competitions() -> list[str]:
     """The selected T20 competitions, which the pooled copy holds."""
     return [c.id for c in selected_competitions() if c.format == "T20"]
+
+
+def model_copies() -> dict[str, list[str]]:
+    """Each model format's selected competitions, by the copy's name (the format)."""
+    found: dict[str, list[str]] = {}
+    for c in selected_competitions():
+        if c.format in MODEL_FORMATS:
+            found.setdefault(c.format, []).append(c.id)
+    return found
 
 
 def served_competitions() -> list[str]:

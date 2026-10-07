@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -195,3 +196,27 @@ def test_a_new_training_run_names_a_new_version(tmp_path: Path) -> None:
     runner.set_config_version(config, "1.1.0")
     assert config.read_text(encoding="utf-8") == "# keep me\nname: x\nversion: 1.1.0\nscope: T20I\n"
     assert runner.config_version(config) == "1.1.0"
+
+
+@pytest.mark.parametrize("group_id", ["leagues", "t20i"])
+def test_each_group_is_served_by_models_trained_on_it_alone(group_id: str) -> None:
+    owner = group(group_id)
+    with formats.use_group(owner):
+        for name in (registry.NAME, registry.PROJECTION, registry.BALL_OUTCOME):
+            version = registry.current_version(name)
+            assert version is not None, name
+            manifest = json.loads(
+                (registry.version_dir(version, name) / "manifest.json").read_text(encoding="utf-8")
+            )
+            assert set(manifest["trained_on"]["competitions"]) <= set(owner.competitions)
+        ratings_version = registry.current_version(registry.RATINGS)
+        assert ratings_version is not None
+        assert set(registry.load_current_ratings().manifest["scopes"]) <= set(owner.competitions)
+        # The site's Model Insights data is the serving version's.
+        bundled = paths.repo_root() / "frontend" / "data" / "models" / owner.models
+        insights = json.loads((bundled / "win-probability.json").read_text(encoding="utf-8"))
+        assert insights["version"] == registry.current_version(registry.NAME)
+    with formats.use_group(owner, serving=True):
+        for competition in owner.competitions:
+            for name in (registry.NAME, registry.PROJECTION, registry.BALL_OUTCOME):
+                assert registry.fallback_version(name, competition) is None, (competition, name)

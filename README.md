@@ -125,40 +125,40 @@ and conformally calibrated ([model card](docs/model-cards/score-projection-ipl.m
 The median error beats par in 11 of 11 backtest seasons. Season bias stays within a few
 runs either way, with no drift as totals rose by 30 runs across eras.
 
-## One model for all T20 cricket (v2)
+## Every kind of cricket, its own models (v2)
 
-> **Being replaced.** Every kind of cricket now gets models trained only on its own matches: the
-> IPL, the other four leagues together, T20Is and ODIs each form a model group
-> ([ADR-0013](docs/adr/0013-models-per-group.md), [how to train](docs/training.md)). The pooled
-> models below serve the leagues and T20Is only until their groups' own models are trained.
+Every competition's models learn from its own kind of cricket only
+([ADR-0013](docs/adr/0013-models-per-group.md)): the **IPL** alone; the **BBL, CPL, PSL and SA20**
+together, with no IPL and no internationals; **men's T20Is** alone; and **ODIs** alone. A player's
+record inside a model counts only that kind of cricket. Each group is trained with one command
+on a laptop and judged once on its 2025–2026 matches ([how to train](docs/training.md)):
 
-The v2 models train on every T20 competition at once: the IPL, BBL, PSL, CPL, SA20 and men's T20Is,
-6,391 matches. Players carry one record across all of them; each competition keeps its own scoring
-era. Pooling is only worth it for the IPL if it predicts the IPL at least as well as the IPL-only
-models, so each pooled model is compared with v1 on the IPL's own 2025–2026 test balls, v1's
-predictions rebuilt exactly ([ADR-0010](docs/adr/0010-pooled-t20-models.md)):
+| Test, 2025–2026 | Leagues (BBL, CPL, PSL, SA20) | Men's T20Is |
+|---|---|---|
+| Trained on | 1,563 league matches, 2011–2026 | 3,480 T20Is, 2005–2026 |
+| Win probability, log loss | 0.504 vs 0.516 (baseline), 270 matches: ahead, 95% interval −0.001 to +0.024 | **0.432 vs 0.458**, 952 matches: better, 95% interval +0.017 to +0.034 |
+| Score projection, median error | **16.8 runs** vs 18.2 for par; 80% range holds 79.6% | **18.1 runs** vs 22.2 for par; 80% range holds 81.7% |
+| Ball outcome, log loss | **1.4726** vs 1.4919, better in 11 of 11 backtest years | **1.4430** vs 1.4588, better in 11 of 11 backtest years |
+| Simulator | Served for the **BBL, CPL and SA20**; not for the PSL (simulated totals ran 8 runs short) | Not served: simulated totals ran 8 runs short of 2025–26 T20Is |
 
-| IPL test, 2025–2026 | IPL only (v1) | Pooled T20 (v2) | Pooled gain (95% CI) | The IPL is served by |
-|---|---|---|---|---|
-| Win probability, log loss | **0.510** | 0.524 | −0.015 (−0.035 to +0.006) | v1 |
-| Score projection, pinball (runs) | 4.87 | **4.86** | +0.02 (−0.09 to +0.12) | v1 (v2's 80% range covers 86%, outside the 75–85% band) |
-| Ball outcome, log loss | **1.4895** | 1.4922 | −0.003 (−0.004 to −0.001) | v1 |
+For the leagues' win probability, the features were chosen again on the pre-test years
+(2016–2024) only: with players' records counting league games alone, the squads' and the
+crease batters' records made the first innings worse, so version 1.1.0 leaves them out (log
+loss 0.638 against 0.649 before the test years, and 0.504 against 0.512 on the test). The
+T20Is' model keeps them: international players' records are long.
 
-**Pooling does not help the IPL**, so the IPL keeps its own models. It helps everywhere else: the
-pooled models beat their baselines in every competition, and serve the BBL, PSL, CPL, SA20 and
-T20Is (win probability on 1,366 test matches: log loss 0.456 against 0.489; T20Is 0.432 against
-0.460). What made the difference outside the IPL is who is playing: the squads' and the batters'
-career records, and whether it is international cricket, matter in lopsided T20Is and add noise
-between balanced IPL sides. Model cards: [win probability](docs/model-cards/win-probability.md),
-[score projection](docs/model-cards/score-projection.md),
-[ball outcome](docs/model-cards/ball-outcome.md), [ratings](docs/model-cards/ratings.md) (fitted per
-competition). The ball model 2.1.0 adds the batting and bowling side's level in internationals,
-so an associate player with few balls starts from their side rather than the average player. The
-simulator is backtested on each competition on its own 2025–2026 matches and serves the **BBL, CPL
-and SA20**, where its first-innings totals passed the gate; for **T20Is and the PSL it is not
-served**: its T20I pick of the winner is now clearly better than a coin flip (Brier 0.173 against
-0.250), but simulated totals run 7 runs low there and 10 in the PSL. The
-[simulator card](docs/model-cards/simulator.md) publishes every backtest after the IPL's.
+**The trade-off.** Until these models the leagues and T20Is shared one model trained on every T20
+competition at once (V2-3, [ADR-0010](docs/adr/0010-pooled-t20-models.md)). On the same test
+matches its win probability scored 0.545, 0.477, 0.472, 0.511 and 0.432 on the BBL, CPL, PSL,
+SA20 and T20Is; the groups' own models score 0.543, 0.496, 0.474, 0.507 and 0.432: better on the
+BBL and SA20, level on T20Is and the PSL, and behind on the CPL, where players' IPL and
+international records helped. The IPL kept its own models all along: the pooled versions were
+not better on the IPL's test seasons.
+
+A scoring-level correction for the simulator (shifting the scoring era so simulated totals match
+the validation years) was tried and not kept: shortfalls in 2023–24 did not carry over to
+2025–26, so it fixed neither the PSL nor T20Is and broke the CPL's backtest. Model cards:
+[leagues](docs/model-cards/leagues/), [T20Is](docs/model-cards/t20i/).
 
 ## Every competition on the site (v2)
 

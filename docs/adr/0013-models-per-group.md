@@ -53,6 +53,19 @@ be left running, resumed and read afterwards, without someone watching the logs.
   cards and Model Insights data of every group with models of its own, and re-exports the
   featured replays.
 
+## Outcome
+
+Both groups were trained on 2026-10-07 and tested once on 2025-2026. The leagues' models (1,563
+matches) beat their baselines except where the test is too small to say: win probability 0.504
+against 0.516 (95% interval -0.001 to +0.024), the projection 16.8 runs against 18.2 for par, the
+ball model in all 11 backtest years; the simulator serves the BBL, CPL and SA20. Their win
+probability 1.1.0 was re-chosen on the pre-test years and leaves out players' records, which with
+league-only careers made the first innings worse. The T20Is' models (3,480 matches) beat theirs
+clearly (win probability 0.432 against 0.458, +0.017 to +0.034); their simulator is not served,
+its totals 8 runs short of 2025-26. Against the pooled model on the same matches, the groups'
+own win probability is better on the BBL and SA20, level on T20Is and the PSL, and behind on the
+CPL.
+
 ## Consequences
 
 **Positive**

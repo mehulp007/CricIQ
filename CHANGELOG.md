@@ -22,6 +22,17 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     never from all T20.
   - Until a group's models are trained, its competitions keep the pooled T20 models, and scoring
     says so for each one.
+  - **The leagues' and T20Is' own models**, trained on a laptop and tested once on 2025-2026.
+    Leagues (1,563 matches): win probability 0.504 against 0.516 for the baseline (95% interval
+    -0.001 to +0.024), projection 16.8 runs against 18.2 for par, ball model better in all 11
+    backtest years, simulator served for the BBL, CPL and SA20. T20Is (3,480 matches): win
+    probability 0.432 against 0.458 (+0.017 to +0.034), projection 18.1 runs against 22.2, ball
+    model better in all 11 years; the simulator is not served (totals 8 runs short).
+  - The leagues' win probability 1.1.0 leaves out the squads' and crease batters' records,
+    chosen on the pre-test years: with league-only careers they made the first innings worse.
+  - Model Insights for the leagues and T20Is show their own models, each league's results, and
+    the trade-off against the pooled model they replaced; the About page and the replay's
+    explanation describe the groups.
 - **V2-5: men's ODIs** (ADR-0012)
   - ODIs in the switcher with every page: replays over 50 overs (rain-revised chases use their
     revised target and overs), teams with records by year and by opponent, players with an ODI

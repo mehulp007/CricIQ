@@ -228,9 +228,13 @@ innings views' `match_order` is the order across every competition.
 
 ## Team Analytics (serving database only)
 
-Built by `criciq_pipelines.teams` during export, with `config/league_tables.yaml` (abandoned and
-voided fixtures). The export fails if a computed league table differs from the official one for
-any season the data fully covers. Definitions are in [metrics.md](metrics.md).
+Built by `criciq_pipelines.teams` during export. For the IPL, `config/league_tables.yaml` adds the
+abandoned and voided fixtures, and the export fails if a computed league table differs from the
+official one for any season the data fully covers; the other competitions' tables are computed
+from results alone (two points a win) and not checked. A league's ground is a side's home in a
+season when the side played most of its league matches there (in the IPL, grounds in India only);
+a national side is at home in its own country (`home_countries` in `config/teams/national.yaml`
+where that is several). Definitions are in [metrics.md](metrics.md).
 
 | Table | Grain | Notes |
 |---|---|---|
@@ -273,4 +277,7 @@ recorded); the API's `/meta` reports the latest non-initial update as `last_upda
 
 ## `meta`
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,
-`player_attributes`.
+`player_attributes`, and `season_spans_new_year` (`true` where seasons are named "2023/24").
+
+Every competition on the site has a serving database of its own with these tables
+(`serving.duckdb` for the IPL, `serving-<competition>.duckdb` for the others; ADR-0011).

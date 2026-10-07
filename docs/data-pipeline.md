@@ -39,7 +39,9 @@ data/warehouse/t20.duckdb           every T20 competition in the v1 shape and on
      │                              time order: what the pooled models train on
      │  export
      ▼
-data/exports/serving.duckdb         what the API serves (the IPL), scored by the models
+data/exports/serving.duckdb         what the API serves for the IPL, scored by the models
+data/exports/serving-<id>.duckdb    the same for every other competition on the site
+                                    (BBL, PSL, CPL, SA20, T20I; ADR-0011)
 data/exports/players.duckdb         Player Lab tables for every T20 competition and all T20
 ```
 
@@ -156,8 +158,18 @@ database are unchanged, table by table.
 The same step writes the **pooled copy** `data/warehouse/t20.duckdb`: every selected T20
 competition in the v1 shape, with `match_order` running across all of them by date, which is what
 the pooled models train and score on (V2-3). `criciq-data export-competition <id> --out <path>`
-exports one competition's serving-shaped database the same way (the simulator's backtest reads a
-T20I one).
+exports one competition's serving-shaped database the same way (the simulator's backtests read
+them).
+
+### 5a. One serving database per competition
+
+`criciq-data export` and `run` (and every sync) export a serving database for each competition in
+the switcher (`switcher: true` in `config/competitions.yaml`, T20 for now): the IPL's
+`serving.duckdb` from its scoped copy, and `serving-<competition>.duckdb` for the others, each from
+that competition's own v1-shaped copy (ADR-0011). They have the same tables. The league-tables
+config (official tables, abandoned and voided fixtures) is the IPL's, so the other competitions'
+tables are computed from results alone and not checked. Teams without curated colours get a
+neutral grey, and `meta.season_spans_new_year` tells the API to name seasons "2023/24".
 
 Innings phases follow each match's own format. Data code (player, team and simulator tables, the
 API's splits) phases a delivery with `PhaseConfig.sql_case(over, format)`, which reads
@@ -305,12 +317,13 @@ competition is under `/api/v2`). The data-quality reports of a local run go to
 `data/data-quality-report.md` and `data/data-quality/`, leaving the committed ones alone.
 
 Measured on the development laptop with all eight competitions (2026-10-07): the data step takes
-about 85 seconds after download (extract 20, build 40, validate, the IPL and pooled copies, and the
-serving and players exports the rest) and scoring about 3.5 minutes (the IPL's serving database,
-then win probability for every T20 match from the pooled copy for the players database); the dev
-servers are ready within a minute. Everything under `data/` takes about 0.9 GB: raw archives
-0.07 GB, interim Parquet 0.02 GB, warehouses 0.66 GB (the full `cricket.duckdb` is about 0.6 GB,
-the pooled `t20.duckdb` 0.03 GB) and the serving and players databases 0.03 GB each.
+about 95 seconds after download (extract 20, build 40, validate, the IPL and pooled copies, the six
+serving exports about 10 and the players export the rest) and scoring about 8 minutes (every
+competition's serving database with the models serving it, then win probability for the players
+database); the dev servers are ready within a minute. Everything under `data/` takes about 1 GB:
+raw archives 0.07 GB, interim Parquet 0.02 GB, warehouses 0.66 GB (the full `cricket.duckdb` is
+about 0.6 GB, the pooled `t20.duckdb` 0.03 GB), the six serving databases 0.16 GB together (the
+T20Is' 0.06 GB) and the players database 0.05 GB.
 
 ## Testing
 

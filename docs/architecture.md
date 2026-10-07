@@ -5,15 +5,17 @@ CricIQ is a **modular monolith**: one data pipeline, one ML package, one API ser
 ## Data flow
 
 ```
-Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
+Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attributes.csv
                         ▼
   [pipelines] download → raw (immutable, versioned by data_version)
               or sync: only new/corrected/withdrawn matches since the last run, against an
               ingest log (ADR-0008), applied to the interim tables and rebuilt in staging
               extract/normalize → warehouse.duckdb (core tables)
               validate (schemas + invariants + golden matches)
-              export → serving.duckdb (slim, read-only, plus Player Lab tables with par
-                       and Team Analytics tables checked against the official league tables)
+              export → serving.duckdb (the IPL: slim, read-only, plus Player Lab tables with
+                       par and Team Analytics tables checked against the official league tables)
+                     → serving-<competition>.duckdb (the same tables for every other competition
+                       on the site: BBL, PSL, CPL, SA20, T20I; ADR-0011)
                      → players.duckdb (Player Lab tables of every T20 competition, par per
                        competition, and all T20 together; one schema per scope, ADR-0009)
                         ▼
@@ -22,18 +24,19 @@ Cricsheet IPL JSON zip ─┐   config/*.yaml + reference/player_attributes.csv
        v2 versions train on every T20 competition at once (the pooled copy t20.duckdb) and
        are compared with v1 on the IPL's own test balls; each competition is served by its
        pointer (CURRENT, or CURRENT.IPL where the IPL keeps v1; ADR-0010)
-       score every historical ball with the models serving each competition → serving.duckdb
-       (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
-        rating constants, simulator settings) and players.duckdb (player_wpa, each scope's
-        rating constants)
+       score every historical ball with the models serving each competition → each serving
+       database (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
+        rating constants, simulator settings where a simulator passed there) and
+        players.duckdb (player_wpa, each scope's rating constants)
                         ▼
-  [backend] FastAPI /api/v1: reads serving.duckdb only; next-ball odds are computed
-            from the stored ball-model terms with plain arithmetic (ADR-0005)
-            /api/v2/{competition}/players: the same Player Lab code over one scope of
-            players.duckdb (search_path), for every T20 competition and all T20
+  [backend] FastAPI /api/v2/{competition}/...: each request reads its competition's
+            serving database (get_db); next-ball odds are computed from the stored
+            ball-model terms with plain arithmetic (ADR-0005); the Player Lab reads one
+            scope of players.duckdb (search_path), also for all T20 (ADR-0009)
                         ▼
-  [frontend] Next.js on Vercel: server components + client-side replay engine
-             (featured replays bundled; see deployment.md)
+  [frontend] Next.js on Vercel: every data page under /[competition]/, a switcher in
+             the top bar, server components + client-side replay engine (featured
+             replays bundled per competition; see deployment.md)
 ```
 
 ## Packages and dependency direction
@@ -99,6 +102,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0008](adr/0008-incremental-sync.md): incremental data sync with an ingest log
 - [ADR-0009](adr/0009-players-database-per-competition.md): a players database with one schema per competition
 - [ADR-0010](adr/0010-pooled-t20-models.md): pooled T20 models, served per competition
+- [ADR-0011](adr/0011-one-serving-database-per-competition.md): one serving database per competition, the API under `/api/v2/{competition}` and the site under `/[competition]/`
 
 ## Precompute vs live
 

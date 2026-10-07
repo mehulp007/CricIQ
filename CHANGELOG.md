@@ -7,6 +7,31 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **V2-4: every T20 competition on the site** (ADR-0011)
+  - A competition switcher in the top bar (IPL, BBL, PSL, CPL, SA20, T20I, with ODI and Test shown
+    as coming), remembered in a cookie, and a home page that leads with the choice. Every data page
+    lives under `/[competition]/` (`/ipl/matches`, `/t20i/players/[id]`), and the v1 URLs redirect
+    permanently (308) to `/ipl/...`.
+  - One serving database per competition (`serving.duckdb` for the IPL,
+    `serving-<competition>.duckdb` for the others), exported by `export`, `run` and every sync,
+    scored with the models serving each competition, and published together.
+  - `/api/v2/{competition}/...` for matches, replays, teams, matchups, the simulator and the
+    Player Lab; `/api/v2/competitions` describes what each competition has. Response caches are
+    bounded (least recently used) and keyed by competition.
+  - National sides: team pages with records by year and by opponent instead of league tables, and
+    a side is at home in its own country. Player pages have a tab for every competition a player
+    played in and for all T20.
+  - Featured replays for every competition (the T20 World Cup finals for T20Is), the replay's charts
+    read the overs from the match, and Model Insights shows the pooled models' results for each
+    competition (the Analytics Lab stays with the IPL).
+  - The ball-outcome model 2.1.0 adds the batting and bowling side's level in internationals, so a
+    player with few balls starts from their side rather than the average player: T20I log loss
+    1.4430 against 2.0.0's 1.4470. It serves every competition except the IPL, which keeps 1.0.0.
+  - The simulator 2.1.0 is backtested on each competition on its own 2025-2026 matches and serves
+    each one whose backtest passes: the BBL, CPL and SA20 (first-innings PIT chi-square 6.8, 8.3
+    and 7.7 against 16.9). For T20Is its pick of the winner is now better than a coin flip (Brier
+    0.173 against 0.250) but its totals still run 7 runs low, and the PSL's run 10 low, so neither
+    is served and each simulator page says why.
 - **V2-3: pooled T20 models** (ADR-0010)
   - Win probability, score projection and the ball-outcome model 2.0.0 train on every T20
     competition at once (6,391 matches, `data/warehouse/t20.duckdb`), with splits by calendar year.
@@ -79,6 +104,10 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     API and the web app together.
 
 ### Changed
+- **V2-4:** `/api/v1` is retired on the v2 branch (it stays on `main` until the launch), and every
+  page, API client function and route handler takes the competition. The `meta` table records
+  whether seasons span the new year, so the BBL's read "2025/26".
+- Teams without curated colours (some league sides) get a neutral grey everywhere.
 - The running API swaps in a newly published serving database between requests, and new data
   waits beside the open file (`serving.duckdb.next`) instead of failing to replace it on Windows.
   `criciq-ml score` scores one working copy and puts it in place once at the end.
@@ -91,6 +120,18 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
 
 ### Fixed
+- **V2-4:**
+  - A tie with no winner had no result text, and a match settled by a bowl-out said "won the
+    super over"; they now read "Match tied" and "won the bowl-out".
+  - Home and away counted only grounds in India, so league sides elsewhere had no home matches:
+    a league side's home is the ground it played most of its league matches at that season (in
+    India for the IPL), and a national side's is its own country.
+  - The Analytics Lab read the ball model serving the other competitions instead of the IPL's.
+  - The pressure on a replay's next ball crashed with the pooled models (two crease features were
+    not carried between balls), and the check of leverage against the swings that followed
+    depended on row order.
+  - A replay's explanation said team records were not used even where the model uses them.
+  - League tables outside the IPL were checked against the IPL's official tables.
 - A chase without a recorded target (23 T20Is, a CPL match) chases the first-innings total plus one
   in the models, and a T20 recorded as a 50-over match (11 T20Is) lasts 20 overs; the new check
   `scheduled_overs_within_format` lists those matches in the data-quality reports.

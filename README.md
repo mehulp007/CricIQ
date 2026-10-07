@@ -147,10 +147,25 @@ career records, and whether it is international cricket, matter in lopsided T20I
 between balanced IPL sides. Model cards: [win probability](docs/model-cards/win-probability.md),
 [score projection](docs/model-cards/score-projection.md),
 [ball outcome](docs/model-cards/ball-outcome.md), [ratings](docs/model-cards/ratings.md) (fitted per
-competition). The simulator was backtested on T20Is with the pooled ball model and **failed its
-gate**: its simulated totals ran 7 runs low, and between unequal sides its win chances were too
-close to even (associate players with few balls look average). It is not served; the
-[simulator card](docs/model-cards/simulator.md) publishes that backtest after the IPL's.
+competition). The ball model 2.1.0 adds the batting and bowling side's level in internationals,
+so an associate player with few balls starts from their side rather than the average player. The
+simulator is backtested on each competition on its own 2025–2026 matches and serves the **BBL, CPL
+and SA20**, where its first-innings totals passed the gate; for **T20Is and the PSL it is not
+served**: its T20I pick of the winner is now clearly better than a coin flip (Brier 0.173 against
+0.250), but simulated totals run 7 runs low there and 10 in the PSL. The
+[simulator card](docs/model-cards/simulator.md) publishes every backtest after the IPL's.
+
+## Every T20 competition on the site (v2)
+
+On the `v2` branch the site covers the IPL, BBL, PSL, CPL, SA20 and men's T20Is. A switcher in the
+top bar picks the competition, every data page lives under it (`/ipl/matches`, `/t20i/teams`,
+`/bbl/players/...`), and the v1 URLs redirect to the IPL's. Each competition has its own serving
+database, so its replays, teams, matchups and simulator read only its own matches
+([ADR-0011](docs/adr/0011-one-serving-database-per-competition.md)); the API is
+`/api/v2/{competition}/...`. National sides get records by year and by opponent instead of league
+tables, players get a tab for every competition they played in and for all T20, and the leagues'
+tables are computed from results (the IPL's are checked against the official ones). ODI and Test
+cricket come next.
 
 ## Player Lab: measured against par
 
@@ -305,13 +320,13 @@ flowchart TB
         FEAT --> TRAIN[train · tune · calibrate<br/>backtest · gate]
         TRAIN --> REG[models/ registry<br/>committed versions<br/>+ model cards]
         REG --> SCORE[batch scoring<br/>WP · projection · SHAP<br/>leverage · WPA · terms]
-        EXP --> SERV[(serving.duckdb<br/>read-only, versioned)]
+        EXP --> SERV[(serving databases<br/>one per competition<br/>read-only, versioned)]
         SCORE --> SERV
     end
 
     subgraph api["API: Docker on Render"]
         direction TB
-        RT[FastAPI routers /api/v1] --> SVC[services<br/>timelines · players · matchups<br/>teams · ratings · simulation]
+        RT[FastAPI routers /api/v2/{competition}] --> SVC[services<br/>timelines · players · matchups<br/>teams · ratings · simulation]
         SVC --> REPO[repositories<br/>plain SQL]
         SVC --> ENG[criciq_core engines<br/>ball-model arithmetic<br/>numpy match simulator]
         SVC --> LRU[in-process LRU<br/>simulation results]
@@ -344,9 +359,9 @@ sequenceDiagram
     participant N as Next.js route handler
     participant A as FastAPI
     participant E as numpy engine
-    participant D as serving.duckdb
-    B->>N: POST /api/simulate/match (season, two XIs)
-    N->>A: POST /api/v1/simulate/match
+    participant D as serving database
+    B->>N: POST /api/ipl/simulate/match (season, two XIs)
+    N->>A: POST /api/v2/ipl/simulate/match
     A->>D: squads, players' recent usage, league rates, ball-model terms
     A->>E: 10,000 matches, every simulation one array row
     E-->>A: totals, wins, per-player innings

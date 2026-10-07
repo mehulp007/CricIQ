@@ -17,3 +17,9 @@ simulations: 2000        # per test match
 history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
 timing_simulations: 10000
 seed: 2026
+
+# Not served: simulated first-innings totals run short of 2025-26 T20Is (146.0 against
+# 154.1; PIT chi-square 70.9 against 16.9). Tried and not kept (2026-10-08): shifting the
+# scoring era so simulated totals average the actual ones on the validation years. T20I
+# totals were only 2.3 runs short there, so the shift left the test 6.7 short (57.9):
+# scoring rose in 2025-26 beyond what earlier years show.

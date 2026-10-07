@@ -1,0 +1,47 @@
+{
+  "competitions": {
+    "BBL": {
+      "conditions_sd": 0.3,
+      "data_version": "2026-09-17.103eadea",
+      "history_seasons": 3,
+      "min_bowling_overs": 4.0,
+      "name": "simulator",
+      "urgent_from_over": 12,
+      "usage_strength": 8.0,
+      "version": "1.0.0"
+    },
+    "CPL": {
+      "conditions_sd": 0.2,
+      "data_version": "2026-09-17.103eadea",
+      "history_seasons": 3,
+      "min_bowling_overs": 4.0,
+      "name": "simulator",
+      "urgent_from_over": 12,
+      "usage_strength": 8.0,
+      "version": "1.0.0"
+    },
+    "PSL": {
+      "conditions_sd": 0.2,
+      "data_version": "2026-09-17.103eadea",
+      "history_seasons": 3,
+      "min_bowling_overs": 4.0,
+      "name": "simulator",
+      "urgent_from_over": 12,
+      "usage_strength": 8.0,
+      "version": "1.0.0"
+    },
+    "SA20": {
+      "conditions_sd": 0.5,
+      "data_version": "2026-09-17.103eadea",
+      "history_seasons": 3,
+      "min_bowling_overs": 4.0,
+      "name": "simulator",
+      "urgent_from_over": 12,
+      "usage_strength": 8.0,
+      "version": "1.0.0"
+    }
+  },
+  "data_version": "2026-09-17.103eadea",
+  "name": "simulator",
+  "version": "1.0.0"
+}

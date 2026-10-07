@@ -1,0 +1,2915 @@
+{
+  "version": "1.0.0",
+  "scopes": {
+    "BBL": {
+      "name": "ratings",
+      "version": "1.0.0",
+      "scope": "BBL",
+      "data_version": "2026-09-17.103eadea",
+      "trained_on": {
+        "seasons": [
+          2012,
+          2026
+        ]
+      },
+      "splits": {
+        "test_from": 2023
+      },
+      "stability": {
+        "high": 0.3,
+        "moderate": 0.15
+      },
+      "season_factor": 0.5,
+      "thresholds": {
+        "min_balls": 300,
+        "min_subset_balls": 120,
+        "min_innings": 10,
+        "min_rated_balls": 60,
+        "min_profile_balls": 120,
+        "style_min_balls": 150
+      },
+      "components": [
+        {
+          "description": "Runs per 100 balls above an average batter facing the same balls.",
+          "exposure": "balls",
+          "k": 279.39,
+          "k_validation": 316.21,
+          "key": "scoring",
+          "label": "Run scoring",
+          "next_season": {
+            "mse": {
+              "par": 349.999896,
+              "raw": 347.501945,
+              "shrunk": 279.354649
+            },
+            "pairs": 101,
+            "skill_vs_par": 0.2018,
+            "skill_vs_raw": 0.1961
+          },
+          "pairs": 291,
+          "role": "batting",
+          "sigma2": 3.14494951,
+          "split_half": {
+            "players": 67,
+            "r": 0.515
+          },
+          "stability": "high",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.264,
+            "1000": 0.782,
+            "300": 0.518,
+            "3000": 0.915
+          },
+          "year_to_year": {
+            "pairs": 157,
+            "r": 0.346
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Dismissals avoided per 100 balls, compared with par for the same balls.",
+          "exposure": "balls",
+          "k": 707.02,
+          "k_validation": 800.19,
+          "key": "survival",
+          "label": "Survival",
+          "next_season": {
+            "mse": {
+              "par": 5.068597,
+              "raw": 5.915625,
+              "shrunk": 4.92586
+            },
+            "pairs": 101,
+            "skill_vs_par": 0.0282,
+            "skill_vs_raw": 0.1673
+          },
+          "pairs": 291,
+          "role": "batting",
+          "sigma2": 0.0478398,
+          "split_half": {
+            "players": 67,
+            "r": 0.556
+          },
+          "stability": "moderate",
+          "unit": "dismissals_per_100",
+          "weight_at": {
+            "100": 0.124,
+            "1000": 0.586,
+            "300": 0.298,
+            "3000": 0.809
+          },
+          "year_to_year": {
+            "pairs": 157,
+            "r": 0.271
+          },
+          "unit_label": "dismissals avoided per 100 balls"
+        },
+        {
+          "description": "Runs per 100 balls above par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 297.23,
+          "k_validation": 232.04,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 655.261967,
+              "raw": 1016.22751,
+              "shrunk": 636.440469
+            },
+            "pairs": 62,
+            "skill_vs_par": 0.0287,
+            "skill_vs_raw": 0.3737
+          },
+          "pairs": 176,
+          "role": "batting",
+          "sigma2": 2.8214168,
+          "split_half": {
+            "players": 44,
+            "r": 0.428
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.252,
+            "1000": 0.771,
+            "300": 0.502,
+            "3000": 0.91
+          },
+          "year_to_year": {
+            "pairs": 90,
+            "r": 0.225
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 192.72,
+          "k_validation": 205.02,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 623.301534,
+              "raw": 695.851144,
+              "shrunk": 552.31351
+            },
+            "pairs": 91,
+            "skill_vs_par": 0.1139,
+            "skill_vs_raw": 0.2063
+          },
+          "pairs": 258,
+          "role": "batting",
+          "sigma2": 2.60267326,
+          "split_half": {
+            "players": 62,
+            "r": 0.392
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.342,
+            "1000": 0.838,
+            "300": 0.609,
+            "3000": 0.94
+          },
+          "year_to_year": {
+            "pairs": 133,
+            "r": 0.289
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 1853.426746,
+              "raw": 3004.359995,
+              "shrunk": 1855.40088
+            },
+            "pairs": 8,
+            "skill_vs_par": -0.0011,
+            "skill_vs_raw": 0.3824
+          },
+          "pairs": 31,
+          "role": "batting",
+          "sigma2": 3.16146923,
+          "split_half": {
+            "players": 17,
+            "r": 0.389
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.005,
+            "1000": 0.048,
+            "300": 0.015,
+            "3000": 0.13
+          },
+          "year_to_year": {
+            "pairs": 7,
+            "r": null
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in the second innings.",
+          "exposure": "balls",
+          "k": 357.88,
+          "k_validation": 664.59,
+          "key": "chasing",
+          "label": "Chasing",
+          "next_season": {
+            "mse": {
+              "par": 423.01236,
+              "raw": 497.481497,
+              "shrunk": 374.711885
+            },
+            "pairs": 85,
+            "skill_vs_par": 0.1142,
+            "skill_vs_raw": 0.2468
+          },
+          "pairs": 236,
+          "role": "batting",
+          "sigma2": 3.11258219,
+          "split_half": {
+            "players": 61,
+            "r": 0.244
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.218,
+            "1000": 0.736,
+            "300": 0.456,
+            "3000": 0.893
+          },
+          "year_to_year": {
+            "pairs": 119,
+            "r": 0.216
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Win probability added per innings, in percentage points.",
+          "exposure": "innings",
+          "k": 52.53,
+          "k_validation": 38.55,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 32.272347,
+              "raw": 53.904896,
+              "shrunk": 32.496692
+            },
+            "pairs": 101,
+            "skill_vs_par": -0.007,
+            "skill_vs_raw": 0.3971
+          },
+          "pairs": 291,
+          "role": "batting",
+          "sigma2": 0.01811984,
+          "split_half": {
+            "players": 67,
+            "r": 0.361
+          },
+          "stability": "moderate",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.16,
+            "100": 0.656,
+            "30": 0.364
+          },
+          "year_to_year": {
+            "pairs": 157,
+            "r": 0.21
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings scoring at least par for the balls faced.",
+          "exposure": "innings",
+          "k": 34.06,
+          "k_validation": 55.88,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 380.035812,
+              "raw": 478.024003,
+              "shrunk": 343.44549
+            },
+            "pairs": 101,
+            "skill_vs_par": 0.0963,
+            "skill_vs_raw": 0.2815
+          },
+          "pairs": 291,
+          "role": "batting",
+          "sigma2": 0.22039116,
+          "split_half": {
+            "players": 67,
+            "r": 0.423
+          },
+          "stability": "moderate",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.227,
+            "100": 0.746,
+            "30": 0.468
+          },
+          "year_to_year": {
+            "pairs": 157,
+            "r": 0.183
+          },
+          "unit_label": "% of innings at or better than par"
+        },
+        {
+          "description": "Runs per over saved against an average bowler bowling the same balls.",
+          "exposure": "balls",
+          "k": 357.88,
+          "k_validation": 246.86,
+          "key": "economy",
+          "label": "Economy",
+          "next_season": {
+            "mse": {
+              "par": 1.136299,
+              "raw": 1.44834,
+              "shrunk": 1.136584
+            },
+            "pairs": 115,
+            "skill_vs_par": -0.0003,
+            "skill_vs_raw": 0.2153
+          },
+          "pairs": 314,
+          "role": "bowling",
+          "sigma2": 3.4596821,
+          "split_half": {
+            "players": 69,
+            "r": 0.655
+          },
+          "stability": "high",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.218,
+            "1000": 0.736,
+            "300": 0.456,
+            "3000": 0.893
+          },
+          "year_to_year": {
+            "pairs": 194,
+            "r": 0.375
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Wickets per four overs above par for the same balls.",
+          "exposure": "balls",
+          "k": 800.19,
+          "k_validation": 624.7,
+          "key": "wickets",
+          "label": "Wicket-taking",
+          "next_season": {
+            "mse": {
+              "par": 0.15929,
+              "raw": 0.2657,
+              "shrunk": 0.15792
+            },
+            "pairs": 115,
+            "skill_vs_par": 0.0086,
+            "skill_vs_raw": 0.4056
+          },
+          "pairs": 314,
+          "role": "bowling",
+          "sigma2": 0.04662593,
+          "split_half": {
+            "players": 69,
+            "r": 0.21
+          },
+          "stability": "high",
+          "unit": "wickets_per_4_overs",
+          "weight_at": {
+            "100": 0.111,
+            "1000": 0.555,
+            "300": 0.273,
+            "3000": 0.789
+          },
+          "year_to_year": {
+            "pairs": 194,
+            "r": 0.305
+          },
+          "unit_label": "wickets per 4 overs above par"
+        },
+        {
+          "description": "Runs per over saved against par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 551.96,
+          "k_validation": 380.73,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 1.81782,
+              "raw": 2.782122,
+              "shrunk": 1.860553
+            },
+            "pairs": 76,
+            "skill_vs_par": -0.0235,
+            "skill_vs_raw": 0.3312
+          },
+          "pairs": 190,
+          "role": "bowling",
+          "sigma2": 3.05533384,
+          "split_half": {
+            "players": 49,
+            "r": 0.433
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.153,
+            "1000": 0.644,
+            "300": 0.352,
+            "3000": 0.845
+          },
+          "year_to_year": {
+            "pairs": 93,
+            "r": 0.142
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 246.86,
+          "k_validation": 150.45,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 1.79216,
+              "raw": 2.571159,
+              "shrunk": 1.857494
+            },
+            "pairs": 92,
+            "skill_vs_par": -0.0365,
+            "skill_vs_raw": 0.2776
+          },
+          "pairs": 242,
+          "role": "bowling",
+          "sigma2": 3.02484729,
+          "split_half": {
+            "players": 60,
+            "r": 0.45
+          },
+          "stability": "moderate",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.288,
+            "1000": 0.802,
+            "300": 0.549,
+            "3000": 0.924
+          },
+          "year_to_year": {
+            "pairs": 144,
+            "r": 0.241
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 1681.79,
+          "k_validation": 316.21,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 3.769675,
+              "raw": 5.340001,
+              "shrunk": 3.908017
+            },
+            "pairs": 48,
+            "skill_vs_par": -0.0367,
+            "skill_vs_raw": 0.2682
+          },
+          "pairs": 125,
+          "role": "bowling",
+          "sigma2": 3.88496272,
+          "split_half": {
+            "players": 31,
+            "r": 0.491
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.056,
+            "1000": 0.373,
+            "300": 0.151,
+            "3000": 0.641
+          },
+          "year_to_year": {
+            "pairs": 53,
+            "r": -0.006
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in the second innings.",
+          "exposure": "balls",
+          "k": 430.9,
+          "k_validation": 218.11,
+          "key": "defending",
+          "label": "Defending",
+          "next_season": {
+            "mse": {
+              "par": 2.031164,
+              "raw": 3.361497,
+              "shrunk": 2.148316
+            },
+            "pairs": 101,
+            "skill_vs_par": -0.0577,
+            "skill_vs_raw": 0.3609
+          },
+          "pairs": 259,
+          "role": "bowling",
+          "sigma2": 3.35414076,
+          "split_half": {
+            "players": 67,
+            "r": 0.469
+          },
+          "stability": "moderate",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.188,
+            "1000": 0.699,
+            "300": 0.41,
+            "3000": 0.874
+          },
+          "year_to_year": {
+            "pairs": 144,
+            "r": 0.204
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Win probability added per innings bowled, in percentage points.",
+          "exposure": "innings",
+          "k": 38.55,
+          "k_validation": 23.49,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 32.902396,
+              "raw": 55.913439,
+              "shrunk": 34.517335
+            },
+            "pairs": 115,
+            "skill_vs_par": -0.0491,
+            "skill_vs_raw": 0.3827
+          },
+          "pairs": 314,
+          "role": "bowling",
+          "sigma2": 0.02302515,
+          "split_half": {
+            "players": 69,
+            "r": 0.367
+          },
+          "stability": "moderate",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.206,
+            "100": 0.722,
+            "30": 0.438
+          },
+          "year_to_year": {
+            "pairs": 194,
+            "r": 0.214
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings conceding no more than par for the balls bowled.",
+          "exposure": "innings",
+          "k": 24.99,
+          "k_validation": 17.24,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 331.72843,
+              "raw": 503.618778,
+              "shrunk": 343.960934
+            },
+            "pairs": 115,
+            "skill_vs_par": -0.0369,
+            "skill_vs_raw": 0.317
+          },
+          "pairs": 314,
+          "role": "bowling",
+          "sigma2": 0.24436823,
+          "split_half": {
+            "players": 69,
+            "r": 0.551
+          },
+          "stability": "high",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.286,
+            "100": 0.8,
+            "30": 0.546
+          },
+          "year_to_year": {
+            "pairs": 194,
+            "r": 0.346
+          },
+          "unit_label": "% of innings at or better than par"
+        }
+      ],
+      "similarity": {
+        "batting": {
+          "candidates_median": 35,
+          "chance_top1": 0.036,
+          "chance_top5": 0.179,
+          "features": [
+            {
+              "key": "scoring",
+              "label": "Strike rate vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundary rate vs par"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "dismissals",
+              "label": "Dismissal rate vs par"
+            },
+            {
+              "key": "six_share",
+              "label": "Sixes among boundaries"
+            },
+            {
+              "key": "powerplay",
+              "label": "Balls in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Balls at the death"
+            },
+            {
+              "key": "position",
+              "label": "Batting position"
+            }
+          ],
+          "median_rank": 6.0,
+          "players": 153,
+          "top1": 0.183,
+          "top5": 0.497
+        },
+        "bowling": {
+          "candidates_median": 37,
+          "chance_top1": 0.031,
+          "chance_top5": 0.154,
+          "features": [
+            {
+              "key": "economy",
+              "label": "Runs saved per over"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundaries conceded vs par"
+            },
+            {
+              "key": "powerplay",
+              "label": "Overs in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Overs at the death"
+            },
+            {
+              "key": "spin",
+              "label": "Spin (1) or pace (0)"
+            },
+            {
+              "key": "workload",
+              "label": "Balls per innings"
+            },
+            {
+              "key": "extras",
+              "label": "Wides and no-balls"
+            }
+          ],
+          "median_rank": 3.5,
+          "players": 188,
+          "top1": 0.261,
+          "top5": 0.638
+        }
+      }
+    },
+    "CPL": {
+      "name": "ratings",
+      "version": "1.0.0",
+      "scope": "CPL",
+      "data_version": "2026-09-17.103eadea",
+      "trained_on": {
+        "seasons": [
+          2013,
+          2026
+        ]
+      },
+      "splits": {
+        "test_from": 2023
+      },
+      "stability": {
+        "high": 0.3,
+        "moderate": 0.15
+      },
+      "season_factor": 0.5,
+      "thresholds": {
+        "min_balls": 300,
+        "min_subset_balls": 120,
+        "min_innings": 10,
+        "min_rated_balls": 60,
+        "min_profile_balls": 120,
+        "style_min_balls": 150
+      },
+      "components": [
+        {
+          "description": "Runs per 100 balls above an average batter facing the same balls.",
+          "exposure": "balls",
+          "k": 487.69,
+          "k_validation": 624.7,
+          "key": "scoring",
+          "label": "Run scoring",
+          "next_season": {
+            "mse": {
+              "par": 466.960946,
+              "raw": 513.810801,
+              "shrunk": 430.802535
+            },
+            "pairs": 49,
+            "skill_vs_par": 0.0774,
+            "skill_vs_raw": 0.1616
+          },
+          "pairs": 165,
+          "role": "batting",
+          "sigma2": 3.6845728,
+          "split_half": {
+            "players": 32,
+            "r": 0.618
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.17,
+            "1000": 0.672,
+            "300": 0.381,
+            "3000": 0.86
+          },
+          "year_to_year": {
+            "pairs": 98,
+            "r": 0.16
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Dismissals avoided per 100 balls, compared with par for the same balls.",
+          "exposure": "balls",
+          "k": 905.65,
+          "k_validation": 1485.97,
+          "key": "survival",
+          "label": "Survival",
+          "next_season": {
+            "mse": {
+              "par": 3.428235,
+              "raw": 3.592319,
+              "shrunk": 3.352813
+            },
+            "pairs": 49,
+            "skill_vs_par": 0.022,
+            "skill_vs_raw": 0.0667
+          },
+          "pairs": 165,
+          "role": "batting",
+          "sigma2": 0.04875307,
+          "split_half": {
+            "players": 32,
+            "r": 0.703
+          },
+          "stability": "low",
+          "unit": "dismissals_per_100",
+          "weight_at": {
+            "100": 0.099,
+            "1000": 0.525,
+            "300": 0.249,
+            "3000": 0.768
+          },
+          "year_to_year": {
+            "pairs": 98,
+            "r": 0.02
+          },
+          "unit_label": "dismissals avoided per 100 balls"
+        },
+        {
+          "description": "Runs per 100 balls above par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 470.378088,
+              "raw": 903.908847,
+              "shrunk": 470.351616
+            },
+            "pairs": 30,
+            "skill_vs_par": 0.0001,
+            "skill_vs_raw": 0.4796
+          },
+          "pairs": 104,
+          "role": "batting",
+          "sigma2": 3.39405932,
+          "split_half": {
+            "players": 21,
+            "r": 0.128
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.005,
+            "1000": 0.048,
+            "300": 0.015,
+            "3000": 0.13
+          },
+          "year_to_year": {
+            "pairs": 68,
+            "r": -0.142
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 205.02,
+          "k_validation": 246.86,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 562.080708,
+              "raw": 558.007525,
+              "shrunk": 500.974946
+            },
+            "pairs": 45,
+            "skill_vs_par": 0.1087,
+            "skill_vs_raw": 0.1022
+          },
+          "pairs": 144,
+          "role": "batting",
+          "sigma2": 2.99861272,
+          "split_half": {
+            "players": 29,
+            "r": 0.668
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.328,
+            "1000": 0.83,
+            "300": 0.594,
+            "3000": 0.936
+          },
+          "year_to_year": {
+            "pairs": 76,
+            "r": 0.292
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 110.41,
+          "k_validation": 110.41,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 498.777053,
+              "raw": 498.777053,
+              "shrunk": 498.777053
+            },
+            "pairs": 2,
+            "skill_vs_par": 0.0,
+            "skill_vs_raw": 0.0
+          },
+          "pairs": 12,
+          "role": "batting",
+          "sigma2": 4.04568108,
+          "split_half": {
+            "players": 9,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.475,
+            "1000": 0.901,
+            "300": 0.731,
+            "3000": 0.965
+          },
+          "year_to_year": {
+            "pairs": 3,
+            "r": null
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in the second innings.",
+          "exposure": "balls",
+          "k": 336.4,
+          "k_validation": 405.04,
+          "key": "chasing",
+          "label": "Chasing",
+          "next_season": {
+            "mse": {
+              "par": 722.224524,
+              "raw": 992.650108,
+              "shrunk": 661.511356
+            },
+            "pairs": 38,
+            "skill_vs_par": 0.0841,
+            "skill_vs_raw": 0.3336
+          },
+          "pairs": 124,
+          "role": "batting",
+          "sigma2": 3.58672327,
+          "split_half": {
+            "players": 31,
+            "r": 0.297
+          },
+          "stability": "high",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.229,
+            "1000": 0.748,
+            "300": 0.471,
+            "3000": 0.899
+          },
+          "year_to_year": {
+            "pairs": 57,
+            "r": 0.369
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Win probability added per innings, in percentage points.",
+          "exposure": "innings",
+          "k": 2593.84,
+          "k_validation": 20000.0,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 22.284574,
+              "raw": 41.107322,
+              "shrunk": 22.283567
+            },
+            "pairs": 48,
+            "skill_vs_par": 0.0,
+            "skill_vs_raw": 0.4579
+          },
+          "pairs": 164,
+          "role": "batting",
+          "sigma2": 0.01798644,
+          "split_half": {
+            "players": 32,
+            "r": 0.09
+          },
+          "stability": "low",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.004,
+            "100": 0.037,
+            "30": 0.011
+          },
+          "year_to_year": {
+            "pairs": 97,
+            "r": -0.022
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings scoring at least par for the balls faced.",
+          "exposure": "innings",
+          "k": 117.45,
+          "k_validation": 124.95,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 405.777525,
+              "raw": 682.256164,
+              "shrunk": 402.910616
+            },
+            "pairs": 48,
+            "skill_vs_par": 0.0071,
+            "skill_vs_raw": 0.4094
+          },
+          "pairs": 164,
+          "role": "batting",
+          "sigma2": 0.2237159,
+          "split_half": {
+            "players": 32,
+            "r": 0.325
+          },
+          "stability": "low",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.078,
+            "100": 0.46,
+            "30": 0.203
+          },
+          "year_to_year": {
+            "pairs": 97,
+            "r": 0.019
+          },
+          "unit_label": "% of innings at or better than par"
+        },
+        {
+          "description": "Runs per over saved against an average bowler bowling the same balls.",
+          "exposure": "balls",
+          "k": 170.28,
+          "k_validation": 181.15,
+          "key": "economy",
+          "label": "Economy",
+          "next_season": {
+            "mse": {
+              "par": 1.317467,
+              "raw": 1.176833,
+              "shrunk": 0.993545
+            },
+            "pairs": 62,
+            "skill_vs_par": 0.2459,
+            "skill_vs_raw": 0.1557
+          },
+          "pairs": 194,
+          "role": "bowling",
+          "sigma2": 3.87712216,
+          "split_half": {
+            "players": 45,
+            "r": 0.565
+          },
+          "stability": "high",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.37,
+            "1000": 0.854,
+            "300": 0.638,
+            "3000": 0.946
+          },
+          "year_to_year": {
+            "pairs": 133,
+            "r": 0.399
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Wickets per four overs above par for the same balls.",
+          "exposure": "balls",
+          "k": 3322.53,
+          "k_validation": 2291.82,
+          "key": "wickets",
+          "label": "Wicket-taking",
+          "next_season": {
+            "mse": {
+              "par": 0.128653,
+              "raw": 0.254136,
+              "shrunk": 0.129308
+            },
+            "pairs": 62,
+            "skill_vs_par": -0.0051,
+            "skill_vs_raw": 0.4912
+          },
+          "pairs": 194,
+          "role": "bowling",
+          "sigma2": 0.04644458,
+          "split_half": {
+            "players": 45,
+            "r": 0.02
+          },
+          "stability": "moderate",
+          "unit": "wickets_per_4_overs",
+          "weight_at": {
+            "100": 0.029,
+            "1000": 0.231,
+            "300": 0.083,
+            "3000": 0.474
+          },
+          "year_to_year": {
+            "pairs": 133,
+            "r": 0.153
+          },
+          "unit_label": "wickets per 4 overs above par"
+        },
+        {
+          "description": "Runs per over saved against par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 150.45,
+          "k_validation": 150.45,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 1.548801,
+              "raw": 1.771881,
+              "shrunk": 1.362744
+            },
+            "pairs": 37,
+            "skill_vs_par": 0.1201,
+            "skill_vs_raw": 0.2309
+          },
+          "pairs": 116,
+          "role": "bowling",
+          "sigma2": 3.39639693,
+          "split_half": {
+            "players": 28,
+            "r": 0.541
+          },
+          "stability": "moderate",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.399,
+            "1000": 0.869,
+            "300": 0.666,
+            "3000": 0.952
+          },
+          "year_to_year": {
+            "pairs": 68,
+            "r": 0.246
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 150.45,
+          "k_validation": 205.02,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 1.982902,
+              "raw": 1.650389,
+              "shrunk": 1.66768
+            },
+            "pairs": 46,
+            "skill_vs_par": 0.159,
+            "skill_vs_raw": -0.0105
+          },
+          "pairs": 142,
+          "role": "bowling",
+          "sigma2": 3.21610442,
+          "split_half": {
+            "players": 33,
+            "r": 0.613
+          },
+          "stability": "high",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.399,
+            "1000": 0.869,
+            "300": 0.666,
+            "3000": 0.952
+          },
+          "year_to_year": {
+            "pairs": 85,
+            "r": 0.335
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 4.784466,
+              "raw": 7.051176,
+              "shrunk": 4.77999
+            },
+            "pairs": 24,
+            "skill_vs_par": 0.0009,
+            "skill_vs_raw": 0.3221
+          },
+          "pairs": 78,
+          "role": "bowling",
+          "sigma2": 4.7684822,
+          "split_half": {
+            "players": 24,
+            "r": 0.217
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.005,
+            "1000": 0.048,
+            "300": 0.015,
+            "3000": 0.13
+          },
+          "year_to_year": {
+            "pairs": 37,
+            "r": 0.116
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in the second innings.",
+          "exposure": "balls",
+          "k": 851.29,
+          "k_validation": 518.83,
+          "key": "defending",
+          "label": "Defending",
+          "next_season": {
+            "mse": {
+              "par": 2.119678,
+              "raw": 3.531726,
+              "shrunk": 2.153459
+            },
+            "pairs": 52,
+            "skill_vs_par": -0.0159,
+            "skill_vs_raw": 0.3903
+          },
+          "pairs": 159,
+          "role": "bowling",
+          "sigma2": 3.85343478,
+          "split_half": {
+            "players": 43,
+            "r": 0.523
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.105,
+            "1000": 0.54,
+            "300": 0.261,
+            "3000": 0.779
+          },
+          "year_to_year": {
+            "pairs": 90,
+            "r": 0.012
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Win probability added per innings bowled, in percentage points.",
+          "exposure": "innings",
+          "k": 23.49,
+          "k_validation": 17.24,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 31.457695,
+              "raw": 51.371903,
+              "shrunk": 32.380954
+            },
+            "pairs": 62,
+            "skill_vs_par": -0.0293,
+            "skill_vs_raw": 0.3697
+          },
+          "pairs": 194,
+          "role": "bowling",
+          "sigma2": 0.02232421,
+          "split_half": {
+            "players": 45,
+            "r": 0.419
+          },
+          "stability": "high",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.299,
+            "100": 0.81,
+            "30": 0.561
+          },
+          "year_to_year": {
+            "pairs": 133,
+            "r": 0.328
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings conceding no more than par for the balls bowled.",
+          "exposure": "innings",
+          "k": 19.51,
+          "k_validation": 20.76,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 367.347342,
+              "raw": 437.114953,
+              "shrunk": 325.919337
+            },
+            "pairs": 62,
+            "skill_vs_par": 0.1128,
+            "skill_vs_raw": 0.2544
+          },
+          "pairs": 194,
+          "role": "bowling",
+          "sigma2": 0.23466685,
+          "split_half": {
+            "players": 45,
+            "r": 0.587
+          },
+          "stability": "high",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.339,
+            "100": 0.837,
+            "30": 0.606
+          },
+          "year_to_year": {
+            "pairs": 133,
+            "r": 0.306
+          },
+          "unit_label": "% of innings at or better than par"
+        }
+      ],
+      "similarity": {
+        "batting": {
+          "candidates_median": 18,
+          "chance_top1": 0.059,
+          "chance_top5": 0.296,
+          "features": [
+            {
+              "key": "scoring",
+              "label": "Strike rate vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundary rate vs par"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "dismissals",
+              "label": "Dismissal rate vs par"
+            },
+            {
+              "key": "six_share",
+              "label": "Sixes among boundaries"
+            },
+            {
+              "key": "powerplay",
+              "label": "Balls in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Balls at the death"
+            },
+            {
+              "key": "position",
+              "label": "Batting position"
+            }
+          ],
+          "median_rank": 4.0,
+          "players": 93,
+          "top1": 0.172,
+          "top5": 0.591
+        },
+        "bowling": {
+          "candidates_median": 21,
+          "chance_top1": 0.049,
+          "chance_top5": 0.245,
+          "features": [
+            {
+              "key": "economy",
+              "label": "Runs saved per over"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundaries conceded vs par"
+            },
+            {
+              "key": "powerplay",
+              "label": "Overs in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Overs at the death"
+            },
+            {
+              "key": "spin",
+              "label": "Spin (1) or pace (0)"
+            },
+            {
+              "key": "workload",
+              "label": "Balls per innings"
+            },
+            {
+              "key": "extras",
+              "label": "Wides and no-balls"
+            }
+          ],
+          "median_rank": 3.0,
+          "players": 133,
+          "top1": 0.256,
+          "top5": 0.782
+        }
+      }
+    },
+    "PSL": {
+      "name": "ratings",
+      "version": "1.0.0",
+      "scope": "PSL",
+      "data_version": "2026-09-17.103eadea",
+      "trained_on": {
+        "seasons": [
+          2016,
+          2026
+        ]
+      },
+      "splits": {
+        "test_from": 2023
+      },
+      "stability": {
+        "high": 0.3,
+        "moderate": 0.15
+      },
+      "season_factor": 0.5,
+      "thresholds": {
+        "min_balls": 300,
+        "min_subset_balls": 120,
+        "min_innings": 10,
+        "min_rated_balls": 60,
+        "min_profile_balls": 120,
+        "style_min_balls": 150
+      },
+      "components": [
+        {
+          "description": "Runs per 100 balls above an average batter facing the same balls.",
+          "exposure": "balls",
+          "k": 458.42,
+          "k_validation": 430.9,
+          "key": "scoring",
+          "label": "Run scoring",
+          "next_season": {
+            "mse": {
+              "par": 285.069702,
+              "raw": 378.061461,
+              "shrunk": 265.059428
+            },
+            "pairs": 61,
+            "skill_vs_par": 0.0702,
+            "skill_vs_raw": 0.2989
+          },
+          "pairs": 140,
+          "role": "batting",
+          "sigma2": 3.56905143,
+          "split_half": {
+            "players": 31,
+            "r": 0.656
+          },
+          "stability": "high",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.179,
+            "1000": 0.686,
+            "300": 0.396,
+            "3000": 0.867
+          },
+          "year_to_year": {
+            "pairs": 69,
+            "r": 0.453
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Dismissals avoided per 100 balls, compared with par for the same balls.",
+          "exposure": "balls",
+          "k": 357.88,
+          "k_validation": 458.42,
+          "key": "survival",
+          "label": "Survival",
+          "next_season": {
+            "mse": {
+              "par": 3.931772,
+              "raw": 4.085304,
+              "shrunk": 3.588717
+            },
+            "pairs": 61,
+            "skill_vs_par": 0.0873,
+            "skill_vs_raw": 0.1216
+          },
+          "pairs": 140,
+          "role": "batting",
+          "sigma2": 0.04911983,
+          "split_half": {
+            "players": 31,
+            "r": 0.27
+          },
+          "stability": "high",
+          "unit": "dismissals_per_100",
+          "weight_at": {
+            "100": 0.218,
+            "1000": 0.736,
+            "300": 0.456,
+            "3000": 0.893
+          },
+          "year_to_year": {
+            "pairs": 69,
+            "r": 0.43
+          },
+          "unit_label": "dismissals avoided per 100 balls"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 800.19,
+          "k_validation": 405.04,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 409.494946,
+              "raw": 858.883787,
+              "shrunk": 427.243551
+            },
+            "pairs": 43,
+            "skill_vs_par": -0.0433,
+            "skill_vs_raw": 0.5026
+          },
+          "pairs": 89,
+          "role": "batting",
+          "sigma2": 3.02131685,
+          "split_half": {
+            "players": 16,
+            "r": 0.211
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.111,
+            "1000": 0.555,
+            "300": 0.273,
+            "3000": 0.789
+          },
+          "year_to_year": {
+            "pairs": 50,
+            "r": 0.154
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 132.93,
+          "k_validation": 97.55,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 576.816695,
+              "raw": 746.15913,
+              "shrunk": 533.819149
+            },
+            "pairs": 55,
+            "skill_vs_par": 0.0745,
+            "skill_vs_raw": 0.2846
+          },
+          "pairs": 124,
+          "role": "batting",
+          "sigma2": 3.02332277,
+          "split_half": {
+            "players": 27,
+            "r": 0.723
+          },
+          "stability": "high",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.429,
+            "1000": 0.883,
+            "300": 0.693,
+            "3000": 0.958
+          },
+          "year_to_year": {
+            "pairs": 60,
+            "r": 0.528
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 170.28,
+          "k_validation": 28.29,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 859.148837,
+              "raw": 1812.234082,
+              "shrunk": 1389.306622
+            },
+            "pairs": 7,
+            "skill_vs_par": -0.6171,
+            "skill_vs_raw": 0.2334
+          },
+          "pairs": 16,
+          "role": "batting",
+          "sigma2": 3.68605575,
+          "split_half": {
+            "players": 10,
+            "r": 0.326
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.37,
+            "1000": 0.854,
+            "300": 0.638,
+            "3000": 0.946
+          },
+          "year_to_year": {
+            "pairs": 2,
+            "r": null
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Runs per 100 balls above par in the second innings.",
+          "exposure": "balls",
+          "k": 430.9,
+          "k_validation": 551.96,
+          "key": "chasing",
+          "label": "Chasing",
+          "next_season": {
+            "mse": {
+              "par": 499.695069,
+              "raw": 659.934764,
+              "shrunk": 464.886141
+            },
+            "pairs": 44,
+            "skill_vs_par": 0.0697,
+            "skill_vs_raw": 0.2956
+          },
+          "pairs": 105,
+          "role": "batting",
+          "sigma2": 3.57400332,
+          "split_half": {
+            "players": 24,
+            "r": -0.036
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.188,
+            "1000": 0.699,
+            "300": 0.41,
+            "3000": 0.874
+          },
+          "year_to_year": {
+            "pairs": 43,
+            "r": 0.03
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "description": "Win probability added per innings, in percentage points.",
+          "exposure": "innings",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 29.11481,
+              "raw": 49.309397,
+              "shrunk": 29.111969
+            },
+            "pairs": 61,
+            "skill_vs_par": 0.0001,
+            "skill_vs_raw": 0.4096
+          },
+          "pairs": 140,
+          "role": "batting",
+          "sigma2": 0.01944409,
+          "split_half": {
+            "players": 31,
+            "r": -0.126
+          },
+          "stability": "low",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.0,
+            "100": 0.005,
+            "30": 0.001
+          },
+          "year_to_year": {
+            "pairs": 69,
+            "r": 0.007
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings scoring at least par for the balls faced.",
+          "exposure": "innings",
+          "k": 34.06,
+          "k_validation": 19.51,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 285.109518,
+              "raw": 513.376466,
+              "shrunk": 300.710018
+            },
+            "pairs": 61,
+            "skill_vs_par": -0.0547,
+            "skill_vs_raw": 0.4143
+          },
+          "pairs": 140,
+          "role": "batting",
+          "sigma2": 0.22669946,
+          "split_half": {
+            "players": 31,
+            "r": 0.494
+          },
+          "stability": "high",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.227,
+            "100": 0.746,
+            "30": 0.468
+          },
+          "year_to_year": {
+            "pairs": 69,
+            "r": 0.315
+          },
+          "unit_label": "% of innings at or better than par"
+        },
+        {
+          "description": "Runs per over saved against an average bowler bowling the same balls.",
+          "exposure": "balls",
+          "k": 458.42,
+          "k_validation": 458.42,
+          "key": "economy",
+          "label": "Economy",
+          "next_season": {
+            "mse": {
+              "par": 1.188225,
+              "raw": 1.581064,
+              "shrunk": 1.091339
+            },
+            "pairs": 66,
+            "skill_vs_par": 0.0815,
+            "skill_vs_raw": 0.3097
+          },
+          "pairs": 170,
+          "role": "bowling",
+          "sigma2": 3.86005086,
+          "split_half": {
+            "players": 26,
+            "r": 0.472
+          },
+          "stability": "moderate",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.179,
+            "1000": 0.686,
+            "300": 0.396,
+            "3000": 0.867
+          },
+          "year_to_year": {
+            "pairs": 120,
+            "r": 0.243
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Wickets per four overs above par for the same balls.",
+          "exposure": "balls",
+          "k": 1312.95,
+          "k_validation": 1312.95,
+          "key": "wickets",
+          "label": "Wicket-taking",
+          "next_season": {
+            "mse": {
+              "par": 0.167308,
+              "raw": 0.25903,
+              "shrunk": 0.164934
+            },
+            "pairs": 66,
+            "skill_vs_par": 0.0142,
+            "skill_vs_raw": 0.3633
+          },
+          "pairs": 170,
+          "role": "bowling",
+          "sigma2": 0.04780797,
+          "split_half": {
+            "players": 26,
+            "r": 0.352
+          },
+          "stability": "moderate",
+          "unit": "wickets_per_4_overs",
+          "weight_at": {
+            "100": 0.071,
+            "1000": 0.432,
+            "300": 0.186,
+            "3000": 0.696
+          },
+          "year_to_year": {
+            "pairs": 120,
+            "r": 0.177
+          },
+          "unit_label": "wickets per 4 overs above par"
+        },
+        {
+          "description": "Runs per over saved against par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 232.04,
+          "k_validation": 587.2,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 2.916142,
+              "raw": 3.08679,
+              "shrunk": 2.768612
+            },
+            "pairs": 43,
+            "skill_vs_par": 0.0506,
+            "skill_vs_raw": 0.1031
+          },
+          "pairs": 109,
+          "role": "bowling",
+          "sigma2": 3.35685353,
+          "split_half": {
+            "players": 20,
+            "r": 0.378
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.301,
+            "1000": 0.812,
+            "300": 0.564,
+            "3000": 0.928
+          },
+          "year_to_year": {
+            "pairs": 71,
+            "r": 0.099
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 624.7,
+          "k_validation": 316.21,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 1.545924,
+              "raw": 2.931331,
+              "shrunk": 1.622158
+            },
+            "pairs": 40,
+            "skill_vs_par": -0.0493,
+            "skill_vs_raw": 0.4466
+          },
+          "pairs": 110,
+          "role": "bowling",
+          "sigma2": 3.25334537,
+          "split_half": {
+            "players": 16,
+            "r": 0.355
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.138,
+            "1000": 0.615,
+            "300": 0.324,
+            "3000": 0.828
+          },
+          "year_to_year": {
+            "pairs": 66,
+            "r": 0.092
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 487.69,
+          "k_validation": 262.62,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 2.280969,
+              "raw": 3.900794,
+              "shrunk": 2.403436
+            },
+            "pairs": 29,
+            "skill_vs_par": -0.0537,
+            "skill_vs_raw": 0.3839
+          },
+          "pairs": 69,
+          "role": "bowling",
+          "sigma2": 4.40512641,
+          "split_half": {
+            "players": 13,
+            "r": 0.348
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.17,
+            "1000": 0.672,
+            "300": 0.381,
+            "3000": 0.86
+          },
+          "year_to_year": {
+            "pairs": 37,
+            "r": 0.136
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Runs per over saved against par in the second innings.",
+          "exposure": "balls",
+          "k": 851.29,
+          "k_validation": 1789.18,
+          "key": "defending",
+          "label": "Defending",
+          "next_season": {
+            "mse": {
+              "par": 1.868877,
+              "raw": 2.750997,
+              "shrunk": 1.847735
+            },
+            "pairs": 51,
+            "skill_vs_par": 0.0113,
+            "skill_vs_raw": 0.3283
+          },
+          "pairs": 138,
+          "role": "bowling",
+          "sigma2": 3.89711282,
+          "split_half": {
+            "players": 25,
+            "r": 0.242
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.105,
+            "1000": 0.54,
+            "300": 0.261,
+            "3000": 0.779
+          },
+          "year_to_year": {
+            "pairs": 84,
+            "r": 0.054
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "description": "Win probability added per innings bowled, in percentage points.",
+          "exposure": "innings",
+          "k": 43.63,
+          "k_validation": 34.06,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 24.522868,
+              "raw": 41.245822,
+              "shrunk": 24.210464
+            },
+            "pairs": 66,
+            "skill_vs_par": 0.0127,
+            "skill_vs_raw": 0.413
+          },
+          "pairs": 170,
+          "role": "bowling",
+          "sigma2": 0.02286362,
+          "split_half": {
+            "players": 26,
+            "r": 0.38
+          },
+          "stability": "low",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.186,
+            "100": 0.696,
+            "30": 0.407
+          },
+          "year_to_year": {
+            "pairs": 120,
+            "r": 0.142
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "description": "Share of innings conceding no more than par for the balls bowled.",
+          "exposure": "innings",
+          "k": 19.51,
+          "k_validation": 13.46,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 419.665012,
+              "raw": 601.571125,
+              "shrunk": 407.763244
+            },
+            "pairs": 66,
+            "skill_vs_par": 0.0284,
+            "skill_vs_raw": 0.3222
+          },
+          "pairs": 170,
+          "role": "bowling",
+          "sigma2": 0.24230063,
+          "split_half": {
+            "players": 26,
+            "r": 0.397
+          },
+          "stability": "high",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.339,
+            "100": 0.837,
+            "30": 0.606
+          },
+          "year_to_year": {
+            "pairs": 120,
+            "r": 0.314
+          },
+          "unit_label": "% of innings at or better than par"
+        }
+      ],
+      "similarity": {
+        "batting": {
+          "candidates_median": 19,
+          "chance_top1": 0.054,
+          "chance_top5": 0.272,
+          "features": [
+            {
+              "key": "scoring",
+              "label": "Strike rate vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundary rate vs par"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "dismissals",
+              "label": "Dismissal rate vs par"
+            },
+            {
+              "key": "six_share",
+              "label": "Sixes among boundaries"
+            },
+            {
+              "key": "powerplay",
+              "label": "Balls in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Balls at the death"
+            },
+            {
+              "key": "position",
+              "label": "Batting position"
+            }
+          ],
+          "median_rank": 4.0,
+          "players": 59,
+          "top1": 0.254,
+          "top5": 0.678
+        },
+        "bowling": {
+          "candidates_median": 21,
+          "chance_top1": 0.047,
+          "chance_top5": 0.235,
+          "features": [
+            {
+              "key": "economy",
+              "label": "Runs saved per over"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundaries conceded vs par"
+            },
+            {
+              "key": "powerplay",
+              "label": "Overs in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Overs at the death"
+            },
+            {
+              "key": "spin",
+              "label": "Spin (1) or pace (0)"
+            },
+            {
+              "key": "workload",
+              "label": "Balls per innings"
+            },
+            {
+              "key": "extras",
+              "label": "Wides and no-balls"
+            }
+          ],
+          "median_rank": 3.0,
+          "players": 120,
+          "top1": 0.258,
+          "top5": 0.7
+        }
+      }
+    },
+    "SA20": {
+      "name": "ratings",
+      "version": "1.0.0",
+      "scope": "SA20",
+      "data_version": "2026-09-17.103eadea",
+      "trained_on": {
+        "seasons": [
+          2023,
+          2026
+        ]
+      },
+      "splits": {
+        "test_from": 2023
+      },
+      "stability": {
+        "high": 0.3,
+        "moderate": 0.15
+      },
+      "season_factor": 0.5,
+      "thresholds": {
+        "min_balls": 300,
+        "min_subset_balls": 120,
+        "min_innings": 10,
+        "min_rated_balls": 60,
+        "min_profile_balls": 120,
+        "style_min_balls": 150
+      },
+      "components": [
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above an average batter facing the same balls.",
+          "exposure": "balls",
+          "k": 357.88,
+          "k_validation": 20000.0,
+          "key": "scoring",
+          "label": "Run scoring",
+          "next_season": {
+            "mse": {
+              "par": 424.431895,
+              "raw": 535.192145,
+              "shrunk": 420.905588
+            },
+            "pairs": 55,
+            "skill_vs_par": 0.0083,
+            "skill_vs_raw": 0.2135
+          },
+          "pairs": 55,
+          "role": "batting",
+          "sigma2": 3.84065226,
+          "split_half": {
+            "players": 10,
+            "r": 0.682
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.218,
+            "1000": 0.736,
+            "300": 0.456,
+            "3000": 0.893
+          },
+          "year_to_year": {
+            "pairs": 34,
+            "r": 0.196
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Dismissals avoided per 100 balls, compared with par for the same balls.",
+          "exposure": "balls",
+          "k": 518.83,
+          "k_validation": 20000.0,
+          "key": "survival",
+          "label": "Survival",
+          "next_season": {
+            "mse": {
+              "par": 3.174899,
+              "raw": 3.958988,
+              "shrunk": 3.166431
+            },
+            "pairs": 55,
+            "skill_vs_par": 0.0027,
+            "skill_vs_raw": 0.2002
+          },
+          "pairs": 55,
+          "role": "batting",
+          "sigma2": 0.04959434,
+          "split_half": {
+            "players": 10,
+            "r": -0.002
+          },
+          "stability": "moderate",
+          "unit": "dismissals_per_100",
+          "weight_at": {
+            "100": 0.162,
+            "1000": 0.658,
+            "300": 0.366,
+            "3000": 0.853
+          },
+          "year_to_year": {
+            "pairs": 34,
+            "r": 0.269
+          },
+          "unit_label": "dismissals avoided per 100 balls"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 181.15,
+          "k_validation": 20000.0,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 811.208666,
+              "raw": 913.945183,
+              "shrunk": 808.607035
+            },
+            "pairs": 35,
+            "skill_vs_par": 0.0032,
+            "skill_vs_raw": 0.1153
+          },
+          "pairs": 35,
+          "role": "batting",
+          "sigma2": 3.1509146,
+          "split_half": {
+            "players": 5,
+            "r": null
+          },
+          "stability": "high",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.356,
+            "1000": 0.847,
+            "300": 0.624,
+            "3000": 0.943
+          },
+          "year_to_year": {
+            "pairs": 19,
+            "r": 0.4
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 316.21,
+          "k_validation": 20000.0,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 647.205674,
+              "raw": 911.585531,
+              "shrunk": 645.726524
+            },
+            "pairs": 51,
+            "skill_vs_par": 0.0023,
+            "skill_vs_raw": 0.2916
+          },
+          "pairs": 51,
+          "role": "batting",
+          "sigma2": 2.94567006,
+          "split_half": {
+            "players": 10,
+            "r": 0.338
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.24,
+            "1000": 0.76,
+            "300": 0.487,
+            "3000": 0.905
+          },
+          "year_to_year": {
+            "pairs": 29,
+            "r": 0.018
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 9.28,
+          "k_validation": 20000.0,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 1418.176685,
+              "raw": 1002.27167,
+              "shrunk": 1414.678476
+            },
+            "pairs": 10,
+            "skill_vs_par": 0.0025,
+            "skill_vs_raw": -0.4115
+          },
+          "pairs": 10,
+          "role": "batting",
+          "sigma2": 4.19266265,
+          "split_half": {
+            "players": 0,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.915,
+            "1000": 0.991,
+            "300": 0.97,
+            "3000": 0.997
+          },
+          "year_to_year": {
+            "pairs": 2,
+            "r": null
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per 100 balls above par in the second innings.",
+          "exposure": "balls",
+          "k": 262.62,
+          "k_validation": 20000.0,
+          "key": "chasing",
+          "label": "Chasing",
+          "next_season": {
+            "mse": {
+              "par": 937.193425,
+              "raw": 1140.871594,
+              "shrunk": 935.770371
+            },
+            "pairs": 35,
+            "skill_vs_par": 0.0015,
+            "skill_vs_raw": 0.1798
+          },
+          "pairs": 35,
+          "role": "batting",
+          "sigma2": 3.73864599,
+          "split_half": {
+            "players": 8,
+            "r": null
+          },
+          "stability": "moderate",
+          "unit": "runs_per_100",
+          "weight_at": {
+            "100": 0.276,
+            "1000": 0.792,
+            "300": 0.533,
+            "3000": 0.92
+          },
+          "year_to_year": {
+            "pairs": 17,
+            "r": 0.246
+          },
+          "unit_label": "runs per 100 balls above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Win probability added per innings, in percentage points.",
+          "exposure": "innings",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 20.347406,
+              "raw": 41.757574,
+              "shrunk": 20.347532
+            },
+            "pairs": 55,
+            "skill_vs_par": -0.0,
+            "skill_vs_raw": 0.5127
+          },
+          "pairs": 55,
+          "role": "batting",
+          "sigma2": 0.01579312,
+          "split_half": {
+            "players": 10,
+            "r": 0.212
+          },
+          "stability": "low",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.0,
+            "100": 0.005,
+            "30": 0.001
+          },
+          "year_to_year": {
+            "pairs": 34,
+            "r": -0.135
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Share of innings scoring at least par for the balls faced.",
+          "exposure": "innings",
+          "k": 76.16,
+          "k_validation": 20000.0,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 451.657117,
+              "raw": 764.797598,
+              "shrunk": 451.606762
+            },
+            "pairs": 55,
+            "skill_vs_par": 0.0001,
+            "skill_vs_raw": 0.4095
+          },
+          "pairs": 55,
+          "role": "batting",
+          "sigma2": 0.21863901,
+          "split_half": {
+            "players": 10,
+            "r": 0.308
+          },
+          "stability": "low",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.116,
+            "100": 0.568,
+            "30": 0.283
+          },
+          "year_to_year": {
+            "pairs": 34,
+            "r": -0.004
+          },
+          "unit_label": "% of innings at or better than par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against an average bowler bowling the same balls.",
+          "exposure": "balls",
+          "k": 181.15,
+          "k_validation": 20000.0,
+          "key": "economy",
+          "label": "Economy",
+          "next_season": {
+            "mse": {
+              "par": 1.52236,
+              "raw": 1.500862,
+              "shrunk": 1.51534
+            },
+            "pairs": 50,
+            "skill_vs_par": 0.0046,
+            "skill_vs_raw": -0.0096
+          },
+          "pairs": 50,
+          "role": "bowling",
+          "sigma2": 4.31389891,
+          "split_half": {
+            "players": 6,
+            "r": null
+          },
+          "stability": "high",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.356,
+            "1000": 0.847,
+            "300": 0.624,
+            "3000": 0.943
+          },
+          "year_to_year": {
+            "pairs": 26,
+            "r": 0.345
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Wickets per four overs above par for the same balls.",
+          "exposure": "balls",
+          "k": 624.7,
+          "k_validation": 20000.0,
+          "key": "wickets",
+          "label": "Wicket-taking",
+          "next_season": {
+            "mse": {
+              "par": 0.21498,
+              "raw": 0.291213,
+              "shrunk": 0.214212
+            },
+            "pairs": 50,
+            "skill_vs_par": 0.0036,
+            "skill_vs_raw": 0.2644
+          },
+          "pairs": 50,
+          "role": "bowling",
+          "sigma2": 0.04581122,
+          "split_half": {
+            "players": 6,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "wickets_per_4_overs",
+          "weight_at": {
+            "100": 0.138,
+            "1000": 0.615,
+            "300": 0.324,
+            "3000": 0.828
+          },
+          "year_to_year": {
+            "pairs": 26,
+            "r": -0.132
+          },
+          "unit_label": "wickets per 4 overs above par"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in overs 1\u20136.",
+          "exposure": "balls",
+          "k": 458.42,
+          "k_validation": 20000.0,
+          "key": "powerplay",
+          "label": "Powerplay",
+          "next_season": {
+            "mse": {
+              "par": 2.054742,
+              "raw": 2.740145,
+              "shrunk": 2.051738
+            },
+            "pairs": 28,
+            "skill_vs_par": 0.0015,
+            "skill_vs_raw": 0.2512
+          },
+          "pairs": 28,
+          "role": "bowling",
+          "sigma2": 4.18468723,
+          "split_half": {
+            "players": 4,
+            "r": null
+          },
+          "stability": "moderate",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.179,
+            "1000": 0.686,
+            "300": 0.396,
+            "3000": 0.867
+          },
+          "year_to_year": {
+            "pairs": 16,
+            "r": 0.245
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in overs 7\u201315.",
+          "exposure": "balls",
+          "k": 52.53,
+          "k_validation": 20000.0,
+          "key": "middle",
+          "label": "Middle overs",
+          "next_season": {
+            "mse": {
+              "par": 1.231582,
+              "raw": 1.141638,
+              "shrunk": 1.229331
+            },
+            "pairs": 29,
+            "skill_vs_par": 0.0018,
+            "skill_vs_raw": -0.0768
+          },
+          "pairs": 29,
+          "role": "bowling",
+          "sigma2": 3.33183025,
+          "split_half": {
+            "players": 2,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.656,
+            "1000": 0.95,
+            "300": 0.851,
+            "3000": 0.983
+          },
+          "year_to_year": {
+            "pairs": 14,
+            "r": -0.39
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in overs 16\u201320.",
+          "exposure": "balls",
+          "k": 49.38,
+          "k_validation": 20000.0,
+          "key": "death",
+          "label": "Death overs",
+          "next_season": {
+            "mse": {
+              "par": 3.06141,
+              "raw": 2.790106,
+              "shrunk": 3.055239
+            },
+            "pairs": 15,
+            "skill_vs_par": 0.002,
+            "skill_vs_raw": -0.095
+          },
+          "pairs": 15,
+          "role": "bowling",
+          "sigma2": 5.5298284,
+          "split_half": {
+            "players": 3,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.669,
+            "1000": 0.953,
+            "300": 0.859,
+            "3000": 0.984
+          },
+          "year_to_year": {
+            "pairs": 5,
+            "r": null
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Runs per over saved against par in the second innings.",
+          "exposure": "balls",
+          "k": 20000.0,
+          "k_validation": 20000.0,
+          "key": "defending",
+          "label": "Defending",
+          "next_season": {
+            "mse": {
+              "par": 2.45983,
+              "raw": 4.592278,
+              "shrunk": 2.460262
+            },
+            "pairs": 41,
+            "skill_vs_par": -0.0002,
+            "skill_vs_raw": 0.4643
+          },
+          "pairs": 41,
+          "role": "bowling",
+          "sigma2": 3.84206553,
+          "split_half": {
+            "players": 5,
+            "r": null
+          },
+          "stability": "low",
+          "unit": "runs_per_over",
+          "weight_at": {
+            "100": 0.005,
+            "1000": 0.048,
+            "300": 0.015,
+            "3000": 0.13
+          },
+          "year_to_year": {
+            "pairs": 21,
+            "r": -0.339
+          },
+          "unit_label": "runs saved per over"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Win probability added per innings bowled, in percentage points.",
+          "exposure": "innings",
+          "k": 28.29,
+          "k_validation": 20000.0,
+          "key": "impact",
+          "label": "Impact",
+          "next_season": {
+            "mse": {
+              "par": 28.683299,
+              "raw": 42.662119,
+              "shrunk": 28.677301
+            },
+            "pairs": 50,
+            "skill_vs_par": 0.0002,
+            "skill_vs_raw": 0.3278
+          },
+          "pairs": 50,
+          "role": "bowling",
+          "sigma2": 0.01948585,
+          "split_half": {
+            "players": 6,
+            "r": null
+          },
+          "stability": "moderate",
+          "unit": "points",
+          "weight_at": {
+            "10": 0.261,
+            "100": 0.779,
+            "30": 0.515
+          },
+          "year_to_year": {
+            "pairs": 26,
+            "r": 0.275
+          },
+          "unit_label": "win probability points per innings"
+        },
+        {
+          "borrowed": "LEAGUES",
+          "description": "Share of innings conceding no more than par for the balls bowled.",
+          "exposure": "innings",
+          "k": 23.49,
+          "k_validation": 20000.0,
+          "key": "consistency",
+          "label": "Consistency",
+          "next_season": {
+            "mse": {
+              "par": 452.887508,
+              "raw": 584.528572,
+              "shrunk": 452.797976
+            },
+            "pairs": 50,
+            "skill_vs_par": 0.0002,
+            "skill_vs_raw": 0.2254
+          },
+          "pairs": 50,
+          "role": "bowling",
+          "sigma2": 0.24211825,
+          "split_half": {
+            "players": 6,
+            "r": null
+          },
+          "stability": "moderate",
+          "unit": "percent",
+          "weight_at": {
+            "10": 0.299,
+            "100": 0.81,
+            "30": 0.561
+          },
+          "year_to_year": {
+            "pairs": 26,
+            "r": 0.197
+          },
+          "unit_label": "% of innings at or better than par"
+        }
+      ],
+      "similarity": {
+        "batting": {
+          "candidates_median": 21,
+          "chance_top1": 0.055,
+          "chance_top5": 0.273,
+          "features": [
+            {
+              "key": "scoring",
+              "label": "Strike rate vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundary rate vs par"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "dismissals",
+              "label": "Dismissal rate vs par"
+            },
+            {
+              "key": "six_share",
+              "label": "Sixes among boundaries"
+            },
+            {
+              "key": "powerplay",
+              "label": "Balls in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Balls at the death"
+            },
+            {
+              "key": "position",
+              "label": "Batting position"
+            }
+          ],
+          "median_rank": 4.0,
+          "players": 34,
+          "top1": 0.206,
+          "top5": 0.588
+        },
+        "bowling": {
+          "candidates_median": 22,
+          "chance_top1": 0.058,
+          "chance_top5": 0.29,
+          "features": [
+            {
+              "key": "economy",
+              "label": "Runs saved per over"
+            },
+            {
+              "key": "dots",
+              "label": "Dot balls vs par"
+            },
+            {
+              "key": "boundaries",
+              "label": "Boundaries conceded vs par"
+            },
+            {
+              "key": "powerplay",
+              "label": "Overs in the powerplay"
+            },
+            {
+              "key": "death",
+              "label": "Overs at the death"
+            },
+            {
+              "key": "spin",
+              "label": "Spin (1) or pace (0)"
+            },
+            {
+              "key": "workload",
+              "label": "Balls per innings"
+            },
+            {
+              "key": "extras",
+              "label": "Wides and no-balls"
+            }
+          ],
+          "median_rank": 3.5,
+          "players": 26,
+          "top1": 0.346,
+          "top5": 0.731
+        }
+      }
+    }
+  }
+}

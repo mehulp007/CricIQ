@@ -1,0 +1,101 @@
+{
+  "data_version": "2026-09-17.103eadea",
+  "name": "ratings",
+  "scopes": {
+    "T20I": {
+      "components": {
+        "batting": {
+          "chasing": {
+            "k": 170.28,
+            "sigma2": 3.30029531,
+            "stability": "high"
+          },
+          "consistency": {
+            "k": 20.76,
+            "sigma2": 0.20383778,
+            "stability": "high"
+          },
+          "death": {
+            "k": 150.45,
+            "sigma2": 3.40937245,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 160.06,
+            "sigma2": 0.01772296,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 117.45,
+            "sigma2": 2.7968819,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 192.72,
+            "sigma2": 3.05491517,
+            "stability": "high"
+          },
+          "scoring": {
+            "k": 192.72,
+            "sigma2": 3.46753954,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 518.83,
+            "sigma2": 0.05238431,
+            "stability": "moderate"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 26.59,
+            "sigma2": 0.22936029,
+            "stability": "high"
+          },
+          "death": {
+            "k": 192.72,
+            "sigma2": 4.03504177,
+            "stability": "moderate"
+          },
+          "defending": {
+            "k": 181.15,
+            "sigma2": 3.83840029,
+            "stability": "high"
+          },
+          "economy": {
+            "k": 262.62,
+            "sigma2": 3.94125171,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 52.53,
+            "sigma2": 0.02180428,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 181.15,
+            "sigma2": 3.15990123,
+            "stability": "high"
+          },
+          "powerplay": {
+            "k": 297.23,
+            "sigma2": 3.52043805,
+            "stability": "moderate"
+          },
+          "wickets": {
+            "k": 5124.35,
+            "sigma2": 0.05031746,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2005,
+          2026
+        ]
+      }
+    }
+  },
+  "version": "1.0.0"
+}

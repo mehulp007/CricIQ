@@ -1,0 +1,494 @@
+{
+  "backtest": [
+    {
+      "bias": -1.1735852265146476,
+      "coverage80": 0.8239121160409556,
+      "innings": 76,
+      "mae": 14.994091989818024,
+      "mean_total": 155.28947368421052,
+      "par_mae": 16.5199233188206,
+      "season": 2016
+    },
+    {
+      "bias": -0.6395716421032075,
+      "coverage80": 0.8131974769529354,
+      "innings": 50,
+      "mae": 15.679925168006802,
+      "mean_total": 164.2,
+      "par_mae": 17.868965065378255,
+      "season": 2017
+    },
+    {
+      "bias": 1.5887650425907536,
+      "coverage80": 0.8501063075832743,
+      "innings": 68,
+      "mae": 14.878387913344167,
+      "mean_total": 173.13235294117646,
+      "par_mae": 17.039586454564144,
+      "season": 2018
+    },
+    {
+      "bias": 1.6937449624147536,
+      "coverage80": 0.7112109143292942,
+      "innings": 192,
+      "mae": 16.80336573096859,
+      "mean_total": 149.0625,
+      "par_mae": 19.495621133887425,
+      "season": 2019
+    },
+    {
+      "bias": -0.3669557651297047,
+      "coverage80": 0.8070861177657295,
+      "innings": 64,
+      "mae": 16.329194872705045,
+      "mean_total": 160.484375,
+      "par_mae": 18.45830738306811,
+      "season": 2020
+    },
+    {
+      "bias": 0.27582441620405745,
+      "coverage80": 0.7928992356613571,
+      "innings": 277,
+      "mae": 17.03848430279455,
+      "mean_total": 143.77256317689532,
+      "par_mae": 19.16205449414526,
+      "season": 2021
+    },
+    {
+      "bias": -0.6546269174882872,
+      "coverage80": 0.7618008453750122,
+      "innings": 411,
+      "mae": 17.8864623766749,
+      "mean_total": 152.46228710462287,
+      "par_mae": 21.033187032708945,
+      "season": 2022
+    },
+    {
+      "bias": 1.5992521842052894,
+      "coverage80": 0.7858156028368795,
+      "innings": 332,
+      "mae": 18.17532788596761,
+      "mean_total": 144.53313253012047,
+      "par_mae": 22.093405236700963,
+      "season": 2023
+    },
+    {
+      "bias": 0.8084615835890476,
+      "coverage80": 0.7821557086669084,
+      "innings": 584,
+      "mae": 19.001744983619016,
+      "mean_total": 144.80479452054794,
+      "par_mae": 22.907697482175347,
+      "season": 2024
+    },
+    {
+      "bias": -0.5460184611417113,
+      "coverage80": 0.8311567316650594,
+      "innings": 494,
+      "mae": 17.28815520842666,
+      "mean_total": 153.14574898785426,
+      "par_mae": 20.482626065009303,
+      "season": 2025
+    },
+    {
+      "bias": -2.164485423517422,
+      "coverage80": 0.7887174833635814,
+      "innings": 428,
+      "mae": 18.86487327581166,
+      "mean_total": 155.32476635514018,
+      "par_mae": 24.29967058351535,
+      "season": 2026
+    }
+  ],
+  "data_version": "2026-09-17.103eadea",
+  "feature_selection": [
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "mae": 17.722878771742668,
+      "pinball": 5.116368827289542,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "depth_avg_sum"
+      ],
+      "mae": 17.661334120916305,
+      "pinball": 5.103384842251315,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "bowl_left_econ_idx"
+      ],
+      "mae": 17.555354012840596,
+      "pinball": 5.072757421681876,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "venue_idx"
+      ],
+      "mae": 17.73994574993558,
+      "pinball": 5.124100082330169,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "env_rpb"
+      ],
+      "mae": 17.92348263234797,
+      "pinball": 5.1557013468269774,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+era"
+    },
+    {
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "wickets",
+        "runs_vs_par",
+        "run_rate_rel",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls",
+        "international"
+      ],
+      "mae": 17.722878771742668,
+      "pinball": 5.116368827289542,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+international"
+    }
+  ],
+  "name": "score_projection",
+  "splits": {
+    "backtest_from": 2016,
+    "calibrate": [
+      2023,
+      2024
+    ],
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "tune_train_through": 2020,
+    "tune_valid": [
+      2021,
+      2022
+    ]
+  },
+  "test": {
+    "by_competition": [],
+    "by_phase": [
+      {
+        "model_coverage80": 0.7967385138967669,
+        "model_mae": 28.3620469320273,
+        "model_width80": 91.03803937510992,
+        "par_mae": 33.20824381420483,
+        "phase": "powerplay",
+        "rows": 35260,
+        "run_rate_mae": 47.349124055013306
+      },
+      {
+        "model_coverage80": 0.829812024234892,
+        "model_mae": 17.018345222722388,
+        "model_width80": 58.941654134952046,
+        "par_mae": 21.961357171033995,
+        "phase": "middle",
+        "rows": 51496,
+        "run_rate_mae": 19.367393463599427
+      },
+      {
+        "model_coverage80": 0.8190402986713518,
+        "model_mae": 7.006960247102107,
+        "model_width80": 23.989627102375668,
+        "par_mae": 8.634107710361327,
+        "phase": "death",
+        "rows": 27321,
+        "run_rate_mae": 7.751022551312501
+      }
+    ],
+    "model": {
+      "bias": -1.13726075984238,
+      "coverage80": 0.8170095637157359,
+      "innings": 922,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.0472137240635711
+        },
+        {
+          "level": 0.1,
+          "observed": 0.09479562050194167
+        },
+        {
+          "level": 0.25,
+          "observed": 0.24381777220649212
+        },
+        {
+          "level": 0.5,
+          "observed": 0.49925050623701533
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7645800643425055
+        },
+        {
+          "level": 0.9,
+          "observed": 0.9101922385756989
+        },
+        {
+          "level": 0.95,
+          "observed": 0.957537452773127
+        }
+      ],
+      "mae": 18.126876069003142,
+      "pinball": 5.276507910074305,
+      "rows": 114077,
+      "threshold_brier": 0.08749632986620662,
+      "width80": 60.49143378388168
+    },
+    "par_baseline": {
+      "bias": 0.051109493954106126,
+      "coverage80": 0.8232421960605556,
+      "innings": 922,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.04162977637911235
+        },
+        {
+          "level": 0.1,
+          "observed": 0.08998308160277707
+        },
+        {
+          "level": 0.25,
+          "observed": 0.24091622325271528
+        },
+        {
+          "level": 0.5,
+          "observed": 0.4985492255231116
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7614856631924052
+        },
+        {
+          "level": 0.9,
+          "observed": 0.9132252776633326
+        },
+        {
+          "level": 0.95,
+          "observed": 0.9603513416376658
+        }
+      ],
+      "mae": 22.245826788250135,
+      "pinball": 6.473766202850804,
+      "rows": 114077,
+      "threshold_brier": 0.10412381264872865,
+      "width80": 76.53207112225216
+    },
+    "run_rate": {
+      "bias": -7.791185431105654,
+      "mae": 25.23417599608768,
+      "rows": 114077
+    },
+    "thresholds": [
+      140,
+      160,
+      180,
+      200,
+      220
+    ],
+    "uncalibrated": {
+      "bias": 1.3784899997624651,
+      "coverage80": 0.7596886313630268,
+      "innings": 922,
+      "level_calibration": [
+        {
+          "level": 0.05,
+          "observed": 0.0727578740675158
+        },
+        {
+          "level": 0.1,
+          "observed": 0.13234920273148837
+        },
+        {
+          "level": 0.25,
+          "observed": 0.29184673509997633
+        },
+        {
+          "level": 0.5,
+          "observed": 0.5414500731961746
+        },
+        {
+          "level": 0.75,
+          "observed": 0.7555686071688421
+        },
+        {
+          "level": 0.9,
+          "observed": 0.8915118735590872
+        },
+        {
+          "level": 0.95,
+          "observed": 0.9395583684704191
+        }
+      ],
+      "mae": 18.24450512233029,
+      "pinball": 5.312782818976323,
+      "rows": 114077,
+      "threshold_brier": 0.08706471022833598,
+      "width80": 52.920446998658576
+    }
+  },
+  "training_seconds": 107.1,
+  "tuning": {
+    "chosen": {
+      "min_data_in_leaf": 4500,
+      "num_leaves": 31
+    },
+    "grid": [
+      {
+        "min_data_in_leaf": 1500,
+        "num_leaves": 15,
+        "rounds": {
+          "0.05": 81,
+          "0.1": 81,
+          "0.25": 87,
+          "0.5": 113,
+          "0.75": 128,
+          "0.9": 110,
+          "0.95": 64
+        },
+        "valid_pinball": 5.054575135479459
+      },
+      {
+        "min_data_in_leaf": 4500,
+        "num_leaves": 15,
+        "rounds": {
+          "0.05": 72,
+          "0.1": 87,
+          "0.25": 154,
+          "0.5": 125,
+          "0.75": 218,
+          "0.9": 123,
+          "0.95": 90
+        },
+        "valid_pinball": 5.042385367464445
+      },
+      {
+        "min_data_in_leaf": 1500,
+        "num_leaves": 31,
+        "rounds": {
+          "0.05": 57,
+          "0.1": 66,
+          "0.25": 72,
+          "0.5": 89,
+          "0.75": 112,
+          "0.9": 85,
+          "0.95": 52
+        },
+        "valid_pinball": 5.070421710568515
+      },
+      {
+        "min_data_in_leaf": 4500,
+        "num_leaves": 31,
+        "rounds": {
+          "0.05": 70,
+          "0.1": 87,
+          "0.25": 123,
+          "0.5": 148,
+          "0.75": 223,
+          "0.9": 138,
+          "0.95": 90
+        },
+        "valid_pinball": 5.041040005214522
+      }
+    ],
+    "rounds": {
+      "0.05": 70,
+      "0.1": 87,
+      "0.25": 123,
+      "0.5": 148,
+      "0.75": 223,
+      "0.9": 138,
+      "0.95": 90
+    }
+  },
+  "version": "1.0.0"
+}

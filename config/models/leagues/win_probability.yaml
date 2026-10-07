@@ -7,7 +7,7 @@
 # touched once.
 
 name: win_probability
-version: 1.0.0
+version: 1.1.0
 scope: LEAGUES
 
 splits:
@@ -25,12 +25,16 @@ features:
   stable: true               # derived ratios rounded so every CPU agrees (see features.py)
 
 # Candidate groups served on top of the core features (features.CANDIDATES), per
-# innings. These are what forward selection chose for the pooled T20 model (the
-# squads' records and the batters at the crease in the first innings), without
-# international cricket, which no league match is. The training run tries every
-# other candidate once more on the leagues' pre-test rolling origin and reports it.
+# innings, chosen on the leagues' pre-test rolling origin (2016-2024; the test years
+# are never used). 1.0.0 served what forward selection chose for the pooled T20 model
+# (the squads' records and the batters at the crease in the first innings). With
+# players' records counting league games only, both made the first innings worse:
+# log loss 0.6494 with them, 0.6444 with the squads alone, 0.6386 with the crease
+# alone and 0.6377 with neither. The batters at the crease in a chase (0.4258 against
+# 0.4197), smaller leaves (0.6518, 0.4213) and more or less shrinkage of players'
+# records (0.6439 and 0.6404 in the first innings) did not help either.
 served_extras:
-  1: [squads, crease]
+  1: []
   2: []
 
 lightgbm:

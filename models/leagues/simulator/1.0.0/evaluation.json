@@ -1,0 +1,895 @@
+{
+  "competitions": {
+    "BBL": {
+      "chase": {
+        "calibration": [
+          {
+            "matches": 16,
+            "observed": 0.312,
+            "predicted": 0.103
+          },
+          {
+            "matches": 16,
+            "observed": 0.688,
+            "predicted": 0.309
+          },
+          {
+            "matches": 16,
+            "observed": 0.625,
+            "predicted": 0.454
+          },
+          {
+            "matches": 16,
+            "observed": 0.75,
+            "predicted": 0.6
+          },
+          {
+            "matches": 16,
+            "observed": 0.938,
+            "predicted": 0.861
+          }
+        ],
+        "chase_rate": {
+          "brier": 0.2475,
+          "log_loss": 0.6881,
+          "rate": 0.508
+        },
+        "gain_vs_chase_rate": {
+          "high": 0.0579,
+          "low": -0.0229,
+          "value": 0.0181
+        },
+        "matches": 80,
+        "mean_predicted": 0.466,
+        "observed": 0.662,
+        "simulator": {
+          "brier": 0.2294,
+          "log_loss": 0.6635
+        }
+      },
+      "data_version": "2026-09-17.103eadea",
+      "first_innings": {
+        "actual_mean": 168.0,
+        "actual_wickets": 7.24,
+        "coverage_50": 0.588,
+        "coverage_80": 0.825,
+        "crps": 18.13,
+        "matches": 80,
+        "pit_chi2": 7.5,
+        "pit_chi2_critical": 16.92,
+        "pit_counts": [
+          5,
+          5,
+          11,
+          6,
+          12,
+          11,
+          7,
+          7,
+          7,
+          9
+        ],
+        "simulated_mean": 166.1,
+        "simulated_wickets": 6.56
+      },
+      "forced_overs": 0,
+      "matches": 84,
+      "name": "simulator",
+      "settings": {
+        "conditions_sd": 0.3,
+        "data_version": "2026-09-17.103eadea",
+        "history_seasons": 3,
+        "min_bowling_overs": 4.0,
+        "name": "simulator",
+        "urgent_from_over": 12,
+        "usage_strength": 8.0,
+        "version": "1.0.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0182
+      },
+      "timing": {
+        "seconds": 0.355,
+        "simulations": 10000
+      },
+      "tuning": [
+        {
+          "brier": 0.249,
+          "conditions_sd": 0.0,
+          "coverage_80": 0.707,
+          "crps": 16.456
+        },
+        {
+          "brier": 0.251,
+          "conditions_sd": 0.1,
+          "coverage_80": 0.717,
+          "crps": 16.447
+        },
+        {
+          "brier": 0.2494,
+          "conditions_sd": 0.2,
+          "coverage_80": 0.739,
+          "crps": 16.342
+        },
+        {
+          "brier": 0.2487,
+          "conditions_sd": 0.3,
+          "coverage_80": 0.815,
+          "crps": 16.306
+        },
+        {
+          "brier": 0.2487,
+          "conditions_sd": 0.4,
+          "coverage_80": 0.859,
+          "crps": 16.461
+        },
+        {
+          "brier": 0.2479,
+          "conditions_sd": 0.5,
+          "coverage_80": 0.913,
+          "crps": 16.816
+        },
+        {
+          "brier": 0.2471,
+          "conditions_sd": 0.6,
+          "coverage_80": 0.967,
+          "crps": 17.318
+        },
+        {
+          "brier": 0.2462,
+          "conditions_sd": 0.7,
+          "coverage_80": 0.989,
+          "crps": 17.987
+        },
+        {
+          "brier": 0.2458,
+          "conditions_sd": 0.8,
+          "coverage_80": 0.989,
+          "crps": 18.796
+        }
+      ],
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.0.0",
+      "win": {
+        "bat_first_rate": {
+          "brier": 0.2476,
+          "log_loss": 0.6883,
+          "rate": 0.492
+        },
+        "calibration": [
+          {
+            "matches": 17,
+            "observed": 0.176,
+            "predicted": 0.462
+          },
+          {
+            "matches": 17,
+            "observed": 0.529,
+            "predicted": 0.495
+          },
+          {
+            "matches": 17,
+            "observed": 0.235,
+            "predicted": 0.516
+          },
+          {
+            "matches": 17,
+            "observed": 0.471,
+            "predicted": 0.535
+          },
+          {
+            "matches": 16,
+            "observed": 0.312,
+            "predicted": 0.571
+          }
+        ],
+        "coin_flip": {
+          "brier": 0.25,
+          "log_loss": 0.6931
+        },
+        "form": {
+          "brier": 0.2502,
+          "log_loss": 0.6936
+        },
+        "gain_vs_coin_flip": {
+          "high": 0.0026,
+          "low": -0.0125,
+          "value": -0.0046
+        },
+        "gain_vs_form": {
+          "high": 0.004,
+          "low": -0.0131,
+          "value": -0.0044
+        },
+        "mean_predicted": 0.515,
+        "observed": 0.345,
+        "simulator": {
+          "brier": 0.2546,
+          "log_loss": 0.7025
+        },
+        "spread": {
+          "max": 0.632,
+          "min": 0.428,
+          "sd": 0.039
+        }
+      }
+    },
+    "CPL": {
+      "chase": {
+        "calibration": [
+          {
+            "matches": 13,
+            "observed": 0.308,
+            "predicted": 0.148
+          },
+          {
+            "matches": 13,
+            "observed": 0.538,
+            "predicted": 0.365
+          },
+          {
+            "matches": 12,
+            "observed": 0.5,
+            "predicted": 0.556
+          },
+          {
+            "matches": 12,
+            "observed": 0.833,
+            "predicted": 0.724
+          },
+          {
+            "matches": 12,
+            "observed": 1.0,
+            "predicted": 0.932
+          }
+        ],
+        "chase_rate": {
+          "brier": 0.2416,
+          "log_loss": 0.6763,
+          "rate": 0.538
+        },
+        "gain_vs_chase_rate": {
+          "high": 0.097,
+          "low": 0.0087,
+          "value": 0.0537
+        },
+        "matches": 62,
+        "mean_predicted": 0.536,
+        "observed": 0.629,
+        "simulator": {
+          "brier": 0.1879,
+          "log_loss": 0.5475
+        }
+      },
+      "data_version": "2026-09-17.103eadea",
+      "first_innings": {
+        "actual_mean": 164.2,
+        "actual_wickets": 6.81,
+        "coverage_50": 0.516,
+        "coverage_80": 0.774,
+        "crps": 17.72,
+        "matches": 62,
+        "pit_chi2": 8.97,
+        "pit_chi2_critical": 16.92,
+        "pit_counts": [
+          9,
+          5,
+          6,
+          7,
+          9,
+          2,
+          7,
+          9,
+          3,
+          5
+        ],
+        "simulated_mean": 167.7,
+        "simulated_wickets": 6.73
+      },
+      "forced_overs": 0,
+      "matches": 67,
+      "name": "simulator",
+      "settings": {
+        "conditions_sd": 0.2,
+        "data_version": "2026-09-17.103eadea",
+        "history_seasons": 3,
+        "min_bowling_overs": 4.0,
+        "name": "simulator",
+        "urgent_from_over": 12,
+        "usage_strength": 8.0,
+        "version": "1.0.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0174
+      },
+      "timing": {
+        "seconds": 0.389,
+        "simulations": 10000
+      },
+      "tuning": [
+        {
+          "brier": 0.2399,
+          "conditions_sd": 0.0,
+          "coverage_80": 0.639,
+          "crps": 20.452
+        },
+        {
+          "brier": 0.2391,
+          "conditions_sd": 0.1,
+          "coverage_80": 0.639,
+          "crps": 20.261
+        },
+        {
+          "brier": 0.2389,
+          "conditions_sd": 0.2,
+          "coverage_80": 0.77,
+          "crps": 20.018
+        },
+        {
+          "brier": 0.2374,
+          "conditions_sd": 0.3,
+          "coverage_80": 0.836,
+          "crps": 19.899
+        },
+        {
+          "brier": 0.2366,
+          "conditions_sd": 0.4,
+          "coverage_80": 0.852,
+          "crps": 19.993
+        },
+        {
+          "brier": 0.236,
+          "conditions_sd": 0.5,
+          "coverage_80": 0.902,
+          "crps": 20.289
+        },
+        {
+          "brier": 0.2354,
+          "conditions_sd": 0.6,
+          "coverage_80": 0.918,
+          "crps": 20.784
+        },
+        {
+          "brier": 0.2359,
+          "conditions_sd": 0.7,
+          "coverage_80": 0.984,
+          "crps": 21.504
+        },
+        {
+          "brier": 0.2365,
+          "conditions_sd": 0.8,
+          "coverage_80": 0.984,
+          "crps": 22.353
+        }
+      ],
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.0.0",
+      "win": {
+        "bat_first_rate": {
+          "brier": 0.2418,
+          "log_loss": 0.6766,
+          "rate": 0.462
+        },
+        "calibration": [
+          {
+            "matches": 14,
+            "observed": 0.357,
+            "predicted": 0.362
+          },
+          {
+            "matches": 14,
+            "observed": 0.357,
+            "predicted": 0.424
+          },
+          {
+            "matches": 13,
+            "observed": 0.231,
+            "predicted": 0.494
+          },
+          {
+            "matches": 13,
+            "observed": 0.462,
+            "predicted": 0.561
+          },
+          {
+            "matches": 13,
+            "observed": 0.462,
+            "predicted": 0.662
+          }
+        ],
+        "coin_flip": {
+          "brier": 0.25,
+          "log_loss": 0.6931
+        },
+        "form": {
+          "brier": 0.2484,
+          "log_loss": 0.69
+        },
+        "gain_vs_coin_flip": {
+          "high": 0.0197,
+          "low": -0.0254,
+          "value": -0.0022
+        },
+        "gain_vs_form": {
+          "high": 0.0157,
+          "low": -0.025,
+          "value": -0.0038
+        },
+        "mean_predicted": 0.498,
+        "observed": 0.373,
+        "simulator": {
+          "brier": 0.2522,
+          "log_loss": 0.699
+        },
+        "spread": {
+          "max": 0.755,
+          "min": 0.319,
+          "sd": 0.109
+        }
+      }
+    },
+    "PSL": {
+      "chase": {
+        "calibration": [
+          {
+            "matches": 15,
+            "observed": 0.2,
+            "predicted": 0.051
+          },
+          {
+            "matches": 15,
+            "observed": 0.333,
+            "predicted": 0.18
+          },
+          {
+            "matches": 15,
+            "observed": 0.6,
+            "predicted": 0.345
+          },
+          {
+            "matches": 14,
+            "observed": 0.857,
+            "predicted": 0.639
+          },
+          {
+            "matches": 14,
+            "observed": 0.929,
+            "predicted": 0.924
+          }
+        ],
+        "chase_rate": {
+          "brier": 0.2445,
+          "log_loss": 0.6821,
+          "rate": 0.562
+        },
+        "gain_vs_chase_rate": {
+          "high": 0.1099,
+          "low": -0.0002,
+          "value": 0.0565
+        },
+        "matches": 73,
+        "mean_predicted": 0.418,
+        "observed": 0.575,
+        "simulator": {
+          "brier": 0.188,
+          "log_loss": 0.5534
+        }
+      },
+      "data_version": "2026-09-17.103eadea",
+      "first_innings": {
+        "actual_mean": 182.2,
+        "actual_wickets": 6.85,
+        "coverage_50": 0.315,
+        "coverage_80": 0.671,
+        "crps": 23.79,
+        "matches": 73,
+        "pit_chi2": 18.92,
+        "pit_chi2_critical": 16.92,
+        "pit_counts": [
+          9,
+          7,
+          5,
+          3,
+          5,
+          4,
+          6,
+          6,
+          13,
+          15
+        ],
+        "simulated_mean": 173.9,
+        "simulated_wickets": 6.6
+      },
+      "forced_overs": 0,
+      "matches": 76,
+      "name": "simulator",
+      "settings": {
+        "conditions_sd": 0.2,
+        "data_version": "2026-09-17.103eadea",
+        "history_seasons": 3,
+        "min_bowling_overs": 4.0,
+        "name": "simulator",
+        "urgent_from_over": 12,
+        "usage_strength": 8.0,
+        "version": "1.0.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0175
+      },
+      "timing": {
+        "seconds": 0.405,
+        "simulations": 10000
+      },
+      "tuning": [
+        {
+          "brier": 0.2428,
+          "conditions_sd": 0.0,
+          "coverage_80": 0.727,
+          "crps": 17.755
+        },
+        {
+          "brier": 0.2419,
+          "conditions_sd": 0.1,
+          "coverage_80": 0.758,
+          "crps": 17.72
+        },
+        {
+          "brier": 0.2411,
+          "conditions_sd": 0.2,
+          "coverage_80": 0.818,
+          "crps": 17.652
+        },
+        {
+          "brier": 0.2425,
+          "conditions_sd": 0.3,
+          "coverage_80": 0.848,
+          "crps": 17.68
+        },
+        {
+          "brier": 0.2437,
+          "conditions_sd": 0.4,
+          "coverage_80": 0.879,
+          "crps": 17.933
+        },
+        {
+          "brier": 0.2461,
+          "conditions_sd": 0.5,
+          "coverage_80": 0.924,
+          "crps": 18.365
+        },
+        {
+          "brier": 0.2477,
+          "conditions_sd": 0.6,
+          "coverage_80": 0.955,
+          "crps": 19.038
+        },
+        {
+          "brier": 0.2488,
+          "conditions_sd": 0.7,
+          "coverage_80": 0.985,
+          "crps": 19.866
+        },
+        {
+          "brier": 0.2506,
+          "conditions_sd": 0.8,
+          "coverage_80": 0.985,
+          "crps": 20.819
+        }
+      ],
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.0.0",
+      "win": {
+        "bat_first_rate": {
+          "brier": 0.2457,
+          "log_loss": 0.6845,
+          "rate": 0.438
+        },
+        "calibration": [
+          {
+            "matches": 16,
+            "observed": 0.25,
+            "predicted": 0.484
+          },
+          {
+            "matches": 15,
+            "observed": 0.333,
+            "predicted": 0.504
+          },
+          {
+            "matches": 15,
+            "observed": 0.533,
+            "predicted": 0.516
+          },
+          {
+            "matches": 15,
+            "observed": 0.467,
+            "predicted": 0.535
+          },
+          {
+            "matches": 15,
+            "observed": 0.6,
+            "predicted": 0.572
+          }
+        ],
+        "coin_flip": {
+          "brier": 0.25,
+          "log_loss": 0.6931
+        },
+        "form": {
+          "brier": 0.2535,
+          "log_loss": 0.7003
+        },
+        "gain_vs_coin_flip": {
+          "high": 0.0091,
+          "low": -0.0059,
+          "value": 0.0016
+        },
+        "gain_vs_form": {
+          "high": 0.0136,
+          "low": -0.0046,
+          "value": 0.0051
+        },
+        "mean_predicted": 0.522,
+        "observed": 0.434,
+        "simulator": {
+          "brier": 0.2484,
+          "log_loss": 0.69
+        },
+        "spread": {
+          "max": 0.623,
+          "min": 0.43,
+          "sd": 0.033
+        }
+      }
+    },
+    "SA20": {
+      "chase": {
+        "calibration": [
+          {
+            "matches": 12,
+            "observed": 0.167,
+            "predicted": 0.212
+          },
+          {
+            "matches": 12,
+            "observed": 0.167,
+            "predicted": 0.358
+          },
+          {
+            "matches": 11,
+            "observed": 0.545,
+            "predicted": 0.467
+          },
+          {
+            "matches": 11,
+            "observed": 0.636,
+            "predicted": 0.625
+          },
+          {
+            "matches": 11,
+            "observed": 0.909,
+            "predicted": 0.859
+          }
+        ],
+        "chase_rate": {
+          "brier": 0.2495,
+          "log_loss": 0.6921,
+          "rate": 0.46
+        },
+        "gain_vs_chase_rate": {
+          "high": 0.1126,
+          "low": 0.0456,
+          "value": 0.0797
+        },
+        "matches": 57,
+        "mean_predicted": 0.496,
+        "observed": 0.474,
+        "simulator": {
+          "brier": 0.1698,
+          "log_loss": 0.5082
+        }
+      },
+      "data_version": "2026-09-17.103eadea",
+      "first_innings": {
+        "actual_mean": 164.5,
+        "actual_wickets": 6.32,
+        "coverage_50": 0.649,
+        "coverage_80": 0.86,
+        "crps": 20.24,
+        "matches": 57,
+        "pit_chi2": 8.44,
+        "pit_chi2_critical": 16.92,
+        "pit_counts": [
+          5,
+          3,
+          7,
+          6,
+          4,
+          10,
+          8,
+          7,
+          4,
+          3
+        ],
+        "simulated_mean": 165.6,
+        "simulated_wickets": 6.67
+      },
+      "forced_overs": 0,
+      "matches": 60,
+      "name": "simulator",
+      "settings": {
+        "conditions_sd": 0.5,
+        "data_version": "2026-09-17.103eadea",
+        "history_seasons": 3,
+        "min_bowling_overs": 4.0,
+        "name": "simulator",
+        "urgent_from_over": 12,
+        "usage_strength": 8.0,
+        "version": "1.0.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.017
+      },
+      "timing": {
+        "seconds": 0.402,
+        "simulations": 10000
+      },
+      "tuning": [
+        {
+          "brier": 0.2478,
+          "conditions_sd": 0.0,
+          "coverage_80": 0.541,
+          "crps": 24.752
+        },
+        {
+          "brier": 0.2463,
+          "conditions_sd": 0.1,
+          "coverage_80": 0.59,
+          "crps": 24.604
+        },
+        {
+          "brier": 0.2471,
+          "conditions_sd": 0.2,
+          "coverage_80": 0.639,
+          "crps": 24.265
+        },
+        {
+          "brier": 0.2471,
+          "conditions_sd": 0.3,
+          "coverage_80": 0.721,
+          "crps": 23.916
+        },
+        {
+          "brier": 0.2476,
+          "conditions_sd": 0.4,
+          "coverage_80": 0.77,
+          "crps": 23.679
+        },
+        {
+          "brier": 0.2486,
+          "conditions_sd": 0.5,
+          "coverage_80": 0.787,
+          "crps": 23.671
+        },
+        {
+          "brier": 0.2492,
+          "conditions_sd": 0.6,
+          "coverage_80": 0.885,
+          "crps": 23.863
+        },
+        {
+          "brier": 0.2494,
+          "conditions_sd": 0.7,
+          "coverage_80": 0.918,
+          "crps": 24.239
+        },
+        {
+          "brier": 0.2507,
+          "conditions_sd": 0.8,
+          "coverage_80": 0.918,
+          "crps": 24.795
+        }
+      ],
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.0.0",
+      "win": {
+        "bat_first_rate": {
+          "brier": 0.2503,
+          "log_loss": 0.6937,
+          "rate": 0.54
+        },
+        "calibration": [
+          {
+            "matches": 12,
+            "observed": 0.5,
+            "predicted": 0.438
+          },
+          {
+            "matches": 12,
+            "observed": 0.583,
+            "predicted": 0.458
+          },
+          {
+            "matches": 12,
+            "observed": 0.417,
+            "predicted": 0.482
+          },
+          {
+            "matches": 12,
+            "observed": 0.583,
+            "predicted": 0.507
+          },
+          {
+            "matches": 12,
+            "observed": 0.5,
+            "predicted": 0.54
+          }
+        ],
+        "coin_flip": {
+          "brier": 0.25,
+          "log_loss": 0.6931
+        },
+        "form": {
+          "brier": 0.2524,
+          "log_loss": 0.698
+        },
+        "gain_vs_coin_flip": {
+          "high": 0.0055,
+          "low": -0.0123,
+          "value": -0.0033
+        },
+        "gain_vs_form": {
+          "high": 0.0104,
+          "low": -0.0117,
+          "value": -0.0009
+        },
+        "mean_predicted": 0.485,
+        "observed": 0.517,
+        "simulator": {
+          "brier": 0.2533,
+          "log_loss": 0.6998
+        },
+        "spread": {
+          "max": 0.586,
+          "min": 0.419,
+          "sd": 0.038
+        }
+      }
+    }
+  },
+  "data_version": "2026-09-17.103eadea",
+  "name": "simulator",
+  "version": "1.0.0"
+}

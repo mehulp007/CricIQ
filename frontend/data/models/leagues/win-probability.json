@@ -1,0 +1,1617 @@
+{
+  "name": "win_probability",
+  "version": "1.1.0",
+  "data_version": "2026-09-17.103eadea",
+  "trained_on": {
+    "competitions": [
+      "BBL",
+      "CPL",
+      "PSL",
+      "SA20"
+    ],
+    "matches": 1563,
+    "rows": 370109,
+    "seasons": [
+      2011,
+      2026
+    ]
+  },
+  "splits": {
+    "served_through": 2026,
+    "test": [
+      2025,
+      2026
+    ],
+    "train": [
+      2011,
+      2022
+    ],
+    "validation": [
+      2023,
+      2024
+    ]
+  },
+  "features": {
+    "1": [
+      {
+        "key": "legal_balls",
+        "label": "Legal balls bowled"
+      },
+      {
+        "key": "runs",
+        "label": "Runs scored"
+      },
+      {
+        "key": "wickets",
+        "label": "Wickets lost"
+      },
+      {
+        "key": "runs_vs_par",
+        "label": "Runs above the era's par for this stage"
+      },
+      {
+        "key": "runs_last_12",
+        "label": "Runs in the last 12 legal balls"
+      },
+      {
+        "key": "wickets_last_12",
+        "label": "Wickets in the last 12 legal balls"
+      }
+    ],
+    "2": [
+      {
+        "key": "legal_balls",
+        "label": "Legal balls bowled"
+      },
+      {
+        "key": "balls_remaining",
+        "label": "Balls remaining"
+      },
+      {
+        "key": "runs_needed",
+        "label": "Runs needed"
+      },
+      {
+        "key": "wickets",
+        "label": "Wickets lost"
+      },
+      {
+        "key": "required_rate",
+        "label": "Required run rate"
+      },
+      {
+        "key": "chase_ratio",
+        "label": "Runs needed vs balls left (log ratio)"
+      },
+      {
+        "key": "required_rate_rel",
+        "label": "Required rate relative to the era's scoring rate"
+      },
+      {
+        "key": "chase_dp",
+        "label": "Chance of the chase from a ball-by-ball dynamic programme"
+      },
+      {
+        "key": "runs_last_12",
+        "label": "Runs in the last 12 legal balls"
+      },
+      {
+        "key": "wickets_last_12",
+        "label": "Wickets in the last 12 legal balls"
+      }
+    ]
+  },
+  "calibration": {
+    "method": "none",
+    "selection": [
+      {
+        "brier": 0.18025023165803963,
+        "log_loss": 0.5339685983827828,
+        "method": "none"
+      },
+      {
+        "brier": 0.18248472997787868,
+        "log_loss": 0.5393462702750786,
+        "method": "platt"
+      }
+    ],
+    "served": {
+      "1": {
+        "a": 1.0,
+        "b": 0.0
+      },
+      "2": {
+        "a": 1.0,
+        "b": 0.0
+      }
+    }
+  },
+  "test": {
+    "alternatives": [
+      {
+        "auc": 0.8220120408488454,
+        "brier": 0.1703531195128235,
+        "ece": 0.022439104215964845,
+        "key": "platt",
+        "log_loss": 0.5030134234671719,
+        "rows": 63202
+      },
+      {
+        "auc": 0.8227645042388156,
+        "brier": 0.17040869158502428,
+        "ece": 0.02730633429589746,
+        "key": "isotonic",
+        "log_loss": 0.5055797235150783,
+        "rows": 63202
+      }
+    ],
+    "baseline": {
+      "auc": 0.8102293276026691,
+      "brier": 0.17547004265001193,
+      "ece": 0.02315531018820246,
+      "log_loss": 0.5155885121923685,
+      "rows": 63202
+    },
+    "baseline_reliability": [
+      {
+        "count": 6705,
+        "lower": 0.0,
+        "observed": 0.040790454884414615,
+        "predicted": 0.04000474058386929,
+        "upper": 0.1
+      },
+      {
+        "count": 4847,
+        "lower": 0.1,
+        "observed": 0.16401898081287394,
+        "predicted": 0.1512529077203939,
+        "upper": 0.2
+      },
+      {
+        "count": 5587,
+        "lower": 0.2,
+        "observed": 0.3158224449615178,
+        "predicted": 0.25277311337627534,
+        "upper": 0.30000000000000004
+      },
+      {
+        "count": 6657,
+        "lower": 0.30000000000000004,
+        "observed": 0.36803364879074657,
+        "predicted": 0.35174568382178023,
+        "upper": 0.4
+      },
+      {
+        "count": 9412,
+        "lower": 0.4,
+        "observed": 0.4358266043348916,
+        "predicted": 0.45371830677413355,
+        "upper": 0.5
+      },
+      {
+        "count": 8394,
+        "lower": 0.5,
+        "observed": 0.518822968787229,
+        "predicted": 0.5472864634936268,
+        "upper": 0.6000000000000001
+      },
+      {
+        "count": 6059,
+        "lower": 0.6000000000000001,
+        "observed": 0.6157781812180227,
+        "predicted": 0.6471403244919155,
+        "upper": 0.7000000000000001
+      },
+      {
+        "count": 4601,
+        "lower": 0.7000000000000001,
+        "observed": 0.7002825472723321,
+        "predicted": 0.7475809191657803,
+        "upper": 0.8
+      },
+      {
+        "count": 4187,
+        "lower": 0.8,
+        "observed": 0.8753283974205875,
+        "predicted": 0.8510394176754367,
+        "upper": 0.9
+      },
+      {
+        "count": 6753,
+        "lower": 0.9,
+        "observed": 0.9667555160669332,
+        "predicted": 0.9639462943594935,
+        "upper": 1.0
+      }
+    ],
+    "by_competition": [
+      {
+        "baseline": {
+          "auc": 0.7790711563785528,
+          "brier": 0.18930511776859613,
+          "ece": 0.04699318978080667,
+          "log_loss": 0.5495778258492717,
+          "rows": 15726
+        },
+        "competition": "BBL",
+        "matches": 67,
+        "model": {
+          "auc": 0.7864782940286081,
+          "brier": 0.18664496015859416,
+          "ece": 0.03563892166957901,
+          "log_loss": 0.5427202788221923,
+          "rows": 15726
+        },
+        "vs_baseline": {
+          "ci_high": 0.02406022987151481,
+          "ci_low": -0.009178835139782569,
+          "improvement": 0.00685754702707933,
+          "matches": 67
+        }
+      },
+      {
+        "baseline": {
+          "auc": 0.8113512138123927,
+          "brier": 0.17344414036523645,
+          "ece": 0.04532089506727029,
+          "log_loss": 0.5041110068354948,
+          "rows": 15843
+        },
+        "competition": "CPL",
+        "matches": 67,
+        "model": {
+          "auc": 0.8197371765262622,
+          "brier": 0.17032134176243158,
+          "ece": 0.04727867451776263,
+          "log_loss": 0.49555374959446197,
+          "rows": 15843
+        },
+        "vs_baseline": {
+          "ci_high": 0.028742199607561414,
+          "ci_low": -0.01231731673182474,
+          "improvement": 0.008557257241032928,
+          "matches": 67
+        }
+      },
+      {
+        "baseline": {
+          "auc": 0.8164243247940185,
+          "brier": 0.17527054903094197,
+          "ece": 0.03554625309624285,
+          "log_loss": 0.513162044379846,
+          "rows": 17691
+        },
+        "competition": "PSL",
+        "matches": 76,
+        "model": {
+          "auc": 0.8492124647661117,
+          "brier": 0.15873093694932425,
+          "ece": 0.017710829981697002,
+          "log_loss": 0.4739833697363273,
+          "rows": 17691
+        },
+        "vs_baseline": {
+          "ci_high": 0.07088903473158628,
+          "ci_low": 0.007324631787031304,
+          "improvement": 0.039178674643518596,
+          "matches": 76
+        }
+      },
+      {
+        "baseline": {
+          "auc": 0.8361504950681368,
+          "brier": 0.16241992216498902,
+          "ece": 0.0230278783109902,
+          "log_loss": 0.493371385013472,
+          "rows": 13942
+        },
+        "competition": "SA20",
+        "matches": 60,
+        "model": {
+          "auc": 0.8210471639487923,
+          "brier": 0.16863259221859656,
+          "ece": 0.03504996401028854,
+          "log_loss": 0.5073478265913071,
+          "rows": 13942
+        },
+        "vs_baseline": {
+          "ci_high": 0.0036253639801129625,
+          "ci_low": -0.030796813125322373,
+          "improvement": -0.013976441577835154,
+          "matches": 60
+        }
+      }
+    ],
+    "by_innings": [
+      {
+        "baseline": {
+          "auc": 0.7124395677303295,
+          "brier": 0.21398704441221783,
+          "ece": 0.07282245607695229,
+          "log_loss": 0.6171293651661222,
+          "rows": 33353
+        },
+        "innings_no": 1,
+        "model": {
+          "auc": 0.7121837541481191,
+          "brier": 0.21146448422192632,
+          "ece": 0.050670958056892326,
+          "log_loss": 0.6111704248131814,
+          "rows": 33353
+        },
+        "state_only": {
+          "auc": 0.7016829831918793,
+          "brier": 0.21645226530693168,
+          "ece": 0.062099968643934716,
+          "log_loss": 0.6229802971221924,
+          "rows": 33353
+        }
+      },
+      {
+        "baseline": {
+          "auc": 0.9060800966453916,
+          "brier": 0.13243149664261294,
+          "ece": 0.07579432027356105,
+          "log_loss": 0.4021276904149687,
+          "rows": 29849
+        },
+        "innings_no": 2,
+        "model": {
+          "auc": 0.9057238559781804,
+          "brier": 0.1252902718692256,
+          "ece": 0.03718238609407581,
+          "log_loss": 0.3839389317273674,
+          "rows": 29849
+        },
+        "state_only": {
+          "auc": 0.9064851013982644,
+          "brier": 0.13240339873419077,
+          "ece": 0.07512882016783204,
+          "log_loss": 0.4018640682566297,
+          "rows": 29849
+        }
+      }
+    ],
+    "by_phase": [
+      {
+        "baseline_brier": 0.23070178184092563,
+        "baseline_log_loss": 0.6548566431673817,
+        "innings_no": 1,
+        "model_brier": 0.22890587174539173,
+        "model_log_loss": 0.6511603163960191,
+        "phase": "powerplay",
+        "rows": 10064
+      },
+      {
+        "baseline_brier": 0.2098118164258917,
+        "baseline_log_loss": 0.6072060606525358,
+        "innings_no": 1,
+        "model_brier": 0.20949007863359811,
+        "model_log_loss": 0.6064191791485385,
+        "phase": "middle",
+        "rows": 14926
+      },
+      {
+        "baseline_brier": 0.20132440366624002,
+        "baseline_log_loss": 0.5894392919107251,
+        "innings_no": 1,
+        "model_brier": 0.19399944222446514,
+        "model_log_loss": 0.5715266156419248,
+        "phase": "death",
+        "rows": 8363
+      },
+      {
+        "baseline_brier": 0.1721388997329629,
+        "baseline_log_loss": 0.5115370201185035,
+        "innings_no": 2,
+        "model_brier": 0.16426255604133588,
+        "model_log_loss": 0.4884484248580952,
+        "phase": "powerplay",
+        "rows": 10092
+      },
+      {
+        "baseline_brier": 0.12389704934149283,
+        "baseline_log_loss": 0.37892059643554143,
+        "innings_no": 2,
+        "model_brier": 0.1177857637875465,
+        "model_log_loss": 0.365131705775151,
+        "phase": "middle",
+        "rows": 14486
+      },
+      {
+        "baseline_brier": 0.07986137553015127,
+        "baseline_log_loss": 0.2564283938901931,
+        "innings_no": 2,
+        "model_brier": 0.0712971040085286,
+        "model_log_loss": 0.2355290797957605,
+        "phase": "death",
+        "rows": 5271
+      }
+    ],
+    "matches": 270,
+    "model": {
+      "auc": 0.8207236824691126,
+      "brier": 0.17076618251445247,
+      "ece": 0.021706438351918437,
+      "log_loss": 0.5038536810848427,
+      "rows": 63202
+    },
+    "reliability": [
+      {
+        "count": 5171,
+        "lower": 0.0,
+        "observed": 0.027944304776638947,
+        "predicted": 0.03225368270760891,
+        "upper": 0.1
+      },
+      {
+        "count": 6282,
+        "lower": 0.1,
+        "observed": 0.1251193887297039,
+        "predicted": 0.1470281624233843,
+        "upper": 0.2
+      },
+      {
+        "count": 6019,
+        "lower": 0.2,
+        "observed": 0.28326964612061806,
+        "predicted": 0.2563585174456041,
+        "upper": 0.30000000000000004
+      },
+      {
+        "count": 6344,
+        "lower": 0.30000000000000004,
+        "observed": 0.35647856242118536,
+        "predicted": 0.35132797653910797,
+        "upper": 0.4
+      },
+      {
+        "count": 9203,
+        "lower": 0.4,
+        "observed": 0.4521895034227969,
+        "predicted": 0.45511891634621404,
+        "upper": 0.5
+      },
+      {
+        "count": 7720,
+        "lower": 0.5,
+        "observed": 0.5219559585492228,
+        "predicted": 0.5495880319507309,
+        "upper": 0.6000000000000001
+      },
+      {
+        "count": 6340,
+        "lower": 0.6000000000000001,
+        "observed": 0.5917192429022082,
+        "predicted": 0.6506118950886665,
+        "upper": 0.7000000000000001
+      },
+      {
+        "count": 5375,
+        "lower": 0.7000000000000001,
+        "observed": 0.7193488372093023,
+        "predicted": 0.7481363600910851,
+        "upper": 0.8
+      },
+      {
+        "count": 3796,
+        "lower": 0.8,
+        "observed": 0.893177028451001,
+        "predicted": 0.8426874123450019,
+        "upper": 0.9
+      },
+      {
+        "count": 6952,
+        "lower": 0.9,
+        "observed": 0.9766973532796318,
+        "predicted": 0.9684591081877957,
+        "upper": 1.0
+      }
+    ],
+    "state_only": {
+      "auc": 0.8074049130117659,
+      "brier": 0.17675772054047265,
+      "ece": 0.02543652884411412,
+      "log_loss": 0.5185516664553119,
+      "rows": 63202
+    },
+    "vs_baseline": {
+      "ci_high": 0.023963437476396204,
+      "ci_low": -0.0009642261997931581,
+      "improvement": 0.011734831107525781,
+      "matches": 270
+    },
+    "vs_state_only": {
+      "ci_high": 0.025997242997822616,
+      "ci_low": 0.003607441016923909,
+      "improvement": 0.014697985370469204,
+      "matches": 270
+    }
+  },
+  "importance": [
+    {
+      "group": "situation",
+      "label": "Score for the stage / chase equation",
+      "share": 0.7257847783755035
+    },
+    {
+      "group": "wickets",
+      "label": "Wickets in hand",
+      "share": 0.2169228791834001
+    },
+    {
+      "group": "recent",
+      "label": "Last two overs",
+      "share": 0.05729234244109648
+    }
+  ],
+  "feature_selection": [
+    {
+      "brier": 0.22147786371567868,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6377461078671318,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served",
+      "label": "Served features"
+    },
+    {
+      "brier": 0.22251994236048608,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6399111221304536,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+crease",
+      "label": "+ Batters at the crease (career strike rate, average, balls faced)"
+    },
+    {
+      "brier": 0.22192742096116436,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "depth_avg_sum"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6388652762149638,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth",
+      "label": "+ Batting still to come (career averages)"
+    },
+    {
+      "brier": 0.22296155727223385,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "bowl_left_econ_idx"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6412332286647502,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling",
+      "label": "+ Bowling still to come (career economy, 4-over quotas)"
+    },
+    {
+      "brier": 0.22267521026073026,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "opp_bat_strength",
+        "own_bowl_strength"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6404895649339708,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+squads",
+      "label": "+ Squad strength (opposition batting, own bowling)"
+    },
+    {
+      "brier": 0.22471028249731173,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "venue_idx"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.644606382896655,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue",
+      "label": "+ Venue scoring index"
+    },
+    {
+      "brier": 0.2239630070797927,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "env_rpb"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6432293947800356,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+era",
+      "label": "+ The competition's scoring rate"
+    },
+    {
+      "brier": 0.22147786371567868,
+      "features": [
+        "legal_balls",
+        "runs",
+        "wickets",
+        "runs_vs_par",
+        "runs_last_12",
+        "wickets_last_12",
+        "international"
+      ],
+      "innings_no": 1,
+      "log_loss": 0.6377461078671318,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+international",
+      "label": "+ International cricket"
+    },
+    {
+      "brier": 0.13485279188761318,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4196949182996295,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "served",
+      "label": "Served features"
+    },
+    {
+      "brier": 0.1386467877077361,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "crease_sr_idx",
+        "crease_avg_idx",
+        "crease_balls"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.42967352054899977,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+crease",
+      "label": "+ Batters at the crease (career strike rate, average, balls faced)"
+    },
+    {
+      "brier": 0.1359457088228486,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "depth_avg_sum"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4227654428951206,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+depth",
+      "label": "+ Batting still to come (career averages)"
+    },
+    {
+      "brier": 0.13556011302974574,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "bowl_left_econ_idx"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.42141399760296566,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+bowling",
+      "label": "+ Bowling still to come (career economy, 4-over quotas)"
+    },
+    {
+      "brier": 0.14150315554664095,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "venue_idx"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.43731984131443863,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+venue",
+      "label": "+ Venue scoring index"
+    },
+    {
+      "brier": 0.1426880562827328,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "target_vs_par"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.43897357794046266,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+target_size",
+      "label": "+ Target relative to the era's par"
+    },
+    {
+      "brier": 0.1441019701046729,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "env_rpb"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4458848888553005,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+era",
+      "label": "+ The competition's scoring rate"
+    },
+    {
+      "brier": 0.13485279188761318,
+      "features": [
+        "legal_balls",
+        "balls_remaining",
+        "runs_needed",
+        "wickets",
+        "required_rate",
+        "chase_ratio",
+        "required_rate_rel",
+        "chase_dp",
+        "runs_last_12",
+        "wickets_last_12",
+        "international"
+      ],
+      "innings_no": 2,
+      "log_loss": 0.4196949182996295,
+      "seasons": [
+        2016,
+        2024
+      ],
+      "variant": "+international",
+      "label": "+ International cricket"
+    }
+  ],
+  "backtest": [
+    {
+      "baseline_brier": 0.17302380466987954,
+      "baseline_log_loss": 0.5107666578685289,
+      "matches": 82,
+      "model_brier": 0.17525196798731485,
+      "model_ece": 0.02643665099640874,
+      "model_log_loss": 0.5164515154857968,
+      "season": 2016
+    },
+    {
+      "baseline_brier": 0.1994667951758966,
+      "baseline_log_loss": 0.5887018231254487,
+      "matches": 92,
+      "model_brier": 0.20029391066398247,
+      "model_ece": 0.055725476778372376,
+      "model_log_loss": 0.5902396661863657,
+      "season": 2017
+    },
+    {
+      "baseline_brier": 0.16463688653102845,
+      "baseline_log_loss": 0.5085932279614997,
+      "matches": 111,
+      "model_brier": 0.16447121125338546,
+      "model_ece": 0.02495223426791604,
+      "model_log_loss": 0.5051502455495624,
+      "season": 2018
+    },
+    {
+      "baseline_brier": 0.18601138953508173,
+      "baseline_log_loss": 0.5512447604636299,
+      "matches": 127,
+      "model_brier": 0.19323474046462188,
+      "model_ece": 0.055026468408480605,
+      "model_log_loss": 0.5683154565696783,
+      "season": 2019
+    },
+    {
+      "baseline_brier": 0.1731265898449465,
+      "baseline_log_loss": 0.5193799141105372,
+      "matches": 126,
+      "model_brier": 0.17644417590662348,
+      "model_ece": 0.024588660301091733,
+      "model_log_loss": 0.5333710167260052,
+      "season": 2020
+    },
+    {
+      "baseline_brier": 0.18345468297725048,
+      "baseline_log_loss": 0.5390428126295022,
+      "matches": 134,
+      "model_brier": 0.1844928208899301,
+      "model_ece": 0.043909264440699536,
+      "model_log_loss": 0.5412311397405845,
+      "season": 2021
+    },
+    {
+      "baseline_brier": 0.17102319653527992,
+      "baseline_log_loss": 0.5087177639952274,
+      "matches": 121,
+      "model_brier": 0.17364823445567812,
+      "model_ece": 0.03901278493234459,
+      "model_log_loss": 0.5149838535926418,
+      "season": 2022
+    },
+    {
+      "baseline_brier": 0.17806241643552853,
+      "baseline_log_loss": 0.5255656080514256,
+      "matches": 149,
+      "model_brier": 0.17845063880553622,
+      "model_ece": 0.01941530843118612,
+      "model_log_loss": 0.5243700181787475,
+      "season": 2023
+    },
+    {
+      "baseline_brier": 0.18050869207016146,
+      "baseline_log_loss": 0.5255668069004201,
+      "matches": 137,
+      "model_brier": 0.17776054574610775,
+      "model_ece": 0.015962784589511145,
+      "model_log_loss": 0.5194514349659384,
+      "season": 2024
+    },
+    {
+      "baseline_brier": 0.17618094523347216,
+      "baseline_log_loss": 0.5147668071760685,
+      "matches": 144,
+      "model_brier": 0.17619581810001234,
+      "model_ece": 0.0348152011736801,
+      "model_log_loss": 0.5141968452436008,
+      "season": 2025
+    },
+    {
+      "baseline_brier": 0.1735099944506489,
+      "baseline_log_loss": 0.5136401274710247,
+      "matches": 126,
+      "model_brier": 0.16455597873285455,
+      "model_ece": 0.036701941145434805,
+      "model_log_loss": 0.49171940327198166,
+      "season": 2026
+    }
+  ],
+  "swings": [],
+  "swings_by_competition": {
+    "BBL": [
+      {
+        "match_id": 1226877,
+        "innings_no": 2,
+        "seq_no": 123,
+        "ball_label": "19.5",
+        "season": 2021,
+        "date": "2020-12-29",
+        "stage": "League",
+        "teams": "MLR vs SYS",
+        "result": "Sydney Sixers won by 2 wickets",
+        "description": "W Sutherland to JO Holder: SIX",
+        "team": "SYS",
+        "swing": 79.9,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1324667,
+        "innings_no": 2,
+        "seq_no": 125,
+        "ball_label": "19.6",
+        "season": 2023,
+        "date": "2023-01-16",
+        "stage": "League",
+        "teams": "MLS vs BRH",
+        "result": "Brisbane Heat won by 3 wickets",
+        "description": "BJ Webster to MT Renshaw: FOUR",
+        "team": "BRH",
+        "swing": 78.6,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1023611,
+        "innings_no": 2,
+        "seq_no": 128,
+        "ball_label": "19.6",
+        "season": 2017,
+        "date": "2017-01-04",
+        "stage": "League",
+        "teams": "MLS vs SYT",
+        "result": "Sydney Thunder won by 6 wickets",
+        "description": "BW Hilfenhaus to EJG Morgan: SIX",
+        "team": "SYT",
+        "swing": 74.0,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 571237,
+        "innings_no": 2,
+        "seq_no": 127,
+        "ball_label": "19.6",
+        "season": 2013,
+        "date": "2012-12-13",
+        "stage": "League",
+        "teams": "ADS vs BRH",
+        "result": "Brisbane Heat won by 3 wickets",
+        "description": "GD Putland to CD Hartley: FOUR",
+        "team": "BRH",
+        "swing": 72.6,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 756775,
+        "innings_no": 2,
+        "seq_no": 122,
+        "ball_label": "19.6",
+        "season": 2015,
+        "date": "2015-01-22",
+        "stage": "League",
+        "teams": "SYT vs SYS",
+        "result": "Sydney Sixers won by 4 wickets",
+        "description": "JK Lalor to SNJ O'Keefe: FOUR",
+        "team": "SYS",
+        "swing": 70.7,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1324624,
+        "innings_no": 2,
+        "seq_no": 120,
+        "ball_label": "19.4",
+        "season": 2023,
+        "date": "2022-12-13",
+        "stage": "League",
+        "teams": "MLS vs SYT",
+        "result": "Sydney Thunder won by 1 wicket",
+        "description": "BJ Webster to GS Sandhu: SIX",
+        "team": "SYT",
+        "swing": 69.2,
+        "wp_after": 98.0
+      },
+      {
+        "match_id": 1226875,
+        "innings_no": 2,
+        "seq_no": 126,
+        "ball_label": "19.6",
+        "season": 2021,
+        "date": "2020-12-30",
+        "stage": "League",
+        "teams": "HBH vs BRH",
+        "result": "Hobart Hurricanes won by 1 run",
+        "description": "SM Boland to MT Steketee: OUT, MT Steketee run out",
+        "team": "HBH",
+        "swing": 66.3,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1269694,
+        "innings_no": 2,
+        "seq_no": 128,
+        "ball_label": "19.6",
+        "season": 2022,
+        "date": "2022-01-19",
+        "stage": "League",
+        "teams": "SYT vs MLR",
+        "result": "Sydney Thunder won by 1 run",
+        "description": "GS Sandhu to CJ Boyce: OUT, CJ Boyce caught",
+        "team": "SYT",
+        "swing": 65.7,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1493263,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.6",
+        "season": 2026,
+        "date": "2026-01-07",
+        "stage": "League",
+        "teams": "PRS vs MLR",
+        "result": "Melbourne Renegades won by 4 wickets",
+        "description": "AM Hardie to OJ Peake: SIX",
+        "team": "MLR",
+        "swing": 64.4,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1443064,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.5",
+        "season": 2025,
+        "date": "2024-12-21",
+        "stage": "League",
+        "teams": "SYT vs SYS",
+        "result": "Sydney Sixers won by 5 wickets",
+        "description": "CJ Green to BJ Dwarshuis: SIX",
+        "team": "SYS",
+        "swing": 63.2,
+        "wp_after": 94.0
+      }
+    ],
+    "CPL": [
+      {
+        "match_id": 743157,
+        "innings_no": 2,
+        "seq_no": 130,
+        "ball_label": "19.6",
+        "season": 2014,
+        "date": "2014-07-24",
+        "stage": "League",
+        "teams": "GAW vs TKR",
+        "result": "Trinidad & Tobago Red Steel won by 4 wickets",
+        "description": "RR Beaton to DM Bravo: SIX",
+        "team": "TKR",
+        "swing": 87.1,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 743171,
+        "innings_no": 2,
+        "seq_no": 130,
+        "ball_label": "19.6",
+        "season": 2014,
+        "date": "2014-08-02",
+        "stage": "League",
+        "teams": "GAW vs JT",
+        "result": "Jamaica Tallawahs won by 6 wickets",
+        "description": "JDS Neesham to AD Russell: SIX",
+        "team": "JT",
+        "swing": 79.9,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1269713,
+        "innings_no": 2,
+        "seq_no": 128,
+        "ball_label": "19.6",
+        "season": 2021,
+        "date": "2021-09-02",
+        "stage": "League",
+        "teams": "BR vs SKNP",
+        "result": "St Kitts and Nevis Patriots won by 2 wickets",
+        "description": "AR Nurse to SS Cottrell: SIX",
+        "team": "SKNP",
+        "swing": 79.9,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1477998,
+        "innings_no": 2,
+        "seq_no": 126,
+        "ball_label": "19.6",
+        "season": 2025,
+        "date": "2025-09-11",
+        "stage": "League",
+        "teams": "SKNP vs BR",
+        "result": "St Kitts and Nevis Patriots won by 1 run",
+        "description": "JO Holder to DR Sams: OUT, DR Sams lbw",
+        "team": "SKNP",
+        "swing": 78.6,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1478000,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.6",
+        "season": 2025,
+        "date": "2025-09-13",
+        "stage": "League",
+        "teams": "SLK vs GAW",
+        "result": "Guyana Amazon Warriors won by 2 wickets",
+        "description": "D Wiese to D Pretorius: SIX",
+        "team": "GAW",
+        "swing": 77.0,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 857747,
+        "innings_no": 2,
+        "seq_no": 55,
+        "ball_label": "8.5",
+        "season": 2015,
+        "date": "2015-07-14",
+        "stage": "League",
+        "teams": "TKR vs SLK",
+        "result": "St Lucia Zouks won by 4 wickets",
+        "description": "DJ Bravo to LRPL Taylor: SIX",
+        "team": "SLK",
+        "swing": 70.9,
+        "wp_after": 93.8
+      },
+      {
+        "match_id": 635233,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.5",
+        "season": 2013,
+        "date": "2013-08-17",
+        "stage": "League",
+        "teams": "AH vs GAW",
+        "result": "Guyana Amazon Warriors won by 5 wickets",
+        "description": "DC Thomas to Mohammad Hafeez: SIX",
+        "team": "GAW",
+        "swing": 67.3,
+        "wp_after": 91.9
+      },
+      {
+        "match_id": 1369578,
+        "innings_no": 2,
+        "seq_no": 125,
+        "ball_label": "19.5",
+        "season": 2023,
+        "date": "2023-09-09",
+        "stage": "League",
+        "teams": "SLK vs SKNP",
+        "result": "St Kitts and Nevis Patriots won by 4 wickets",
+        "description": "RL Chase to ADS Fletcher: SIX",
+        "team": "SKNP",
+        "swing": 65.8,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1323153,
+        "innings_no": 2,
+        "seq_no": 129,
+        "ball_label": "19.5",
+        "season": 2022,
+        "date": "2022-09-08",
+        "stage": "League",
+        "teams": "GAW vs SKNP",
+        "result": "St Kitts and Nevis Patriots won by 4 wickets",
+        "description": "R Shepherd to D Pretorius: SIX",
+        "team": "SKNP",
+        "swing": 63.9,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1428679,
+        "innings_no": 2,
+        "seq_no": 123,
+        "ball_label": "19.6",
+        "season": 2024,
+        "date": "2024-08-30",
+        "stage": "League",
+        "teams": "ABF vs GAW",
+        "result": "Guyana Amazon Warriors won by 3 wickets",
+        "description": "Mohammad Amir to D Pretorius: SIX",
+        "team": "GAW",
+        "swing": 61.0,
+        "wp_after": 100.0
+      }
+    ],
+    "PSL": [
+      {
+        "match_id": 1075987,
+        "innings_no": 2,
+        "seq_no": 113,
+        "ball_label": "18.4",
+        "season": 2017,
+        "date": "2017-02-10",
+        "stage": "League",
+        "teams": "QTG vs LHQ",
+        "result": "Quetta Gladiators won by 8 runs",
+        "description": "Hassan Khan to Yasir Shah: OUT, Yasir Shah caught and bowled",
+        "team": "QTG",
+        "swing": 83.8,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1416498,
+        "innings_no": 2,
+        "seq_no": 125,
+        "ball_label": "19.5",
+        "season": 2024,
+        "date": "2024-03-10",
+        "stage": "League",
+        "teams": "MS vs ISU",
+        "result": "Islamabad United won by 3 wickets",
+        "description": "Abbas Afridi to Imad Wasim: SIX",
+        "team": "ISU",
+        "swing": 70.1,
+        "wp_after": 92.5
+      },
+      {
+        "match_id": 1168840,
+        "innings_no": 2,
+        "seq_no": 127,
+        "ball_label": "19.6",
+        "season": 2019,
+        "date": "2019-03-01",
+        "stage": "League",
+        "teams": "ISU vs PSZ",
+        "result": "Peshawar Zalmi won by 4 wickets",
+        "description": "Mohammad Sami to LA Dawson: FOUR",
+        "team": "PSZ",
+        "swing": 69.5,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 959209,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.6",
+        "season": 2016,
+        "date": "2016-02-16",
+        "stage": "League",
+        "teams": "LHQ vs QTG",
+        "result": "Quetta Gladiators won by 2 wickets",
+        "description": "Zohaib Khan to Mohammad Nabi: FOUR",
+        "team": "QTG",
+        "swing": 63.1,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1293020,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.6",
+        "season": 2022,
+        "date": "2022-02-14",
+        "stage": "League",
+        "teams": "ISU vs KRK",
+        "result": "Islamabad United won by 1 run",
+        "description": "Waqas Maqsood to CJ Jordan: OUT, CJ Jordan run out",
+        "team": "ISU",
+        "swing": 59.1,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1416497,
+        "innings_no": 2,
+        "seq_no": 126,
+        "ball_label": "19.6",
+        "season": 2024,
+        "date": "2024-03-09",
+        "stage": "League",
+        "teams": "LHQ vs KRK",
+        "result": "Karachi Kings won by 3 wickets",
+        "description": "Zaman Khan to Shoaib Malik: FOUR",
+        "team": "KRK",
+        "swing": 59.0,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1076003,
+        "innings_no": 2,
+        "seq_no": 125,
+        "ball_label": "19.6",
+        "season": 2017,
+        "date": "2017-02-25",
+        "stage": "League",
+        "teams": "LHQ vs KRK",
+        "result": "Karachi Kings won by 5 wickets",
+        "description": "Aamer Yamin to KA Pollard: SIX",
+        "team": "KRK",
+        "swing": 56.2,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1354934,
+        "innings_no": 2,
+        "seq_no": 121,
+        "ball_label": "19.1",
+        "season": 2023,
+        "date": "2023-02-22",
+        "stage": "League",
+        "teams": "MS vs KRK",
+        "result": "Multan Sultans won by 3 runs",
+        "description": "Abbas Afridi to Imad Wasim: SIX",
+        "team": "KRK",
+        "swing": 56.0,
+        "wp_after": 62.7
+      },
+      {
+        "match_id": 1475260,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.5",
+        "season": 2025,
+        "date": "2025-05-03",
+        "stage": "League",
+        "teams": "ISU vs QTG",
+        "result": "Quetta Gladiators won by 2 wickets",
+        "description": "Muhammad Shahzad to Hassan Nawaz: SIX",
+        "team": "QTG",
+        "swing": 55.5,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1076006,
+        "innings_no": 2,
+        "seq_no": 128,
+        "ball_label": "19.6",
+        "season": 2017,
+        "date": "2017-02-28",
+        "stage": "Qualifier 1",
+        "teams": "QTG vs PSZ",
+        "result": "Quetta Gladiators won by 1 run",
+        "description": "Mohammad Nawaz to Hasan Ali: OUT, Hasan Ali run out",
+        "team": "QTG",
+        "swing": 54.9,
+        "wp_after": 100.0
+      }
+    ],
+    "SA20": [
+      {
+        "match_id": 1343966,
+        "innings_no": 2,
+        "seq_no": 125,
+        "ball_label": "19.6",
+        "season": 2023,
+        "date": "2023-02-04",
+        "stage": "League",
+        "teams": "MICT vs PC",
+        "result": "Pretoria Capitals won by 1 wicket",
+        "description": "SM Curran to J Little: 2 runs",
+        "team": "PC",
+        "swing": 52.6,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1392669,
+        "innings_no": 2,
+        "seq_no": 121,
+        "ball_label": "19.4",
+        "season": 2024,
+        "date": "2024-01-25",
+        "stage": "League",
+        "teams": "PC vs SEC",
+        "result": "Pretoria Capitals won by 3 runs",
+        "description": "DM Dupavillon to LA Dawson: SIX",
+        "team": "SEC",
+        "swing": 43.7,
+        "wp_after": 55.6
+      },
+      {
+        "match_id": 1494261,
+        "innings_no": 2,
+        "seq_no": 127,
+        "ball_label": "19.5",
+        "season": 2026,
+        "date": "2026-01-01",
+        "stage": "League",
+        "teams": "JSK vs DSG",
+        "result": "Match tied (Joburg Super Kings won the super over)",
+        "description": "PWA Mulder to SR Harmer: FOUR",
+        "team": "DSG",
+        "swing": 40.6,
+        "wp_after": 89.7
+      },
+      {
+        "match_id": 1494262,
+        "innings_no": 2,
+        "seq_no": 120,
+        "ball_label": "19.3",
+        "season": 2026,
+        "date": "2026-01-02",
+        "stage": "League",
+        "teams": "PR vs MICT",
+        "result": "Paarl Royals won by 1 run",
+        "description": "OEG Baartman to K Rabada: SIX",
+        "team": "MICT",
+        "swing": 38.9,
+        "wp_after": 47.3
+      },
+      {
+        "match_id": 1343957,
+        "innings_no": 2,
+        "seq_no": 124,
+        "ball_label": "19.5",
+        "season": 2023,
+        "date": "2023-01-21",
+        "stage": "League",
+        "teams": "SEC vs JSK",
+        "result": "Joburg Super Kings won by 5 wickets",
+        "description": "SSB Magala to JL du Plooy: FOUR",
+        "team": "JSK",
+        "swing": 37.5,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1392659,
+        "innings_no": 2,
+        "seq_no": 120,
+        "ball_label": "18.6",
+        "season": 2024,
+        "date": "2024-01-16",
+        "stage": "League",
+        "teams": "SEC vs MICT",
+        "result": "Sunrisers Eastern Cape won by 4 runs",
+        "description": "DJ Worrall to SM Curran: SIX",
+        "team": "MICT",
+        "swing": 36.1,
+        "wp_after": 47.2
+      },
+      {
+        "match_id": 1392680,
+        "innings_no": 2,
+        "seq_no": 118,
+        "ball_label": "18.3",
+        "season": 2024,
+        "date": "2024-02-03",
+        "stage": "League",
+        "teams": "DSG vs JSK",
+        "result": "Joburg Super Kings won by 7 wickets",
+        "description": "Naveen-ul-Haq to MM Ali: SIX",
+        "team": "JSK",
+        "swing": 34.5,
+        "wp_after": 65.2
+      },
+      {
+        "match_id": 1449635,
+        "innings_no": 2,
+        "seq_no": 131,
+        "ball_label": "19.6",
+        "season": 2025,
+        "date": "2025-01-10",
+        "stage": "League",
+        "teams": "DSG vs PC",
+        "result": "Durban's Super Giants won by 2 runs",
+        "description": "Naveen-ul-Haq to S Stolk: 1 run",
+        "team": "DSG",
+        "swing": 34.3,
+        "wp_after": 100.0
+      },
+      {
+        "match_id": 1343951,
+        "innings_no": 2,
+        "seq_no": 120,
+        "ball_label": "18.6",
+        "season": 2023,
+        "date": "2023-01-17",
+        "stage": "League",
+        "teams": "JSK vs PC",
+        "result": "Joburg Super Kings won by 6 runs",
+        "description": "AS Joseph to AU Rashid: SIX",
+        "team": "PC",
+        "swing": 33.7,
+        "wp_after": 50.0
+      },
+      {
+        "match_id": 1343952,
+        "innings_no": 2,
+        "seq_no": 103,
+        "ball_label": "15.6",
+        "season": 2023,
+        "date": "2023-01-18",
+        "stage": "League",
+        "teams": "MICT vs SEC",
+        "result": "Sunrisers Eastern Cape won by 2 wickets",
+        "description": "Rashid Khan to M Jansen: SIX",
+        "team": "SEC",
+        "swing": 32.8,
+        "wp_after": 69.7
+      }
+    ]
+  }
+}

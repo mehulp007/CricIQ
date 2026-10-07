@@ -1,0 +1,79 @@
+{
+  "calibrated_on": [
+    2025,
+    2026
+  ],
+  "feature_config": {
+    "bat_prior_balls": 100,
+    "bowl_prior_balls": 120,
+    "env_window_matches": 60,
+    "initial_rpb": 1.3,
+    "player_decay": 0.97,
+    "stable": true,
+    "venue_prior_balls": 1500
+  },
+  "features": [
+    "legal_balls",
+    "balls_remaining",
+    "wickets",
+    "runs_vs_par",
+    "run_rate_rel",
+    "runs_last_12",
+    "wickets_last_12",
+    "crease_sr_idx",
+    "crease_avg_idx",
+    "crease_balls"
+  ],
+  "headline": {
+    "test_coverage80": 0.7958963282937365,
+    "test_mae": 16.840518264473335
+  },
+  "levels": [
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95
+  ],
+  "lightgbm": "4.7.0",
+  "name": "score_projection",
+  "params": {
+    "min_data_in_leaf": 1000,
+    "num_leaves": 7
+  },
+  "rounds": {
+    "0.05": 406,
+    "0.1": 187,
+    "0.25": 134,
+    "0.5": 89,
+    "0.75": 90,
+    "0.9": 78,
+    "0.95": 103
+  },
+  "shifts": [
+    -0.04037067476188463,
+    -0.030333008321245546,
+    -0.02052330998960325,
+    -0.005582885686194028,
+    -0.006883035463379872,
+    -0.008418369401751303,
+    0.0037172288786276693
+  ],
+  "trained_on": {
+    "competitions": [
+      "BBL",
+      "CPL",
+      "PSL",
+      "SA20"
+    ],
+    "innings": 1516,
+    "rows": 187565,
+    "seasons": [
+      2011,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

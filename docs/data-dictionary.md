@@ -225,7 +225,7 @@ innings views' `match_order` is the order across every competition.
 | Table | Notes |
 |---|---|
 | `main.player_wpa` | Win probability added per player, innings and role, with `competition_id`, credited as in the serving database, from the win probability model serving each competition; each scope has a `player_wpa` view |
-| `<scope>.models` | The scope's rating constants (`name = 'ratings'`, `info.components`), fitted on that scope's own records (`criciq-ml train ratings`; ODIs' with `--format ODI`) |
+| `<scope>.models` | The scope's rating constants (`name = 'ratings'`, `info.components`), fitted on that scope's own records by its model group (`criciq-ml train ratings --group <group>`) |
 
 ## Team Analytics (serving database only)
 

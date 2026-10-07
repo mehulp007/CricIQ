@@ -21,11 +21,13 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
-       v2 versions train on every T20 competition at once (the pooled copy t20.duckdb) and
-       are compared with v1 on the IPL's own test balls; each competition is served by its
-       pointer (CURRENT, or CURRENT.IPL where the IPL keeps v1; ADR-0010)
-       ODIs have their own models, trained on the ODI copy odi.duckdb and kept in
-       models/odi/ (criciq-ml train <model> --format ODI; ADR-0012)
+       model groups (config/model_groups.yaml; ADR-0013): the IPL, the other leagues
+       (BBL, CPL, PSL, SA20), T20Is and ODIs each train on their own competitions only, from
+       their own warehouse copy (ipl, leagues, t20i, odi .duckdb), into models/<group>/
+       (the IPL's in models/ with CURRENT.IPL); `just train-group <group>` trains one in
+       order and writes a summary. Until a group has its own, scoring borrows the pooled
+       T20 models of V2-3 (t20.duckdb, models/<name>/CURRENT; ADR-0010) and says so.
+       ODIs: ADR-0012
        score every historical ball with the models serving each competition → each serving
        database (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
         rating constants, simulator settings where a simulator passed there) and

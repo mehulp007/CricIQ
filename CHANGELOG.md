@@ -7,6 +7,21 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **Model groups: every kind of cricket modelled from its own matches** (ADR-0013)
+  - `config/model_groups.yaml`: the IPL, the other leagues (BBL, CPL, PSL, SA20), men's T20
+    internationals and ODIs each train on and serve their own competitions only, from their own
+    warehouse copy (`leagues.duckdb` and `t20i.duckdb` are new, built by `run` and every sync).
+    Training settings for the leagues and T20Is are in `config/models/leagues/` and
+    `config/models/t20i/`, and the IPL's v1 settings, for retraining it, in `config/models/ipl/`.
+  - `just train-group <group>` trains a group's five models in order, promotes what passes its
+    gate, resumes an interrupted run and writes `data/training/<group>/summary.md`;
+    `just publish-models` scores every competition and writes the cards, Model Insights data and
+    featured replays; `just model-status` shows which models serve each group.
+    `criciq-ml train|report --group <group>`.
+  - The leagues' ratings borrow a thin component's shrinkage from the four leagues together,
+    never from all T20.
+  - Until a group's models are trained, its competitions keep the pooled T20 models, and scoring
+    says so for each one.
 - **V2-5: men's ODIs** (ADR-0012)
   - ODIs in the switcher with every page: replays over 50 overs (rain-revised chases use their
     revised target and overs), teams with records by year and by opponent, players with an ODI

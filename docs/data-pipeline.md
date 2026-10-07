@@ -35,10 +35,13 @@ data/warehouse/cricket.duckdb       every competition (constraints enforced)
      ▼
 data/warehouse/ipl.duckdb           the IPL in the v1 shape: what the export,
      │                              the models and the reports read today
-data/warehouse/t20.duckdb           every T20 competition in the v1 shape and one
-     │                              time order: what the pooled models train on
+data/warehouse/leagues.duckdb       the BBL, CPL, PSL and SA20: the leagues' models
+     │                              (ADR-0013)
+data/warehouse/t20i.duckdb          men's T20Is: the T20Is' models (ADR-0013)
 data/warehouse/odi.duckdb           the ODIs in the v1 shape: what the ODI models
      │                              train on (ADR-0012)
+data/warehouse/t20.duckdb           every T20 competition in one time order: the pooled
+     │                              models of V2-3, kept as a fallback (ADR-0010)
      │  export
      ▼
 data/exports/serving.duckdb         what the API serves for the IPL, scored by the models
@@ -157,10 +160,12 @@ multi-competition, `criciq_pipelines.scope` copies the IPL out of the full wareh
 (`tests/pipelines/test_ipl_regression.py`) checks that the IPL warehouse and the scored serving
 database are unchanged, table by table.
 
-The same step writes the **pooled copy** `data/warehouse/t20.duckdb`: every selected T20
-competition in the v1 shape, with `match_order` running across all of them by date, which is what
-the pooled models train and score on (V2-3), and the **ODI copy** `data/warehouse/odi.duckdb`,
-which the ODI models train and score on (V2-5, ADR-0012). `criciq-data export-competition <id> --out <path>`
+The same step writes a copy for each **model group** (`config/model_groups.yaml`,
+ADR-0013), which its models train and score on: `leagues.duckdb` (BBL, CPL, PSL, SA20),
+`t20i.duckdb` and `odi.duckdb` (V2-5, ADR-0012); the IPL's is `ipl.duckdb`. A copy with several
+competitions has `match_order` running across them by date. The **pooled copy**
+`data/warehouse/t20.duckdb` (every T20 competition, V2-3) is still written for the pooled models,
+which serve a group until it has trained its own. `criciq-data export-competition <id> --out <path>`
 exports one competition's serving-shaped database the same way (the simulator's backtests read
 them).
 
@@ -287,7 +292,7 @@ but switched off until V2-8; see [deployment.md](deployment.md)).
 
 ### Model inputs (`criciq_ml.data`)
 
-The models read the IPL copy or the pooled copy. Two Cricsheet quirks are handled there, where
+The models read their group's copy (or, for the pooled models, the pooled copy). Two Cricsheet quirks are handled there, where
 the format is known, rather than in the warehouse, which keeps the source as recorded:
 
 - **A chase without a recorded target** (23 T20Is and a CPL match) chases the first-innings total

@@ -127,6 +127,11 @@ runs either way, with no drift as totals rose by 30 runs across eras.
 
 ## One model for all T20 cricket (v2)
 
+> **Being replaced.** Every kind of cricket now gets models trained only on its own matches: the
+> IPL, the other four leagues together, T20Is and ODIs each form a model group
+> ([ADR-0013](docs/adr/0013-models-per-group.md), [how to train](docs/training.md)). The pooled
+> models below serve the leagues and T20Is only until their groups' own models are trained.
+
 The v2 models train on every T20 competition at once: the IPL, BBL, PSL, CPL, SA20 and men's T20Is,
 6,391 matches. Players carry one record across all of them; each competition keeps its own scoring
 era. Pooling is only worth it for the IPL if it predicts the IPL at least as well as the IPL-only

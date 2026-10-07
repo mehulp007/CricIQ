@@ -37,12 +37,14 @@ data/warehouse/ipl.duckdb           the IPL in the v1 shape: what the export,
      │                              the models and the reports read today
 data/warehouse/t20.duckdb           every T20 competition in the v1 shape and one
      │                              time order: what the pooled models train on
+data/warehouse/odi.duckdb           the ODIs in the v1 shape: what the ODI models
+     │                              train on (ADR-0012)
      │  export
      ▼
 data/exports/serving.duckdb         what the API serves for the IPL, scored by the models
 data/exports/serving-<id>.duckdb    the same for every other competition on the site
-                                    (BBL, PSL, CPL, SA20, T20I; ADR-0011)
-data/exports/players.duckdb         Player Lab tables for every T20 competition and all T20
+                                    (BBL, PSL, CPL, SA20, T20I, ODI; ADR-0011)
+data/exports/players.duckdb         Player Lab tables for every competition and all T20
 ```
 
 Everything under `data/` is generated and gitignored. Curated knowledge lives in version-controlled
@@ -157,14 +159,15 @@ database are unchanged, table by table.
 
 The same step writes the **pooled copy** `data/warehouse/t20.duckdb`: every selected T20
 competition in the v1 shape, with `match_order` running across all of them by date, which is what
-the pooled models train and score on (V2-3). `criciq-data export-competition <id> --out <path>`
+the pooled models train and score on (V2-3), and the **ODI copy** `data/warehouse/odi.duckdb`,
+which the ODI models train and score on (V2-5, ADR-0012). `criciq-data export-competition <id> --out <path>`
 exports one competition's serving-shaped database the same way (the simulator's backtests read
 them).
 
 ### 5a. One serving database per competition
 
 `criciq-data export` and `run` (and every sync) export a serving database for each competition in
-the switcher (`switcher: true` in `config/competitions.yaml`, T20 for now): the IPL's
+the switcher (`switcher: true` in `config/competitions.yaml`, T20 and ODI for now): the IPL's
 `serving.duckdb` from its scoped copy, and `serving-<competition>.duckdb` for the others, each from
 that competition's own v1-shaped copy (ADR-0011). They have the same tables. The league-tables
 config (official tables, abandoned and voided fixtures) is the IPL's, so the other competitions'
@@ -174,9 +177,10 @@ neutral grey, and `meta.season_spans_new_year` tells the API to name seasons "20
 Innings phases follow each match's own format. Data code (player, team and simulator tables, the
 API's splits) phases a delivery with `PhaseConfig.sql_case(over, format)`, which reads
 `competitions.format`, so T20, ODI and Test balls can sit in one query. Model code (win probability,
-projection, ball outcome, ratings, similar players, the simulator) uses `model_phases()`: the v1
-models are T20 models (`MODEL_FORMAT`), and the ML loaders refuse a database holding other formats
-rather than score them with T20 phases. Per-format models replace that guard in V2-3, V2-5 and V2-6.
+projection, ball outcome, ratings, similar players, the simulator) uses `model_phases()`, the
+phases of the models' current format: T20 unless an entry point sets another with
+`use_format("ODI")` (ADR-0012). The ML loaders refuse a database holding another format rather
+than score it with the wrong phases.
 
 ### 6. Player enrichment (`criciq-data enrich-players`, occasional)
 

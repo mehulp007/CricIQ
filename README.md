@@ -155,17 +155,38 @@ served**: its T20I pick of the winner is now clearly better than a coin flip (Br
 0.250), but simulated totals run 7 runs low there and 10 in the PSL. The
 [simulator card](docs/model-cards/simulator.md) publishes every backtest after the IPL's.
 
-## Every T20 competition on the site (v2)
+## Every competition on the site (v2)
 
-On the `v2` branch the site covers the IPL, BBL, PSL, CPL, SA20 and men's T20Is. A switcher in the
+On the `v2` branch the site covers the IPL, BBL, PSL, CPL, SA20, men's T20Is and men's ODIs. A switcher in the
 top bar picks the competition, every data page lives under it (`/ipl/matches`, `/t20i/teams`,
 `/bbl/players/...`), and the v1 URLs redirect to the IPL's. Each competition has its own serving
 database, so its replays, teams, matchups and simulator read only its own matches
 ([ADR-0011](docs/adr/0011-one-serving-database-per-competition.md)); the API is
 `/api/v2/{competition}/...`. National sides get records by year and by opponent instead of league
 tables, players get a tab for every competition they played in and for all T20, and the leagues'
-tables are computed from results (the IPL's are checked against the official ones). ODI and Test
-cricket come next.
+tables are computed from results (the IPL's are checked against the official ones). Test cricket
+comes next.
+
+## ODIs: their own models (v2)
+
+Men's ODIs (2,576 matches from 2002) are on the site with every page, and with models of their
+own: a 50-over match paces itself differently, so ODIs are not pooled with T20
+([ADR-0012](docs/adr/0012-models-per-format.md)). Each model was built with the T20 protocol and
+tested once on the 2025–2026 ODIs (174 matches):
+
+| ODI test, 2025–2026 | CricIQ | Baseline |
+|---|---|---|
+| Win probability, log loss | 0.550 | 0.552 (logistic regression): level, the 95% interval includes no gain |
+| Score projection, median error | 31.2 runs, 80% range holds 82.6% | 38.0 runs (par for the era) |
+| Ball outcome, log loss | 1.2076, better in 11 of 11 backtest years | 1.2210 (phase and wickets) |
+| Simulator, first-innings totals | PIT χ² 14.0 (threshold 16.9), 88.7% in the 80% range | — |
+
+The projection, ball model, ratings and simulator pass clearly; the win probability model is only
+level with a logistic regression on the match state, and the site says so. Model cards:
+[win probability](docs/model-cards/odi/win-probability.md),
+[score projection](docs/model-cards/odi/score-projection.md),
+[ball outcome](docs/model-cards/odi/ball-outcome.md), [ratings](docs/model-cards/odi/ratings.md),
+[simulator](docs/model-cards/odi/simulator.md).
 
 ## Player Lab: measured against par
 

@@ -7,6 +7,25 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **V2-5: men's ODIs** (ADR-0012)
+  - ODIs in the switcher with every page: replays over 50 overs (rain-revised chases use their
+    revised target and overs), teams with records by year and by opponent, players with an ODI
+    tab, matchups, compare, the simulator and Model Insights. Featured replays: every World Cup
+    final since 2003, the Champions Trophy finals and South Africa's 435 chase.
+  - ODI models of their own, trained on ODIs alone (`data/warehouse/odi.duckdb`, 2,576 matches
+    from 2002) with the T20 models' features and protocols, tested once on 2025-2026 (174
+    matches). Win probability: log loss 0.550 against 0.552 for the logistic baseline, ahead but
+    with a 95% interval that includes no gain (better in 6 of 11 backtest years). Score
+    projection: median error 31.2 runs against 38.0 for par, 80% range holding 82.6%. Ball
+    outcome: 1.2076 against 1.2210, better in all 11 backtest years. CricIQ Ratings: the shrunk
+    record beats the raw one for all 16 components. Forward selection on the pre-test years
+    chose the batters at the crease for chases and the projection.
+  - The simulator plays 50 overs with ten overs a bowler (`FormatRules`), and its ODI backtest
+    passed: first-innings PIT chi-square 14.0 against 16.9, 88.7% of totals inside the 80%
+    range, 10,000 matches in about a second. Before a ball is bowled it picks the winner no
+    better than a coin flip (Brier 0.242 against 0.250), as in T20.
+  - `criciq-ml train <model> --format ODI` and `report --format ODI`; the ODI models, configs,
+    cards and Model Insights data live in `odi/` folders beside the T20 ones.
 - **V2-4: every T20 competition on the site** (ADR-0011)
   - A competition switcher in the top bar (IPL, BBL, PSL, CPL, SA20, T20I, with ODI and Test shown
     as coming), remembered in a cookie, and a home page that leads with the choice. Every data page
@@ -104,6 +123,10 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     API and the web app together.
 
 ### Changed
+- **V2-5:** the format is a context (`criciq_core.phases.use_format`) that the models, the chase
+  table, the projection's baseline, the rating components and the registry read; the simulator's
+  overs, quota and phases travel with each side. T20 output is unchanged. The players database
+  has an ODI scope after All T20, and player pages list every competition.
 - **V2-4:** `/api/v1` is retired on the v2 branch (it stays on `main` until the launch), and every
   page, API client function and route handler takes the competition. The `meta` table records
   whether seasons span the new year, so the BBL's read "2025/26".
@@ -120,6 +143,11 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
 
 ### Fixed
+- **V2-5:**
+  - A super over that was itself tied, settled on boundaries (the 2019 World Cup final, IPL 2014
+    KKR v RR), read "won the super over"; it now says so.
+  - The replay's what-if played a rain-revised chase over its full overs instead of its revised
+    allocation.
 - **V2-4:**
   - A tie with no winner had no result text, and a match settled by a bowl-out said "won the
     super over"; they now read "Match tied" and "won the bowl-out".

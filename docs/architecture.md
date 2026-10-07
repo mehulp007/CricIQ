@@ -15,8 +15,8 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
               export → serving.duckdb (the IPL: slim, read-only, plus Player Lab tables with
                        par and Team Analytics tables checked against the official league tables)
                      → serving-<competition>.duckdb (the same tables for every other competition
-                       on the site: BBL, PSL, CPL, SA20, T20I; ADR-0011)
-                     → players.duckdb (Player Lab tables of every T20 competition, par per
+                       on the site: BBL, PSL, CPL, SA20, T20I, ODI; ADR-0011)
+                     → players.duckdb (Player Lab tables of every competition, par per
                        competition, and all T20 together; one schema per scope, ADR-0009)
                         ▼
   [ml] features: as-of, leak-free match states
@@ -24,6 +24,8 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
        v2 versions train on every T20 competition at once (the pooled copy t20.duckdb) and
        are compared with v1 on the IPL's own test balls; each competition is served by its
        pointer (CURRENT, or CURRENT.IPL where the IPL keeps v1; ADR-0010)
+       ODIs have their own models, trained on the ODI copy odi.duckdb and kept in
+       models/odi/ (criciq-ml train <model> --format ODI; ADR-0012)
        score every historical ball with the models serving each competition → each serving
        database (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
         rating constants, simulator settings where a simulator passed there) and
@@ -103,6 +105,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0009](adr/0009-players-database-per-competition.md): a players database with one schema per competition
 - [ADR-0010](adr/0010-pooled-t20-models.md): pooled T20 models, served per competition
 - [ADR-0011](adr/0011-one-serving-database-per-competition.md): one serving database per competition, the API under `/api/v2/{competition}` and the site under `/[competition]/`
+- [ADR-0012](adr/0012-models-per-format.md): each format has its own models (`models/odi/`), the format as a context, and the simulator's rules per format
 
 ## Precompute vs live
 

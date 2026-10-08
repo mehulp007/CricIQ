@@ -1,18 +1,18 @@
 {
   "season": 2026,
   "label": "2026",
-  "matches": 462,
+  "matches": 481,
   "champion": null,
-  "first_innings_average": 153.2,
+  "first_innings_average": 152.0,
   "previous_first_innings_average": 150.8,
-  "sixes": 5020,
+  "sixes": 5181,
   "leaders": {
     "runs": {
       "player_id": "752f7486",
       "name": "Ishan Kishan",
       "team": "IND",
-      "value": 949.0,
-      "detail": "strike rate 172.5"
+      "value": 952.0,
+      "detail": "strike rate 171.2"
     },
     "wickets": {
       "player_id": "090f96e4",
@@ -25,14 +25,14 @@
       "player_id": "6a97c7a4",
       "name": "Karanbir Singh",
       "team": "AUT",
-      "value": 311.0,
+      "value": 315.0,
       "detail": "from 476 balls"
     },
     "runs_saved": {
       "player_id": "090f96e4",
       "name": "Muhammad Nadir",
       "team": "RWA",
-      "value": 279.0,
+      "value": 276.0,
       "detail": "from 470 balls"
     }
   }

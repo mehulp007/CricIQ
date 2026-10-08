@@ -1,18 +1,18 @@
 {
   "season": 2026,
   "label": "2026",
-  "matches": 74,
+  "matches": 82,
   "champion": null,
-  "first_innings_average": 247.9,
+  "first_innings_average": 254.8,
   "previous_first_innings_average": 258.9,
-  "sixes": 726,
+  "sixes": 836,
   "leaders": {
     "runs": {
       "player_id": "b4b99816",
       "name": "Shubman Gill",
       "team": "IND",
-      "value": 547.0,
-      "detail": "strike rate 116.4"
+      "value": 657.0,
+      "detail": "strike rate 113.7"
     },
     "wickets": {
       "player_id": "5318ee68",
@@ -25,14 +25,14 @@
       "player_id": "b4b99816",
       "name": "Shubman Gill",
       "team": "IND",
-      "value": 181.0,
-      "detail": "from 470 balls"
+      "value": 198.0,
+      "detail": "from 578 balls"
     },
     "runs_saved": {
       "player_id": "b410bd3d",
       "name": "Sandeep Lamichhane",
       "team": "NEP",
-      "value": 158.0,
+      "value": 166.0,
       "detail": "from 696 balls"
     }
   }

@@ -1,6 +1,58 @@
 {
-  "data_version": "2026-10-06.ac28ace1",
+  "data_version": "2026-10-06.87953a3d",
   "matches": [
+    {
+      "match_id": 1534217,
+      "headline": "CPL 2026 final",
+      "summary": {
+        "match_id": 1534217,
+        "season": 2026,
+        "date": "2026-09-20",
+        "match_number": null,
+        "stage": "Final",
+        "is_playoff": true,
+        "venue": {
+          "venue_id": "kensington-oval",
+          "name": "Kensington Oval",
+          "city": "Bridgetown"
+        },
+        "team_a": {
+          "team_season_id": "JK-2026",
+          "franchise_id": "JK",
+          "name": "Jamaica Kingsmen",
+          "color": "#1B7F3A",
+          "runs": 170,
+          "wickets": 9,
+          "overs": "20.0",
+          "innings": null
+        },
+        "team_b": {
+          "team_season_id": "ABF-2026",
+          "franchise_id": "ABF",
+          "name": "Antigua and Barbuda Falcons",
+          "color": "#C62828",
+          "runs": 173,
+          "wickets": 2,
+          "overs": "16.4",
+          "innings": null
+        },
+        "target_runs": 171,
+        "outcome_type": "win",
+        "winner_id": "ABF-2026",
+        "result_text": "Antigua and Barbuda Falcons won by 8 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": null,
+        "toss": {
+          "winner_id": "ABF-2026",
+          "winner_name": "Antigua and Barbuda Falcons",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Sufyan Moqeem"
+        ]
+      }
+    },
     {
       "match_id": 1478005,
       "headline": "CPL 2025 final",
@@ -258,58 +310,6 @@
         },
         "player_of_match": [
           "Dominic Drakes"
-        ]
-      }
-    },
-    {
-      "match_id": 1227897,
-      "headline": "CPL 2020 final",
-      "summary": {
-        "match_id": 1227897,
-        "season": 2020,
-        "date": "2020-09-10",
-        "match_number": null,
-        "stage": "Final",
-        "is_playoff": true,
-        "venue": {
-          "venue_id": "brian-lara-stadium",
-          "name": "Brian Lara Stadium",
-          "city": "Trinidad"
-        },
-        "team_a": {
-          "team_season_id": "SLK-2020",
-          "franchise_id": "SLK",
-          "name": "St Lucia Zouks",
-          "color": "#1E63B4",
-          "runs": 154,
-          "wickets": 10,
-          "overs": "19.1",
-          "innings": null
-        },
-        "team_b": {
-          "team_season_id": "TKR-2020",
-          "franchise_id": "TKR",
-          "name": "Trinbago Knight Riders",
-          "color": "#D51F26",
-          "runs": 157,
-          "wickets": 2,
-          "overs": "18.1",
-          "innings": null
-        },
-        "target_runs": 155,
-        "outcome_type": "win",
-        "winner_id": "TKR-2020",
-        "result_text": "Trinbago Knight Riders won by 8 wickets",
-        "win_method": null,
-        "decided_by_super_over": false,
-        "won_by_innings": null,
-        "toss": {
-          "winner_id": "TKR-2020",
-          "winner_name": "Trinbago Knight Riders",
-          "decision": "field"
-        },
-        "player_of_match": [
-          "Lendl Simmons"
         ]
       }
     }

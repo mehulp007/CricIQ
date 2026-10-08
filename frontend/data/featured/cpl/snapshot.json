@@ -1,11 +1,11 @@
 {
   "season": 2026,
   "label": "2026",
-  "matches": 36,
-  "champion": null,
-  "first_innings_average": 156.3,
+  "matches": 38,
+  "champion": "Antigua and Barbuda Falcons",
+  "first_innings_average": 158.0,
   "previous_first_innings_average": 168.0,
-  "sixes": 572,
+  "sixes": 617,
   "leaders": {
     "runs": {
       "player_id": "372455c4",
@@ -15,24 +15,24 @@
       "detail": "strike rate 143.1"
     },
     "wickets": {
-      "player_id": "83d17bbc",
-      "name": "Matthew Forde",
-      "team": "SLK",
+      "player_id": "acee4cc4",
+      "name": "Imran Tahir",
+      "team": "GAW",
       "value": 16.0,
-      "detail": "economy 9.13"
+      "detail": "economy 7.05"
     },
     "runs_above_par": {
       "player_id": "48a1d7b7",
       "name": "Shimron Hetmyer",
       "team": "GAW",
-      "value": 83.0,
-      "detail": "from 141 balls"
+      "value": 124.0,
+      "detail": "from 186 balls"
     },
     "runs_saved": {
       "player_id": "9d430b40",
       "name": "Sunil Narine",
       "team": "TKR",
-      "value": 118.0,
+      "value": 122.0,
       "detail": "from 229 balls"
     }
   }

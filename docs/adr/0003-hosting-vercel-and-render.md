@@ -5,7 +5,7 @@
 
 ## Context
 
-The plan proposed Vercel for the frontend and Hugging Face Spaces for the API. At deployment time,
+The original design proposed Vercel for the frontend and Hugging Face Spaces for the API. At deployment time,
 Vercel and Render accounts were already connected to the project's GitHub. A Hugging Face account
 would have been a new account to create and manage for a single service. Constraints:
 

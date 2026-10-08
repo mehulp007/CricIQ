@@ -97,7 +97,7 @@ V1: every planned feature is live (milestones V1-a to V1-d), plus a release pass
   the API builds the simulator and plays a few matches at startup.
 - The what-if takes players' batting positions and bowling usage as of the match's season.
 - README: a demo GIF touring every section, a more detailed architecture section, and no roadmap
-  (every milestone is done; the plan records them).
+  (every milestone is done; this changelog records them).
 
 ### Removed
 - The "Build progress" list on the Overview page.

@@ -221,7 +221,7 @@ fitted on these seasons.
 
 ## Clutch (not a rating)
 
-The plan allowed a clutch rating only if it proved reliable (split-half correlation above 0.3).
+A rule set in advance allowed a clutch rating only if it proved reliable (split-half correlation above 0.3).
 It did not.
 
 ```

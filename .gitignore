@@ -37,3 +37,6 @@ Thumbs.db
 
 # GIF frames from frontend/scripts/capture-demo.mjs (assembled into docs/images/replay.gif)
 docs/images/frames/
+
+# --- private planning notes (kept locally, never committed) ---
+docs/PLAN*.md

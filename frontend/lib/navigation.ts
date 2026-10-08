@@ -20,7 +20,7 @@ export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  /** Milestone in docs/PLAN.md §16 that ships this page. */
+  /** The milestone that shipped this page. */
   milestone: MilestoneId;
 }
 

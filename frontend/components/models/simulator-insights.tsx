@@ -109,6 +109,16 @@ export function SimulatorInsights({
   const coinFlip = win.gain_vs_coin_flip.low <= 0;
   const worse = win.gain_vs_coin_flip.high < 0;
   const lowChases = chase.mean_predicted < chase.observed - 0.03;
+  const quota = getCompetition(competition).quota === 10 ? "ten-over" : "four-over";
+  // The spread was chosen by the PIT (the gate's own test) when the chosen row has the
+  // most uniform PIT, else by 80% coverage.
+  const pits = s.tuning.map((r) => r.pit_chi2).filter((v): v is number => v !== undefined);
+  const chosen = s.tuning.find((r) => r.conditions_sd === s.settings.conditions_sd);
+  const byPit =
+    pits.length === s.tuning.length &&
+    chosen?.pit_chi2 !== undefined &&
+    chosen.pit_chi2 === Math.min(...pits);
+  const levelWindow = s.settings.level_window;
   return (
     <div className="flex flex-col gap-6">
       <section aria-label="Headline results" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -137,7 +147,7 @@ export function SimulatorInsights({
       <Section
         id="simulator"
         title="How a match is simulated"
-        lede={`Every legal ball: extras from league rates; the ball faced from the ball-outcome model; run outs at the league rate. Each over's bowler follows how that bowler was used in their last ${s.settings.history_seasons} seasons, within the four-over quota and never twice in a row. Each match draws its own conditions, shared by both innings: a spread of ${s.settings.conditions_sd}, chosen on ${seasonSpan(s.valid)} as the one whose 80% range held closest to 80% of first-innings totals.`}
+        lede={`Every legal ball: extras from league rates; the ball faced from the ball-outcome model; run outs at the league rate. Each over's bowler follows how that bowler was used in their last ${s.settings.history_seasons} seasons, within the ${quota} quota and never twice in a row. Each match draws its own conditions, shared by both innings: a spread of ${s.settings.conditions_sd}, chosen on ${seasonSpan(s.valid)} as the one ${byPit ? "whose first-innings totals fell most evenly across their simulated ranges (the gate's own test)" : "whose 80% range held closest to 80% of first-innings totals"}.${levelWindow ? ` It also follows the recent scoring level: before each match, the scoring era is moved so the ball model's expected runs over the previous ${levelWindow} matches equal the runs actually scored, using only matches already played (the window was chosen on ${seasonSpan(s.valid)}).` : ""}`}
       >
         <div className="overflow-x-auto" {...scrollRegion("Conditions spread tuning")}>
           <table className="w-full min-w-[24rem] text-sm">

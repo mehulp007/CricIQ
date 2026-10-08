@@ -61,8 +61,10 @@ against 0.516 (95% interval -0.001 to +0.024), the projection 16.8 runs against 
 ball model in all 11 backtest years; the simulator serves the BBL, CPL and SA20. Their win
 probability 1.1.0 was re-chosen on the pre-test years and leaves out players' records, which with
 league-only careers made the first innings worse. The T20Is' models (3,480 matches) beat theirs
-clearly (win probability 0.432 against 0.458, +0.017 to +0.034); their simulator is not served,
-its totals 8 runs short of 2025-26. Against the pooled model on the same matches, the groups'
+clearly (win probability 0.432 against 0.458, +0.017 to +0.034). Their simulator first failed
+(totals 8 runs short of 2025-26, when T20I scoring jumped); simulator 1.1.0 follows the recent
+scoring level and chooses its spread by the validation PIT, and passes (PIT chi-square 6.5), as
+the PSL's now does too. Against the pooled model on the same matches, the groups'
 own win probability is better on the BBL and SA20, level on T20Is and the PSL, and behind on the
 CPL.
 

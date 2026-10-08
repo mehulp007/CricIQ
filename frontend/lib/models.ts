@@ -355,8 +355,20 @@ export interface SimulatorInsights {
   data_version: string;
   valid: number[];
   test: number[];
-  settings: { conditions_sd: number; history_seasons: number; usage_strength: number };
-  tuning: { conditions_sd: number; crps: number; coverage_80: number; brier: number }[];
+  settings: {
+    conditions_sd: number;
+    history_seasons: number;
+    usage_strength: number;
+    /** Matches the recent scoring level is followed over (absent: not followed). */
+    level_window?: number;
+  };
+  tuning: {
+    conditions_sd: number;
+    crps: number;
+    coverage_80: number;
+    pit_chi2?: number;
+    brier: number;
+  }[];
   matches: number;
   simulations_per_match: number;
   forced_overs: number;

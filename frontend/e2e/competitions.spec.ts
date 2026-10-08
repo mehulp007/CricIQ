@@ -44,8 +44,12 @@ test.describe("competitions", () => {
     await expect(page.getByRole("heading", { name: /England\s+vs\s+West Indies/ })).toBeVisible();
     await expect(page.getByTestId("win-probability")).toBeVisible();
     await expect(page.getByText(/adjusted for the two squads' records/)).toBeVisible();
-    // No simulator serves T20Is, so there is no what-if sandbox.
-    await expect(page.getByRole("region", { name: "What if?" })).toHaveCount(0);
+    // The T20Is' simulator serves the replay's what-if sandbox.
+    await page.locator("[data-replay-ready]").waitFor();
+    await page.getByRole("button", { name: "Jump to end" }).click();
+    for (let i = 0; i < 9; i += 1)
+      await page.getByRole("button", { name: "Previous ball" }).click();
+    await expect(page.getByRole("region", { name: "What if?" })).toBeVisible();
   });
 
   test("an ODI replays over fifty overs with its own model", async ({ page }) => {
@@ -119,12 +123,11 @@ test.describe("competitions", () => {
     await expect(page).toHaveURL(/\/ipl\/players\/4a8a2e3b$/);
   });
 
-  test("competitions without a simulator say why", async ({ page }) => {
+  test("T20Is have a simulator, backtested on their own matches", async ({ page }) => {
     await page.goto("/t20i/simulator");
-    await expect(page.getByRole("heading", { name: "No T20I simulator yet" })).toBeVisible();
-    await expect(page.getByText(/failed its gate/)).toBeVisible();
-    await page.getByRole("link", { name: "IPL simulator" }).click();
-    await expect(page).toHaveURL(/\/ipl\/simulator$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Match Simulator" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /No T20I simulator/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Simulate 10,000 matches/ })).toBeVisible();
   });
 
   test("a league whose backtest passed has a simulator", async ({ page }) => {
@@ -161,7 +164,7 @@ test.describe("competitions", () => {
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "How the models did on T20Is" })).toBeVisible();
     await expect(page.getByText(/trained on T20Is alone/)).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Simulator" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Simulator" })).toHaveCount(1);
     // The leagues share models trained on the four leagues only.
     await page.goto("/bbl/models");
     await expect(page.getByRole("heading", { name: "Models of the leagues' own" })).toBeVisible();

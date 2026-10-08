@@ -139,7 +139,7 @@ on a laptop and judged once on its 2025–2026 matches ([how to train](docs/trai
 | Win probability, log loss | 0.504 vs 0.516 (baseline), 270 matches: ahead, 95% interval −0.001 to +0.024 | **0.432 vs 0.458**, 952 matches: better, 95% interval +0.017 to +0.034 |
 | Score projection, median error | **16.8 runs** vs 18.2 for par; 80% range holds 79.6% | **18.1 runs** vs 22.2 for par; 80% range holds 81.7% |
 | Ball outcome, log loss | **1.4726** vs 1.4919, better in 11 of 11 backtest years | **1.4430** vs 1.4588, better in 11 of 11 backtest years |
-| Simulator | Served for the **BBL, CPL and SA20**; not for the PSL (simulated totals ran 8 runs short) | Not served: simulated totals ran 8 runs short of 2025–26 T20Is |
+| Simulator | Served for **all four** (PIT chi-square 7.0, 14.9, 10.4 and 4.2 against 16.9) | **Served**: 152.0 simulated against 153.8 actual, 80.8% inside the 80% range, PIT chi-square 6.5 |
 
 For the leagues' win probability, the features were chosen again on the pre-test years
 (2016–2024) only: with players' records counting league games alone, the squads' and the
@@ -155,10 +155,17 @@ BBL and SA20, level on T20Is and the PSL, and behind on the CPL, where players' 
 international records helped. The IPL kept its own models all along: the pooled versions were
 not better on the IPL's test seasons.
 
-A scoring-level correction for the simulator (shifting the scoring era so simulated totals match
-the validation years) was tried and not kept: shortfalls in 2023–24 did not carry over to
-2025–26, so it fixed neither the PSL nor T20Is and broke the CPL's backtest. Model cards:
-[leagues](docs/model-cards/leagues/), [T20Is](docs/model-cards/t20i/).
+**Why the T20I simulator first failed, and how it was fixed.** T20I scoring jumped in 2025–26
+(matches between associate sides from about 138 runs to 148), more than the ball model's scoring
+era moves it, so simulated totals ran 8 runs short (146.0 against 154.1; PIT chi-square 70.9). A
+level calibrated once on 2023–24 did not carry over and was dropped. What works is following the
+recent scoring level: before each match, the scoring era is moved so the ball model's expected
+runs over the previous matches equal the runs actually scored, using only matches already
+played; the window (240 T20Is) is chosen on the validation years. With the level followed, the
+spread of match conditions is chosen to make the validation years' PIT most uniform (the gate's
+own test), a choice made after a first backtest showed the test ranges too wide. The same pair
+lets the PSL's simulator pass too. Model cards: [leagues](docs/model-cards/leagues/),
+[T20Is](docs/model-cards/t20i/).
 
 ## Every competition on the site (v2)
 

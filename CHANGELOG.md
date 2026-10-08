@@ -28,6 +28,14 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     backtest years, simulator served for the BBL, CPL and SA20. T20Is (3,480 matches): win
     probability 0.432 against 0.458 (+0.017 to +0.034), projection 18.1 runs against 22.2, ball
     model better in all 11 years; the simulator is not served (totals 8 runs short).
+  - **The T20I simulator is served** (1.1.0), and the PSL's: the simulator can follow the
+    competition's recent scoring level (the scoring era moved so the ball model's expected runs
+    over a window of previous matches equal the runs scored; the window, or none, chosen on the
+    validation years) and choose the conditions spread by the validation PIT. T20Is: 152.0
+    simulated against 153.8, PIT chi-square 6.5 (70.9 before); leagues: BBL 7.0, CPL 14.9, PSL
+    10.4 (18.9 before), SA20 4.2. Scoring publishes each match's level (`sim_level_shifts`) and
+    the API applies it.
+  - The simulator's Model Insights says "ten-over quota" for ODIs (it said four).
   - The leagues' win probability 1.1.0 leaves out the squads' and crease batters' records,
     chosen on the pre-test years: with league-only careers they made the first innings worse.
   - Model Insights for the leagues and T20Is show their own models, each league's results, and

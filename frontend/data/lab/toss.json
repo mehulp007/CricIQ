@@ -1,0 +1,248 @@
+{
+  "formats": [
+    {
+      "key": "test",
+      "label": "Tests",
+      "matches": 895,
+      "won": 395,
+      "drawn": 169,
+      "lost": 331,
+      "share": {
+        "value": 0.5358,
+        "low": 0.5101,
+        "high": 0.5598
+      }
+    },
+    {
+      "key": "odi",
+      "label": "ODIs",
+      "matches": 2486,
+      "won": 1231,
+      "drawn": 21,
+      "lost": 1234,
+      "share": {
+        "value": 0.4994,
+        "low": 0.4829,
+        "high": 0.5151
+      }
+    },
+    {
+      "key": "t20i",
+      "label": "T20Is",
+      "matches": 3513,
+      "won": 1765,
+      "drawn": 3,
+      "lost": 1745,
+      "share": {
+        "value": 0.5028,
+        "low": 0.4893,
+        "high": 0.5169
+      }
+    },
+    {
+      "key": "ipl",
+      "label": "IPL",
+      "matches": 1234,
+      "won": 634,
+      "drawn": 0,
+      "lost": 600,
+      "share": {
+        "value": 0.5138,
+        "low": 0.4911,
+        "high": 0.5381
+      }
+    },
+    {
+      "key": "leagues",
+      "label": "BBL, CPL, PSL and SA20",
+      "matches": 1566,
+      "won": 857,
+      "drawn": 0,
+      "lost": 709,
+      "share": {
+        "value": 0.5473,
+        "low": 0.5255,
+        "high": 0.5683
+      }
+    }
+  ],
+  "choices": [
+    {
+      "key": "test",
+      "decision": "bat",
+      "chose": 0.6827,
+      "label": "Chose to bat",
+      "matches": 611,
+      "won": 282,
+      "drawn": 117,
+      "lost": 212,
+      "share": {
+        "value": 0.5573,
+        "low": 0.5278,
+        "high": 0.5876
+      }
+    },
+    {
+      "key": "test",
+      "decision": "field",
+      "chose": 0.3173,
+      "label": "Chose to bowl",
+      "matches": 284,
+      "won": 113,
+      "drawn": 52,
+      "lost": 119,
+      "share": {
+        "value": 0.4894,
+        "low": 0.4454,
+        "high": 0.5352
+      }
+    },
+    {
+      "key": "odi",
+      "decision": "bat",
+      "chose": 0.4887,
+      "label": "Chose to bat",
+      "matches": 1215,
+      "won": 575,
+      "drawn": 10,
+      "lost": 630,
+      "share": {
+        "value": 0.4774,
+        "low": 0.4539,
+        "high": 0.5012
+      }
+    },
+    {
+      "key": "odi",
+      "decision": "field",
+      "chose": 0.5113,
+      "label": "Chose to bowl",
+      "matches": 1271,
+      "won": 656,
+      "drawn": 11,
+      "lost": 604,
+      "share": {
+        "value": 0.5205,
+        "low": 0.4972,
+        "high": 0.5437
+      }
+    },
+    {
+      "key": "t20i",
+      "decision": "bat",
+      "chose": 0.4623,
+      "label": "Chose to bat",
+      "matches": 1624,
+      "won": 805,
+      "drawn": 2,
+      "lost": 817,
+      "share": {
+        "value": 0.4963,
+        "low": 0.4751,
+        "high": 0.5166
+      }
+    },
+    {
+      "key": "t20i",
+      "decision": "field",
+      "chose": 0.5377,
+      "label": "Chose to bowl",
+      "matches": 1889,
+      "won": 960,
+      "drawn": 1,
+      "lost": 928,
+      "share": {
+        "value": 0.5085,
+        "low": 0.4907,
+        "high": 0.5262
+      }
+    },
+    {
+      "key": "ipl",
+      "decision": "bat",
+      "chose": 0.3355,
+      "label": "Chose to bat",
+      "matches": 414,
+      "won": 188,
+      "drawn": 0,
+      "lost": 226,
+      "share": {
+        "value": 0.4541,
+        "low": 0.413,
+        "high": 0.4952
+      }
+    },
+    {
+      "key": "ipl",
+      "decision": "field",
+      "chose": 0.6645,
+      "label": "Chose to bowl",
+      "matches": 820,
+      "won": 446,
+      "drawn": 0,
+      "lost": 374,
+      "share": {
+        "value": 0.5439,
+        "low": 0.517,
+        "high": 0.572
+      }
+    },
+    {
+      "key": "leagues",
+      "decision": "bat",
+      "chose": 0.3167,
+      "label": "Chose to bat",
+      "matches": 496,
+      "won": 254,
+      "drawn": 0,
+      "lost": 242,
+      "share": {
+        "value": 0.5121,
+        "low": 0.4758,
+        "high": 0.5484
+      }
+    },
+    {
+      "key": "leagues",
+      "decision": "field",
+      "chose": 0.6833,
+      "label": "Chose to bowl",
+      "matches": 1070,
+      "won": 603,
+      "drawn": 0,
+      "lost": 467,
+      "share": {
+        "value": 0.5636,
+        "low": 0.5374,
+        "high": 0.5888
+      }
+    }
+  ],
+  "tests_by_region": [
+    {
+      "label": "Tests in Asia",
+      "matches": 322,
+      "won": 141,
+      "drawn": 71,
+      "lost": 110,
+      "share": {
+        "value": 0.5481,
+        "low": 0.5093,
+        "high": 0.5885
+      }
+    },
+    {
+      "label": "Tests elsewhere",
+      "matches": 573,
+      "won": 254,
+      "drawn": 98,
+      "lost": 221,
+      "share": {
+        "value": 0.5288,
+        "low": 0.4991,
+        "high": 0.562
+      }
+    }
+  ],
+  "data_version": "2026-10-06.87953a3d"
+}

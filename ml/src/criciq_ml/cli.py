@@ -48,6 +48,7 @@ from criciq_ml import (
     ball_outcome_training,
     comparison,
     formats,
+    lab_formats,
     players_scoring,
     ratings,
     registry,
@@ -1097,6 +1098,17 @@ def report_cmd(match_format: FormatOption = MODEL_FORMAT, group_id: GroupOption 
             else report.write_format(others)
         )
     for path in written:
+        typer.echo(f"wrote {path}")
+
+
+@app.command("lab-formats")
+def lab_formats_cmd() -> None:
+    """Write the Analytics Lab notes that compare formats (the toss, home advantage) from
+    every competition's serving database."""
+    servings = {IPL: _serving_path()} | {
+        c: current(p) for c, p in _exported_servings().items() if current(p).exists()
+    }
+    for path in lab_formats.write_all(servings):
         typer.echo(f"wrote {path}")
 
 

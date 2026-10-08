@@ -615,6 +615,7 @@ def _publish() -> int:
                     log,
                 )
             )
+        steps.append(run("Analytics Lab notes across formats", [ml, "lab-formats"], log))
         steps.append(run("featured replays", [sys.executable, "-m", "criciq_api.featured"], log))
     failed = [s for s in steps if s.exit_code != 0]
     lines = [

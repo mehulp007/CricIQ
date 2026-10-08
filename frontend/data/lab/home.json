@@ -1,0 +1,121 @@
+{
+  "formats": [
+    {
+      "key": "test",
+      "neutral_share": 0.0402,
+      "label": "Tests",
+      "matches": 859,
+      "won": 444,
+      "drawn": 161,
+      "lost": 254,
+      "share": {
+        "value": 0.6106,
+        "low": 0.5867,
+        "high": 0.6345
+      },
+      "balanced": {
+        "pairs": 39,
+        "matches": 825,
+        "share": {
+          "value": 0.6029,
+          "low": 0.5764,
+          "high": 0.63
+        }
+      }
+    },
+    {
+      "key": "odi",
+      "neutral_share": 0.2397,
+      "label": "ODIs",
+      "matches": 1890,
+      "won": 1106,
+      "drawn": 18,
+      "lost": 766,
+      "share": {
+        "value": 0.5899,
+        "low": 0.572,
+        "high": 0.609
+      },
+      "balanced": {
+        "pairs": 70,
+        "matches": 1702,
+        "share": {
+          "value": 0.5921,
+          "low": 0.5631,
+          "high": 0.6216
+        }
+      }
+    },
+    {
+      "key": "t20i",
+      "neutral_share": 0.4287,
+      "label": "T20Is",
+      "matches": 2007,
+      "won": 1148,
+      "drawn": 1,
+      "lost": 858,
+      "share": {
+        "value": 0.5722,
+        "low": 0.5548,
+        "high": 0.5912
+      },
+      "balanced": {
+        "pairs": 76,
+        "matches": 1045,
+        "share": {
+          "value": 0.5439,
+          "low": 0.5136,
+          "high": 0.5743
+        }
+      }
+    },
+    {
+      "key": "ipl",
+      "neutral_share": 0.2731,
+      "label": "IPL",
+      "matches": 897,
+      "won": 479,
+      "drawn": 0,
+      "lost": 418,
+      "share": {
+        "value": 0.534,
+        "low": 0.505,
+        "high": 0.5619
+      },
+      "balanced": {
+        "pairs": 69,
+        "matches": 867,
+        "share": {
+          "value": 0.4892,
+          "low": 0.4559,
+          "high": 0.5227
+        }
+      }
+    },
+    {
+      "key": "leagues",
+      "neutral_share": 0.3921,
+      "label": "BBL, CPL, PSL and SA20",
+      "matches": 952,
+      "won": 525,
+      "drawn": 0,
+      "lost": 427,
+      "share": {
+        "value": 0.5515,
+        "low": 0.5242,
+        "high": 0.5788
+      },
+      "balanced": {
+        "pairs": 63,
+        "matches": 898,
+        "share": {
+          "value": 0.5422,
+          "low": 0.5136,
+          "high": 0.5728
+        }
+      }
+    }
+  ],
+  "min_each_end": 2,
+  "data_version": "2026-10-06.87953a3d"
+}

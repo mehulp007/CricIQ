@@ -1,0 +1,39 @@
+{
+  "season": 2026,
+  "label": "2026",
+  "matches": 19,
+  "champion": null,
+  "first_innings_average": 316.2,
+  "previous_first_innings_average": 329.4,
+  "sixes": 166,
+  "leaders": {
+    "runs": {
+      "player_id": "4bbfddd5",
+      "name": "Sonal Dinusha",
+      "team": "SL",
+      "value": 595.0,
+      "detail": "average 99.2"
+    },
+    "wickets": {
+      "player_id": "1f1b4c89",
+      "name": "Josh Tongue",
+      "team": "ENG",
+      "value": 33.0,
+      "detail": "average 25.7"
+    },
+    "runs_above_par": {
+      "player_id": "4ae1755b",
+      "name": "Harry Brook",
+      "team": "ENG",
+      "value": 180.0,
+      "detail": "from 667 balls"
+    },
+    "runs_saved": {
+      "player_id": "a089f93f",
+      "name": "Mohammad Abbas",
+      "team": "PAK",
+      "value": 143.0,
+      "detail": "from 1361 balls"
+    }
+  }
+}

@@ -23,7 +23,8 @@
           "color": "#17479E",
           "runs": 158,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "SEC-2026",
@@ -32,7 +33,8 @@
           "color": "#FF822A",
           "runs": 162,
           "wickets": 4,
-          "overs": "19.2"
+          "overs": "19.2",
+          "innings": null
         },
         "target_runs": 159,
         "outcome_type": "win",
@@ -40,6 +42,7 @@
         "result_text": "Sunrisers Eastern Cape won by 6 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SEC-2026",
           "winner_name": "Sunrisers Eastern Cape",
@@ -72,7 +75,8 @@
           "color": "#004BA0",
           "runs": 181,
           "wickets": 8,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "SEC-2025",
@@ -81,7 +85,8 @@
           "color": "#FF822A",
           "runs": 105,
           "wickets": 10,
-          "overs": "18.4"
+          "overs": "18.4",
+          "innings": null
         },
         "target_runs": 182,
         "outcome_type": "win",
@@ -89,6 +94,7 @@
         "result_text": "MI Cape Town won by 76 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "MICT-2025",
           "winner_name": "MI Cape Town",
@@ -121,7 +127,8 @@
           "color": "#FF822A",
           "runs": 204,
           "wickets": 3,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "DSG-2024",
@@ -130,7 +137,8 @@
           "color": "#1E63B4",
           "runs": 115,
           "wickets": 10,
-          "overs": "17.0"
+          "overs": "17.0",
+          "innings": null
         },
         "target_runs": 205,
         "outcome_type": "win",
@@ -138,6 +146,7 @@
         "result_text": "Sunrisers Eastern Cape won by 89 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SEC-2024",
           "winner_name": "Sunrisers Eastern Cape",
@@ -170,7 +179,8 @@
           "color": "#17479E",
           "runs": 135,
           "wickets": 10,
-          "overs": "19.3"
+          "overs": "19.3",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "SEC-2023",
@@ -179,7 +189,8 @@
           "color": "#FF822A",
           "runs": 137,
           "wickets": 6,
-          "overs": "16.2"
+          "overs": "16.2",
+          "innings": null
         },
         "target_runs": 136,
         "outcome_type": "win",
@@ -187,6 +198,7 @@
         "result_text": "Sunrisers Eastern Cape won by 4 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SEC-2023",
           "winner_name": "Sunrisers Eastern Cape",

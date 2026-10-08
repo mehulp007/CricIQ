@@ -22,6 +22,9 @@ import sa20Snapshot from "./sa20/snapshot.json";
 import t20iIndex from "./t20i/index.json";
 import { featuredTimelines as t20iTimelines } from "./t20i/manifest";
 import t20iSnapshot from "./t20i/snapshot.json";
+import testIndex from "./test/index.json";
+import { featuredTimelines as testTimelines } from "./test/manifest";
+import testSnapshot from "./test/snapshot.json";
 
 export interface FeaturedBundle {
   index: unknown;
@@ -37,4 +40,5 @@ export const featuredBundles: Record<string, FeaturedBundle> = {
   psl: { index: pslIndex, snapshot: pslSnapshot, timelines: pslTimelines },
   sa20: { index: sa20Index, snapshot: sa20Snapshot, timelines: sa20Timelines },
   t20i: { index: t20iIndex, snapshot: t20iSnapshot, timelines: t20iTimelines },
+  test: { index: testIndex, snapshot: testSnapshot, timelines: testTimelines },
 };

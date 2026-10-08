@@ -23,7 +23,8 @@
           "color": "#1B2133",
           "runs": 155,
           "wickets": 8,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "RCB-2026",
@@ -32,7 +33,8 @@
           "color": "#EC1C24",
           "runs": 161,
           "wickets": 5,
-          "overs": "18.0"
+          "overs": "18.0",
+          "innings": null
         },
         "target_runs": 156,
         "outcome_type": "win",
@@ -40,6 +42,7 @@
         "result_text": "Royal Challengers Bengaluru won by 5 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "RCB-2026",
           "winner_name": "Royal Challengers Bengaluru",
@@ -72,7 +75,8 @@
           "color": "#EC1C24",
           "runs": 190,
           "wickets": 9,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "PBKS-2025",
@@ -81,7 +85,8 @@
           "color": "#DD1F2D",
           "runs": 184,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 191,
         "outcome_type": "win",
@@ -89,6 +94,7 @@
         "result_text": "Royal Challengers Bengaluru won by 6 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "PBKS-2025",
           "winner_name": "Punjab Kings",
@@ -121,7 +127,8 @@
           "color": "#F26522",
           "runs": 113,
           "wickets": 10,
-          "overs": "18.3"
+          "overs": "18.3",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "KKR-2024",
@@ -130,7 +137,8 @@
           "color": "#3A225D",
           "runs": 114,
           "wickets": 2,
-          "overs": "10.3"
+          "overs": "10.3",
+          "innings": null
         },
         "target_runs": 114,
         "outcome_type": "win",
@@ -138,6 +146,7 @@
         "result_text": "Kolkata Knight Riders won by 8 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SRH-2024",
           "winner_name": "Sunrisers Hyderabad",
@@ -170,7 +179,8 @@
           "color": "#F26522",
           "runs": 287,
           "wickets": 3,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "RCB-2024",
@@ -179,7 +189,8 @@
           "color": "#EC1C24",
           "runs": 262,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 288,
         "outcome_type": "win",
@@ -187,6 +198,7 @@
         "result_text": "Sunrisers Hyderabad won by 25 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "RCB-2024",
           "winner_name": "Royal Challengers Bengaluru",
@@ -219,7 +231,8 @@
           "color": "#1B2133",
           "runs": 214,
           "wickets": 4,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "CSK-2023",
@@ -228,7 +241,8 @@
           "color": "#F9CD05",
           "runs": 171,
           "wickets": 5,
-          "overs": "15.0"
+          "overs": "15.0",
+          "innings": null
         },
         "target_runs": 171,
         "outcome_type": "win",
@@ -236,6 +250,7 @@
         "result_text": "Chennai Super Kings won by 5 wickets (D/L)",
         "win_method": "D/L",
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "CSK-2023",
           "winner_name": "Chennai Super Kings",
@@ -268,7 +283,8 @@
           "color": "#004BA0",
           "runs": 176,
           "wickets": 6,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "PBKS-2020",
@@ -277,7 +293,8 @@
           "color": "#DD1F2D",
           "runs": 176,
           "wickets": 6,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 177,
         "outcome_type": "tie",
@@ -285,6 +302,7 @@
         "result_text": "Match tied (Kings XI Punjab won the super over)",
         "win_method": null,
         "decided_by_super_over": true,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "MI-2020",
           "winner_name": "Mumbai Indians",
@@ -317,7 +335,8 @@
           "color": "#004BA0",
           "runs": 149,
           "wickets": 8,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "CSK-2019",
@@ -326,7 +345,8 @@
           "color": "#F9CD05",
           "runs": 148,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 150,
         "outcome_type": "win",
@@ -334,6 +354,7 @@
         "result_text": "Mumbai Indians won by 1 run",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "MI-2019",
           "winner_name": "Mumbai Indians",
@@ -366,7 +387,8 @@
           "color": "#E04F16",
           "runs": 153,
           "wickets": 9,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "MI-2017",
@@ -375,7 +397,8 @@
           "color": "#004BA0",
           "runs": 153,
           "wickets": 10,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 154,
         "outcome_type": "tie",
@@ -383,6 +406,7 @@
         "result_text": "Match tied (Mumbai Indians won the super over)",
         "win_method": null,
         "decided_by_super_over": true,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "GL-2017",
           "winner_name": "Gujarat Lions",
@@ -415,7 +439,8 @@
           "color": "#F26522",
           "runs": 208,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "RCB-2016",
@@ -424,7 +449,8 @@
           "color": "#EC1C24",
           "runs": 200,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 209,
         "outcome_type": "win",
@@ -432,6 +458,7 @@
         "result_text": "Sunrisers Hyderabad won by 8 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SRH-2016",
           "winner_name": "Sunrisers Hyderabad",
@@ -464,7 +491,8 @@
           "color": "#3A225D",
           "runs": 222,
           "wickets": 3,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "RCB-2008",
@@ -473,7 +501,8 @@
           "color": "#EC1C24",
           "runs": 82,
           "wickets": 10,
-          "overs": "15.1"
+          "overs": "15.1",
+          "innings": null
         },
         "target_runs": 223,
         "outcome_type": "win",
@@ -481,6 +510,7 @@
         "result_text": "Kolkata Knight Riders won by 140 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "RCB-2008",
           "winner_name": "Royal Challengers Bangalore",

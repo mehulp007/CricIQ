@@ -1,0 +1,545 @@
+{
+  "data_version": "2026-10-06.ac28ace1",
+  "matches": [
+    {
+      "match_id": 1448353,
+      "headline": "The Oval 2025: India win by six runs to square the series",
+      "summary": {
+        "match_id": 1448353,
+        "season": 2025,
+        "date": "2025-07-31",
+        "match_number": 5,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "kennington-oval",
+          "name": "Kennington Oval",
+          "city": "London"
+        },
+        "team_a": {
+          "team_season_id": "TEST-IND-2025",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 224,
+          "wickets": 10,
+          "overs": "69.4",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 224,
+              "wickets": 10,
+              "overs": "69.4",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 396,
+              "wickets": 10,
+              "overs": "88.0",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-ENG-2025",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 247,
+          "wickets": 9,
+          "overs": "51.2",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 247,
+              "wickets": 9,
+              "overs": "51.2",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 367,
+              "wickets": 10,
+              "overs": "85.1",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-IND-2025",
+        "result_text": "India won by 6 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-ENG-2025",
+          "winner_name": "England",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Mohammed Siraj"
+        ]
+      }
+    },
+    {
+      "match_id": 1322356,
+      "headline": "Wellington 2023: New Zealand follow on and win by one run",
+      "summary": {
+        "match_id": 1322356,
+        "season": 2023,
+        "date": "2023-02-24",
+        "match_number": 2,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "basin-reserve",
+          "name": "Basin Reserve",
+          "city": "Wellington"
+        },
+        "team_a": {
+          "team_season_id": "TEST-ENG-2023",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 435,
+          "wickets": 8,
+          "overs": "87.1",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 435,
+              "wickets": 8,
+              "overs": "87.1",
+              "declared": true,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 256,
+              "wickets": 10,
+              "overs": "74.2",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-NZ-2023",
+          "franchise_id": "NZ",
+          "name": "New Zealand",
+          "color": "#A8A8A8",
+          "runs": 209,
+          "wickets": 10,
+          "overs": "53.2",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 209,
+              "wickets": 10,
+              "overs": "53.2",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 483,
+              "wickets": 10,
+              "overs": "162.3",
+              "declared": false,
+              "follow_on": true,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-NZ-2023",
+        "result_text": "New Zealand won by 1 run",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-NZ-2023",
+          "winner_name": "New Zealand",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Kane Williamson"
+        ]
+      }
+    },
+    {
+      "match_id": 1223872,
+      "headline": "The Gabba 2021: India chase 328 on the last day to win the series",
+      "summary": {
+        "match_id": 1223872,
+        "season": 2021,
+        "date": "2021-01-15",
+        "match_number": 4,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "brisbane-cricket-ground",
+          "name": "Brisbane Cricket Ground",
+          "city": "Brisbane"
+        },
+        "team_a": {
+          "team_season_id": "TEST-AUS-2021",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 369,
+          "wickets": 10,
+          "overs": "115.2",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 369,
+              "wickets": 10,
+              "overs": "115.2",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 294,
+              "wickets": 10,
+              "overs": "75.5",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-IND-2021",
+          "franchise_id": "IND",
+          "name": "India",
+          "color": "#1C6FD1",
+          "runs": 336,
+          "wickets": 10,
+          "overs": "111.4",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 336,
+              "wickets": 10,
+              "overs": "111.4",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 329,
+              "wickets": 7,
+              "overs": "97.0",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-IND-2021",
+        "result_text": "India won by 3 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-AUS-2021",
+          "winner_name": "Australia",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Rishabh Pant"
+        ]
+      }
+    },
+    {
+      "match_id": 1152848,
+      "headline": "Headingley 2019: Stokes' 135 not out wins it by one wicket",
+      "summary": {
+        "match_id": 1152848,
+        "season": 2019,
+        "date": "2019-08-22",
+        "match_number": 3,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "headingley",
+          "name": "Headingley",
+          "city": "Leeds"
+        },
+        "team_a": {
+          "team_season_id": "TEST-AUS-2019",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 179,
+          "wickets": 10,
+          "overs": "52.1",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 179,
+              "wickets": 10,
+              "overs": "52.1",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 246,
+              "wickets": 10,
+              "overs": "75.2",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-ENG-2019",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 67,
+          "wickets": 10,
+          "overs": "27.5",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 67,
+              "wickets": 10,
+              "overs": "27.5",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 362,
+              "wickets": 9,
+              "overs": "125.4",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-ENG-2019",
+        "result_text": "England won by 1 wicket",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-ENG-2019",
+          "winner_name": "England",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Ben Stokes"
+        ]
+      }
+    },
+    {
+      "match_id": 215010,
+      "headline": "Edgbaston 2005: England win by two runs",
+      "summary": {
+        "match_id": 215010,
+        "season": 2005,
+        "date": "2005-08-04",
+        "match_number": 2,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "edgbaston",
+          "name": "Edgbaston",
+          "city": "Birmingham"
+        },
+        "team_a": {
+          "team_season_id": "TEST-ENG-2005",
+          "franchise_id": "ENG",
+          "name": "England",
+          "color": "#1D4FA0",
+          "runs": 407,
+          "wickets": 10,
+          "overs": "79.1",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 407,
+              "wickets": 10,
+              "overs": "79.1",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 182,
+              "wickets": 10,
+              "overs": "52.1",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-AUS-2005",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 308,
+          "wickets": 10,
+          "overs": "76.0",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 308,
+              "wickets": 10,
+              "overs": "76.0",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 279,
+              "wickets": 10,
+              "overs": "64.3",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-ENG-2005",
+        "result_text": "England won by 2 runs",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-AUS-2005",
+          "winner_name": "Australia",
+          "decision": "field"
+        },
+        "player_of_match": [
+          "Andrew Flintoff"
+        ]
+      }
+    },
+    {
+      "match_id": 64027,
+      "headline": "Antigua 2003: West Indies chase 418, the highest successful chase in Tests",
+      "summary": {
+        "match_id": 64027,
+        "season": 2003,
+        "date": "2003-05-09",
+        "match_number": 4,
+        "stage": "League",
+        "is_playoff": false,
+        "venue": {
+          "venue_id": "antigua-recreation-ground",
+          "name": "Antigua Recreation Ground",
+          "city": "St John's"
+        },
+        "team_a": {
+          "team_season_id": "TEST-AUS-2003",
+          "franchise_id": "AUS",
+          "name": "Australia",
+          "color": "#FFCD00",
+          "runs": 240,
+          "wickets": 10,
+          "overs": "72.1",
+          "innings": [
+            {
+              "innings_no": 1,
+              "runs": 240,
+              "wickets": 10,
+              "overs": "72.1",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 3,
+              "runs": 417,
+              "wickets": 10,
+              "overs": "104.0",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "team_b": {
+          "team_season_id": "TEST-WI-2003",
+          "franchise_id": "WI",
+          "name": "West Indies",
+          "color": "#9B1B3A",
+          "runs": 240,
+          "wickets": 10,
+          "overs": "65.3",
+          "innings": [
+            {
+              "innings_no": 2,
+              "runs": 240,
+              "wickets": 10,
+              "overs": "65.3",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            },
+            {
+              "innings_no": 4,
+              "runs": 418,
+              "wickets": 7,
+              "overs": "128.5",
+              "declared": false,
+              "follow_on": false,
+              "forfeited": false
+            }
+          ]
+        },
+        "target_runs": null,
+        "outcome_type": "win",
+        "winner_id": "TEST-WI-2003",
+        "result_text": "West Indies won by 3 wickets",
+        "win_method": null,
+        "decided_by_super_over": false,
+        "won_by_innings": false,
+        "toss": {
+          "winner_id": "TEST-AUS-2003",
+          "winner_name": "Australia",
+          "decision": "bat"
+        },
+        "player_of_match": [
+          "Shivnarine Chanderpaul"
+        ]
+      }
+    }
+  ]
+}

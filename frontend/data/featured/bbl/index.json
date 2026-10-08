@@ -23,7 +23,8 @@
           "color": "#E2007A",
           "runs": 132,
           "wickets": 10,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "PRS-2026",
@@ -32,7 +33,8 @@
           "color": "#F47920",
           "runs": 133,
           "wickets": 4,
-          "overs": "17.3"
+          "overs": "17.3",
+          "innings": null
         },
         "target_runs": 133,
         "outcome_type": "win",
@@ -40,6 +42,7 @@
         "result_text": "Perth Scorchers won by 6 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "PRS-2026",
           "winner_name": "Perth Scorchers",
@@ -72,7 +75,8 @@
           "color": "#8CC63F",
           "runs": 182,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "HBH-2025",
@@ -81,7 +85,8 @@
           "color": "#6A2C91",
           "runs": 185,
           "wickets": 3,
-          "overs": "14.1"
+          "overs": "14.1",
+          "innings": null
         },
         "target_runs": 183,
         "outcome_type": "win",
@@ -89,6 +94,7 @@
         "result_text": "Hobart Hurricanes won by 7 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "HBH-2025",
           "winner_name": "Hobart Hurricanes",
@@ -121,7 +127,8 @@
           "color": "#00B4D8",
           "runs": 166,
           "wickets": 8,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "SYS-2024",
@@ -130,7 +137,8 @@
           "color": "#E2007A",
           "runs": 112,
           "wickets": 10,
-          "overs": "17.3"
+          "overs": "17.3",
+          "innings": null
         },
         "target_runs": 167,
         "outcome_type": "win",
@@ -138,6 +146,7 @@
         "result_text": "Brisbane Heat won by 54 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SYS-2024",
           "winner_name": "Sydney Sixers",
@@ -170,7 +179,8 @@
           "color": "#00B4D8",
           "runs": 175,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "PRS-2023",
@@ -179,7 +189,8 @@
           "color": "#F47920",
           "runs": 178,
           "wickets": 5,
-          "overs": "19.2"
+          "overs": "19.2",
+          "innings": null
         },
         "target_runs": 176,
         "outcome_type": "win",
@@ -187,6 +198,7 @@
         "result_text": "Perth Scorchers won by 5 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "BRH-2023",
           "winner_name": "Brisbane Heat",
@@ -219,7 +231,8 @@
           "color": "#F47920",
           "runs": 171,
           "wickets": 6,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "SYS-2022",
@@ -228,7 +241,8 @@
           "color": "#E2007A",
           "runs": 92,
           "wickets": 10,
-          "overs": "16.2"
+          "overs": "16.2",
+          "innings": null
         },
         "target_runs": 172,
         "outcome_type": "win",
@@ -236,6 +250,7 @@
         "result_text": "Perth Scorchers won by 79 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "SYS-2022",
           "winner_name": "Sydney Sixers",
@@ -268,7 +283,8 @@
           "color": "#E2007A",
           "runs": 188,
           "wickets": 6,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "PRS-2021",
@@ -277,7 +293,8 @@
           "color": "#F47920",
           "runs": 161,
           "wickets": 9,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 189,
         "outcome_type": "win",
@@ -285,6 +302,7 @@
         "result_text": "Sydney Sixers won by 27 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "PRS-2021",
           "winner_name": "Perth Scorchers",

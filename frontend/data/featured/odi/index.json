@@ -23,7 +23,8 @@
           "color": "#1C6FD1",
           "runs": 240,
           "wickets": 10,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-AUS-2023",
@@ -32,7 +33,8 @@
           "color": "#FFCD00",
           "runs": 241,
           "wickets": 4,
-          "overs": "43.0"
+          "overs": "43.0",
+          "innings": null
         },
         "target_runs": 241,
         "outcome_type": "win",
@@ -40,6 +42,7 @@
         "result_text": "Australia won by 6 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-AUS-2023",
           "winner_name": "Australia",
@@ -72,7 +75,8 @@
           "color": "#A8A8A8",
           "runs": 241,
           "wickets": 8,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-ENG-2019",
@@ -81,7 +85,8 @@
           "color": "#1D4FA0",
           "runs": 241,
           "wickets": 10,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "target_runs": 242,
         "outcome_type": "tie",
@@ -89,6 +94,7 @@
         "result_text": "Match tied (England won on boundaries after a tied super over)",
         "win_method": null,
         "decided_by_super_over": true,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-NZ-2019",
           "winner_name": "New Zealand",
@@ -121,7 +127,8 @@
           "color": "#A8A8A8",
           "runs": 183,
           "wickets": 10,
-          "overs": "45.0"
+          "overs": "45.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-AUS-2015",
@@ -130,7 +137,8 @@
           "color": "#FFCD00",
           "runs": 186,
           "wickets": 3,
-          "overs": "33.1"
+          "overs": "33.1",
+          "innings": null
         },
         "target_runs": 184,
         "outcome_type": "win",
@@ -138,6 +146,7 @@
         "result_text": "Australia won by 7 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-NZ-2015",
           "winner_name": "New Zealand",
@@ -170,7 +179,8 @@
           "color": "#2B4BA8",
           "runs": 274,
           "wickets": 6,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-IND-2011",
@@ -179,7 +189,8 @@
           "color": "#1C6FD1",
           "runs": 277,
           "wickets": 4,
-          "overs": "48.2"
+          "overs": "48.2",
+          "innings": null
         },
         "target_runs": 275,
         "outcome_type": "win",
@@ -187,6 +198,7 @@
         "result_text": "India won by 6 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-SL-2011",
           "winner_name": "Sri Lanka",
@@ -219,7 +231,8 @@
           "color": "#FFCD00",
           "runs": 281,
           "wickets": 4,
-          "overs": "38.0"
+          "overs": "38.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-SL-2007",
@@ -228,7 +241,8 @@
           "color": "#2B4BA8",
           "runs": 215,
           "wickets": 8,
-          "overs": "36.0"
+          "overs": "36.0",
+          "innings": null
         },
         "target_runs": 269,
         "outcome_type": "win",
@@ -236,6 +250,7 @@
         "result_text": "Australia won by 53 runs (D/L)",
         "win_method": "D/L",
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-AUS-2007",
           "winner_name": "Australia",
@@ -268,7 +283,8 @@
           "color": "#FFCD00",
           "runs": 359,
           "wickets": 2,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-IND-2003",
@@ -277,7 +293,8 @@
           "color": "#1C6FD1",
           "runs": 234,
           "wickets": 10,
-          "overs": "39.2"
+          "overs": "39.2",
+          "innings": null
         },
         "target_runs": 360,
         "outcome_type": "win",
@@ -285,6 +302,7 @@
         "result_text": "Australia won by 125 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-IND-2003",
           "winner_name": "India",
@@ -317,7 +335,8 @@
           "color": "#A8A8A8",
           "runs": 251,
           "wickets": 7,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-IND-2025",
@@ -326,7 +345,8 @@
           "color": "#1C6FD1",
           "runs": 254,
           "wickets": 6,
-          "overs": "49.0"
+          "overs": "49.0",
+          "innings": null
         },
         "target_runs": 252,
         "outcome_type": "win",
@@ -334,6 +354,7 @@
         "result_text": "India won by 4 wickets",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-NZ-2025",
           "winner_name": "New Zealand",
@@ -366,7 +387,8 @@
           "color": "#1E8E3E",
           "runs": 338,
           "wickets": 4,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-IND-2017",
@@ -375,7 +397,8 @@
           "color": "#1C6FD1",
           "runs": 158,
           "wickets": 10,
-          "overs": "30.3"
+          "overs": "30.3",
+          "innings": null
         },
         "target_runs": 339,
         "outcome_type": "win",
@@ -383,6 +406,7 @@
         "result_text": "Pakistan won by 180 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-IND-2017",
           "winner_name": "India",
@@ -415,7 +439,8 @@
           "color": "#1C6FD1",
           "runs": 129,
           "wickets": 7,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-ENG-2013",
@@ -424,7 +449,8 @@
           "color": "#1D4FA0",
           "runs": 124,
           "wickets": 8,
-          "overs": "20.0"
+          "overs": "20.0",
+          "innings": null
         },
         "target_runs": 130,
         "outcome_type": "win",
@@ -432,6 +458,7 @@
         "result_text": "India won by 5 runs",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-ENG-2013",
           "winner_name": "England",
@@ -464,7 +491,8 @@
           "color": "#FFCD00",
           "runs": 434,
           "wickets": 4,
-          "overs": "50.0"
+          "overs": "50.0",
+          "innings": null
         },
         "team_b": {
           "team_season_id": "ODI-SA-2006",
@@ -473,7 +501,8 @@
           "color": "#007A4D",
           "runs": 438,
           "wickets": 9,
-          "overs": "49.5"
+          "overs": "49.5",
+          "innings": null
         },
         "target_runs": 435,
         "outcome_type": "win",
@@ -481,6 +510,7 @@
         "result_text": "South Africa won by 1 wicket",
         "win_method": null,
         "decided_by_super_over": false,
+        "won_by_innings": null,
         "toss": {
           "winner_id": "ODI-AUS-2006",
           "winner_name": "Australia",

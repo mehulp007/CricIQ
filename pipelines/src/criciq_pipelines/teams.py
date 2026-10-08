@@ -7,7 +7,8 @@
   units of a team's batting and bowling profile.
 - ``team_season_records``: the league table (points, net run rate and position,
   including abandoned fixtures Cricsheet has no record of; level teams are
-  separated by wins, then net run rate) and each side's playoff finish.
+  separated by wins, then net run rate) and each side's playoff finish. Tests
+  add a ``drawn`` column, and a draw is a ``result`` of its own.
 
 Net run rate follows the playing conditions: a side bowled out is charged its
 full quota of overs; when a chase is revised or ended by rain (D/L), the side
@@ -112,6 +113,7 @@ SELECT x.match_id, x.match_order, x.season, x.match_date, x.stage, x.is_playoff,
        x.franchise_id, x.team_id, x.team_name, x.opponent_id, x.opponent_team_id,
        x.opponent_name,
        CASE WHEN x.outcome_type = 'no_result' THEN 'no_result'
+            WHEN x.outcome_type = 'draw' THEN 'drawn'
             WHEN x.winner_id = x.team_id THEN 'won' ELSE 'lost' END AS result,
        x.outcome_type = 'tie' AS tied,
        x.stage = 'League' AND v.match_id IS NULL AS in_table,
@@ -269,6 +271,21 @@ RECORDS_SQL = """
 """
 
 
+# Tests can be drawn: each season's draws, counted among the matches played (the
+# limited-overs tables keep exactly their columns).
+TEST_RECORDS_SQL = """
+CREATE OR REPLACE TABLE team_season_records AS
+WITH d AS (
+    SELECT season, franchise_id, count(*) FILTER (WHERE result = 'drawn')::INTEGER AS drawn
+    FROM team_matches WHERE in_table GROUP BY ALL
+)
+SELECT r.* REPLACE ((r.played + coalesce(d.drawn, 0))::INTEGER AS played),
+       coalesce(d.drawn, 0)::INTEGER AS drawn
+FROM team_season_records r LEFT JOIN d USING (season, franchise_id)
+ORDER BY r.season, r.position
+"""
+
+
 def build_team_tables(
     con: duckdb.DuckDBPyConnection,
     tables: LeagueTablesConfig,
@@ -304,6 +321,9 @@ def build_team_tables(
     con.execute("DROP TABLE team_matches_base")
     con.execute(_phases_sql())
     con.execute(RECORDS_SQL)
+    formats = {f for (f,) in con.execute("SELECT DISTINCT format FROM competitions").fetchall()}
+    if formats == {"Test"}:
+        con.execute(TEST_RECORDS_SQL)
     con.execute("DROP TABLE voided_matches")
     con.execute("DROP TABLE abandoned_fixtures")
     con.execute("DROP TABLE home_countries")

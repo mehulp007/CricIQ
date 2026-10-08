@@ -2,7 +2,7 @@
 
 Each group (``config/model_groups.yaml``) trains only on its own competitions,
 from a copy of the warehouse holding just them, and serves only them: the IPL,
-the other T20 leagues together, T20 internationals and ODIs each have models of
+the other T20 leagues together, T20 internationals, ODIs and Tests each have models of
 their own. The pipeline builds each group's copy; the models package trains,
 scores and reports one group at a time (``criciq_ml.formats.use_group``).
 """

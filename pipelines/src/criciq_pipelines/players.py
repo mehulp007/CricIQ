@@ -149,7 +149,8 @@ _BOWL_TOTALS = """
 _CONTEXT = """
     s.year AS season, m.match_order, m.match_date, m.venue_id, m.is_playoff,
     {side}.franchise_id AS team_id, {other}.franchise_id AS opposition_id,
-    CASE WHEN m.winner_id IS NULL THEN 'no_result'
+    CASE WHEN m.outcome_type = 'draw' THEN 'drawn'
+         WHEN m.winner_id IS NULL THEN 'no_result'
          WHEN m.winner_id = {side}.team_season_id THEN 'won' ELSE 'lost' END AS result
 """
 

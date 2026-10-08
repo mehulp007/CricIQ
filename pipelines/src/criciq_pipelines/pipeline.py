@@ -47,10 +47,10 @@ SCOPED = ("IPL",)
 # pooled T20 models of V2-3 trained on and score from (criciq_ml), until each model
 # group has trained its own.
 POOLED = "T20"
-# Formats with models of their own (Test cricket arrives in V2-6).
-MODEL_FORMATS = ("T20", "ODI")
-# Formats the site serves so far (Test cricket arrives in V2-6).
-SERVED_FORMATS = ("T20", "ODI")
+# Formats with models of their own.
+MODEL_FORMATS = ("T20", "ODI", "Test")
+# Formats the site serves.
+SERVED_FORMATS = ("T20", "ODI", "Test")
 
 
 def selected_competitions() -> list[Competition]:

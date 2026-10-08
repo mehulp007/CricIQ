@@ -10,6 +10,10 @@ multi-competition one by one.
 A copy can also hold several competitions (the pooled T20 copy the models train
 on): ``match_order`` is then the order across all of them, and every other
 table keeps each competition's rows unchanged.
+
+A copy of Test matches only (V2-6) keeps the Test columns as well: an innings
+win, the days a match lasted, and declarations, follow-ons, forfeits and
+penalty runs. Copies of limited-overs matches keep exactly the v1 columns.
 """
 
 from __future__ import annotations
@@ -35,6 +39,9 @@ _INNINGS_COLUMNS = (
     "target_overs, target_balls, runs, wickets, legal_balls, extras, absent_hurt_ids, "
     "miscounted_overs"
 )
+# The Test columns a copy of Test matches adds after the v1 ones.
+_TEST_MATCH_COLUMNS = ", win_by_innings, days"
+_TEST_INNINGS_COLUMNS = ", declared, forfeited, follow_on, penalty_runs"
 
 
 class ScopeError(RuntimeError):
@@ -71,6 +78,17 @@ def build_scope(
             else "(row_number() OVER (ORDER BY global_order))::INTEGER AS match_order"
         )
         columns = _MATCH_COLUMNS.replace("match_order", order, 1)
+        innings_columns = _INNINGS_COLUMNS
+        formats = {
+            f
+            for (f,) in con.execute(
+                "SELECT DISTINCT format FROM w.competitions "
+                "WHERE list_contains(getvariable('competitions'), competition_id)"
+            ).fetchall()
+        }
+        if formats == {"Test"}:
+            columns += _TEST_MATCH_COLUMNS
+            innings_columns += _TEST_INNINGS_COLUMNS
         con.execute(
             f"""
             CREATE TABLE competitions AS
@@ -113,7 +131,7 @@ def build_scope(
             ORDER BY raw_name;
 
             CREATE TABLE innings AS
-            SELECT {_INNINGS_COLUMNS} FROM w.innings
+            SELECT {innings_columns} FROM w.innings
             WHERE match_id IN (SELECT match_id FROM matches) ORDER BY match_id, innings_no;
 
             CREATE TABLE deliveries AS

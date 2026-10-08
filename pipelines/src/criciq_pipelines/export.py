@@ -169,6 +169,40 @@ LEFT JOIN last_super_over so ON so.match_id = m.match_id
 ORDER BY m.match_order
 """
 
+# Test matches (a serving database of Tests only): every innings of each side, and
+# results that limited-overs cricket does not have (draws, innings victories).
+TEST_SUMMARIES_SQL = f"""
+CREATE OR REPLACE TABLE match_summaries AS
+WITH sides AS (
+    SELECT i.match_id, i.batting_team_id,
+           list({{
+               'innings_no': i.innings_no, 'runs': i.runs, 'wickets': i.wickets,
+               'overs': {_OVERS.format(b="i.legal_balls")}, 'declared': i.declared,
+               'follow_on': i.follow_on, 'forfeited': i.forfeited
+           }} ORDER BY i.innings_no) AS innings
+    FROM innings i
+    GROUP BY i.match_id, i.batting_team_id
+)
+SELECT s.* REPLACE (
+           CASE
+               WHEN m.outcome_type = 'draw' THEN 'Match drawn'
+               WHEN m.outcome_type = 'tie' THEN 'Match tied'
+               WHEN m.win_by_innings IS NOT NULL THEN
+                   s.winner_name || ' won by an innings and ' || m.win_by_runs
+                   || CASE WHEN m.win_by_runs = 1 THEN ' run' ELSE ' runs' END
+               ELSE s.result_text
+           END AS result_text
+       ),
+       m.win_by_innings IS NOT NULL AS won_by_innings,
+       coalesce(a.innings, []) AS team_a_innings,
+       coalesce(b.innings, []) AS team_b_innings
+FROM match_summaries s
+JOIN matches m USING (match_id)
+LEFT JOIN sides a ON a.match_id = s.match_id AND a.batting_team_id = s.team_a_id
+LEFT JOIN sides b ON b.match_id = s.match_id AND b.batting_team_id = s.team_b_id
+ORDER BY s.match_order
+"""
+
 
 class LeagueTableMismatchError(RuntimeError):
     pass
@@ -216,6 +250,9 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
         con.execute(f"ATTACH '{warehouse.as_posix()}' AS wh (READ_ONLY)")
         copy_core_tables(con)
         con.execute(MATCH_SUMMARIES_SQL)
+        formats = {r[0] for r in con.execute("SELECT DISTINCT format FROM competitions").fetchall()}
+        if formats == {"Test"}:
+            con.execute(TEST_SUMMARIES_SQL)
         con.execute("DETACH wh")
         con.execute(DATA_UPDATES_SQL)
         if updates is not None:

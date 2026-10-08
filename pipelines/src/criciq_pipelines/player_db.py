@@ -1,4 +1,4 @@
-"""The players database: Player Lab tables for every T20 competition, all T20 and ODIs.
+"""The players database: Player Lab tables for every T20 competition, all T20, ODIs and Tests.
 
 Each competition's tables are built exactly as the IPL's are for the serving
 database (``criciq_pipelines.players``), from that competition's v1-shaped copy
@@ -37,8 +37,8 @@ from criciq_pipelines.players import INDEX_QUERY, PLAYER_TABLES, build_player_ta
 from criciq_pipelines.reference import load_competitions
 from criciq_pipelines.scope import build_scope
 
-# The formats in the players database so far (Test cricket follows in V2-6).
-FORMATS = ("T20", "ODI")
+# The formats in the players database.
+FORMATS = ("T20", "ODI", "Test")
 # The scope holding every T20 competition.
 ALL_T20 = "T20"
 

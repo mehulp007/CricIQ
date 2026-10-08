@@ -48,3 +48,10 @@ groups:
     copy: ODI
     models: odi
     config: odi
+
+  - id: test
+    format: Test
+    competitions: [TEST]
+    copy: TEST
+    models: test
+    config: test

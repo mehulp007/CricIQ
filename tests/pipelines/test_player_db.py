@@ -1,4 +1,4 @@
-"""The players database: Player Lab tables for every T20 competition and all T20."""
+"""The players database: Player Lab tables for every competition and all T20."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from criciq_pipelines.player_db import (
 from criciq_pipelines.players import PLAYER_TABLES
 
 T20_COMPETITIONS = ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I"]
-COMPETITIONS = [*T20_COMPETITIONS, "ODI"]
+COMPETITIONS = [*T20_COMPETITIONS, "ODI", "TEST"]
 
 
 @pytest.fixture(scope="module")
@@ -37,12 +37,12 @@ def test_a_scope_per_competition_and_one_for_all_t20(con: duckdb.DuckDBPyConnect
         con,
         "SELECT scope_id, schema_name, competition_ids, format FROM scopes ORDER BY display_order",
     )
-    # The T20 competitions, all T20 together, then ODIs.
-    assert [s[0] for s in scopes] == [*T20_COMPETITIONS, ALL_T20, "ODI"]
+    # The T20 competitions, all T20 together, then ODIs and Tests.
+    assert [s[0] for s in scopes] == [*T20_COMPETITIONS, ALL_T20, "ODI", "TEST"]
     assert {s[0]: s[1] for s in scopes}["SA20"] == "sa20"
     assert {s[0]: s[2] for s in scopes}[ALL_T20] == T20_COMPETITIONS
     assert {s[0]: s[3] for s in scopes}["ODI"] == "ODI"
-    # Test cricket comes later.
+    assert {s[0]: (s[1], s[3]) for s in scopes}["TEST"] == ("test", "Test")
     assert _rows(con, "SELECT DISTINCT competition_id FROM matches ORDER BY ALL") == sorted(
         (c,) for c in COMPETITIONS
     )
@@ -89,7 +89,7 @@ def test_par_is_each_competitions_own_rate(
             JOIN w.matches m USING (match_id)
             JOIN w.seasons s USING (season_id)
             JOIN w.competitions c ON c.competition_id = m.competition_id
-            WHERE NOT i.is_super_over AND c.format IN ('T20', 'ODI')
+            WHERE NOT i.is_super_over AND c.format IN ('T20', 'ODI', 'Test')
             GROUP BY ALL ORDER BY ALL
             """,
         )
@@ -138,7 +138,11 @@ def test_all_t20_puts_a_career_together(con: duckdb.DuckDBPyConnection) -> None:
             [player_id],
         ) == [(matches, first, last)]
     everyone = _rows(
-        con, "SELECT count(DISTINCT player_id) FROM player_index WHERE scope_id <> 'ODI'"
+        con,
+        """
+        SELECT count(DISTINCT player_id) FROM player_index
+        WHERE scope_id NOT IN ('ODI', 'TEST', 'T20')
+        """,
     )
     assert _rows(con, "SELECT count(*) FROM t20.player_index") == everyone
 
@@ -210,6 +214,13 @@ def test_a_selection_builds_only_those_competitions(
         ).fetchall() == [("ODI", ["ODI"])]
     finally:
         connection.close()
+    # Tests alone: their own scope, no All T20 either.
+    export_players(fixture_full_warehouse, tmp_path / "players-test.duckdb", ["TEST"])
+    connection = duckdb.connect(str(tmp_path / "players-test.duckdb"), read_only=True)
+    try:
+        assert connection.execute("SELECT scope_id FROM scopes").fetchall() == [("TEST",)]
+    finally:
+        connection.close()
     with pytest.raises(PlayerDatabaseError):
-        export_players(fixture_full_warehouse, tmp_path / "none.duckdb", ["TEST"])
+        export_players(fixture_full_warehouse, tmp_path / "none.duckdb", ["WBBL"])
     assert not (tmp_path / "none.duckdb").exists()

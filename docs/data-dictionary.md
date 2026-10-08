@@ -199,8 +199,9 @@ name `ratings`, published by `criciq-ml score` from `models/ratings/<version>/ma
 ## Players database (`players.duckdb`)
 
 `data/exports/players.duckdb` (`criciq_pipelines.player_db`, ADR-0009): the Player Lab tables for
-every T20 competition (the IPL, BBL, PSL, CPL, SA20 and T20Is), for all T20 cricket together and
-for ODIs (whose phases are overs 1-10, 11-40 and 41-50).
+every T20 competition (the IPL, BBL, PSL, CPL, SA20 and T20Is), for all T20 cricket together,
+for ODIs (whose phases are overs 1-10, 11-40 and 41-50) and for Tests (the new ball, overs 1-20;
+the middle overs, 21-80; the second new ball, 81 on).
 
 In schema `main`, every Player Lab table above has a leading `competition_id`, and the innings tables
 also carry `global_order` (a match's order across every competition); `player_index` has `scope_id`
@@ -208,13 +209,13 @@ instead (a competition, or `T20`). Shared tables:
 
 | Table | Notes |
 |---|---|
-| `scopes` | One row per scope: `scope_id` (`IPL` ... `T20I`, `T20` for all of them, then `ODI`), `schema_name` (its schema and API path segment, e.g. `sa20`), `name`, `short_name`, `format`, `competition_ids`, `display_order` |
+| `scopes` | One row per scope: `scope_id` (`IPL` ... `T20I`, `T20` for all of them, then `ODI` and `TEST`), `schema_name` (its schema and API path segment, e.g. `sa20`), `name`, `short_name`, `format`, `competition_ids`, `display_order` |
 | `competitions`, `matches`, `innings`, `wickets`, `players`, `venues` | The full warehouse's rows for the included competitions (slim columns) |
 | `seasons` | As in the warehouse, plus `label`: "2023/24" where seasons span the new year (the BBL), else the year |
 | `franchises` | Each competition's teams in the v1 shape; teams without curated colours (most associate nations) get neutral grey `#7A7A7A` |
 | `meta` | `data_version`, `pipeline_version`, `built_at`, `competitions` |
 
-One schema per scope (`ipl`, `bbl`, `psl`, `cpl`, `sa20`, `t20i`, `t20`, `odi`) holds views with the serving
+One schema per scope (`ipl`, `bbl`, `psl`, `cpl`, `sa20`, `t20i`, `t20`, `odi`, `test`) holds views with the serving
 database's table names and columns, restricted to the scope, so the API's Player Lab queries run on
 any of them through `search_path`. In `t20` the competitions' rows are put together, each with its
 own par; `player_index` (role, career span, latest team) is computed over all of them, and the
@@ -280,6 +281,21 @@ recorded); the API's `/meta` reports the latest non-initial update as `last_upda
 Key/value build metadata: `data_version`, `pipeline_version`, `built_at`, `competition_id`,
 `player_attributes`, and `season_spans_new_year` (`true` where seasons are named "2023/24").
 
-Every competition on the site (the T20 competitions and ODIs) has a serving database of its own
-with these tables
+Every competition on the site (the T20 competitions, ODIs and Tests) has a serving database of
+its own with these tables
 (`serving.duckdb` for the IPL, `serving-<competition>.duckdb` for the others; ADR-0011).
+
+The Test serving database (`serving-test.duckdb`, ADR-0014) differs where Tests do:
+
+| Table | Test-only columns and tables |
+|---|---|
+| `matches` | `win_by_innings`, `days` (the dates the match was played on) |
+| `innings` | `declared`, `forfeited`, `follow_on`, `penalty_runs` |
+| `match_summaries` | `won_by_innings`; `team_a_innings` and `team_b_innings`, each side's innings in order (runs, wickets, overs, declared, follow-on, forfeited); results read "Match drawn" and "won by an innings and N runs" |
+| `team_matches` | `result` can be `drawn` |
+| `team_season_records` | `drawn`, counted in `played` |
+| `wp_predictions` | `wp_draw` beside `wp_team_a` (the side batting first wins); no explanations, pressure or momentum |
+| `innings_projections` | Quantiles of every innings' final total after every ball (`match_id`, `innings_no`, `seq_no`, `quantiles`); limited-overs databases have `score_projections` for the first innings |
+| `chase_states` | Every fourth-innings state with the columns the win probability model reads: where the chase what-if starts |
+| `models` | `win_probability.info` holds the model's terms per innings and `now` (each side's rating and the scoring era after the last Test) for the chase calculator |
+| `player_wpa` | Expected result added: a win counts 1, a draw a half |

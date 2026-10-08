@@ -10,6 +10,13 @@ Every kind of cricket on CricIQ has models of its own, trained only on its own m
 | `leagues` | BBL, CPL, PSL, SA20 | `config/models/leagues/` | `models/leagues/` |
 | `t20i` | Men's T20 internationals | `config/models/t20i/` | `models/t20i/` |
 | `odi` | Men's ODIs | `config/models/odi/` | `models/odi/` |
+| `test` | Men's Tests | `config/models/test/` | `models/test/` |
+
+Tests have models of their own design ([ADR-0014](adr/0014-test-cricket-models.md)): win
+probability gives three outcomes (a win, a draw, a defeat) per innings, every innings is
+projected, and there is no simulator, so `just train-group test` trains the ball model, win
+probability, the projection and the ratings. A full Test run takes about two hours, most of it
+the ball model on 1.7 million balls.
 
 Training runs on your own computer; nothing is sent anywhere.
 

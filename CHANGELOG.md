@@ -7,6 +7,25 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
 
 ### Added
+- **Test cricket** (V2-6, ADR-0014): men's Tests from 2001 on every page under `/test/`.
+  - Data: a Test copy of the warehouse (`test.duckdb`, with declarations, follow-ons, innings
+    wins and the days played), `serving-test.duckdb` (each side's innings in the match summaries,
+    "Match drawn" and innings victories in the results, draws in the team tables) and a `test`
+    scope in the players database.
+  - Win probability with three outcomes (win, draw, loss), a multinomial regression per innings
+    the API can run (`criciq_core.test_win_probability`, `criciq_ml.test_match`): test log loss
+    0.633 against 0.651 for the match state alone over 59 Tests (95% interval -0.045 to +0.074),
+    better in 12 of 15 backtest years; boosted trees memorised matches (0.836 against 0.736 on
+    the rolling origin) and are not used. The time left is estimated (five days of 90 overs less
+    those bowled) and the cards say how approximate that is.
+  - Every innings projected (mean miss 63 runs against 67 for par; 80% range holds 76.6%), the
+    ball model with Test phases (0.9879 against 1.0005, 13 of 13 backtest years) and Test
+    ratings (wicket-taking per 20 overs, the fourth innings, expected result added).
+  - No match simulator: a fourth-innings chase what-if in the replay
+    (`/matches/{id}/chase`) and a Chase calculator page (`/chase`, `/chase/sides`).
+  - The Test replay: three-way result bar and chart, estimated day markers, projections in every
+    innings, jumps by day and innings, speeds up to 64x; Test Model Insights; six featured Tests.
+  - `just train-group test` trains the Test group (no simulator step).
 - **Model groups: every kind of cricket modelled from its own matches** (ADR-0013)
   - `config/model_groups.yaml`: the IPL, the other leagues (BBL, CPL, PSL, SA20), men's T20
     internationals and ODIs each train on and serve their own competitions only, from their own

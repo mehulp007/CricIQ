@@ -129,7 +129,8 @@ runs either way, with no drift as totals rose by 30 runs across eras.
 
 Every competition's models learn from its own kind of cricket only
 ([ADR-0013](docs/adr/0013-models-per-group.md)): the **IPL** alone; the **BBL, CPL, PSL and SA20**
-together, with no IPL and no internationals; **men's T20Is** alone; and **ODIs** alone. A player's
+together, with no IPL and no internationals; **men's T20Is** alone; **ODIs** alone; and **Tests**
+alone. A player's
 record inside a model counts only that kind of cricket. Each group is trained with one command
 on a laptop and judged once on its 2025–2026 matches ([how to train](docs/training.md)):
 
@@ -169,15 +170,14 @@ lets the PSL's simulator pass too. Model cards: [leagues](docs/model-cards/leagu
 
 ## Every competition on the site (v2)
 
-On the `v2` branch the site covers the IPL, BBL, PSL, CPL, SA20, men's T20Is and men's ODIs. A switcher in the
+On the `v2` branch the site covers the IPL, BBL, PSL, CPL, SA20, men's T20Is, ODIs and Tests. A switcher in the
 top bar picks the competition, every data page lives under it (`/ipl/matches`, `/t20i/teams`,
 `/bbl/players/...`), and the v1 URLs redirect to the IPL's. Each competition has its own serving
 database, so its replays, teams, matchups and simulator read only its own matches
 ([ADR-0011](docs/adr/0011-one-serving-database-per-competition.md)); the API is
 `/api/v2/{competition}/...`. National sides get records by year and by opponent instead of league
 tables, players get a tab for every competition they played in and for all T20, and the leagues'
-tables are computed from results (the IPL's are checked against the official ones). Test cricket
-comes next.
+tables are computed from results (the IPL's are checked against the official ones).
 
 ## ODIs: their own models (v2)
 
@@ -199,6 +199,40 @@ level with a logistic regression on the match state, and the site says so. Model
 [score projection](docs/model-cards/odi/score-projection.md),
 [ball outcome](docs/model-cards/odi/ball-outcome.md), [ratings](docs/model-cards/odi/ratings.md),
 [simulator](docs/model-cards/odi/simulator.md).
+
+## Tests: models of their own design (v2)
+
+Men's Tests (895 matches from December 2001) have every page, and models built for a match of
+four innings that can be drawn ([ADR-0014](docs/adr/0014-test-cricket-models.md)), trained on
+Tests only and tested once on the 59 Tests of 2025–2026:
+
+| Test, 2025–2026 | CricIQ | Baseline |
+|---|---|---|
+| Win probability (win, draw, loss), log loss | **0.633**, Brier 0.367; better in 12 of 15 backtest years | 0.651, Brier 0.384 (the match state alone): ahead, 95% interval −0.045 to +0.074 |
+| Innings projection, mean miss | **63 runs**, 80% range holds 76.6%; better in 13 of 13 backtest years | 67 runs (par by innings and wickets) |
+| Ball outcome, log loss | **0.9879**, better in 13 of 13 backtest years | 1.0005 (phase and wickets) |
+| Ratings | 10 components highly stable, 4 moderately, 2 low | — |
+
+- **Three outcomes.** A draw comes from running out of time, so every replay shows the chances
+  of a win, a draw and a defeat after every ball. The model is a multinomial regression per
+  innings on the lead (or the runs needed), wickets in hand, the overs left and the scoring era,
+  plus what earlier Tests say about the two sides (an Elo-style rating) and home advantage,
+  chosen on a rolling origin over 2012–2024. It is clearly better than the match state alone in
+  the first innings (log loss 0.768 against 0.865), when the sides' strength matters most, and
+  level later, when the state says most.
+- **Why not boosted trees.** With one result shared by about 2,000 balls and only about 800
+  Tests, trees split on the pre-match context and memorised individual matches: 0.836 on the
+  rolling origin, against 0.736 for the regression.
+- **Time is estimated.** Cricsheet records no sessions, so the overs left are five days of 90 overs
+  less those bowled (drawn Tests averaged 361 overs, so the model learns how much is really
+  left), and replay days are estimated by sharing a match's overs between its dates.
+- **No simulator, a chase calculator instead.** A Test turns on declarations and time. The
+  replay's fourth innings has a chase what-if (change the runs needed, wickets or overs left), and
+  the Chase calculator sets up a chase between any two sides; both run the win probability model.
+
+Model cards: [win probability](docs/model-cards/test/win-probability.md),
+[innings projection](docs/model-cards/test/score-projection.md),
+[ball outcome](docs/model-cards/test/ball-outcome.md), [ratings](docs/model-cards/test/ratings.md).
 
 ## Player Lab: measured against par
 

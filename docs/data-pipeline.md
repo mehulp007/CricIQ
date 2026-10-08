@@ -40,13 +40,15 @@ data/warehouse/leagues.duckdb       the BBL, CPL, PSL and SA20: the leagues' mod
 data/warehouse/t20i.duckdb          men's T20Is: the T20Is' models (ADR-0013)
 data/warehouse/odi.duckdb           the ODIs in the v1 shape: what the ODI models
      │                              train on (ADR-0012)
+data/warehouse/test.duckdb          the Tests, with their own columns (declarations,
+     │                              follow-ons, innings wins): the Test models (ADR-0014)
 data/warehouse/t20.duckdb           every T20 competition in one time order: the pooled
      │                              models of V2-3, kept as a fallback (ADR-0010)
      │  export
      ▼
 data/exports/serving.duckdb         what the API serves for the IPL, scored by the models
 data/exports/serving-<id>.duckdb    the same for every other competition on the site
-                                    (BBL, PSL, CPL, SA20, T20I, ODI; ADR-0011)
+                                    (BBL, PSL, CPL, SA20, T20I, ODI, Test; ADR-0011)
 data/exports/players.duckdb         Player Lab tables for every competition and all T20
 ```
 
@@ -162,7 +164,9 @@ database are unchanged, table by table.
 
 The same step writes a copy for each **model group** (`config/model_groups.yaml`,
 ADR-0013), which its models train and score on: `leagues.duckdb` (BBL, CPL, PSL, SA20),
-`t20i.duckdb` and `odi.duckdb` (V2-5, ADR-0012); the IPL's is `ipl.duckdb`. A copy with several
+`t20i.duckdb`, `odi.duckdb` (V2-5, ADR-0012) and `test.duckdb` (V2-6, ADR-0014); the IPL's
+is `ipl.duckdb`. A copy of Tests keeps the Test columns too (an innings win, the days played,
+declarations, follow-ons, forfeits and penalty runs); the others keep exactly the v1 columns. A copy with several
 competitions has `match_order` running across them by date. The **pooled copy**
 `data/warehouse/t20.duckdb` (every T20 competition, V2-3) is still written for the pooled models,
 which serve a group until it has trained its own. `criciq-data export-competition <id> --out <path>`
@@ -172,7 +176,7 @@ them).
 ### 5a. One serving database per competition
 
 `criciq-data export` and `run` (and every sync) export a serving database for each competition in
-the switcher (`switcher: true` in `config/competitions.yaml`, T20 and ODI for now): the IPL's
+the switcher (`switcher: true` in `config/competitions.yaml`: T20, ODI and Test): the IPL's
 `serving.duckdb` from its scoped copy, and `serving-<competition>.duckdb` for the others, each from
 that competition's own v1-shaped copy (ADR-0011). They have the same tables. The league-tables
 config (official tables, abandoned and voided fixtures) is the IPL's, so the other competitions'

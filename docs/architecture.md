@@ -15,19 +15,21 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
               export → serving.duckdb (the IPL: slim, read-only, plus Player Lab tables with
                        par and Team Analytics tables checked against the official league tables)
                      → serving-<competition>.duckdb (the same tables for every other competition
-                       on the site: BBL, PSL, CPL, SA20, T20I, ODI; ADR-0011)
+                       on the site: BBL, PSL, CPL, SA20, T20I, ODI, Test; ADR-0011)
                      → players.duckdb (Player Lab tables of every competition, par per
                        competition, and all T20 together; one schema per scope, ADR-0009)
                         ▼
   [ml] features: as-of, leak-free match states
        train → evaluate → backtest → register (models/<name>/<version>/, committed; ADR-0004)
        model groups (config/model_groups.yaml; ADR-0013): the IPL, the other leagues
-       (BBL, CPL, PSL, SA20), T20Is and ODIs each train on their own competitions only, from
-       their own warehouse copy (ipl, leagues, t20i, odi .duckdb), into models/<group>/
+       (BBL, CPL, PSL, SA20), T20Is, ODIs and Tests each train on their own competitions
+       only, from their own warehouse copy (ipl, leagues, t20i, odi, test .duckdb), into
+       models/<group>/
        (the IPL's in models/ with CURRENT.IPL); `just train-group <group>` trains one in
        order and writes a summary. Until a group has its own, scoring borrows the pooled
        T20 models of V2-3 (t20.duckdb, models/<name>/CURRENT; ADR-0010) and says so.
-       ODIs: ADR-0012
+       ODIs: ADR-0012. Tests (ADR-0014): win, draw or loss per innings (a regression the
+       API can run), every innings projected, no simulator; a chase what-if and calculator
        score every historical ball with the models serving each competition → each serving
        database (wp_predictions, score_projections, player_wpa, matchup_cells, ball_model_terms,
         rating constants, simulator settings where a simulator passed there) and
@@ -108,6 +110,8 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0010](adr/0010-pooled-t20-models.md): pooled T20 models, served per competition
 - [ADR-0011](adr/0011-one-serving-database-per-competition.md): one serving database per competition, the API under `/api/v2/{competition}` and the site under `/[competition]/`
 - [ADR-0012](adr/0012-models-per-format.md): each format has its own models (`models/odi/`), the format as a context, and the simulator's rules per format
+- [ADR-0013](adr/0013-models-per-group.md): each model group (the IPL, the other leagues, T20Is, ODIs, Tests) trains on its own competitions only
+- [ADR-0014](adr/0014-test-cricket-models.md): Test cricket has models of its own design: three outcomes, every innings projected, no simulator
 
 ## Precompute vs live
 

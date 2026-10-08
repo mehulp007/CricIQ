@@ -108,6 +108,7 @@ def engine(db: Database) -> Engine:
             raise SimulationUnavailableError("the simulator has not been published")
         env = float(ball["env_now"])
         era = (math.log(env) - float(ball["env_mean"])) / float(ball["env_std"])
+        era += repo.level_shift(db, None)
         last = repo.latest_season(db)
         first = last - HISTORY + 1
         r = rules(db)
@@ -134,6 +135,7 @@ def _engine_at(db: Database, key: str, match_order: int, season: int) -> Engine:
         assert ball is not None
         env = repo.era_env(db, match_order, ERA_WINDOW) or float(ball["env_now"])
         era = (math.log(env) - float(ball["env_mean"])) / float(ball["env_std"])
+        era += repo.level_shift(db, match_order)
         first = season - HISTORY + 1
         db.cache[key] = Engine(
             model=sim.BallModel(terms=base.model.terms, era=era),

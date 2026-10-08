@@ -13,6 +13,14 @@ before a ball is bowled, with nothing the captain would not have known:
   as of the match;
 - the actual choice of who batted first (the toss is decided before the start).
 
+With ``level_windows``, the simulator can also follow the scoring level of the
+competition's recent matches: before each match, the scoring era is shifted so the
+ball model's expected runs per ball over a window of previous matches (with their
+real batters, bowlers and situations) equal the runs actually scored. It uses
+nothing a captain would not have known: the results of matches already played.
+The window (or none) is chosen on the validation seasons by the CRPS of simulated
+first-innings totals, so it is only used where it helps there.
+
 The test reports the Brier score and log loss of the simulated chance that the
 side batting first wins, against a coin flip, the base rate of batting first and
 the two sides' recent form, and checks the simulated first-innings totals with a
@@ -44,7 +52,7 @@ from criciq_core import simulation as sim
 from criciq_core.phases import model_format
 from criciq_core.teams import form_probability, log5
 from criciq_ml import formats
-from criciq_ml.ball_outcome import BallOutcomeModel
+from criciq_ml.ball_outcome import CLASSES, BallOutcomeModel, softmax
 
 Log = Callable[[str], None]
 PIT_BINS = 10
@@ -68,6 +76,13 @@ class SimulatorConfig(BaseModel):
     history_seasons: int
     timing_simulations: int
     seed: int
+    # Windows (in matches) the recent scoring level may be followed over; the best on
+    # the validation seasons, or none, is used (see the module docstring).
+    level_windows: list[int] = []
+    # How the conditions spread is chosen on the validation seasons: "coverage" (the
+    # 80% range holds closest to 80% of first-innings totals) or "pit" (the totals'
+    # percentiles closest to uniform, the gate's own test). CRPS breaks ties.
+    tune_spread: str = "coverage"
 
 
 def load_simulator_config(path: Path | None = None) -> SimulatorConfig:
@@ -120,6 +135,57 @@ def ball_model_inputs(
             for player in players:
                 terms.setdefault(f"{role}={player}", list(level))
     return sim.BallModel(terms=terms, era=era)
+
+
+# Runs off the bat for each outcome (CLASSES; a 3 includes the rare 5).
+OUTCOME_RUNS = np.array([0, 1, 2, 3, 4, 6, 0], dtype=float)
+# Era shifts searched for the level (standardised units of the scoring era).
+SHIFT_GRID = np.linspace(-3.0, 8.0, 45)
+
+
+def level_shifts(
+    model: BallOutcomeModel, balls: pd.DataFrame, window: int
+) -> tuple[pd.Series, float]:
+    """The era shift before each match of one competition, by ``match_order``, and the
+    shift after its last match: the shift that makes the model's expected runs per ball
+    over the previous ``window`` matches equal the runs actually scored off the bat.
+
+    ``balls`` are the competition's balls with their situation (``add_situation``) and
+    ``model`` its ball model; a match with no earlier matches gets no shift."""
+    assert len(CLASSES) == len(OUTCOME_RUNS)
+    if balls.empty:
+        return pd.Series(dtype=float), 0.0
+    logits = model.logits(balls)
+    env_term = np.asarray(model.terms["env"], dtype=float)
+    orders, index = np.unique(balls["match_order"].to_numpy(), return_inverse=True)
+    count = np.bincount(index, minlength=len(orders)).astype(float)
+    actual = np.bincount(index, weights=balls["runs_batter"].to_numpy(float), minlength=len(orders))
+    expected = np.stack(
+        [
+            np.bincount(
+                index,
+                weights=softmax(logits + shift * env_term) @ OUTCOME_RUNS,
+                minlength=len(orders),
+            )
+            for shift in SHIFT_GRID
+        ]
+    )
+
+    def previous(values: np.ndarray) -> np.ndarray:
+        # Sums over the ``window`` matches before each match, and after the last one.
+        total = np.concatenate([[0.0], np.cumsum(values)])
+        at = np.arange(len(orders) + 1)
+        out: np.ndarray = total[at] - total[np.maximum(at - window, 0)]
+        return out
+
+    n = previous(count)
+    runs = previous(actual)
+    curves = np.stack([previous(row) for row in expected])
+    shifts = np.zeros(len(orders) + 1)
+    for j in np.flatnonzero(n > 0):
+        curve = np.maximum.accumulate(curves[:, j] / n[j])  # rises with the era
+        shifts[j] = float(np.interp(runs[j] / n[j], curve, SHIFT_GRID))
+    return pd.Series(np.round(shifts[:-1], 4), index=orders), round(float(shifts[-1]), 4)
 
 
 def rules() -> sim.FormatRules:
@@ -311,6 +377,50 @@ class Setup:
     second: sim.Side
 
 
+def with_shifts(setups: list[Setup], shifts: dict[int, float]) -> list[Setup]:
+    """The same matches with each one's scoring era moved by its shift (by match order)."""
+    if not shifts:
+        return setups
+    return [
+        Setup(
+            match=s.match,
+            model=sim.BallModel(
+                terms=s.model.terms,
+                era=s.model.era + shifts.get(int(s.match.match_order), 0.0),
+            ),
+            rates=s.rates,
+            first=s.first,
+            second=s.second,
+        )
+        for s in setups
+    ]
+
+
+def choose_window(
+    setups: list[Setup],
+    shifts_for: Callable[[int], dict[int, float]],
+    cfg: SimulatorConfig,
+    log: Log,
+) -> tuple[int, list[dict[str, float]]]:
+    """The window the recent scoring level is followed over (0 = not followed) with the
+    lowest CRPS of first-innings totals on the validation seasons."""
+    grid = []
+    for window in [0, *cfg.level_windows]:
+        done, _ = simulate_all(
+            with_shifts(setups, shifts_for(window)), cfg.tuning_simulations, 0.3, cfg.seed
+        )
+        full = done[done["full_first"]]
+        row = {
+            "window": window,
+            "crps": round(float(full["crps"].mean()), 3),
+            "bias": round(float((full["sim_first_mean"] - full["first_runs"]).mean()), 2),
+        }
+        grid.append(row)
+        log(f"    level window {window}: CRPS {row['crps']}, totals {row['bias']:+} runs off")
+    best = min(grid, key=lambda r: r["crps"])
+    return int(best["window"]), grid
+
+
 def crps(simulated: np.ndarray, actual: float) -> float:
     """Continuous ranked probability score of a sample (lower is better)."""
     x = np.sort(simulated.astype(float))
@@ -413,11 +523,21 @@ def chase_chance(setup: Setup, n: int, conditions_sd: float, rng: np.random.Gene
     return float(np.mean(reached) + 0.5 * np.mean(tied))
 
 
+def pit_chi2(values: np.ndarray) -> float:
+    """Chi-square of a PIT histogram against a uniform one (``PIT_BINS`` bins)."""
+    if len(values) == 0:
+        return 0.0
+    counts, _ = np.histogram(values, bins=PIT_BINS, range=(0.0, 1.0))
+    expected = len(values) / PIT_BINS
+    return float(((counts - expected) ** 2 / expected).sum())
+
+
 def tune_conditions(
     setups: list[Setup], cfg: SimulatorConfig, log: Log
 ) -> tuple[float, list[dict[str, float]]]:
     """The conditions spread whose 80% range holds closest to 80% of first-innings
-    totals on the validation seasons (CRPS is reported too, and breaks ties)."""
+    totals on the validation seasons, or (``tune_spread: pit``) whose PIT histogram is
+    closest to uniform; CRPS is reported too, and breaks ties."""
     grid = []
     for sd in cfg.conditions_grid:
         done, _ = simulate_all(setups, cfg.tuning_simulations, sd, cfg.seed)
@@ -428,15 +548,18 @@ def tune_conditions(
             "conditions_sd": sd,
             "crps": round(float(full["crps"].mean()), 3),
             "coverage_80": round(float(inside.mean()), 3),
+            "pit_chi2": round(pit_chi2(full["pit"].to_numpy()), 2),
             "brier": round(_brier(p, y), 4),
         }
         grid.append(row)
         log(
-            f"    sd {sd}: CRPS {row['crps']}, "
-            f"80% coverage {row['coverage_80']}, Brier {row['brier']}"
+            f"    sd {sd}: CRPS {row['crps']}, 80% coverage {row['coverage_80']}, "
+            f"PIT chi-square {row['pit_chi2']}, Brier {row['brier']}"
         )
-    # The 80% range should hold 80% of totals; ties go to the lower CRPS.
-    best = min(grid, key=lambda r: (round(abs(r["coverage_80"] - 0.8), 3), r["crps"]))
+    if cfg.tune_spread == "pit":
+        best = min(grid, key=lambda r: (r["pit_chi2"], r["crps"]))
+    else:  # the 80% range should hold 80% of totals; ties go to the lower CRPS
+        best = min(grid, key=lambda r: (round(abs(r["coverage_80"] - 0.8), 3), r["crps"]))
     return float(best["conditions_sd"]), grid
 
 
@@ -590,25 +713,44 @@ def run(
     *,
     data_version: str,
     log: Log = _quiet,
+    competition: str | None = None,
 ) -> tuple[SimulatorSettings, dict[str, Any]]:
     """Tune the conditions spread on the validation seasons, then simulate every
-    test match with a ball model that has never seen the test seasons.
+    test match with a ball model that has never seen the test seasons. ``competition``
+    picks its balls out of ``balls`` for the tracked scoring level.
 
     ``balls`` are what ``fit`` trains on (every T20 competition, for a pooled
     model); ``serving`` holds the competition being simulated.
     """
     envs = balls.groupby("match_id")["env"].first().to_dict()
+    own = balls if competition is None else balls[balls["competition_id"] == competition]
+
+    def shifts(model: BallOutcomeModel, window: int) -> dict[int, float]:
+        if window <= 0:
+            return {}
+        found, _ = level_shifts(model, own, window)
+        return {int(k): float(v) for k, v in found.items()}
+
     con = duckdb.connect(str(serving), read_only=True)
     try:
         log(f"  validation {cfg.valid}: ball model refit on earlier seasons")
         valid_model = fit(balls[balls["season"] < min(cfg.valid)])
         valid = prepare(con, cfg.valid, valid_model, envs, cfg.history_seasons)
+        window = 0
+        level_grid: list[dict[str, float]] = []
+        if cfg.level_windows:
+            window, level_grid = choose_window(valid, lambda w: shifts(valid_model, w), cfg, log)
+            log(f"    chosen level window {window or 'none'}")
+            valid = with_shifts(valid, shifts(valid_model, window))
         conditions_sd, grid = tune_conditions(valid, cfg, log)
         log(f"    chosen conditions spread {conditions_sd}")
 
         log(f"  test {cfg.test}: ball model refit on earlier seasons")
         test_model = fit(balls[balls["season"] < min(cfg.test)])
-        test = prepare(con, cfg.test, test_model, envs, cfg.history_seasons)
+        test = with_shifts(
+            prepare(con, cfg.test, test_model, envs, cfg.history_seasons),
+            shifts(test_model, window),
+        )
         done, forced = simulate_all(test, cfg.simulations, conditions_sd, cfg.seed, chases=True)
         chase_rate = _chase_rate(con, min(cfg.test))
         form = _form_baseline(con, done["match_id"].tolist())
@@ -634,6 +776,7 @@ def run(
         "usage_strength": sim.USAGE_STRENGTH,
         "urgent_from_over": rules().urgent_from_over,
         "min_bowling_overs": float(rules().quota),
+        **({"level_window": window} if window else {}),
     }
     evaluation = {
         "name": cfg.name,
@@ -643,6 +786,7 @@ def run(
         "test": cfg.test,
         "settings": manifest,
         "tuning": grid,
+        **({"level": {"window": window, "grid": level_grid}} if cfg.level_windows else {}),
         **evaluation,
     }
     return SimulatorSettings(manifest), evaluation

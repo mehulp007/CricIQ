@@ -151,6 +151,11 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
     low_chases = chase["mean_predicted"] < chase["observed"] - 0.03
     lopsided = win["calibration"][-1]
     timid = lopsided["observed"] - lopsided["predicted"] > 0.08
+    window = s.get("level_window")
+    # The spread was chosen by the PIT when the chosen value has the most uniform one.
+    pits = [r.get("pit_chi2") for r in d["tuning"]]
+    chosen = next(r for r in d["tuning"] if r["conditions_sd"] == s["conditions_sd"])
+    by_pit = None not in pits and chosen.get("pit_chi2") == min(p for p in pits if p is not None)
     lines = [
         *([f"# {name}", ""] if titled else []),
         f"Conditions spread {s['conditions_sd']} (tuned on {_seasons(d['valid'])}).",
@@ -176,21 +181,49 @@ def _section(d: dict[str, Any], *, titled: bool) -> list[str]:
         "only if the rest of the innings can still be covered. Each simulated match draws its",
         "own conditions (how good the pitch and ground are for batting), shared by both innings,",
         f"with a spread of {s['conditions_sd']} on the log-odds scale: on the validation seasons,",
-        "the value whose 80% range held closest to 80% of first-innings totals"
-        + (
-            ". CRPS barely separates 0.3 from 0.4 there, and a season of jumping scores (2023) "
-            "rewards extra width for its bias, so coverage, not CRPS, decides:"
-            if ipl
-            else " (coverage, not CRPS, decides):"
+        (
+            "the value whose first-innings totals fell most evenly across their simulated ranges "
+            "(the PIT, the gate's own test; adopted after a T20I backtest with the scoring level "
+            "followed had left the test ranges too wide under the 80%-coverage choice):"
+            if by_pit
+            else "the value whose 80% range held closest to 80% of first-innings totals"
+            + (
+                ". CRPS barely separates 0.3 from 0.4 there, and a season of jumping scores (2023) "
+                "rewards extra width for its bias, so coverage, not CRPS, decides:"
+                if ipl
+                else " (coverage, not CRPS, decides):"
+            )
         ),
         "",
-        "| Spread | CRPS | 80% coverage | Brier |",
-        "|---|---|---|---|",
+        "| Spread | CRPS | 80% coverage | PIT chi-square | Brier |"
+        if by_pit
+        else "| Spread | CRPS | 80% coverage | Brier |",
+        "|---|---|---|---|---|" if by_pit else "|---|---|---|---|",
         *[
-            f"| {r['conditions_sd']} | {r['crps']} | {r['coverage_80']:.1%} | {r['brier']:.4f} |"
+            f"| {r['conditions_sd']} | {r['crps']} | {r['coverage_80']:.1%} | "
+            + (f"{r['pit_chi2']} | " if by_pit else "")
+            + f"{r['brier']:.4f} |"
             for r in d["tuning"]
         ],
         "",
+        *(
+            [
+                f"It also follows the recent scoring level: before each match the scoring era is "
+                f"moved so the ball model's expected runs over the previous {window} matches equal "
+                "the runs actually scored, using only matches already played. The window (or none) "
+                "was chosen on the validation seasons by CRPS:",
+                "",
+                "| Window (matches) | CRPS | Totals off by |",
+                "|---|---|---|",
+                *[
+                    f"| {r['window'] or 'none'} | {r['crps']} | {r['bias']:+} runs |"
+                    for r in d.get("level", {}).get("grid", [])
+                ],
+                "",
+            ]
+            if window
+            else []
+        ),
         "## Backtest",
         "",
         f"Every match with a result in {_seasons(d['test'])} ({d['matches']} matches), simulated",

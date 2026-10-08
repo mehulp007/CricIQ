@@ -449,6 +449,7 @@ def _train_simulator(force: bool, promote: bool) -> None:
                     cfg,
                     data_version=data_version,
                     log=typer.echo,
+                    competition=competition,
                 ),
             )
         settings[competition] = part.manifest
@@ -805,7 +806,18 @@ def _score_serving(serving: Path | None, sources: _Sources, competition: str = I
                 lambda: scoring.publish_simulator(target, settings),
             )
             typer.echo(f"  simulator settings {settings.version} -> {target}")
+            if settings.manifest.get("level_window"):
+                window = int(settings.manifest["level_window"])
+                shifts, now = simulator.level_shifts(served, balls, window)
+                _timed(
+                    "publishing the recent scoring level",
+                    lambda: scoring.publish_level_shifts(target, shifts, now),
+                )
+                typer.echo(f"  scoring level after the last match: era shift {now:+.2f}")
+            else:
+                scoring.drop_level_shifts(target)
         else:
+            scoring.drop_level_shifts(target)
             typer.echo(f"  no simulator serves {competition} (none passed its gate there)")
     except BaseException:
         target.unlink(missing_ok=True)

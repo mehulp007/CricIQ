@@ -155,3 +155,41 @@ def test_the_card_follows_the_newest_pooled_version(
     registry.promote("10.0.0", registry.SIMULATOR, "BBL")
     assert simulator_report.serves("10.0.0", "BBL")
     assert not simulator_report.serves("10.0.0", "T20I")
+
+
+class _FlatModel:
+    """A ball model whose expected runs per ball rise with the era shift: 1.14 a ball
+    at no shift (mostly singles), and more boundaries as the shift grows."""
+
+    def __init__(self) -> None:
+        self.terms = {"env": np.array([0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0])}
+
+    def logits(self, balls: pd.DataFrame) -> np.ndarray:
+        out = np.full((len(balls), 7), -50.0)
+        out[:, 1] = 0.0  # a single
+        out[:, 4] = -3.0  # a four, rarely
+        return out
+
+
+def _balls(runs_by_match: list[float], per_match: int = 100) -> pd.DataFrame:
+    rows = []
+    for order, runs in enumerate(runs_by_match, start=1):
+        rows += [{"match_order": order, "runs_batter": runs}] * per_match
+    return pd.DataFrame(rows)
+
+
+def test_the_scoring_level_follows_only_matches_already_played() -> None:
+    model = _FlatModel()
+    expected = simulator.level_shifts(model, _balls([1.0]), 3)[0]  # type: ignore[arg-type]
+    assert expected.tolist() == [0.0]  # no earlier match: no shift
+    # Scoring rises from match 4 on: the level moves only from the match after.
+    shifts, now = simulator.level_shifts(
+        model,  # type: ignore[arg-type]
+        _balls([1.2, 1.2, 1.2, 1.8, 1.8, 1.8]),
+        3,
+    )
+    assert shifts.index.tolist() == [1, 2, 3, 4, 5, 6]
+    assert shifts[1] == 0.0
+    assert shifts[2] == pytest.approx(shifts[4], abs=1e-6)  # matches 1-3 alike
+    assert shifts[5] > shifts[4] > 0  # match 4's runs reach the next match only
+    assert now > shifts[6] > shifts[5]

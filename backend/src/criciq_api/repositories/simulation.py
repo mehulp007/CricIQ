@@ -29,6 +29,25 @@ def era_env(db: Database, match_order: int, window: int) -> float | None:
     return None if value is None else float(value)
 
 
+def level_shift(db: Database, match_order: int | None) -> float:
+    """The simulator's tracked scoring level, as a shift of the scoring era, before the
+    match at ``match_order`` (or after the latest match); 0 where it is not tracked
+    (criciq_ml.simulator.level_shifts)."""
+    if not db.has_table("sim_level_shifts"):
+        return 0.0
+    if match_order is None:
+        value = db.scalar(
+            "SELECT era_shift FROM sim_level_shifts ORDER BY match_order DESC LIMIT 1"
+        )
+    else:
+        value = db.scalar(
+            "SELECT era_shift FROM sim_level_shifts WHERE match_order <= ? "
+            "ORDER BY match_order DESC LIMIT 1",
+            [match_order],
+        )
+    return 0.0 if value is None else float(value)
+
+
 def match_context(db: Database, match_id: int) -> Row | None:
     return db.row(
         "SELECT m.match_order, s.year AS season FROM matches m JOIN seasons s USING (season_id) "

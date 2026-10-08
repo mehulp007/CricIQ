@@ -178,3 +178,27 @@ def test_unscored_data_has_no_simulator(client: TestClient, unscored_client: Tes
     body = _request(client)
     assert unscored_client.post("/api/v2/ipl/simulate/match", json=body).status_code == 503
     assert unscored_client.get("/api/v2/ipl/simulate/seasons").status_code == 503
+
+
+def test_t20is_are_simulated_at_the_recent_scoring_level(client: TestClient) -> None:
+    # The T20Is' simulator follows the recent scoring level (ADR-0013): scoring publishes
+    # each match's era shift, and the API simulates with it.
+    meta = get(client, "/api/v2/t20i/meta")
+    assert meta["features"]["simulator"] is True
+    # The 2016 World T20 final's sides (complete XIs in the fixtures).
+    a, b, year = "ENG", "WI", 2016
+    body = {
+        "a": {
+            "franchise_id": a,
+            "batters": get(client, f"/api/v2/t20i/simulate/squad/{year}/{a}")["xi"],
+        },
+        "b": {
+            "franchise_id": b,
+            "batters": get(client, f"/api/v2/t20i/simulate/squad/{year}/{b}")["xi"],
+        },
+        "season": year,
+        "simulations": 500,
+    }
+    result = post(client, "/api/v2/t20i/simulate/match", body)
+    assert abs(result["a_win_pct"] + result["b_win_pct"] + result["tie_pct"] - 100) < 0.2
+    assert result["simulator_version"] == "1.1.0"

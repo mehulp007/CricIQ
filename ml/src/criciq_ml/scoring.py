@@ -360,6 +360,40 @@ def publish_simulator(serving: Path, settings: SimulatorSettings) -> None:
     _publish(serving, write)
 
 
+def publish_level_shifts(serving: Path, shifts: pd.Series, now: float) -> int:
+    """The simulator's tracked scoring level: the era shift before each match (by match
+    order) and after the last one (``match_order`` one past it), for the API."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        last = int(shifts.index.max()) if len(shifts) else 0
+        frame = pd.DataFrame(
+            {
+                "match_order": [*(int(k) for k in shifts.index), last + 1],
+                "era_shift": [*(float(v) for v in shifts.to_numpy()), float(now)],
+            }
+        )
+        con.register("level_frame", frame)
+        con.execute("DROP TABLE IF EXISTS sim_level_shifts")
+        con.execute(
+            "CREATE TABLE sim_level_shifts AS SELECT match_order::INTEGER AS match_order, "
+            "era_shift::DOUBLE AS era_shift FROM level_frame ORDER BY match_order"
+        )
+        con.unregister("level_frame")
+        return len(frame)
+
+    return _publish(serving, write)
+
+
+def drop_level_shifts(serving: Path) -> None:
+    """Remove a tracked scoring level a simulator no longer publishes."""
+
+    def write(con: duckdb.DuckDBPyConnection) -> int:
+        con.execute("DROP TABLE IF EXISTS sim_level_shifts")
+        return 0
+
+    _publish(serving, write)
+
+
 def publish_ratings(serving: Path, model: RatingsModel, competition: str = "IPL") -> int:
     """Register one competition's rating constants (shrinkage per component)."""
     fitted = model.for_scope(competition)

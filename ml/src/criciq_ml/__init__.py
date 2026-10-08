@@ -1,6 +1,6 @@
 """CricIQ machine learning.
 
-Subpackages arrive with their milestones (docs/PLAN.md section 16):
+Subpackages, added milestone by milestone:
 features, training, evaluation, inference, explainability, metrics,
 simulation and registry.
 """

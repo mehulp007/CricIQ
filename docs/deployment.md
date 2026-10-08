@@ -7,7 +7,7 @@ CricIQ runs on two free tiers:
 | Web app (Next.js) | Vercel (Hobby), functions in Mumbai (`bom1`) | https://criciq-eight.vercel.app |
 | API (FastAPI + DuckDB) | Render web service (free, Docker), Singapore | https://criciq-api.onrender.com |
 
-Why these hosts rather than the plan's original Hugging Face Spaces is recorded in
+Why these hosts rather than the originally planned Hugging Face Spaces is recorded in
 [ADR-0003](adr/0003-hosting-vercel-and-render.md).
 
 ```

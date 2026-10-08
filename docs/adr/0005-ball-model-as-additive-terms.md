@@ -10,8 +10,7 @@ against any bowler, including pairs that never met, and `POST /predict/next-ball
 user-chosen situation. Neither can be precomputed: there are about 500,000 possible pairs before
 the situation is even chosen.
 
-ADR-0004 keeps ML libraries out of the API image, which runs on a 512 MB free instance. The plan
-had suggested multiclass LightGBM for this model.
+ADR-0004 keeps ML libraries out of the API image, which runs on a 512 MB free instance. The original design had suggested multiclass LightGBM for this model.
 
 ## Decision
 

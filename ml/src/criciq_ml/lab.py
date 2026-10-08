@@ -56,7 +56,7 @@ MOMENTUM_BANDS: tuple[tuple[str, float, float], ...] = (
     ("Gained 15+", 15.0, 101.0),
 )
 CLUTCH_MIN_BALLS = 60
-# A split-half correlation this high would make clutch usable as a rating (docs/PLAN.md).
+# A split-half correlation this high would make clutch usable as a rating (set before the test).
 RELIABLE_R = 0.3
 # Rivalries: a side "leads" a rivalry after at least RIVALRY_MIN_PRIOR earlier meetings.
 RIVALRY_MIN_PRIOR = 6

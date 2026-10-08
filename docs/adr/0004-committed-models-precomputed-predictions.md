@@ -5,7 +5,7 @@
 
 ## Context
 
-The plan kept model artifacts out of git (GitHub Releases or the Hugging Face Hub) and allowed the
+The original design kept model artifacts out of git (GitHub Releases or the Hugging Face Hub) and allowed the
 API to run models live. At M3 the win probability model became real, and three facts shaped where
 it should live:
 

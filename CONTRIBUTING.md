@@ -1,6 +1,6 @@
 # Contributing to CricIQ
 
-Thanks for your interest! CricIQ is developed in milestone-sized vertical slices. The source of truth for scope and order is [docs/PLAN.md](docs/PLAN.md).
+Thanks for your interest! CricIQ is developed in milestone-sized vertical slices. Each milestone is recorded in the [changelog](CHANGELOG.md).
 
 ## Setup
 

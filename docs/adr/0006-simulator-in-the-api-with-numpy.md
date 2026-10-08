@@ -7,7 +7,7 @@
 
 V1-d adds a Monte Carlo match simulator and a what-if sandbox in the replay. Both answer
 questions that cannot be precomputed: any two XIs, any batting order, any edited score at any
-ball. The plan's target is 10,000 simulated matches in under 2 seconds.
+ball. The target is 10,000 simulated matches in under 2 seconds.
 
 ADR-0004 kept ML libraries out of the API image, and ADR-0005 made the ball-outcome model a table
 of additive terms the API evaluates with plain Python, noting the simulator as the time to

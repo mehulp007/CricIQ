@@ -25,7 +25,7 @@ export interface NavItem {
   scope: "competition" | "global";
   label: string;
   icon: LucideIcon;
-  /** Milestone in docs/PLAN.md §16 that ships this page. */
+  /** The milestone that shipped this page. */
   milestone: MilestoneId;
   /** Only shown where the competition has this content (the Analytics Lab; the
    * simulator in limited-overs cricket, the chase calculator in Tests). */

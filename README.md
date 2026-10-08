@@ -23,7 +23,7 @@ CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you
 
 It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
 
-> **Status: v1.0.0 is released**, and every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; v1.0 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator, the what-if sandbox and the full Model Insights. The story of how it was built, including what failed, is in [the write-up](https://criciq-eight.vercel.app/writeup); the [engineering plan](docs/PLAN.md) records every milestone.
+> **Status: v1.0.0 is released**, and every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; v1.0 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator, the what-if sandbox and the full Model Insights. The story of how it was built, including what failed, is in [the write-up](https://criciq-eight.vercel.app/writeup); the [changelog](CHANGELOG.md) records every milestone.
 
 ## At a glance
 
@@ -288,7 +288,7 @@ The [Analytics Lab](https://criciq-eight.vercel.app/lab) publishes the tests, in
 - **Pressure** changes behaviour at the end of close chases: batters score about 8 runs per 100 balls
   above expectation and get out more often.
 - **Clutch** is not a reliable skill: a batter's record under pressure in odd seasons predicts it in
-  even seasons with r = 0.17, far below the 0.3 the plan required for a rating, so there is none.
+  even seasons with r = 0.17, far below the 0.3 set in advance for a rating, so there is none.
 
 ## Teams: official tables, rebuilt
 

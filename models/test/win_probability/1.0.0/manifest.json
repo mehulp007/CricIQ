@@ -1,0 +1,45 @@
+{
+  "c": 1.0,
+  "data_version": "2026-10-06.ac28ace1",
+  "feature_config": {
+    "bat_prior_outs": 6,
+    "bowl_prior_wickets": 8,
+    "elo_home": 60,
+    "elo_k": 24,
+    "env_window_matches": 40,
+    "player_decay": 0.98,
+    "xi_batters": 7,
+    "xi_bowlers": 5
+  },
+  "groups": {
+    "1": [
+      "home",
+      "teams"
+    ],
+    "2": [
+      "batting_left",
+      "home",
+      "xis"
+    ],
+    "3": [
+      "home"
+    ],
+    "4": [
+      "home"
+    ]
+  },
+  "kind": "test_win_probability",
+  "name": "win_probability",
+  "sklearn_version": "1.9.1",
+  "trained_on": {
+    "competitions": [
+      "TEST"
+    ],
+    "matches": 894,
+    "seasons": [
+      2001,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

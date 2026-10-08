@@ -1,0 +1,101 @@
+{
+  "data_version": "2026-10-06.ac28ace1",
+  "name": "ratings",
+  "scopes": {
+    "TEST": {
+      "components": {
+        "batting": {
+          "consistency": {
+            "k": 14.32,
+            "sigma2": 0.21488158,
+            "stability": "high"
+          },
+          "fourth_innings": {
+            "k": 218.11,
+            "sigma2": 2.34331194,
+            "stability": "high"
+          },
+          "impact": {
+            "k": 59.45,
+            "sigma2": 0.00409613,
+            "stability": "moderate"
+          },
+          "middle": {
+            "k": 357.88,
+            "sigma2": 2.09250835,
+            "stability": "high"
+          },
+          "new_ball": {
+            "k": 205.02,
+            "sigma2": 1.68880283,
+            "stability": "high"
+          },
+          "scoring": {
+            "k": 458.42,
+            "sigma2": 2.32198927,
+            "stability": "high"
+          },
+          "second_new_ball": {
+            "k": 380.73,
+            "sigma2": 2.42613144,
+            "stability": "high"
+          },
+          "survival": {
+            "k": 297.23,
+            "sigma2": 0.01848904,
+            "stability": "high"
+          }
+        },
+        "bowling": {
+          "consistency": {
+            "k": 17.24,
+            "sigma2": 0.2256637,
+            "stability": "high"
+          },
+          "economy": {
+            "k": 1234.14,
+            "sigma2": 2.36064832,
+            "stability": "high"
+          },
+          "fourth_innings": {
+            "k": 1090.44,
+            "sigma2": 2.49397029,
+            "stability": "moderate"
+          },
+          "impact": {
+            "k": 124.95,
+            "sigma2": 0.00830063,
+            "stability": "low"
+          },
+          "middle": {
+            "k": 1090.44,
+            "sigma2": 2.07372468,
+            "stability": "high"
+          },
+          "new_ball": {
+            "k": 800.19,
+            "sigma2": 1.64735532,
+            "stability": "moderate"
+          },
+          "second_new_ball": {
+            "k": 1024.99,
+            "sigma2": 2.35359685,
+            "stability": "moderate"
+          },
+          "wickets": {
+            "k": 4527.68,
+            "sigma2": 0.02223042,
+            "stability": "low"
+          }
+        }
+      },
+      "trained_on": {
+        "seasons": [
+          2001,
+          2026
+        ]
+      }
+    }
+  },
+  "version": "1.0.0"
+}

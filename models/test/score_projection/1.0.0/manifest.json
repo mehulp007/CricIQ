@@ -1,0 +1,75 @@
+{
+  "choice": {
+    "min_data_in_leaf": 4000,
+    "num_leaves": 15
+  },
+  "data_version": "2026-10-06.ac28ace1",
+  "feature_config": {
+    "bat_prior_outs": 6,
+    "bowl_prior_wickets": 8,
+    "elo_home": 60,
+    "elo_k": 24,
+    "env_window_matches": 40,
+    "player_decay": 0.98,
+    "xi_batters": 7,
+    "xi_bowlers": 5
+  },
+  "features": [
+    "innings_no",
+    "runs",
+    "wickets_in_hand",
+    "legal_balls",
+    "lead",
+    "overs_left",
+    "runs_needed",
+    "follow_on",
+    "innings_rpo",
+    "runs_last_10",
+    "wickets_last_10",
+    "env_rpw",
+    "env_rpo",
+    "bat_left",
+    "bowl_xi_opp"
+  ],
+  "kind": "test_projection",
+  "levels": [
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95
+  ],
+  "lightgbm_version": "4.7.0",
+  "name": "score_projection",
+  "rounds": [
+    464,
+    168,
+    101,
+    154,
+    161,
+    175,
+    128
+  ],
+  "shifts": [
+    -6.0106,
+    -3.0086,
+    -3.0843,
+    1.5117,
+    12.7837,
+    17.3441,
+    18.7288
+  ],
+  "trained_on": {
+    "competitions": [
+      "TEST"
+    ],
+    "matches": 895,
+    "seasons": [
+      2001,
+      2026
+    ]
+  },
+  "version": "1.0.0"
+}

@@ -7,6 +7,25 @@ All notable changes to this project are documented here. The format follows [Kee
 v2 ("all of cricket") is being built on the `v2` branch.
 
 ### Added
+- **Series, tournaments and careers across formats** (V2-7, ADR-0015).
+  - Data: Cricsheet's event group is extracted (`matches.event_group` in the full warehouse);
+    the T20I, ODI and Test serving databases get `events`, `event_matches` and
+    `event_standings` (`criciq_pipelines.events`), with major tournaments' names joined and
+    edition round names in `config/events.yaml`. The export fails if any of 27 known results
+    (every major tournament champion with its final in the data, complete Test series) comes
+    out differently, and the full-data tests fail if any is not covered.
+  - API: `/api/v2/{competition}/series` (filters by kind, year, side, major), `/series/{id}`
+    (matches, tables, knockouts, top performers, win probability added) and `/series/h2h`;
+    match details and timelines name their series; careers add innings, averages, hundreds and
+    fifties, best scores and figures; `/api/v2/players/{id}/ratings` gives headline ratings in
+    every competition.
+  - Site: a Series section for Tests, ODIs and T20Is (major tournaments by edition, every
+    series and tournament page), latest series on their home pages, series links on match
+    pages, every format on the head-to-head page, career numbers and ratings in every
+    competition on player pages, and Compare across competitions.
+  - Analytics Lab notes across formats (`criciq-ml lab-formats`, run by `just publish-models`):
+    "Does the toss matter more in Tests?" and "Home advantage by format"; every competition
+    now has an Analytics Lab, and the IPL's own notes stay with the IPL.
 - **Test cricket** (V2-6, ADR-0014): men's Tests from 2001 on every page under `/test/`.
   - Data: a Test copy of the warehouse (`test.duckdb`, with declarations, follow-ons, innings
     wins and the days played), `serving-test.duckdb` (each side's innings in the match summaries,

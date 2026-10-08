@@ -91,6 +91,7 @@ Missing attributes are `NULL`, never guessed.
 | `decided_by_super_over` | Tie settled by one or more super overs |
 | `scheduled_overs`, `balls_per_over` | 20 and 6 for the IPL |
 | `player_of_match_ids` | List of player ids |
+| `event_name`, `event_group` | Cricsheet's event name ("The Ashes") and group ("A", "1"); full warehouse only (series and tournaments, ADR-0015) |
 
 ### `innings`
 | Column | Meaning |
@@ -243,6 +244,21 @@ where that is several). Definitions are in [metrics.md](metrics.md).
 | `team_matches` | franchise × match | Both sides of every match: `result` (`won`, `lost`, `no_result`; a super-over tie counts for its winner, with `tied`), `in_table` (league and not voided), `batted_first`, `won_toss`, totals for and against, net run rate credits `nrr_*` (empty for no results), margins, `balls_to_spare`, `is_close`, `venue_type` (`home`, `away`, `neutral`) and `form_won`/`form_decided` (results in the side's previous 14 matches) |
 | `team_innings_phases` | innings × phase | Runs (including extras), legal balls, dismissals, fours, sixes and dots, with batting and bowling franchise |
 | `team_season_records` | franchise × season | League table: played, won, lost, no result, `abandoned`, points, net run rate (and its four sums), `position`, number of teams, `finish` (`champion`, `runner_up`, `playoffs`, `league`) and `exit_stage` |
+
+## Series and tournaments (international serving databases only)
+
+Built by `criciq_pipelines.events` during the export of the T20I, ODI and Test serving
+databases, from each match's Cricsheet event (name, number, stage and `event_group` in the full
+warehouse) and `config/events.yaml` (ADR-0015). An event is one major tournament, else one event
+name, else (unnamed) one pair of sides, while its matches are within 45 days of each other; it is
+a `series` between two sides and a `tournament` between more. The export fails if a known result
+in `config/events.yaml` comes out differently.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `events` | series or tournament | `event_id` (`2005-australia-tour-of-england-and-scotland`), `name`, `season` ("2005", "2020/21"; a tournament by the year of its final), `kind`, `tournament_id` (`cricket-world-cup`, ...), `named` (false when grouped by sides), dates, `matches`, `missing` (matches a series' own numbering shows are not in the data), `teams` and `wins` (aligned lists), `drawn`, `tied` (without a winner), `no_result`, `champion_id` and `runner_up_id` (the final's winner and loser, when it is in the data) |
+| `event_matches` | match | `event_id`, `round` (a group such as "Group A", a stage such as "Super Sixes", a knockout such as "Final"; none in a series), `round_order`, `knockout`, `match_number` |
+| `event_standings` | team × round | Each tournament round's table: `position`, `played`, `won`, `lost`, `tied`, `no_result`, `points` (two a win, one a tie or no result), `nrr` (net run rate, from `team_matches`' credits) |
 
 ## Simulator (serving database only)
 

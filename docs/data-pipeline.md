@@ -183,6 +183,12 @@ config (official tables, abandoned and voided fixtures) is the IPL's, so the oth
 tables are computed from results alone and not checked. Teams without curated colours get a
 neutral grey, and `meta.season_spans_new_year` tells the API to name seasons "2023/24".
 
+The T20I, ODI and Test databases also get their series and tournaments (`events`,
+`event_matches`, `event_standings`; `criciq_pipelines.events`, ADR-0015), built from each match's
+Cricsheet event name and group in the full warehouse and `config/events.yaml`. The export fails if
+a known result there (a major tournament's champion, a complete Test series' score) comes out
+differently.
+
 Innings phases follow each match's own format. Data code (player, team and simulator tables, the
 API's splits) phases a delivery with `PhaseConfig.sql_case(over, format)`, which reads
 `competitions.format`, so T20, ODI and Test balls can sit in one query. Model code (win probability,

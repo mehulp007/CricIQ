@@ -112,6 +112,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0012](adr/0012-models-per-format.md): each format has its own models (`models/odi/`), the format as a context, and the simulator's rules per format
 - [ADR-0013](adr/0013-models-per-group.md): each model group (the IPL, the other leagues, T20Is, ODIs, Tests) trains on its own competitions only
 - [ADR-0014](adr/0014-test-cricket-models.md): Test cricket has models of its own design: three outcomes, every innings projected, no simulator
+- [ADR-0015](adr/0015-series-and-tournaments.md): series and tournaments from Cricsheet's event names, with known results the build must reproduce
 
 ## Precompute vs live
 

@@ -333,6 +333,37 @@ rivalries a few land there by chance, so the page says so rather than calling it
 same matches (one number); a small rivalry or close-finish effect could hide inside the
 intervals.
 
+## Series results and tournament tables
+
+A series' score counts the matches in the data: "Australia won 4–1", "Series drawn 2–2", with
+draws, ties without a winner and no results after it. Where a series' own match numbers show a
+gap (only numbers up to seven count: longer leagues number across their rounds), the result adds
+"N not in the data", and the page says such a match was often abandoned without a ball. A series
+whose last match is within 14 days of the data's date reads "so far" ("India lead 1–0 so far"):
+Cricsheet does not say how many matches are scheduled. Two sides' series record counts series of
+two or more matches that are over.
+
+A tournament round's table gives two points for a win and one for a tie without a winner or a no
+result, then orders by net run rate (the same credits as league tables) and wins. Matches
+abandoned before a ball, and Afghanistan's matches, are not in Cricsheet, so a table can differ
+from the official one; the page says so. The champion is the winner of the final.
+
+## The toss and home advantage across formats
+
+Both Analytics Lab notes measure a **share of results**: a win counts one, a draw or a tie without
+a winner a half, and no results are left out. Intervals are 90% bootstrap intervals over matches
+(2,000 resamples).
+
+- **Toss.** The toss winner's share. The toss is random, so the share minus 50% is what winning it
+  is worth, with nothing else mixed in. Toss winners' choices are shown but not used: a choice is
+  made knowing the conditions.
+- **Home advantage, raw.** The home side's share over matches with a home side (a national side
+  in its own country; a franchise at a ground where it played most of its league matches that
+  season). Strong sides host more, which lifts it.
+- **Home advantage, balanced.** For every pair of sides that met at least twice at each end, the
+  mean of the home side's share at the two ends; the interval resamples pairs. A pair's strength
+  difference adds to one end and takes from the other, so it cancels.
+
 ## Similar players
 
 **Style profile.** For a window, each player's profile is a handful of per-ball rates against par

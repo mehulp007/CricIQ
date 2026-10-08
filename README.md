@@ -11,7 +11,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v1.0.0 · [Read the write-up](https://criciq-eight.vercel.app/writeup)
+**[Run every competition on localhost](#run-it-on-your-machine)** · [Live demo, IPL edition → criciq-eight.vercel.app](https://criciq-eight.vercel.app) · [Read the write-up](https://criciq-eight.vercel.app/writeup)
 
 <img src="docs/images/demo.gif" alt="A tour of CricIQ: the last over of the 2019 IPL final replayed ball by ball with win probability, then the Player Lab, Matchups, Compare, Teams, the Match Simulator, the Analytics Lab and Model Insights" width="880">
 
@@ -19,13 +19,46 @@
 
 ---
 
-CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season's league table, and play any two sides from any season 10,000 times with XIs picked from that season's squads, all behind a polished web interface.
+CricIQ turns every ball of men's cricket that [Cricsheet](https://cricsheet.org) records into interactive analytics: **Tests, ODIs and T20 internationals, the IPL, and the BBL, CPL, PSL and SA20** (about 9,900 matches and 4.6 million balls). For each competition you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, follow every international series and tournament with its tables and knockouts, explore every player's career in every format measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season, and play any two limited-overs sides 10,000 times (Tests have a chase calculator instead). New matches arrive within days of being played.
 
-It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models, explainability, a versioned API, the frontend and finally deployment.
+It is built as a **full ML product, not a dashboard**. Raw data goes through data engineering, then leak-free feature engineering, statistically validated models (each kind of cricket modelled from its own matches only), explainability, a versioned API and the frontend.
 
-> **Status: v1.0.0 is released**, and every planned feature is live. The MVP (v0.1.0) shipped the replay, win probability, score projection, Player Lab and Matchup Lab; v1.0 added Compare, CricIQ Ratings and similar players, pressure and momentum, the Analytics Lab, Teams, the Match Simulator, the what-if sandbox and the full Model Insights. The story of how it was built, including what failed, is in [the write-up](https://criciq-eight.vercel.app/writeup); the [changelog](CHANGELOG.md) records every milestone.
+> **Two editions.** The [hosted demo](https://criciq-eight.vercel.app) is **v1.0.0, the IPL edition** (branch `main`). **v2, all of men's cricket, lives on the [`v2` branch](https://github.com/mehulp007/CricIQ/tree/v2) and runs on your own machine**: one command downloads the data, builds every competition and serves the site at http://localhost:3000 ([how](#run-it-on-your-machine)). The story of how it was built, including what failed, is in [the write-up](https://criciq-eight.vercel.app/writeup); the [changelog](CHANGELOG.md) records every milestone.
+
+## Run it on your machine
+
+The full site (every competition, the API and the web app) runs locally.
+
+**You need** Python 3.12 via [uv](https://docs.astral.sh/uv/), Node 24 with [pnpm](https://pnpm.io), [just](https://just.systems) (`uv tool install rust-just`), about 2 GB of free disk and an internet connection for the first download.
+
+```bash
+git clone -b v2 https://github.com/mehulp007/CricIQ.git
+cd CricIQ
+just setup            # Python and web dependencies, git hooks
+just v2-up            # download Cricsheet, build and validate every competition, score every ball, serve
+```
+
+The first `just v2-up` takes a few minutes: it downloads about 45 MB of Cricsheet archives, builds
+the warehouse (about 1.5 GB of local data under `data/`), validates it, exports a serving database
+per competition, scores every ball with the committed models and starts both servers. Then open
+**http://localhost:3000** (use `localhost`, not `127.0.0.1`) and pick a competition in the top bar;
+the API and its docs are at http://localhost:8000/docs. Ctrl+C stops both.
+
+| Afterwards | Command |
+|---|---|
+| Start the site again, without rebuilding | `just v2-up --serve-only` |
+| Rebuild from the last download, offline | `just v2-up --no-download` |
+| Take in new and corrected matches (seconds to a couple of minutes) | `just sync`, then `just sync-status` |
+| Retrain one model group (the IPL, leagues, T20Is, ODIs or Tests; hours) | `just train-group <group>`, then `just publish-models` |
+
+A running site picks up a sync by itself: the API swaps in the new data between requests. To keep
+the data fresh automatically, schedule `just sync` (every 6 hours works well; on Windows, Task
+Scheduler). Models are never retrained by a sync.
 
 ## At a glance
+
+The IPL's models, the first built; every competition's results are in its Model Insights page and
+in the sections below.
 
 | | Result (tested once on the 2025–2026 seasons, never used for training or tuning) |
 |---|---|
@@ -44,7 +77,9 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 
 | Feature | What it does | Status |
 |---|---|---|
-| Match Explorer & Replay | Browse any IPL match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
+| Competitions | Tests, ODIs, T20Is, the IPL, BBL, CPL, PSL and SA20, each with every page below and models trained on its own kind of cricket | **v2, local** |
+| Series & tournaments | Every international series and tournament: scores, tables, knockouts, champions, top performers; World Cups by edition | **v2, local** |
+| Match Explorer & Replay | Browse any match and replay it ball by ball: live scoreboard, commentary, worm and Manhattan charts, live scorecard, play/step/seek/speed controls and keyboard shortcuts | **Live** |
 | Win Probability | Each side's chance after every ball, with a chart, turning points and plain-language TreeSHAP explanations | **Live** |
 | Model Insights | An overview of every model against its baseline on seasons it never saw, which seasons each model learned from, was tuned on and was tested on, the custom metrics' tests and the model registry; then each model's calibration, season-by-season backtest, rejected features and limitations | **Live** |
 | Score Projection | Projected first-innings total, a conformally calibrated 80% range, the odds of passing round totals, and a projection fan on the worm | **Live** |
@@ -55,22 +90,32 @@ It is built as a **full ML product, not a dashboard**. Raw data goes through dat
 | Similar players | The closest style profiles (per-ball rates against par and how a player is used) in the same seasons, with shared traits | **Live** |
 | Pressure & momentum | Every replay shows the pressure on the next ball (how much it can move the match) and each side's momentum over the last 12 balls, with a pressure chart and the tensest moments | **Live** |
 | Teams | Every franchise's seasons, league tables that match the official ones, results by situation, phases against par, comebacks and collapses, and any head-to-head set against what form predicted | **Live** |
-| Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill, do rivalries repeat | **Live** |
-| Match Simulator | Pick any season from 2008 to 2026 and two sides, choose each XI from that season's squad, and play the match 10,000 times, ball by ball: win shares, the spread of totals and each player's typical innings, labelled as a model simulation and backtested | **Live** |
+| Analytics Lab | Research notes with tests that could have gone either way: is momentum real, what pressure does to batting, is clutch a skill, do rivalries repeat; across formats (v2), does the toss matter more in Tests and how home advantage changes | **Live** |
+| Chase calculator | Tests: any fourth-innings chase (runs, wickets, overs left, ground) and its chances of a win, draw or loss | **v2, local** |
+| Match Simulator | Pick any season and two sides, choose each XI from that season's squad, and play the match 10,000 times, ball by ball: win shares, the spread of totals and each player's typical innings, labelled as a model simulation and backtested | **Live** |
 | What-if sandbox | In any replay, change the score at any ball and see how the rest of the match changes | **Live** |
 
 ## The data
 
-Every IPL match since 2008 is ingested ball by ball from Cricsheet, normalized into a DuckDB warehouse
-and validated before anything downstream sees it.
+Every match is ingested ball by ball from Cricsheet, normalized into one DuckDB warehouse and
+validated before anything downstream sees it (in October 2026; the sync adds new matches):
 
-| | |
-|---|---|
-| Seasons | 2008–2026 (19) |
-| Matches | 1,243 |
-| Deliveries | 295,732 |
-| Players | 816, with attributes for ~98% of those with a meaningful sample |
-| Validation | 17 invariant checks + 6 golden scorecards, all passing ([report](docs/data-quality-report.md)) |
+| Competition | From | Matches | Balls |
+|---|---|---|---|
+| Men's Tests | 2001 | 895 | 1,722,675 |
+| Men's ODIs | 2002 | 2,581 | 1,368,605 |
+| Men's T20Is | 2005 | 3,572 | 805,397 |
+| IPL | 2008 | 1,243 | 295,732 |
+| Big Bash League | 2011/12 | 662 | 153,250 |
+| Caribbean Premier League | 2013 | 443 | 103,230 |
+| Pakistan Super League | 2016 | 357 | 83,799 |
+| SA20 | 2023 | 130 | 29,020 |
+
+Invariant checks and golden scorecards guard every build ([report](docs/data-quality-report.md)),
+all 19 IPL tables must match the official ones, and 27 known international results (every major
+tournament's champion, complete Test series) must be reproduced. The IPL alone has 816 players,
+with attributes for about 98% of those with a meaningful sample. What follows is the IPL's story
+first, where CricIQ began:
 
 What the exploration found, and how it shapes the models ([notebook](notebooks/01_eda.ipynb)):
 
@@ -233,6 +278,31 @@ Tests only and tested once on the 59 Tests of 2025–2026:
 Model cards: [win probability](docs/model-cards/test/win-probability.md),
 [innings projection](docs/model-cards/test/score-projection.md),
 [ball outcome](docs/model-cards/test/ball-outcome.md), [ratings](docs/model-cards/test/ratings.md).
+
+## Series, tournaments and careers across formats (v2)
+
+International cricket is followed by series and tournaments, so Tests, ODIs and T20Is have them
+([ADR-0015](docs/adr/0015-series-and-tournaments.md)), built from each match's Cricsheet event:
+
+- **Series and tournaments.** Matches of one event within a few weeks are one series (two sides:
+  "Australia won 4–1") or tournament (more: tables, knockouts and champion). The World Cup's,
+  T20 World Cup's and others' changing names are joined by `config/events.yaml`; unlabelled group
+  stages are split into the sides that played each other. Every page has the matches, the top
+  run-scorers and wicket-takers, and the players who moved the results most.
+- **Checked against what happened.** Every World Cup, Champions Trophy, T20 World Cup and World
+  Test Championship final champion in the data, and a set of complete Test series, must be
+  reproduced on every build (27 results). Missing matches are said out loud: the 2005 Ashes is
+  missing its third Test in Cricsheet, so its page shows four Tests and says one is not in the
+  data, and tables note that Afghanistan's matches are absent.
+- **Head to head in every format**, with the two sides' series record; a player's career in every
+  competition (averages, hundreds, best figures) with their ratings side by side, each among their
+  own format's players; and Compare across formats (a player's Tests beside another's ODIs, each
+  against its own par).
+- **Two Analytics Lab notes across formats.** The toss is worth a little in Tests (toss winners
+  take 53.6% of the results) and in the four franchise leagues (54.7%, where most bowl first), and
+  nothing measurable in ODIs, T20Is or the IPL. Home advantage, balanced for each pair of sides'
+  strength, grows with the length of the match: 60.3% in Tests, 59.2% in ODIs, 54.4% in T20Is,
+  and none in the IPL (48.9%).
 
 ## Player Lab: measured against par
 
@@ -494,10 +564,11 @@ scored and smoke-tested) and end-to-end (Playwright on desktop and mobile agains
 
 ## Local development
 
-**Prerequisites:** Python 3.12 (managed by [uv](https://docs.astral.sh/uv/)), Node 24 with [pnpm](https://pnpm.io), and [just](https://just.systems) (`uv tool install rust-just`).
+**Prerequisites:** Python 3.12 (managed by [uv](https://docs.astral.sh/uv/)), Node 24 with [pnpm](https://pnpm.io), and [just](https://just.systems) (`uv tool install rust-just`). To simply run the site, see [Run it on your machine](#run-it-on-your-machine).
 
 ```bash
 just setup      # install Python + frontend deps and git hooks
+just v2-up      # build every competition, score, and serve API + web (--serve-only, --no-download)
 just dev-api    # API on http://localhost:8000 (OpenAPI docs at /docs)
 just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build
@@ -505,6 +576,8 @@ just data run   # download Cricsheet data, rebuild, validate, export the serving
 just sync       # take in Cricsheet's new and corrected matches only (just sync-status: what changed)
 just ml score   # add every ball's win probability from the committed model
 just ml train win_probability   # or score_projection, ball_outcome: retrain, evaluate, backtest
+just train-group leagues        # retrain one model group (ipl, leagues, t20i, odi, test)
+just publish-models             # score every competition, write model cards and insights
 just e2e        # Playwright end-to-end tests (desktop + mobile) against the running app
 ```
 
@@ -519,7 +592,7 @@ frontend/    Next.js app
 config/      versioned reference config (franchises, venues, phases, golden matches)
 reference/   curated player attributes and documented overrides
 notebooks/   exploration and research (executed, with outputs)
-docs/        plan, architecture, ADRs, model cards, metric definitions
+docs/        architecture, ADRs, model cards, metric definitions, data dictionary
 tests/       Python tests + real-match fixtures for every data edge case
 ```
 
@@ -527,7 +600,7 @@ tests/       Python tests + real-match fixtures for every data edge case
 
 Ball-by-ball data is from [Cricsheet](https://cricsheet.org), used under the [Open Data Commons Attribution License](https://opendatacommons.org/licenses/by/1-0/). Player attributes come from [Wikidata](https://www.wikidata.org) (CC0) and English [Wikipedia](https://en.wikipedia.org) cricketer infoboxes ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)).
 
-CricIQ is an independent portfolio project. It is not affiliated with the IPL, the BCCI or any franchise. All predictions and simulations are statistical model estimates, not guarantees, and the project is not intended for betting.
+CricIQ is an independent portfolio project. It is not affiliated with the ICC, any cricket board, league or franchise. All predictions and simulations are statistical model estimates, not guarantees, and the project is not intended for betting.
 
 ## License
 

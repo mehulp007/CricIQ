@@ -15,7 +15,7 @@ players' records count every competition. Four questions had to be settled:
   scores at its own rate (T20Is about 7.6 runs an over, the IPL about 8.4), and associate nations'
   T20Is are lopsided in a way no league is.
 - **How splits work** when a BBL season spans the new year.
-- **Who gets the pooled model.** The plan's rule: the pooled models must be no worse than v1 on the
+- **Who gets the pooled model.** The rule set in advance: the pooled models must be no worse than v1 on the
   IPL's 2025-26 test seasons, or the IPL keeps v1.
 
 ## Decision

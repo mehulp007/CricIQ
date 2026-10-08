@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](docs/PLAN-v2.md).
+v2 ("all of cricket") is being built on the `v2` branch.
 
 ### Added
 - **Test cricket** (V2-6, ADR-0014): men's Tests from 2001 on every page under `/test/`.

@@ -435,8 +435,8 @@ export function ModelsOverview() {
           </Metric>
           <Metric title="Clutch" href="/ipl/lab/clutch" verdict="Failed: no rating">
             A batter&apos;s record under pressure in odd seasons predicts even seasons with r ={" "}
-            {batting.split_half_r?.toFixed(2) ?? "—"}, below the {batting.reliable_r.toFixed(1)} the
-            plan required for a rating.
+            {batting.split_half_r?.toFixed(2) ?? "—"}, below the {batting.reliable_r.toFixed(1)} set
+            in advance for a rating.
           </Metric>
           <Metric title="Rivalries" href="/ipl/lab/rivalries" verdict="Form, not history">
             Past head-to-head records add nothing to form; even the side in better form wins only{" "}

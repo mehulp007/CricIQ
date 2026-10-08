@@ -66,18 +66,19 @@ test.describe("competitions", () => {
   test("a Test replays with three results, estimated days and the chase what-if", async ({
     page,
   }) => {
-    // Headingley 2019 is a bundled featured replay.
-    await page.goto("/test/matches/1152848");
-    await expect(page.getByRole("heading", { name: /Australia\s+vs\s+England/ })).toBeVisible();
+    // Edgbaston 2005 is a bundled featured replay, and in the API's fixture data too (the
+    // chase what-if asks the API).
+    await page.goto("/test/matches/215010");
+    await expect(page.getByRole("heading", { name: /England\s+vs\s+Australia/ })).toBeVisible();
     await expect(page.getByTestId("outcome-probability")).toBeVisible();
     await expect(page.getByText("Draw").first()).toBeVisible();
     await page.locator("[data-replay-ready]").waitFor();
     await page.getByRole("button", { name: "Jump to end" }).click();
-    await expect(page.getByText("England won by 1 wicket").first()).toBeVisible();
+    await expect(page.getByText("England won by 2 runs").first()).toBeVisible();
     await page.getByRole("button", { name: "Previous ball" }).click();
     const chase = page.getByRole("region", { name: "Chase what-if" });
     await expect(chase).toBeVisible();
-    await expect(chase.getByText(/ENG need 1 with 1 wicket in hand/)).toBeVisible();
+    await expect(chase.getByText(/AUS need 3 with 1 wicket in hand/)).toBeVisible();
     await page.getByRole("tab", { name: "Scorecard" }).click();
     await expect(page.getByText("4th innings").first()).toBeVisible();
   });

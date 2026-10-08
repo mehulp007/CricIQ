@@ -176,6 +176,10 @@ v2 ("all of cricket") is being built on the `v2` branch; see [docs/PLAN-v2.md](d
     API and the web app together.
 
 ### Changed
+- **The write-up** (`/writeup`) tells the v2 story: the data of all eight competitions, the five
+  model groups and the price of training each on its own matches (own against pooled T20 win
+  probability), every group's win probability, projection and simulator against their baselines,
+  Test cricket's models, and the incremental sync. Its tables read the published model data.
 - **V2-5:** the format is a context (`criciq_core.phases.use_format`) that the models, the chase
   table, the projection's baseline, the rating components and the registry read; the simulator's
   overs, quota and phases travel with each side. T20 output is unchanged. The players database

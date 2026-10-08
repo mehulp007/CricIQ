@@ -37,7 +37,13 @@ test.describe("write-up", () => {
     await expect(
       page.getByRole("heading", { name: "A simulator that admits a coin flip" }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Each kind of cricket learns from its own matches" }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "A Test is not a long T20" })).toBeVisible();
     await expect(page.getByRole("figure")).toHaveCount(2);
+    await expect(page.getByRole("table")).toHaveCount(4);
     await expect(page.getByRole("article")).toContainText("of totals");
+    await expect(page.getByRole("article")).toContainText("Men's Tests");
   });
 });

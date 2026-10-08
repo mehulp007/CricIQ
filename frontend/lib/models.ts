@@ -701,6 +701,11 @@ export function testModels(): TestModelSet {
  * leagues' and T20Is' own models replaced: its results on each competition's test matches. */
 const POOLED_WIN_PROBABILITY = t20WinProbabilityData as unknown as Several<ModelInsights>;
 
+/** The pooled T20 win probability's result on one T20 competition's test matches ("IPL", "BBL"). */
+export function pooledWinProbabilityOn(competition: string): CompetitionResults<Metrics> | null {
+  return resultsFor<Metrics>(POOLED_WIN_PROBABILITY.test.by_competition, competition);
+}
+
 /** The models serving one competition, as Model Insights shows them. */
 export interface ModelSet {
   competition: LimitedOversId;

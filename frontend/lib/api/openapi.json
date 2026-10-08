@@ -1060,6 +1060,41 @@
             ],
             "title": "Batting Average"
           },
+          "best_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "... for these runs.",
+            "title": "Best Runs"
+          },
+          "best_wickets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Best bowling in an innings: wickets ...",
+            "title": "Best Wickets"
+          },
+          "bowling_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowling Average"
+          },
           "competition": {
             "description": "The scope's id (path segment).",
             "title": "Competition",
@@ -1076,10 +1111,44 @@
             ],
             "title": "Economy"
           },
+          "fifties": {
+            "title": "Fifties",
+            "type": "integer"
+          },
           "first_season": {
             "description": "Season label of the debut.",
             "title": "First Season",
             "type": "string"
+          },
+          "five_wickets": {
+            "description": "Innings with five or more wickets.",
+            "title": "Five Wickets",
+            "type": "integer"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Highest score.",
+            "title": "High"
+          },
+          "high_not_out": {
+            "title": "High Not Out",
+            "type": "boolean"
+          },
+          "hundreds": {
+            "title": "Hundreds",
+            "type": "integer"
+          },
+          "innings": {
+            "description": "Innings batted.",
+            "title": "Innings",
+            "type": "integer"
           },
           "last_season": {
             "description": "Season label of the latest season.",
@@ -1143,15 +1212,135 @@
           "matches",
           "first_season",
           "last_season",
+          "innings",
           "runs",
           "batting_average",
           "strike_rate",
           "par_strike_rate",
+          "hundreds",
+          "fifties",
+          "high",
+          "high_not_out",
           "wickets",
+          "bowling_average",
           "economy",
-          "par_economy"
+          "par_economy",
+          "five_wickets",
+          "best_wickets",
+          "best_runs"
         ],
         "title": "CareerLine",
+        "type": "object"
+      },
+      "CareerRating": {
+        "properties": {
+          "high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0-100 percentile among the competition's qualified players over all its seasons; None below the minimum sample.",
+            "title": "Rating"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "rating",
+          "low",
+          "high"
+        ],
+        "title": "CareerRating",
+        "type": "object"
+      },
+      "CareerRatings": {
+        "description": "A player's headline CricIQ Ratings in each competition, each among that competition's\nplayers over all its seasons, so formats are never mixed.",
+        "properties": {
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/CareerRatingsLine"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "lines"
+        ],
+        "title": "CareerRatings",
+        "type": "object"
+      },
+      "CareerRatingsLine": {
+        "properties": {
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/CareerRating"
+            },
+            "title": "Batting",
+            "type": "array"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/CareerRating"
+            },
+            "title": "Bowling",
+            "type": "array"
+          },
+          "competition": {
+            "title": "Competition",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "competition",
+          "name",
+          "batting",
+          "bowling"
+        ],
+        "title": "CareerRatingsLine",
         "type": "object"
       },
       "ChaseCalculation": {
@@ -1520,6 +1709,40 @@
           "seq_no"
         ],
         "title": "DayMarker",
+        "type": "object"
+      },
+      "DecisivePlayer": {
+        "properties": {
+          "added": {
+            "description": "Win probability added over the event (in Tests, expected result added: a win counts one and a draw a half), in matches won.",
+            "title": "Added",
+            "type": "number"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "team": {
+            "title": "Team",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "team",
+          "matches",
+          "added"
+        ],
+        "title": "DecisivePlayer",
         "type": "object"
       },
       "DismissalCount": {
@@ -2520,6 +2743,17 @@
             },
             "title": "Innings",
             "type": "array"
+          },
+          "series": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeriesRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The series or tournament it was part of (internationals)."
           },
           "summary": {
             "$ref": "#/components/schemas/MatchSummary"
@@ -5190,6 +5424,596 @@
         "title": "SeasonWindow",
         "type": "object"
       },
+      "SeriesBatter": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "fifties": {
+            "title": "Fifties",
+            "type": "integer"
+          },
+          "high": {
+            "title": "High",
+            "type": "integer"
+          },
+          "high_not_out": {
+            "title": "High Not Out",
+            "type": "boolean"
+          },
+          "hundreds": {
+            "title": "Hundreds",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "team": {
+            "title": "Team",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "team",
+          "innings",
+          "runs",
+          "balls",
+          "outs",
+          "high",
+          "high_not_out",
+          "hundreds",
+          "fifties"
+        ],
+        "title": "SeriesBatter",
+        "type": "object"
+      },
+      "SeriesBowler": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "best_runs": {
+            "title": "Best Runs",
+            "type": "integer"
+          },
+          "best_wickets": {
+            "title": "Best Wickets",
+            "type": "integer"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "team": {
+            "title": "Team",
+            "type": "string"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "player_id",
+          "name",
+          "team",
+          "innings",
+          "balls",
+          "runs",
+          "wickets",
+          "best_wickets",
+          "best_runs"
+        ],
+        "title": "SeriesBowler",
+        "type": "object"
+      },
+      "SeriesDetail": {
+        "properties": {
+          "batters": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesBatter"
+            },
+            "title": "Batters",
+            "type": "array"
+          },
+          "bowlers": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesBowler"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "decisive": {
+            "description": "Most win probability added, both ways.",
+            "items": {
+              "$ref": "#/components/schemas/DecisivePlayer"
+            },
+            "title": "Decisive",
+            "type": "array"
+          },
+          "matches": {
+            "description": "In order of play.",
+            "items": {
+              "$ref": "#/components/schemas/SeriesMatch"
+            },
+            "title": "Matches",
+            "type": "array"
+          },
+          "rounds": {
+            "description": "A tournament's groups and knockouts, in order.",
+            "items": {
+              "$ref": "#/components/schemas/SeriesRound"
+            },
+            "title": "Rounds",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/SeriesSummary"
+          }
+        },
+        "required": [
+          "summary",
+          "matches",
+          "rounds",
+          "batters",
+          "bowlers",
+          "decisive"
+        ],
+        "title": "SeriesDetail",
+        "type": "object"
+      },
+      "SeriesMatch": {
+        "properties": {
+          "round": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          },
+          "winner_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The winner's lowest chance of winning during the match (a comeback when low).",
+            "title": "Winner Low"
+          }
+        },
+        "required": [
+          "summary",
+          "round",
+          "winner_low"
+        ],
+        "title": "SeriesMatch",
+        "type": "object"
+      },
+      "SeriesPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "years": {
+            "description": "Years with a series or tournament, newest first.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "years"
+        ],
+        "title": "SeriesPage",
+        "type": "object"
+      },
+      "SeriesRecord": {
+        "description": "Two sides' series against each other.",
+        "properties": {
+          "a_won": {
+            "title": "A Won",
+            "type": "integer"
+          },
+          "b_won": {
+            "title": "B Won",
+            "type": "integer"
+          },
+          "drawn": {
+            "description": "Level series, and series of no result.",
+            "title": "Drawn",
+            "type": "integer"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesSummary"
+            },
+            "title": "Series",
+            "type": "array"
+          }
+        },
+        "required": [
+          "played",
+          "a_won",
+          "b_won",
+          "drawn",
+          "series"
+        ],
+        "title": "SeriesRecord",
+        "type": "object"
+      },
+      "SeriesRef": {
+        "description": "The series or tournament a match belongs to.",
+        "properties": {
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "series",
+              "tournament"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The match's round: \"Group A\", \"Semi Final\".",
+            "title": "Round"
+          },
+          "season": {
+            "title": "Season",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "name",
+          "season",
+          "kind",
+          "round"
+        ],
+        "title": "SeriesRef",
+        "type": "object"
+      },
+      "SeriesRound": {
+        "properties": {
+          "knockout": {
+            "title": "Knockout",
+            "type": "boolean"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/MatchSummary"
+            },
+            "title": "Matches",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "standings": {
+            "description": "Empty for the knockouts.",
+            "items": {
+              "$ref": "#/components/schemas/SeriesStanding"
+            },
+            "title": "Standings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "knockout",
+          "standings",
+          "matches"
+        ],
+        "title": "SeriesRound",
+        "type": "object"
+      },
+      "SeriesStanding": {
+        "properties": {
+          "lost": {
+            "title": "Lost",
+            "type": "integer"
+          },
+          "no_result": {
+            "title": "No Result",
+            "type": "integer"
+          },
+          "nrr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nrr"
+          },
+          "played": {
+            "title": "Played",
+            "type": "integer"
+          },
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "team": {
+            "$ref": "#/components/schemas/SeriesTeam"
+          },
+          "tied": {
+            "title": "Tied",
+            "type": "integer"
+          },
+          "won": {
+            "title": "Won",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position",
+          "team",
+          "played",
+          "won",
+          "lost",
+          "tied",
+          "no_result",
+          "points",
+          "nrr"
+        ],
+        "title": "SeriesStanding",
+        "type": "object"
+      },
+      "SeriesSummary": {
+        "properties": {
+          "champion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeriesTeam"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The winner of the final, when in the data."
+          },
+          "drawn": {
+            "title": "Drawn",
+            "type": "integer"
+          },
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "event_id": {
+            "description": "Path segment, e.g. \"2005-the-ashes\".",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "kind": {
+            "description": "A series is between two sides, a tournament between more.",
+            "enum": [
+              "series",
+              "tournament"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "missing": {
+            "description": "Matches the series' numbering shows are not in the data (often abandoned without a ball bowled).",
+            "title": "Missing",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "named": {
+            "description": "False where Cricsheet names no event: the matches of one pair of sides within a few weeks are grouped together.",
+            "title": "Named",
+            "type": "boolean"
+          },
+          "no_result": {
+            "title": "No Result",
+            "type": "integer"
+          },
+          "recent": {
+            "description": "The last match is within two weeks of the data's date: more may follow.",
+            "title": "Recent",
+            "type": "boolean"
+          },
+          "result_text": {
+            "title": "Result Text",
+            "type": "string"
+          },
+          "runner_up": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeriesTeam"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "season": {
+            "description": "\"2005\", or \"2020/21\" across the new year; a tournament by the year of its final.",
+            "title": "Season",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "teams": {
+            "description": "Most wins first.",
+            "items": {
+              "$ref": "#/components/schemas/SeriesTeam"
+            },
+            "title": "Teams",
+            "type": "array"
+          },
+          "tied": {
+            "description": "Ties without a winner.",
+            "title": "Tied",
+            "type": "integer"
+          },
+          "tournament_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The major tournament (cricket-world-cup, t20-world-cup, ...), if one.",
+            "title": "Tournament Id"
+          }
+        },
+        "required": [
+          "event_id",
+          "name",
+          "season",
+          "kind",
+          "tournament_id",
+          "named",
+          "start_date",
+          "end_date",
+          "matches",
+          "missing",
+          "teams",
+          "drawn",
+          "tied",
+          "no_result",
+          "champion",
+          "runner_up",
+          "recent",
+          "result_text"
+        ],
+        "title": "SeriesSummary",
+        "type": "object"
+      },
+      "SeriesTeam": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "wins": {
+            "title": "Wins",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "color",
+          "wins"
+        ],
+        "title": "SeriesTeam",
+        "type": "object"
+      },
       "SideRequest": {
         "properties": {
           "batters": {
@@ -7311,6 +8135,17 @@
             ],
             "description": "Present when the first innings has score projections."
           },
+          "series": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeriesRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The series or tournament it was part of (internationals)."
+          },
           "substitutions": {
             "items": {
               "$ref": "#/components/schemas/TimelineSubstitution"
@@ -8190,6 +9025,49 @@
           }
         },
         "summary": "Read Careers",
+        "tags": [
+          "competitions"
+        ]
+      }
+    },
+    "/api/v2/players/{player_id}/ratings": {
+      "get": {
+        "description": "A player's headline CricIQ Ratings in every competition, each among that\ncompetition's own players.",
+        "operationId": "read_career_ratings_api_v2_players__player_id__ratings_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CareerRatings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Career Ratings",
         "tags": [
           "competitions"
         ]
@@ -9602,6 +10480,277 @@
         "summary": "Predict Next Ball",
         "tags": [
           "matchups"
+        ]
+      }
+    },
+    "/api/v2/{competition}/series": {
+      "get": {
+        "description": "Series and tournaments, newest first.",
+        "operationId": "list_series_api_v2__competition__series_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "series",
+                    "tournament"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "description": "Team id, e.g. IND",
+            "in": "query",
+            "name": "team",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Team id, e.g. IND",
+              "title": "Team"
+            }
+          },
+          {
+            "description": "Only the major tournaments (true) or the rest (false).",
+            "in": "query",
+            "name": "major",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only the major tournaments (true) or the rest (false).",
+              "title": "Major"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Series",
+        "tags": [
+          "series"
+        ]
+      }
+    },
+    "/api/v2/{competition}/series/h2h": {
+      "get": {
+        "description": "Two sides' series against each other.",
+        "operationId": "read_series_record_api_v2__competition__series_h2h_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Team id, e.g. IND",
+            "in": "query",
+            "name": "a",
+            "required": true,
+            "schema": {
+              "description": "Team id, e.g. IND",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "A",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Team id, e.g. IND",
+            "in": "query",
+            "name": "b",
+            "required": true,
+            "schema": {
+              "description": "Team id, e.g. IND",
+              "maxLength": 8,
+              "minLength": 2,
+              "title": "B",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Series Record",
+        "tags": [
+          "series"
+        ]
+      }
+    },
+    "/api/v2/{competition}/series/{event_id}": {
+      "get": {
+        "description": "A series or tournament: its matches, tables, knockouts and top performers.",
+        "operationId": "read_series_api_v2__competition__series__event_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "title": "Event Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Series",
+        "tags": [
+          "series"
         ]
       }
     },

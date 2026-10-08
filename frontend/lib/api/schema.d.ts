@@ -45,6 +45,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/players/{player_id}/ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Career Ratings
+         * @description A player's headline CricIQ Ratings in every competition, each among that
+         *     competition's own players.
+         */
+        get: operations["read_career_ratings_api_v2_players__player_id__ratings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/chase": {
         parameters: {
             query?: never;
@@ -324,6 +345,66 @@ export interface paths {
          * @description Outcome probabilities for the next ball in a given situation (model estimate).
          */
         post: operations["predict_next_ball_api_v2__competition__predict_next_ball_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Series
+         * @description Series and tournaments, newest first.
+         */
+        get: operations["list_series_api_v2__competition__series_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/series/h2h": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Series Record
+         * @description Two sides' series against each other.
+         */
+        get: operations["read_series_record_api_v2__competition__series_h2h_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/series/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Series
+         * @description A series or tournament: its matches, tables, knockouts and top performers.
+         */
+        get: operations["read_series_api_v2__competition__series__event_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -876,17 +957,50 @@ export interface components {
             /** Batting Average */
             batting_average: number | null;
             /**
+             * Best Runs
+             * @description ... for these runs.
+             */
+            best_runs: number | null;
+            /**
+             * Best Wickets
+             * @description Best bowling in an innings: wickets ...
+             */
+            best_wickets: number | null;
+            /** Bowling Average */
+            bowling_average: number | null;
+            /**
              * Competition
              * @description The scope's id (path segment).
              */
             competition: string;
             /** Economy */
             economy: number | null;
+            /** Fifties */
+            fifties: number;
             /**
              * First Season
              * @description Season label of the debut.
              */
             first_season: string;
+            /**
+             * Five Wickets
+             * @description Innings with five or more wickets.
+             */
+            five_wickets: number;
+            /**
+             * High
+             * @description Highest score.
+             */
+            high: number | null;
+            /** High Not Out */
+            high_not_out: boolean;
+            /** Hundreds */
+            hundreds: number;
+            /**
+             * Innings
+             * @description Innings batted.
+             */
+            innings: number;
             /**
              * Last Season
              * @description Season label of the latest season.
@@ -909,6 +1023,44 @@ export interface components {
             strike_rate: number | null;
             /** Wickets */
             wickets: number;
+        };
+        /** CareerRating */
+        CareerRating: {
+            /** High */
+            high: number | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Low */
+            low: number | null;
+            /**
+             * Rating
+             * @description 0-100 percentile among the competition's qualified players over all its seasons; None below the minimum sample.
+             */
+            rating: number | null;
+        };
+        /**
+         * CareerRatings
+         * @description A player's headline CricIQ Ratings in each competition, each among that competition's
+         *     players over all its seasons, so formats are never mixed.
+         */
+        CareerRatings: {
+            /** Lines */
+            lines: components["schemas"]["CareerRatingsLine"][];
+            /** Player Id */
+            player_id: string;
+        };
+        /** CareerRatingsLine */
+        CareerRatingsLine: {
+            /** Batting */
+            batting: components["schemas"]["CareerRating"][];
+            /** Bowling */
+            bowling: components["schemas"]["CareerRating"][];
+            /** Competition */
+            competition: string;
+            /** Name */
+            name: string;
         };
         /**
          * ChaseCalculation
@@ -1078,6 +1230,22 @@ export interface components {
             innings_no: number;
             /** Seq No */
             seq_no: number;
+        };
+        /** DecisivePlayer */
+        DecisivePlayer: {
+            /**
+             * Added
+             * @description Win probability added over the event (in Tests, expected result added: a win counts one and a draw a half), in matches won.
+             */
+            added: number;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Team */
+            team: string;
         };
         /** DismissalCount */
         DismissalCount: {
@@ -1454,6 +1622,8 @@ export interface components {
         MatchDetail: {
             /** Innings */
             innings: components["schemas"]["InningsScorecard"][];
+            /** @description The series or tournament it was part of (internationals). */
+            series?: components["schemas"]["SeriesRef"] | null;
             summary: components["schemas"]["MatchSummary"];
         };
         /** MatchPage */
@@ -2312,6 +2482,260 @@ export interface components {
              */
             last: number;
         };
+        /** SeriesBatter */
+        SeriesBatter: {
+            /** Balls */
+            balls: number;
+            /** Fifties */
+            fifties: number;
+            /** High */
+            high: number;
+            /** High Not Out */
+            high_not_out: boolean;
+            /** Hundreds */
+            hundreds: number;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Outs */
+            outs: number;
+            /** Player Id */
+            player_id: string;
+            /** Runs */
+            runs: number;
+            /** Team */
+            team: string;
+        };
+        /** SeriesBowler */
+        SeriesBowler: {
+            /** Balls */
+            balls: number;
+            /** Best Runs */
+            best_runs: number;
+            /** Best Wickets */
+            best_wickets: number;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Runs */
+            runs: number;
+            /** Team */
+            team: string;
+            /** Wickets */
+            wickets: number;
+        };
+        /** SeriesDetail */
+        SeriesDetail: {
+            /** Batters */
+            batters: components["schemas"]["SeriesBatter"][];
+            /** Bowlers */
+            bowlers: components["schemas"]["SeriesBowler"][];
+            /**
+             * Decisive
+             * @description Most win probability added, both ways.
+             */
+            decisive: components["schemas"]["DecisivePlayer"][];
+            /**
+             * Matches
+             * @description In order of play.
+             */
+            matches: components["schemas"]["SeriesMatch"][];
+            /**
+             * Rounds
+             * @description A tournament's groups and knockouts, in order.
+             */
+            rounds: components["schemas"]["SeriesRound"][];
+            summary: components["schemas"]["SeriesSummary"];
+        };
+        /** SeriesMatch */
+        SeriesMatch: {
+            /** Round */
+            round: string | null;
+            summary: components["schemas"]["MatchSummary"];
+            /**
+             * Winner Low
+             * @description The winner's lowest chance of winning during the match (a comeback when low).
+             */
+            winner_low: number | null;
+        };
+        /** SeriesPage */
+        SeriesPage: {
+            /** Items */
+            items: components["schemas"]["SeriesSummary"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /**
+             * Years
+             * @description Years with a series or tournament, newest first.
+             */
+            years: number[];
+        };
+        /**
+         * SeriesRecord
+         * @description Two sides' series against each other.
+         */
+        SeriesRecord: {
+            /** A Won */
+            a_won: number;
+            /** B Won */
+            b_won: number;
+            /**
+             * Drawn
+             * @description Level series, and series of no result.
+             */
+            drawn: number;
+            /** Played */
+            played: number;
+            /** Series */
+            series: components["schemas"]["SeriesSummary"][];
+        };
+        /**
+         * SeriesRef
+         * @description The series or tournament a match belongs to.
+         */
+        SeriesRef: {
+            /** Event Id */
+            event_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "series" | "tournament";
+            /** Name */
+            name: string;
+            /**
+             * Round
+             * @description The match's round: "Group A", "Semi Final".
+             */
+            round: string | null;
+            /** Season */
+            season: string;
+        };
+        /** SeriesRound */
+        SeriesRound: {
+            /** Knockout */
+            knockout: boolean;
+            /** Matches */
+            matches: components["schemas"]["MatchSummary"][];
+            /** Name */
+            name: string;
+            /**
+             * Standings
+             * @description Empty for the knockouts.
+             */
+            standings: components["schemas"]["SeriesStanding"][];
+        };
+        /** SeriesStanding */
+        SeriesStanding: {
+            /** Lost */
+            lost: number;
+            /** No Result */
+            no_result: number;
+            /** Nrr */
+            nrr: number | null;
+            /** Played */
+            played: number;
+            /** Points */
+            points: number;
+            /** Position */
+            position: number;
+            team: components["schemas"]["SeriesTeam"];
+            /** Tied */
+            tied: number;
+            /** Won */
+            won: number;
+        };
+        /** SeriesSummary */
+        SeriesSummary: {
+            /** @description The winner of the final, when in the data. */
+            champion: components["schemas"]["SeriesTeam"] | null;
+            /** Drawn */
+            drawn: number;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /**
+             * Event Id
+             * @description Path segment, e.g. "2005-the-ashes".
+             */
+            event_id: string;
+            /**
+             * Kind
+             * @description A series is between two sides, a tournament between more.
+             * @enum {string}
+             */
+            kind: "series" | "tournament";
+            /** Matches */
+            matches: number;
+            /**
+             * Missing
+             * @description Matches the series' numbering shows are not in the data (often abandoned without a ball bowled).
+             */
+            missing: number;
+            /** Name */
+            name: string;
+            /**
+             * Named
+             * @description False where Cricsheet names no event: the matches of one pair of sides within a few weeks are grouped together.
+             */
+            named: boolean;
+            /** No Result */
+            no_result: number;
+            /**
+             * Recent
+             * @description The last match is within two weeks of the data's date: more may follow.
+             */
+            recent: boolean;
+            /** Result Text */
+            result_text: string;
+            runner_up: components["schemas"]["SeriesTeam"] | null;
+            /**
+             * Season
+             * @description "2005", or "2020/21" across the new year; a tournament by the year of its final.
+             */
+            season: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * Teams
+             * @description Most wins first.
+             */
+            teams: components["schemas"]["SeriesTeam"][];
+            /**
+             * Tied
+             * @description Ties without a winner.
+             */
+            tied: number;
+            /**
+             * Tournament Id
+             * @description The major tournament (cricket-world-cup, t20-world-cup, ...), if one.
+             */
+            tournament_id: string | null;
+        };
+        /** SeriesTeam */
+        SeriesTeam: {
+            /** Color */
+            color: string;
+            /** Franchise Id */
+            franchise_id: string;
+            /** Name */
+            name: string;
+            /** Wins */
+            wins: number;
+        };
         /** SideRequest */
         SideRequest: {
             /**
@@ -3088,6 +3512,8 @@ export interface components {
             };
             /** @description Present when the first innings has score projections. */
             score_projection?: components["schemas"]["ScoreProjectionModel"] | null;
+            /** @description The series or tournament it was part of (internationals). */
+            series?: components["schemas"]["SeriesRef"] | null;
             /** Substitutions */
             substitutions: components["schemas"]["TimelineSubstitution"][];
             summary: components["schemas"]["MatchSummary"];
@@ -3428,6 +3854,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerCareers"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_career_ratings_api_v2_players__player_id__ratings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                player_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CareerRatings"];
                 };
             };
             /** @description Validation Error */
@@ -3962,6 +4419,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NextBallResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_series_api_v2__competition__series_get: {
+        parameters: {
+            query?: {
+                kind?: ("series" | "tournament") | null;
+                year?: number | null;
+                /** @description Team id, e.g. IND */
+                team?: string | null;
+                /** @description Only the major tournaments (true) or the rest (false). */
+                major?: boolean | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_series_record_api_v2__competition__series_h2h_get: {
+        parameters: {
+            query: {
+                /** @description Team id, e.g. IND */
+                a: string;
+                /** @description Team id, e.g. IND */
+                b: string;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_series_api_v2__competition__series__event_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesDetail"];
                 };
             };
             /** @description Validation Error */

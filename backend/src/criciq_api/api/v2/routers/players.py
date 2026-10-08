@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 
 from criciq_api.db import Database
 from criciq_api.repositories.players import PlayerFilters, PlayerSort, RoleFilter
-from criciq_api.schemas.competitions import CompetitionList, PlayerCareers
+from criciq_api.schemas.competitions import CareerRatings, CompetitionList, PlayerCareers
 from criciq_api.schemas.players import PlayerPage, PlayerProfile, PlayerSplits, SimilarPlayers
 from criciq_api.services import competitions as competitions_service
 from criciq_api.services import players as service
@@ -74,6 +74,16 @@ def read_careers(db: PlayersDB, player_id: str) -> PlayerCareers:
     after the T20 competitions."""
     try:
         return competitions_service.get_careers(db, player_id)
+    except service.PlayerNotFoundError:
+        raise _not_found(player_id) from None
+
+
+@router.get("/players/{player_id}/ratings")
+def read_career_ratings(db: PlayersDB, player_id: str) -> CareerRatings:
+    """A player's headline CricIQ Ratings in every competition, each among that
+    competition's own players."""
+    try:
+        return competitions_service.get_career_ratings(db, player_id)
     except service.PlayerNotFoundError:
         raise _not_found(player_id) from None
 

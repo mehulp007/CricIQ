@@ -7,6 +7,7 @@ from typing import Any
 
 from criciq_api.db import Database, Row
 from criciq_api.repositories import matches as repo
+from criciq_api.repositories import series as series_repo
 from criciq_api.schemas.matches import (
     BattingEntry,
     BowlingEntry,
@@ -20,6 +21,7 @@ from criciq_api.schemas.matches import (
     MatchSummary,
     PlayerRef,
     ScoreProjectionModel,
+    SeriesRef,
     TeamRef,
     TeamScore,
     Timeline,
@@ -229,7 +231,10 @@ def get_detail(db: Database, match_id: int) -> MatchDetail:
                 fall_of_wickets=falls[number],
             )
         )
-    return MatchDetail(summary=summary, innings=innings)
+    found = series_repo.event_of_match(db, match_id)
+    return MatchDetail(
+        summary=summary, innings=innings, series=SeriesRef(**found) if found else None
+    )
 
 
 def _wp_model(row: Row) -> WinProbabilityModel:
@@ -352,8 +357,10 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
             )
         )
     days = repo.get_days(db, match_id)
+    found = series_repo.event_of_match(db, match_id)
     return Timeline(
         summary=summary,
+        series=SeriesRef(**found) if found else None,
         teams=_teams(db, match_id),
         players={
             p["player_id"]: TimelinePlayer(name=p["name"], full_name=p["full_name"])

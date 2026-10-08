@@ -11,7 +11,16 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from criciq_api.api.v2.routers import chase, matches, matchups, meta, players, simulation, teams
+from criciq_api.api.v2.routers import (
+    chase,
+    matches,
+    matchups,
+    meta,
+    players,
+    series,
+    simulation,
+    teams,
+)
 
 
 def _competition(competition: players.Competition) -> str:
@@ -23,6 +32,6 @@ api_router = APIRouter(prefix="/api/v2")
 api_router.include_router(players.router)
 
 competition_router = APIRouter(prefix="/{competition}", dependencies=[Depends(_competition)])
-for module in (meta, matches, matchups, teams, simulation, chase):
+for module in (meta, matches, matchups, teams, series, simulation, chase):
     competition_router.include_router(module.router)
 api_router.include_router(competition_router)

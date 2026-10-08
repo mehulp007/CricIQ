@@ -39,15 +39,50 @@ class CareerLine(BaseModel):
     matches: int
     first_season: str = Field(description="Season label of the debut.")
     last_season: str = Field(description="Season label of the latest season.")
+    innings: int = Field(description="Innings batted.")
     runs: int
     batting_average: float | None
     strike_rate: float | None
     par_strike_rate: float | None = Field(
         description="An average batter's strike rate on the same balls in that competition."
     )
+    hundreds: int
+    fifties: int
+    high: int | None = Field(description="Highest score.")
+    high_not_out: bool
     wickets: int
+    bowling_average: float | None
     economy: float | None
     par_economy: float | None
+    five_wickets: int = Field(description="Innings with five or more wickets.")
+    best_wickets: int | None = Field(description="Best bowling in an innings: wickets ...")
+    best_runs: int | None = Field(description="... for these runs.")
+
+
+class CareerRating(BaseModel):
+    key: str
+    label: str
+    rating: int | None = Field(
+        description="0-100 percentile among the competition's qualified players over all its "
+        "seasons; None below the minimum sample."
+    )
+    low: int | None
+    high: int | None
+
+
+class CareerRatingsLine(BaseModel):
+    competition: str
+    name: str
+    batting: list[CareerRating]
+    bowling: list[CareerRating]
+
+
+class CareerRatings(BaseModel):
+    """A player's headline CricIQ Ratings in each competition, each among that competition's
+    players over all its seasons, so formats are never mixed."""
+
+    player_id: str
+    lines: list[CareerRatingsLine]
 
 
 class PlayerCareers(BaseModel):

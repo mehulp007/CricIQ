@@ -146,9 +146,22 @@ class InningsScorecard(BaseModel):
     fall_of_wickets: list[FallOfWicket]
 
 
+class SeriesRef(BaseModel):
+    """The series or tournament a match belongs to."""
+
+    event_id: str
+    name: str
+    season: str
+    kind: Literal["series", "tournament"]
+    round: str | None = Field(description='The match\'s round: "Group A", "Semi Final".')
+
+
 class MatchDetail(BaseModel):
     summary: MatchSummary
     innings: list[InningsScorecard]
+    series: SeriesRef | None = Field(
+        default=None, description="The series or tournament it was part of (internationals)."
+    )
 
 
 # --------------------------------------------------------------------------- timeline
@@ -372,6 +385,9 @@ class Timeline(BaseModel):
     """Everything the client needs to replay a match ball by ball, in one payload."""
 
     summary: MatchSummary
+    series: SeriesRef | None = Field(
+        default=None, description="The series or tournament it was part of (internationals)."
+    )
     teams: dict[str, TeamRef]
     players: dict[str, TimelinePlayer]
     innings: list[TimelineInnings]

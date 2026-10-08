@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from criciq_api.db import Database, get_db
 from criciq_api.repositories.matches import MatchFilters
-from criciq_api.schemas.matches import MatchDetail, MatchPage, Timeline
+from criciq_api.schemas.matches import ChaseWhatIf, MatchDetail, MatchPage, Timeline
+from criciq_api.services import chase
 from criciq_api.services import matches as service
 
 router = APIRouter(prefix="/matches", tags=["matches"])
@@ -37,6 +38,23 @@ def read_match(db: DB, match_id: int) -> MatchDetail:
         return service.get_detail(db, match_id)
     except service.MatchNotFoundError:
         raise HTTPException(status_code=404, detail=f"match {match_id} not found") from None
+
+
+@router.get("/{match_id}/chase")
+def read_chase(
+    db: DB,
+    match_id: int,
+    seq: Annotated[int, Query(ge=0, description="The fourth-innings ball (0 = before it).")],
+    needed: Annotated[int | None, Query(ge=1, le=1000, description="Runs needed.")] = None,
+    wickets: Annotated[int | None, Query(ge=1, le=10, description="Wickets in hand.")] = None,
+    overs: Annotated[float | None, Query(ge=0, le=450, description="Overs left.")] = None,
+) -> ChaseWhatIf:
+    """Tests: the chasing side's chances from a fourth-innings ball, as it was and with the
+    runs needed, wickets in hand or overs left changed."""
+    try:
+        return chase.what_if(db, match_id, seq, needed, wickets, overs)
+    except chase.ChaseUnavailableError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from None
 
 
 @router.get("/{match_id}/timeline")

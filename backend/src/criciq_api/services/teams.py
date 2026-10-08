@@ -109,13 +109,14 @@ def _rate(hits: int, total: int) -> Rate:
 
 def _record(r: Row | None) -> Record:
     if r is None:
-        return Record(played=0, won=0, lost=0, no_result=0, win_pct=None)
+        return Record(played=0, won=0, lost=0, no_result=0, drawn=0, win_pct=None)
     return Record(
         played=r["played"],
         won=r["won"],
         lost=r["lost"],
         no_result=r["no_result"],
-        win_pct=_ratio(r["won"], r["won"] + r["lost"], 100, 1),
+        drawn=r.get("drawn") or 0,
+        win_pct=_ratio(r["won"], r["won"] + r["lost"] + (r.get("drawn") or 0), 100, 1),
     )
 
 
@@ -438,8 +439,10 @@ def _season_fields(r: Row) -> dict[str, Any]:
         "won": r["won"],
         "lost": r["lost"],
         "no_result": r["no_result"] + r["abandoned"],
+        "drawn": r.get("drawn") or 0,
         "points": r["points"],
-        "nrr": None if r["nrr"] is None else float(r["nrr"]),
+        # A Test has no net run rate.
+        "nrr": None if r["nrr"] is None or r.get("drawn") is not None else float(r["nrr"]),
         "finish": r["finish"],
         "exit_stage": r["exit_stage"],
         "playoff_won": r["playoff_won"],
@@ -456,6 +459,7 @@ def _h2h(rows: list[Row]) -> H2HRecord:
         a_won=sum(1 for r in rows if r["result"] == "won"),
         b_won=sum(1 for r in rows if r["result"] == "lost"),
         no_result=sum(1 for r in rows if r["result"] == "no_result"),
+        drawn=sum(1 for r in rows if r["result"] == "drawn"),
         tied=sum(1 for r in rows if r["tied"]),
     )
 

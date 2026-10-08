@@ -399,7 +399,12 @@ POSITION_LABELS = {
     "6-7": "No. 6\u20137",
     "8-11": "No. 8\u201311",
 }
-RESULT_LABELS = {"won": "In wins", "lost": "In defeats", "no_result": "No result"}
+RESULT_LABELS = {
+    "won": "In wins",
+    "lost": "In defeats",
+    "drawn": "In draws",
+    "no_result": "No result",
+}
 STAGE_LABELS = {"league": "League", "playoffs": "Playoffs"}
 BOWLING_TYPE_LABELS = {"pace": "vs pace", "spin": "vs spin", "unknown": "vs unknown type"}
 HAND_LABELS = {

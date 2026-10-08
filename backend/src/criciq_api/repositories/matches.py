@@ -244,6 +244,27 @@ def get_score_projections(db: Database, match_id: int) -> list[Row]:
     )
 
 
+def get_innings_projections(db: Database, match_id: int) -> list[Row]:
+    """Tests: every innings' total quantiles after every ball (seq_no 0 = before it)."""
+    if not db.has_table("innings_projections"):
+        return []
+    return db.rows(
+        """
+        SELECT innings_no, seq_no, quantiles FROM innings_projections
+        WHERE match_id = ? ORDER BY innings_no, seq_no
+        """,
+        [match_id],
+    )
+
+
+def get_days(db: Database, match_id: int) -> int | None:
+    """Tests: the days a match was played on (Cricsheet's dates)."""
+    if db.match_format != "Test":
+        return None
+    found = db.scalar("SELECT days FROM matches WHERE match_id = ?", [match_id])
+    return None if found is None else int(found)
+
+
 def get_win_probabilities(db: Database, match_id: int) -> list[Row]:
     """Side-batting-first win probability after every ball; seq_no 0 = before the innings."""
     if not db.has_table("wp_predictions"):

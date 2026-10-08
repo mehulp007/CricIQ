@@ -5,12 +5,13 @@ from __future__ import annotations
 from criciq_api.db import Database, Row
 from criciq_core.phases import default_phase_config
 
-# Results from one side's point of view; `played` counts no results too.
+# Results from one side's point of view; `played` counts no results (and Tests' draws).
 RECORD_SUMS = """
     count(*)::INTEGER AS played,
     count(*) FILTER (WHERE result = 'won')::INTEGER AS won,
     count(*) FILTER (WHERE result = 'lost')::INTEGER AS lost,
-    count(*) FILTER (WHERE result = 'no_result')::INTEGER AS no_result
+    count(*) FILTER (WHERE result = 'no_result')::INTEGER AS no_result,
+    count(*) FILTER (WHERE result = 'drawn')::INTEGER AS drawn
 """
 
 
@@ -54,7 +55,8 @@ def franchises(db: Database) -> list[Row]:
         )
         SELECT f.franchise_id, f.name, f.primary_color AS color, f.secondary_color, f.is_active,
                fin.seasons, fin.first_season, fin.last_season, fin.titles, fin.finals,
-               fin.playoffs, n.names, rec.played, rec.won, rec.lost, rec.no_result
+               fin.playoffs, n.names, rec.played, rec.won, rec.lost, rec.no_result,
+               rec.drawn
         FROM franchises f
         JOIN rec USING (franchise_id)
         JOIN fin USING (franchise_id)
@@ -262,12 +264,14 @@ def extreme_total(
     db: Database, franchise_id: str, first: int, last: int, *, highest: bool
 ) -> Row | None:
     # The lowest total only counts completed innings: bowled out or batted out the overs
-    # (20 in a T20, 50 in an ODI).
+    # (20 in a T20, 50 in an ODI; a Test innings has no over limit, so bowled out).
     full = default_phase_config().for_format(db.match_format)
-    balls = full.limit * full.balls_per_over
-    completed = (
-        "" if highest else f"AND (wickets_for >= 10 OR balls_for >= {balls}) AND win_method IS NULL"
+    done = (
+        "wickets_for >= 10"
+        if full.overs is None
+        else f"(wickets_for >= 10 OR balls_for >= {full.limit * full.balls_per_over})"
     )
+    completed = "" if highest else f"AND {done} AND win_method IS NULL"
     order = "runs_for DESC" if highest else "runs_for ASC"
     return db.row(
         f"""

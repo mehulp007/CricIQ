@@ -13,12 +13,13 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Role = Literal["batter", "bowler", "all_rounder"]
-Result = Literal["won", "lost", "no_result"]
+Result = Literal["won", "lost", "no_result", "drawn"]
 RatingUnit = Literal[
     "runs_per_100",
     "dismissals_per_100",
     "runs_per_over",
     "wickets_per_4_overs",
+    "wickets_per_20_overs",
     "points",
     "percent",
 ]

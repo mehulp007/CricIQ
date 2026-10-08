@@ -64,10 +64,21 @@ ODI_FEATURED: dict[int, str] = {
     566948: "Champions Trophy 2013 final, reduced to 20 overs",
     238200: "South Africa chase 435 against Australia, the highest chase in ODI history",
 }
+# Tests the data holds that are remembered for how they finished. A Test timeline is
+# about 2,000 balls, so the list stays short.
+TEST_FEATURED: dict[int, str] = {
+    1448353: "The Oval 2025: India win by six runs to square the series",
+    1322356: "Wellington 2023: New Zealand follow on and win by one run",
+    1223872: "The Gabba 2021: India chase 328 on the last day to win the series",
+    1152848: "Headingley 2019: Stokes' 135 not out wins it by one wicket",
+    215010: "Edgbaston 2005: England win by two runs",
+    64027: "Antigua 2003: West Indies chase 418, the highest successful chase in Tests",
+}
 FEATURED: dict[str, dict[int, str]] = {
     "ipl": IPL_FEATURED,
     "t20i": T20I_FEATURED,
     "odi": ODI_FEATURED,
+    "test": TEST_FEATURED,
 }
 # Other competitions feature their latest finals.
 FINALS = 6
@@ -151,24 +162,28 @@ def season_snapshot(db: Database) -> SeasonSnapshot:
         )
 
     name = "coalesce(p.full_name, p.name) AS name"
+    # Test runs and wickets are judged by their averages; limited-overs ones by their rates.
+    test = db.match_format == "Test"
     leaders = {
         "runs": leader(
             f"""
             SELECT b.player_id, {name}, arg_max(b.team_id, b.match_order) AS team,
-                   sum(b.runs) AS value, round(100.0 * sum(b.runs) / sum(b.balls), 1) AS sr
+                   sum(b.runs) AS value, round(100.0 * sum(b.runs) / sum(b.balls), 1) AS sr,
+                   round(sum(b.runs) / greatest(count(*) FILTER (WHERE b.is_out), 1), 1) AS avg
             FROM player_batting_innings b JOIN players p USING (player_id)
             WHERE b.season = ? GROUP BY ALL ORDER BY value DESC LIMIT 1
             """,
-            "strike rate {sr}",
+            "average {avg}" if test else "strike rate {sr}",
         ),
         "wickets": leader(
             f"""
             SELECT b.player_id, {name}, arg_max(b.team_id, b.match_order) AS team,
-                   sum(b.wickets) AS value, round(6.0 * sum(b.runs) / sum(b.balls), 2) AS econ
+                   sum(b.wickets) AS value, round(6.0 * sum(b.runs) / sum(b.balls), 2) AS econ,
+                   round(sum(b.runs) / greatest(sum(b.wickets), 1), 1) AS avg
             FROM player_bowling_innings b JOIN players p USING (player_id)
             WHERE b.season = ? GROUP BY ALL ORDER BY value DESC, econ LIMIT 1
             """,
-            "economy {econ}",
+            "average {avg}" if test else "economy {econ}",
         ),
         "runs_above_par": leader(
             f"""

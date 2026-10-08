@@ -162,8 +162,8 @@ def fixture_scored_serving_db(
 ) -> Path:
     """The fixture serving database scored as `criciq-ml score` scores the IPL's: with the
     committed models serving the IPL, each from the data it was trained on. The men's
-    T20Is' and ODIs' serving databases, scored with their model groups' models, sit
-    beside it."""
+    T20Is', ODIs' and Tests' serving databases, scored with their model groups' models,
+    sit beside it."""
     folder = tmp_path_factory.mktemp("scored")
     target = folder / "serving.duckdb"
     shutil.copyfile(fixture_serving_db, target)
@@ -175,6 +175,10 @@ def fixture_scored_serving_db(
         run_export_competition(competition, other, warehouse=fixture_full_warehouse)
         with ml_cli._serving_models(competition):
             ml_cli._score_serving(other, sources, competition)
+    tests = folder / "serving-test.duckdb"
+    run_export_competition("TEST", tests, warehouse=fixture_full_warehouse)
+    with ml_cli._serving_models("TEST"):
+        ml_cli._score_test_serving(tests, sources, "TEST")
     return target
 
 

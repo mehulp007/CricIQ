@@ -26,7 +26,10 @@ class Record(BaseModel):
     won: int
     lost: int
     no_result: int
-    win_pct: float | None = Field(description="Wins as a percentage of decided matches.")
+    drawn: int = Field(default=0, description="Tests only.")
+    win_pct: float | None = Field(
+        description="Wins as a percentage of matches with a result or drawn (no results left out)."
+    )
 
 
 class Rate(BaseModel):
@@ -121,6 +124,7 @@ class TeamSeason(BaseModel):
     won: int
     lost: int
     no_result: int
+    drawn: int = Field(default=0, description="Tests only.")
     points: int
     nrr: float | None
     finish: Finish
@@ -266,6 +270,7 @@ class H2HRecord(BaseModel):
     a_won: int
     b_won: int
     no_result: int
+    drawn: int = Field(default=0, description="Tests only.")
     tied: int = Field(description="Ties settled by a super over (already counted as wins).")
 
 

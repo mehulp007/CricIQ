@@ -51,8 +51,8 @@ def test_bundled_featured_timelines_match_the_api_schema(competition: str) -> No
 
 
 def test_featured_files_are_compact() -> None:
-    # About 150 KB for a T20's 240 balls; an ODI has up to 600.
-    limits = {"odi": 375_000}
+    # About 150 KB for a T20's 240 balls; an ODI has up to 600, a Test about 2,000.
+    limits = {"odi": 375_000, "test": 1_300_000}
     for path in OUT_DIR.glob("*/*.json"):
         assert path.stat().st_size < limits.get(path.parent.name, 150_000), path
     for competition in BUNDLED:

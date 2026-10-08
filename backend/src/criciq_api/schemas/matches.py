@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-OutcomeType = Literal["win", "tie", "no_result"]
+OutcomeType = Literal["win", "tie", "no_result", "draw"]
 
 
 class TeamRef(BaseModel):
@@ -17,10 +17,25 @@ class TeamRef(BaseModel):
     color: str
 
 
+class InningsScore(BaseModel):
+    """One innings of a side in a Test."""
+
+    innings_no: int
+    runs: int
+    wickets: int
+    overs: str
+    declared: bool
+    follow_on: bool
+    forfeited: bool
+
+
 class TeamScore(TeamRef):
     runs: int | None
     wickets: int | None
     overs: str | None = Field(description="Scoreboard overs, e.g. '19.4'.")
+    innings: list[InningsScore] | None = Field(
+        default=None, description="Tests: every innings of the side, in order."
+    )
 
 
 class VenueRef(BaseModel):
@@ -51,6 +66,7 @@ class MatchSummary(BaseModel):
     result_text: str
     win_method: str | None
     decided_by_super_over: bool
+    won_by_innings: bool | None = Field(default=None, description="Tests: an innings victory.")
     toss: Toss
     player_of_match: list[str]
 
@@ -121,6 +137,8 @@ class InningsScorecard(BaseModel):
     overs: str
     target_runs: int | None
     target_overs: float | None
+    declared: bool = False
+    follow_on: bool = False
     extras: Extras
     batting: list[BattingEntry]
     did_not_bat: list[PlayerRef]
@@ -148,7 +166,11 @@ class TimelineInnings(BaseModel):
     is_super_over: bool
     target_runs: int | None
     target_balls: int | None
-    max_balls: int = Field(description="Legal balls available to the batting side.")
+    max_balls: int | None = Field(
+        description="Legal balls available to the batting side (none in a Test)."
+    )
+    declared: bool = False
+    follow_on: bool = False
     wp_start: float | None = Field(
         default=None,
         description="Win probability of the side batting first before this innings' first ball.",
@@ -158,7 +180,11 @@ class TimelineInnings(BaseModel):
     )
     projection_start: list[int] | None = Field(
         default=None,
-        description="First innings only: quantiles of the final total before the first ball.",
+        description="First innings only (every innings in a Test): quantiles of the final "
+        "total before the first ball.",
+    )
+    draw_start: float | None = Field(
+        default=None, description="Tests: probability of a draw before this innings' first ball."
     )
     leverage_start: float | None = Field(
         default=None,
@@ -207,6 +233,11 @@ class TimelineDelivery(BaseModel):
         default=None,
         description="Win probability of the side batting first after this ball (model estimate).",
     )
+    wp_draw: float | None = Field(
+        default=None,
+        description="Tests: probability of a draw after this ball (the side batting second wins "
+        "with the rest).",
+    )
     factors: list[float] | None = Field(
         default=None,
         description="Percentage points each factor adds to the batting side's chance, relative "
@@ -215,8 +246,9 @@ class TimelineDelivery(BaseModel):
     )
     projection: list[int] | None = Field(
         default=None,
-        description="First innings only: quantiles of the final total after this ball, at the "
-        "levels in Timeline.score_projection.levels (model estimate).",
+        description="First innings only (every innings in a Test): quantiles of the innings' "
+        "final total after this ball, at the levels in Timeline.score_projection.levels "
+        "(model estimate).",
     )
     leverage: float | None = Field(
         default=None,
@@ -250,11 +282,16 @@ class WinProbabilityModel(BaseModel):
     version: str
     trained_from: int
     trained_through: int
-    factor_keys: list[str] = Field(description="Order of the values in each `factors` list.")
-    base_innings1: float = Field(
+    outcomes: Literal[2, 3] = Field(
+        default=2, description="3 in Tests: a win, a draw or a loss (``wp_draw``)."
+    )
+    factor_keys: list[str] = Field(
+        description="Order of the values in each `factors` list (none in Tests)."
+    )
+    base_innings1: float | None = Field(
         description="Average first-innings estimate: the reference point for its factors."
     )
-    base_innings2: float = Field(
+    base_innings2: float | None = Field(
         description="Average chase estimate: the reference point for its factors."
     )
     pressure_thresholds: list[float] | None = Field(
@@ -273,6 +310,64 @@ class ScoreProjectionModel(BaseModel):
     levels: list[float] = Field(description="Quantile level of each value in `projection`.")
 
 
+class ChaseOutcome(BaseModel):
+    """A fourth-innings state and the chasing side's chances from it (Tests)."""
+
+    runs_needed: int
+    wickets_in_hand: int
+    overs_left: float = Field(description="Estimated: five days of 90 overs less those bowled.")
+    won: float
+    drawn: float
+    lost: float
+
+
+class ChaseSide(BaseModel):
+    """A Test side and its rating from its results (Elo style, 1500 to start)."""
+
+    franchise_id: str
+    name: str
+    color: str
+    rating: float | None
+
+
+class ChaseSides(BaseModel):
+    sides: list[ChaseSide]
+    as_of: str | None = Field(description="The date of the last Test the ratings include.")
+    model_version: str
+
+
+class ChaseCalculation(BaseModel):
+    """The chase calculator: a fourth-innings chase between two sides, from scratch."""
+
+    batting: str
+    fielding: str
+    venue: Literal["home", "away", "neutral"] = Field(description="For the batting side.")
+    outcome: ChaseOutcome
+    by_runs_needed: list[ChaseOutcome] = Field(
+        description="The same chase for other targets, to show how the chances move."
+    )
+    model_version: str
+
+
+class ChaseWhatIf(BaseModel):
+    """The chase what-if: the real state at a ball, and the edited one."""
+
+    match_id: int
+    seq_no: int
+    batting_team: TeamRef
+    real: ChaseOutcome
+    edited: ChaseOutcome
+    model_version: str
+
+
+class DayMarker(BaseModel):
+    """Where a day of a Test (estimated) begins: before this delivery."""
+
+    day: int
+    innings_no: int
+    seq_no: int
+
+
 class Timeline(BaseModel):
     """Everything the client needs to replay a match ball by ball, in one payload."""
 
@@ -287,4 +382,9 @@ class Timeline(BaseModel):
     )
     score_projection: ScoreProjectionModel | None = Field(
         default=None, description="Present when the first innings has score projections."
+    )
+    days: list[DayMarker] | None = Field(
+        default=None,
+        description="Tests: where each day began. Cricsheet records the dates a Test was played "
+        "on, not when each day's play started, so the overs are shared evenly between the days.",
     )

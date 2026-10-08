@@ -1,4 +1,4 @@
-"""/api/v2: Player Lab for every T20 competition, all T20 and ODIs, over the fixture matches."""
+"""/api/v2: Player Lab for every competition and all T20, over the fixture matches."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 T20 = ["ipl", "bbl", "psl", "cpl", "sa20", "t20i", "t20"]
-SCOPES = [*T20, "odi"]
+SCOPES = [*T20, "odi", "test"]
 
 
 def _get(client: TestClient, path: str, **params: Any) -> Any:
@@ -28,6 +28,7 @@ def test_competitions_list_their_seasons(client: TestClient) -> None:
     assert items["t20"]["matches"] == sum(items[c]["matches"] for c in T20[:-1])
     assert all(items[c]["players"] > 0 for c in SCOPES)
     assert items["odi"]["competitions"] == ["ODI"]
+    assert items["test"]["competitions"] == ["TEST"]
 
 
 def test_every_competition_has_a_directory_profile_and_splits(client: TestClient) -> None:
@@ -76,7 +77,7 @@ def test_a_bbl_season_is_filtered_by_its_year(client: TestClient) -> None:
 
 
 def test_unknown_competitions_and_players_are_not_found(client: TestClient) -> None:
-    assert client.get("/api/v2/test/players").status_code == 404
+    assert client.get("/api/v2/wbbl/players").status_code == 404
     assert client.get("/api/v2/bbl/players/nobody").status_code == 404
     assert client.get("/api/v2/players/nobody").status_code == 404
     assert client.get("/api/v2/BBL/players").status_code == 422  # lower-case ids only

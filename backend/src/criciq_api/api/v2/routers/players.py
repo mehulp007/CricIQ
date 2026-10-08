@@ -1,7 +1,7 @@
 """Player Lab for any competition, and all T20 cricket together.
 
 Directory, profiles, splits and similar players from the players database:
-``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i, odi or t20 (every T20
+``{competition}`` is ipl, bbl, psl, cpl, sa20, t20i, odi, test or t20 (every T20
 competition). Par is always the player's own competition's: a PSL strike rate is
 judged against the PSL. Ratings use each competition's own shrinkage constants,
 and win probability added comes from the model serving that competition.
@@ -38,7 +38,7 @@ Competition = Annotated[
     str,
     Path(
         pattern=r"^[a-z0-9]{2,8}$",
-        description="ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+        description="ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
     ),
 ]
 FirstSeason = Annotated[

@@ -10,8 +10,10 @@ from criciq_api.repositories import matches as repo
 from criciq_api.schemas.matches import (
     BattingEntry,
     BowlingEntry,
+    DayMarker,
     Extras,
     FallOfWicket,
+    InningsScore,
     InningsScorecard,
     MatchDetail,
     MatchPage,
@@ -39,6 +41,8 @@ class MatchNotFoundError(LookupError):
 
 def summary_from_row(row: Row) -> MatchSummary:
     def side(prefix: str) -> TeamScore:
+        # A Test's summary lists each side's innings; a limited-overs one has none.
+        innings = row.get(f"{prefix}_innings")
         return TeamScore(
             team_season_id=row[f"{prefix}_id"],
             franchise_id=row[f"{prefix}_short"],
@@ -47,6 +51,7 @@ def summary_from_row(row: Row) -> MatchSummary:
             runs=row[f"{prefix}_runs"],
             wickets=row[f"{prefix}_wickets"],
             overs=row[f"{prefix}_overs"],
+            innings=None if innings is None else [InningsScore(**i) for i in innings],
         )
 
     return MatchSummary(
@@ -65,6 +70,7 @@ def summary_from_row(row: Row) -> MatchSummary:
         result_text=row["result_text"],
         win_method=row["win_method"],
         decided_by_super_over=row["decided_by_super_over"],
+        won_by_innings=row.get("won_by_innings"),
         toss=Toss(
             winner_id=row["toss_winner_id"],
             winner_name=row["toss_winner_name"],
@@ -206,6 +212,8 @@ def get_detail(db: Database, match_id: int) -> MatchDetail:
                 overs=overs_notation(r["legal_balls"]),
                 target_runs=r["target_runs"],
                 target_overs=r["target_overs"],
+                declared=bool(r.get("declared")),
+                follow_on=bool(r.get("follow_on")),
                 extras=Extras(**extras, total=sum(extras.values())),
                 batting=batting[number],
                 did_not_bat=(
@@ -233,23 +241,59 @@ def _wp_model(row: Row) -> WinProbabilityModel:
         else None
     )
     fields = {k: v for k, v in row.items() if k != "pressure"}
+    # A Test model has no explanations (and publishes its terms for the chase what-if).
+    fields.setdefault("factor_keys", [])
+    fields.setdefault("base_innings1", None)
+    fields.setdefault("base_innings2", None)
     return WinProbabilityModel(**fields, pressure_thresholds=thresholds)
+
+
+def day_markers(deliveries: list[Row], days: int) -> list[DayMarker]:
+    """Where each day of a Test began, estimated: Cricsheet has the dates a Test was played
+    on but not when each day's play started, so its legal balls are shared evenly between
+    them (a day begins at the first delivery past the previous days' share)."""
+    legal = sum(1 for d in deliveries if d["is_legal"])
+    if days < 1 or legal == 0:
+        return []
+    per_day = legal / days
+    markers = [DayMarker(day=1, innings_no=deliveries[0]["innings_no"], seq_no=0)]
+    bowled = 0
+    for d in deliveries:
+        if len(markers) < days and bowled >= per_day * len(markers):
+            markers.append(
+                DayMarker(day=len(markers) + 1, innings_no=d["innings_no"], seq_no=d["seq_no"])
+            )
+        bowled += int(d["is_legal"])
+    return markers
 
 
 def get_timeline(db: Database, match_id: int) -> Timeline:
     summary = _summary(db, match_id)
     wp = {(r["innings_no"], r["seq_no"]): r for r in repo.get_win_probabilities(db, match_id)}
     model_row = repo.get_model(db, "win_probability") if wp else None
+    # Tests project every innings; limited-overs matches only the first.
+    test_projections = {
+        (r["innings_no"], r["seq_no"]): list(r["quantiles"])
+        for r in repo.get_innings_projections(db, match_id)
+    }
     projections = {
         r["seq_no"]: list(r["quantiles"]) for r in repo.get_score_projections(db, match_id)
     }
-    projection_row = repo.get_model(db, "score_projection") if projections else None
+    projection_row = (
+        repo.get_model(db, "score_projection") if projections or test_projections else None
+    )
 
     def projection(innings_no: int, seq_no: int) -> list[int] | None:
+        if test_projections:
+            return test_projections.get((innings_no, seq_no))
         return projections.get(seq_no) if innings_no == 1 else None
 
     def probability(row: Row | None) -> float | None:
         return None if row is None else float(row["wp_team_a"])
+
+    def draw(row: Row | None) -> float | None:
+        value = None if row is None else row.get("wp_draw")
+        return None if value is None else float(value)
 
     def factors(row: Row | None) -> list[float] | None:
         return None if row is None or row["factors"] is None else list(row["factors"])
@@ -262,8 +306,9 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
         value = number(row, "pressure", 0)
         return None if value is None else int(value)
 
+    rows = repo.get_deliveries(db, match_id)
     deliveries = []
-    for r in repo.get_deliveries(db, match_id):
+    for r in rows:
         wicket: Any = None
         if r["player_out_id"] is not None:
             wicket = TimelineWicket(
@@ -298,6 +343,7 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 team_wickets=r["team_wickets"],
                 wicket=wicket,
                 wp=probability(p := wp.get((r["innings_no"], r["seq_no"]))),
+                wp_draw=draw(p),
                 factors=factors(p),
                 projection=projection(r["innings_no"], r["seq_no"]),
                 leverage=number(p, "leverage", 2),
@@ -305,6 +351,7 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 momentum=number(p, "momentum", 1),
             )
         )
+    days = repo.get_days(db, match_id)
     return Timeline(
         summary=summary,
         teams=_teams(db, match_id),
@@ -321,7 +368,10 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
                 target_runs=r["target_runs"],
                 target_balls=r["target_balls"],
                 max_balls=r["max_balls"],
+                declared=bool(r.get("declared")),
+                follow_on=bool(r.get("follow_on")),
                 wp_start=probability(s := wp.get((r["innings_no"], 0))),
+                draw_start=draw(s),
                 factors_start=factors(s),
                 projection_start=projection(r["innings_no"], 0),
                 leverage_start=number(s, "leverage", 2),
@@ -333,4 +383,5 @@ def get_timeline(db: Database, match_id: int) -> Timeline:
         substitutions=[TimelineSubstitution(**r) for r in repo.get_substitutions(db, match_id)],
         win_probability=_wp_model(model_row) if model_row else None,
         score_projection=ScoreProjectionModel(**projection_row) if projection_row else None,
+        days=None if days is None or not rows else day_markers(rows, days),
     )

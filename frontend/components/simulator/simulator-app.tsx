@@ -3,7 +3,7 @@
 import { Dices } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { SimResults } from "@/components/simulator/sim-results";
+import { type PickRecord, SimResults } from "@/components/simulator/sim-results";
 import { XIEditor } from "@/components/simulator/xi-editor";
 import {
   Select,
@@ -44,11 +44,14 @@ export function SimulatorApp({
   initialSeason,
   initialA,
   initialB,
+  picks = null,
 }: {
   seasons: SimSeason[];
   initialSeason: number | null;
   initialA: SimSquad | null;
   initialB: SimSquad | null;
+  /** How this competition's backtest picked winners before a ball was bowled. */
+  picks?: PickRecord | null;
 }) {
   const [season, setSeason] = useState<number | null>(initialSeason);
   const [a, setA] = useState<XIState>(() => fromSquad(initialA));
@@ -262,7 +265,7 @@ export function SimulatorApp({
                 : ""}
       </p>
 
-      {result && <SimResults result={result} />}
+      {result && <SimResults result={result} picks={picks} />}
     </div>
   );
 }

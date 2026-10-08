@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CompetitionLink } from "@/components/competition/competition-link";
-import { SimulationChip } from "@/components/simulator/sim-results";
+import { type PickRecord, SimulationChip } from "@/components/simulator/sim-results";
 import { SimulatorApp } from "@/components/simulator/simulator-app";
 import { getSimSeasons, getSquad } from "@/lib/api/client";
 import type { SimSquad } from "@/lib/api/types";
@@ -38,6 +38,20 @@ async function squadOrNull(
   } catch {
     return null;
   }
+}
+
+/** How the serving simulator's backtest picked winners, for the result's caption. */
+function pickRecord(competition: CompetitionId): PickRecord | null {
+  const win = modelsFor(competition).simulator?.win;
+  const backtest = modelsFor(competition).simulator;
+  if (!win || !backtest) return null;
+  const gain = win.gain_vs_coin_flip;
+  return {
+    verdict: gain.low > 0 ? "better" : gain.high < 0 ? "worse" : "coin",
+    brier: win.simulator.brier,
+    coinFlip: win.coin_flip.brier,
+    seasons: seasonSpan(backtest.test),
+  };
 }
 
 /** Where no simulator version has passed its backtest gate, the page says so. */
@@ -125,6 +139,7 @@ export default async function SimulatorPage({
         initialSeason={season?.season ?? null}
         initialA={squadA}
         initialB={squadB}
+        picks={pickRecord(competition)}
       />
     </div>
   );

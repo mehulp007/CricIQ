@@ -322,7 +322,21 @@ function Scorecard({ side, name }: { side: SimSideResult; name: string }) {
   );
 }
 
-export function SimResults({ result }: { result: SimulationResult }) {
+/** How the competition's backtest picked winners before a ball was bowled. */
+export interface PickRecord {
+  verdict: "better" | "coin" | "worse";
+  brier: number;
+  coinFlip: number;
+  seasons: string;
+}
+
+export function SimResults({
+  result,
+  picks,
+}: {
+  result: SimulationResult;
+  picks: PickRecord | null;
+}) {
   const [a, b] = result.sides;
   const names: [string, string] = [sideName(a, "Team A"), sideName(b, "Team B")];
   return (
@@ -339,17 +353,31 @@ export function SimResults({ result }: { result: SimulationResult }) {
         </div>
         <WinShares result={result} names={names} />
         <p className="rounded-xl bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
-          A simulation, not a forecast. Simulated before a ball was bowled, the 2025 and 2026
-          matches were called no better than a coin flip (see{" "}
-          <CompetitionLink
-            href="/models?tab=simulator#simulator"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            the backtest
-          </CompetitionLink>
-          ): T20 matches between these sides are close to even. What the simulation is good for is
-          the spread of scores, each player&apos;s likely contribution and what changes when you
-          change the XI.
+          A simulation, not a forecast.
+          {picks && (
+            <>
+              {" "}
+              Simulated before a ball was bowled, the {picks.seasons} matches were called{" "}
+              {picks.verdict === "better"
+                ? "better than"
+                : picks.verdict === "worse"
+                  ? "worse than"
+                  : "no better than"}{" "}
+              a coin flip (Brier {picks.brier.toFixed(3)} against {picks.coinFlip.toFixed(3)}; see{" "}
+              <CompetitionLink
+                href="/models?tab=simulator#simulator"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                the backtest
+              </CompetitionLink>
+              )
+              {picks.verdict === "better"
+                ? ": the favourite here carries real signal, though far from certainty."
+                : ": matches between these sides are closer to even than the shares suggest."}
+            </>
+          )}{" "}
+          What the simulation is good for is the spread of scores, each player&apos;s likely
+          contribution and what changes when you change the XI.
         </p>
         {result.margin_runs && (
           <p className="text-sm text-muted-foreground">

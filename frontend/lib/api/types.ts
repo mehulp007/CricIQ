@@ -96,6 +96,11 @@ export type SimBowler = Schemas["SimBowler"];
 export type SimDistribution = Schemas["Distribution"];
 export type StateRequest = Schemas["StateRequest"];
 export type StateResult = Schemas["StateResult"];
+export type ChaseWhatIf = Schemas["ChaseWhatIf"];
+export type ChaseOutcome = Schemas["ChaseOutcome"];
+export type ChaseSides = Schemas["ChaseSides"];
+export type ChaseSide = Schemas["ChaseSide"];
+export type ChaseCalculation = Schemas["ChaseCalculation"];
 
 export type CompetitionList = Schemas["CompetitionList"];
 export type CompetitionScope = Schemas["CompetitionScope"];

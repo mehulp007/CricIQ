@@ -45,6 +45,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/{competition}/chase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Chase
+         * @description The chasing side's chances of winning, drawing and losing a fourth-innings chase.
+         */
+        get: operations["read_chase_api_v2__competition__chase_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/chase/sides": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Sides
+         * @description The Test sides and their ratings after the last Test.
+         */
+        get: operations["read_sides_api_v2__competition__chase_sides_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/matches": {
         parameters: {
             query?: never;
@@ -77,6 +117,27 @@ export interface paths {
          * @description Match summary with full scorecards for every innings.
          */
         get: operations["read_match_api_v2__competition__matches__match_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/matches/{match_id}/chase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Chase
+         * @description Tests: the chasing side's chances from a fourth-innings ball, as it was and with the
+         *     runs needed, wickets in hand or overs left changed.
+         */
+        get: operations["read_chase_api_v2__competition__matches__match_id__chase_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -539,7 +600,7 @@ export interface components {
              * Result
              * @enum {string}
              */
-            result: "won" | "lost" | "no_result";
+            result: "won" | "lost" | "no_result" | "drawn";
             /** Runs */
             runs: number;
             /** Season */
@@ -705,7 +766,7 @@ export interface components {
              * Result
              * @enum {string}
              */
-            result: "won" | "lost" | "no_result";
+            result: "won" | "lost" | "no_result" | "drawn";
             /** Runs */
             runs: number;
             /** Season */
@@ -849,6 +910,92 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /**
+         * ChaseCalculation
+         * @description The chase calculator: a fourth-innings chase between two sides, from scratch.
+         */
+        ChaseCalculation: {
+            /** Batting */
+            batting: string;
+            /**
+             * By Runs Needed
+             * @description The same chase for other targets, to show how the chances move.
+             */
+            by_runs_needed: components["schemas"]["ChaseOutcome"][];
+            /** Fielding */
+            fielding: string;
+            /** Model Version */
+            model_version: string;
+            outcome: components["schemas"]["ChaseOutcome"];
+            /**
+             * Venue
+             * @description For the batting side.
+             * @enum {string}
+             */
+            venue: "home" | "away" | "neutral";
+        };
+        /**
+         * ChaseOutcome
+         * @description A fourth-innings state and the chasing side's chances from it (Tests).
+         */
+        ChaseOutcome: {
+            /** Drawn */
+            drawn: number;
+            /** Lost */
+            lost: number;
+            /**
+             * Overs Left
+             * @description Estimated: five days of 90 overs less those bowled.
+             */
+            overs_left: number;
+            /** Runs Needed */
+            runs_needed: number;
+            /** Wickets In Hand */
+            wickets_in_hand: number;
+            /** Won */
+            won: number;
+        };
+        /**
+         * ChaseSide
+         * @description A Test side and its rating from its results (Elo style, 1500 to start).
+         */
+        ChaseSide: {
+            /** Color */
+            color: string;
+            /** Franchise Id */
+            franchise_id: string;
+            /** Name */
+            name: string;
+            /** Rating */
+            rating: number | null;
+        };
+        /** ChaseSides */
+        ChaseSides: {
+            /**
+             * As Of
+             * @description The date of the last Test the ratings include.
+             */
+            as_of: string | null;
+            /** Model Version */
+            model_version: string;
+            /** Sides */
+            sides: components["schemas"]["ChaseSide"][];
+        };
+        /**
+         * ChaseWhatIf
+         * @description The chase what-if: the real state at a ball, and the edited one.
+         */
+        ChaseWhatIf: {
+            batting_team: components["schemas"]["TeamRef"];
+            edited: components["schemas"]["ChaseOutcome"];
+            /** Match Id */
+            match_id: number;
+            /** Model Version */
+            model_version: string;
+            real: components["schemas"]["ChaseOutcome"];
+            /** Seq No */
+            seq_no: number;
+        };
         /** CompetitionInfo */
         CompetitionInfo: {
             /** Format */
@@ -919,6 +1066,18 @@ export interface components {
             updated_at: string;
             /** Withdrawn Matches */
             withdrawn_matches: number;
+        };
+        /**
+         * DayMarker
+         * @description Where a day of a Test (estimated) begins: before this delivery.
+         */
+        DayMarker: {
+            /** Day */
+            day: number;
+            /** Innings No */
+            innings_no: number;
+            /** Seq No */
+            seq_no: number;
         };
         /** DismissalCount */
         DismissalCount: {
@@ -1121,6 +1280,12 @@ export interface components {
             a_won: number;
             /** B Won */
             b_won: number;
+            /**
+             * Drawn
+             * @description Tests only.
+             * @default 0
+             */
+            drawn: number;
             /** No Result */
             no_result: number;
             /** Played */
@@ -1199,6 +1364,26 @@ export interface components {
             /** Season */
             season: number;
         };
+        /**
+         * InningsScore
+         * @description One innings of a side in a Test.
+         */
+        InningsScore: {
+            /** Declared */
+            declared: boolean;
+            /** Follow On */
+            follow_on: boolean;
+            /** Forfeited */
+            forfeited: boolean;
+            /** Innings No */
+            innings_no: number;
+            /** Overs */
+            overs: string;
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
+        };
         /** InningsScorecard */
         InningsScorecard: {
             /** Batting */
@@ -1207,11 +1392,21 @@ export interface components {
             /** Bowling */
             bowling: components["schemas"]["BowlingEntry"][];
             bowling_team: components["schemas"]["TeamRef"];
+            /**
+             * Declared
+             * @default false
+             */
+            declared: boolean;
             /** Did Not Bat */
             did_not_bat: components["schemas"]["PlayerRef"][];
             extras: components["schemas"]["Extras"];
             /** Fall Of Wickets */
             fall_of_wickets: components["schemas"]["FallOfWicket"][];
+            /**
+             * Follow On
+             * @default false
+             */
+            follow_on: boolean;
             /** Innings No */
             innings_no: number;
             /** Is Super Over */
@@ -1291,7 +1486,7 @@ export interface components {
              * Outcome Type
              * @enum {string}
              */
-            outcome_type: "win" | "tie" | "no_result";
+            outcome_type: "win" | "tie" | "no_result" | "draw";
             /** Player Of Match */
             player_of_match: string[];
             /** Result Text */
@@ -1311,6 +1506,11 @@ export interface components {
             win_method: string | null;
             /** Winner Id */
             winner_id: string | null;
+            /**
+             * Won By Innings
+             * @description Tests: an innings victory.
+             */
+            won_by_innings?: boolean | null;
         };
         /** MatchupDetail */
         MatchupDetail: {
@@ -1863,7 +2063,7 @@ export interface components {
              * Unit
              * @enum {string}
              */
-            unit: "runs_per_100" | "dismissals_per_100" | "runs_per_over" | "wickets_per_4_overs" | "points" | "percent";
+            unit: "runs_per_100" | "dismissals_per_100" | "runs_per_over" | "wickets_per_4_overs" | "wickets_per_20_overs" | "points" | "percent";
             /**
              * Value
              * @description Shrunk estimate, in ``unit`` (higher is better).
@@ -1911,6 +2111,12 @@ export interface components {
          * @description Results; a tie settled by a super over counts for the super-over winner.
          */
         Record: {
+            /**
+             * Drawn
+             * @description Tests only.
+             * @default 0
+             */
+            drawn: number;
             /** Lost */
             lost: number;
             /** No Result */
@@ -1919,7 +2125,7 @@ export interface components {
             played: number;
             /**
              * Win Pct
-             * @description Wins as a percentage of decided matches.
+             * @description Wins as a percentage of matches with a result or drawn (no results left out).
              */
             win_pct: number | null;
             /** Won */
@@ -2740,6 +2946,11 @@ export interface components {
             color: string;
             /** Franchise Id */
             franchise_id: string;
+            /**
+             * Innings
+             * @description Tests: every innings of the side, in order.
+             */
+            innings?: components["schemas"]["InningsScore"][] | null;
             /** Name */
             name: string;
             /**
@@ -2768,6 +2979,12 @@ export interface components {
         };
         /** TeamSeason */
         TeamSeason: {
+            /**
+             * Drawn
+             * @description Tests only.
+             * @default 0
+             */
+            drawn: number;
             /** Exit Stage */
             exit_stage: string | null;
             /**
@@ -2856,6 +3073,11 @@ export interface components {
          * @description Everything the client needs to replay a match ball by ball, in one payload.
          */
         Timeline: {
+            /**
+             * Days
+             * @description Tests: where each day began. Cricsheet records the dates a Test was played on, not when each day's play started, so the overs are shared evenly between the days.
+             */
+            days?: components["schemas"]["DayMarker"][] | null;
             /** Deliveries */
             deliveries: components["schemas"]["TimelineDelivery"][];
             /** Innings */
@@ -2934,7 +3156,7 @@ export interface components {
             pressure?: number | null;
             /**
              * Projection
-             * @description First innings only: quantiles of the final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).
+             * @description First innings only (every innings in a Test): quantiles of the innings' final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).
              */
             projection?: number[] | null;
             /** Runs Batter */
@@ -2960,6 +3182,11 @@ export interface components {
              * @description Win probability of the side batting first after this ball (model estimate).
              */
             wp?: number | null;
+            /**
+             * Wp Draw
+             * @description Tests: probability of a draw after this ball (the side batting second wins with the rest).
+             */
+            wp_draw?: number | null;
         };
         /** TimelineInnings */
         TimelineInnings: {
@@ -2968,10 +3195,25 @@ export interface components {
             /** Bowling Team Id */
             bowling_team_id: string;
             /**
+             * Declared
+             * @default false
+             */
+            declared: boolean;
+            /**
+             * Draw Start
+             * @description Tests: probability of a draw before this innings' first ball.
+             */
+            draw_start?: number | null;
+            /**
              * Factors Start
              * @description Explanation of wp_start (see Timeline.win_probability).
              */
             factors_start?: number[] | null;
+            /**
+             * Follow On
+             * @default false
+             */
+            follow_on: boolean;
             /** Innings No */
             innings_no: number;
             /** Is Super Over */
@@ -2983,9 +3225,9 @@ export interface components {
             leverage_start?: number | null;
             /**
              * Max Balls
-             * @description Legal balls available to the batting side.
+             * @description Legal balls available to the batting side (none in a Test).
              */
-            max_balls: number;
+            max_balls: number | null;
             /**
              * Pressure Start
              * @description Pressure index for the next ball: percentile of leverage among every historical IPL ball (0-100).
@@ -2993,7 +3235,7 @@ export interface components {
             pressure_start?: number | null;
             /**
              * Projection Start
-             * @description First innings only: quantiles of the final total before the first ball.
+             * @description First innings only (every innings in a Test): quantiles of the final total before the first ball.
              */
             projection_start?: number[] | null;
             /** Target Balls */
@@ -3104,17 +3346,24 @@ export interface components {
              * Base Innings1
              * @description Average first-innings estimate: the reference point for its factors.
              */
-            base_innings1: number;
+            base_innings1: number | null;
             /**
              * Base Innings2
              * @description Average chase estimate: the reference point for its factors.
              */
-            base_innings2: number;
+            base_innings2: number | null;
             /**
              * Factor Keys
-             * @description Order of the values in each `factors` list.
+             * @description Order of the values in each `factors` list (none in Tests).
              */
             factor_keys: string[];
+            /**
+             * Outcomes
+             * @description 3 in Tests: a win, a draw or a loss (``wp_draw``).
+             * @default 2
+             * @enum {integer}
+             */
+            outcomes: 2 | 3;
             /**
              * Pressure Thresholds
              * @description Leverage at the pressure index's band edges (50, 80 and 95): where Medium, High and Very high pressure begin.
@@ -3192,6 +3441,82 @@ export interface operations {
             };
         };
     };
+    read_chase_api_v2__competition__chase_get: {
+        parameters: {
+            query: {
+                /** @description The chasing side, e.g. IND. */
+                batting: string;
+                /** @description The fielding side. */
+                fielding: string;
+                /** @description Runs needed. */
+                needed: number;
+                /** @description Wickets in hand. */
+                wickets: number;
+                /** @description Overs left. */
+                overs: number;
+                venue?: "home" | "away" | "neutral";
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChaseCalculation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_sides_api_v2__competition__chase_sides_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChaseSides"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_matches_api_v2__competition__matches_get: {
         parameters: {
             query?: {
@@ -3208,7 +3533,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3241,7 +3566,7 @@ export interface operations {
             header?: never;
             path: {
                 match_id: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3268,13 +3593,55 @@ export interface operations {
             };
         };
     };
+    read_chase_api_v2__competition__matches__match_id__chase_get: {
+        parameters: {
+            query: {
+                /** @description The fourth-innings ball (0 = before it). */
+                seq: number;
+                /** @description Runs needed. */
+                needed?: number | null;
+                /** @description Wickets in hand. */
+                wickets?: number | null;
+                /** @description Overs left. */
+                overs?: number | null;
+            };
+            header?: never;
+            path: {
+                match_id: number;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChaseWhatIf"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_timeline_api_v2__competition__matches__match_id__timeline_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 match_id: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3317,7 +3684,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3357,7 +3724,7 @@ export interface operations {
             path: {
                 batter_id: string;
                 bowler_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3389,7 +3756,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3431,7 +3798,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3468,7 +3835,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3506,7 +3873,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3544,7 +3911,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
                 player_id: string;
             };
@@ -3577,7 +3944,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3613,7 +3980,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3649,7 +4016,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3683,7 +4050,7 @@ export interface operations {
             path: {
                 season: number;
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3715,7 +4082,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3751,7 +4118,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3788,7 +4155,7 @@ export interface operations {
             header?: never;
             path: {
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3820,7 +4187,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3861,7 +4228,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3894,7 +4261,7 @@ export interface operations {
             header?: never;
             path: {
                 season: number;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;
@@ -3932,7 +4299,7 @@ export interface operations {
             header?: never;
             path: {
                 franchise_id: string;
-                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket. */
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
                 competition: string;
             };
             cookie?: never;

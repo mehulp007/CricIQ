@@ -1,13 +1,15 @@
 /**
  * The competitions in the switcher. Each live competition has its own pages
  * under `/[competition]/...` (`/ipl/matches`, `/odi/players/[id]`), served from
- * its own data by `/api/v2/{competition}/...`. Test cricket is listed as coming,
- * never linked to placeholder data.
+ * its own data by `/api/v2/{competition}/...`.
  */
 
-export type CompetitionId = "ipl" | "t20i" | "odi" | "bbl" | "psl" | "cpl" | "sa20";
+export type CompetitionId = "ipl" | "t20i" | "odi" | "test" | "bbl" | "psl" | "cpl" | "sa20";
 
-export type MatchFormat = "T20" | "ODI";
+export type MatchFormat = "T20" | "ODI" | "Test";
+
+/** The limited-overs competitions (everything but Tests). */
+export type LimitedOversId = Exclude<CompetitionId, "test">;
 
 export interface Competition {
   id: CompetitionId;
@@ -26,9 +28,9 @@ export interface Competition {
   /** All of it in a sentence ("the IPL", "men's T20 internationals"). */
   collective: string;
   format: MatchFormat;
-  /** Overs an innings lasts, and the most one bowler may bowl. */
-  overs: number;
-  quota: number;
+  /** Overs an innings lasts, and the most one bowler may bowl (neither limited in a Test). */
+  overs: number | null;
+  quota: number | null;
 }
 
 export interface UpcomingFormat {
@@ -79,6 +81,20 @@ export const COMPETITIONS: readonly Competition[] = [
     format: "ODI",
     overs: 50,
     quota: 10,
+  },
+  {
+    id: "test",
+    label: "Test",
+    name: "Men's Test cricket",
+    teamType: "national",
+    spansNewYear: false,
+    lab: false,
+    firstSeason: 2001,
+    noun: "men's Test",
+    collective: "men's Test cricket",
+    format: "Test",
+    overs: null,
+    quota: null,
   },
   {
     id: "bbl",
@@ -139,9 +155,7 @@ export const COMPETITIONS: readonly Competition[] = [
 ];
 
 /** Formats on their way (shown in the switcher, never linked). */
-export const UPCOMING: readonly UpcomingFormat[] = [
-  { label: "Test", name: "Men's Test cricket", milestone: "V2-6" },
-];
+export const UPCOMING: readonly UpcomingFormat[] = [];
 
 export const DEFAULT_COMPETITION: CompetitionId = "ipl";
 
@@ -152,6 +166,11 @@ const BY_ID = new Map(COMPETITIONS.map((c) => [c.id, c]));
 
 export function isCompetitionId(value: string | undefined | null): value is CompetitionId {
   return value != null && BY_ID.has(value as CompetitionId);
+}
+
+/** Whether a competition is Test cricket (four innings, draws, no over limit). */
+export function isTest(id: CompetitionId): id is "test" {
+  return getCompetition(id).format === "Test";
 }
 
 export function getCompetition(id: CompetitionId): Competition {
@@ -178,6 +197,9 @@ export function switchPath(pathname: string, to: CompetitionId): string {
   const [section, ...more] = pathname.split("/").filter(Boolean).slice(1);
   if (!section) return competitionPath(to);
   if (section === "lab" && !getCompetition(to).lab) return competitionPath(to);
+  // Tests have a chase calculator where limited-overs cricket has its simulator.
+  if (section === "chase" && !isTest(to)) return competitionPath(to, "/simulator");
+  if (section === "simulator" && isTest(to)) return competitionPath(to, "/chase");
   // A page about one match, player or team has no counterpart in another competition.
   const sameEverywhere = more.length === 0 || (section === "teams" && more.join("/") === "h2h");
   return competitionPath(to, sameEverywhere ? `/${[section, ...more].join("/")}` : `/${section}`);

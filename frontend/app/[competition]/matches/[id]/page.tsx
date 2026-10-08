@@ -5,11 +5,13 @@ import { notFound } from "next/navigation";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import { MatchCenter } from "@/components/replay/match-center";
+import { TestMatchCenter } from "@/components/replay/test/test-match-center";
 import { ApiError, getTimeline } from "@/lib/api/client";
 import type { Timeline } from "@/lib/api/types";
 import {
   competitionPath,
   isCompetitionId,
+  isTest,
   seasonLabel,
   type CompetitionId,
 } from "@/lib/competitions";
@@ -98,11 +100,15 @@ export default async function MatchPage({ params }: PageProps<"/[competition]/ma
         </div>
       </header>
 
-      <MatchCenter
-        timeline={timeline}
-        competition={competition}
-        simulator={modelsFor(competition).simulator !== null}
-      />
+      {isTest(competition) ? (
+        <TestMatchCenter timeline={timeline} competition={competition} />
+      ) : (
+        <MatchCenter
+          timeline={timeline}
+          competition={competition}
+          simulator={modelsFor(competition).simulator !== null}
+        />
+      )}
     </div>
   );
 }

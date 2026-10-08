@@ -8,7 +8,13 @@ import { competitionPath, type CompetitionId } from "@/lib/competitions";
 import { BALL_OUTCOME, type BallOutcomeInsights as Insights, seasonSpan } from "@/lib/models";
 import { scrollRegion } from "@/lib/a11y";
 
-const PHASES = { powerplay: "Powerplay", middle: "Middle overs", death: "Death overs" } as const;
+const PHASES: Record<string, string> = {
+  powerplay: "Powerplay",
+  middle: "Middle overs",
+  death: "Death overs",
+  new_ball: "New ball",
+  second_new_ball: "Second new ball",
+};
 const HISTORY: Record<string, string> = {
   "1-9": "1–9 balls",
   "10-29": "10–29 balls",

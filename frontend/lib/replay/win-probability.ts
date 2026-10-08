@@ -161,7 +161,7 @@ export function explanationAt(timeline: Timeline, cursor: number): Explanation |
   return {
     battingSide: inningsNo === 1 ? "a" : "b",
     inningsNo,
-    base: inningsNo === 1 ? model.base_innings1 : model.base_innings2,
+    base: (inningsNo === 1 ? model.base_innings1 : model.base_innings2) ?? 0.5,
     factors: model.factor_keys
       .map((key, i) => ({ key, points: points[i] }))
       .sort((x, y) => Math.abs(y.points) - Math.abs(x.points)),

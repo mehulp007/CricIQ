@@ -4,9 +4,11 @@
  * card), and bundled so the page never depends on the API being awake. Every
  * model group has models of its own, trained on its own competitions only
  * (ADR-0013): the files in `data/models/` are the IPL's, `data/models/leagues/`
- * the BBL's, CPL's, PSL's and SA20's, `data/models/t20i/` the T20Is' and
- * `data/models/odi/` the ODIs'. `data/models/t20/` keeps the pooled T20 version
- * of V2-3, shown only as the trade-off it was replaced with.
+ * the BBL's, CPL's, PSL's and SA20's, `data/models/t20i/` the T20Is',
+ * `data/models/odi/` the ODIs' and `data/models/test/` the Tests'. `data/models/t20/`
+ * keeps the pooled T20 version of V2-3, shown only as the trade-off it was replaced
+ * with. Tests have models of their own design (three outcomes, every innings
+ * projected, no simulator): `testModels()`.
  */
 import ballOutcomeData from "@/data/models/ball-outcome.json";
 import leaguesBallOutcomeData from "@/data/models/leagues/ball-outcome.json";
@@ -28,8 +30,12 @@ import t20iRatingsData from "@/data/models/t20i/ratings.json";
 import t20iProjectionData from "@/data/models/t20i/score-projection.json";
 import t20iSimulatorData from "@/data/models/t20i/simulator.json";
 import t20iWinProbabilityData from "@/data/models/t20i/win-probability.json";
+import testBallOutcomeData from "@/data/models/test/ball-outcome.json";
+import testRatingsData from "@/data/models/test/ratings.json";
+import testProjectionData from "@/data/models/test/score-projection.json";
+import testWinProbabilityData from "@/data/models/test/win-probability.json";
 import data from "@/data/models/win-probability.json";
-import type { CompetitionId } from "@/lib/competitions";
+import type { LimitedOversId } from "@/lib/competitions";
 
 export interface Metrics {
   rows: number;
@@ -509,9 +515,9 @@ export interface CompetitionResults<M> {
 }
 
 /** The model groups (config/model_groups.yaml): each trains on its own competitions only. */
-export type ModelGroupId = "ipl" | "leagues" | "t20i" | "odi";
+export type ModelGroupId = "ipl" | "leagues" | "t20i" | "odi" | "test";
 
-const GROUP_OF: Record<CompetitionId, ModelGroupId> = {
+const GROUP_OF: Record<LimitedOversId, Exclude<ModelGroupId, "test">> = {
   ipl: "ipl",
   bbl: "leagues",
   cpl: "leagues",
@@ -563,13 +569,141 @@ const SINGLE = {
   },
 };
 
+// --------------------------------------------------------------------------- Tests
+
+/** A probability triple for the batting side, as the Test models report them. */
+export interface OutcomeEce {
+  won: number;
+  drawn: number;
+  lost: number;
+}
+
+export interface TestMetrics {
+  rows: number;
+  log_loss: number;
+  brier: number;
+  ece: OutcomeEce;
+}
+
+export interface TestBacktestRow {
+  season: number;
+  matches: number;
+  model_log_loss: number;
+  baseline_log_loss: number;
+  model_brier: number;
+  baseline_brier: number;
+}
+
+export interface TestSwing {
+  match_id: number;
+  innings_no: number;
+  seq_no: number;
+  ball_label: string | null;
+  season: number;
+  date: string;
+  teams: string;
+  result: string;
+  description: string;
+  team: string;
+  swing: number;
+  win_after: number;
+  draw_after: number;
+}
+
+export interface TestWinProbabilityInsights {
+  version: string;
+  data_version: string;
+  trained_on: { competitions: string[]; seasons: [number, number]; matches: number };
+  splits: { validation: number[]; test: number[]; backtest_from: number };
+  /** Context added to the match state, per innings ("1".."4"). */
+  groups: Record<string, { key: string; label: string }[]>;
+  selection_years: number[];
+  alternatives: { model: string; log_loss: number }[];
+  test: {
+    matches: number;
+    model: TestMetrics;
+    baseline: TestMetrics;
+    vs_baseline: Bootstrap;
+    by_innings: { innings_no: number; rows: number; model: TestMetrics; baseline: TestMetrics }[];
+    by_day: { day: number; rows: number; model_log_loss: number; baseline_log_loss: number }[];
+    calibration: Record<"won" | "drawn" | "lost", { ece: number; bins: ReliabilityBin[] }>;
+    baseline_calibration: Record<"won" | "drawn" | "lost", { ece: number; bins: ReliabilityBin[] }>;
+    outcomes: { won: number; drawn: number; lost: number };
+  };
+  backtest: TestBacktestRow[];
+  swings: TestSwing[];
+}
+
+export interface TestProjectionMetrics {
+  rows: number;
+  pinball: number;
+  mae: number;
+  median_abs_error: number;
+  coverage80: number;
+  width80: number;
+  below: number[];
+}
+
+export interface TestProjectionInsights {
+  version: string;
+  data_version: string;
+  trained_on: { competitions: string[]; seasons: [number, number]; matches: number };
+  splits: {
+    tune_train_through: number;
+    tune_valid: number[];
+    calibrate: number[];
+    test: number[];
+    backtest_from: number;
+  };
+  levels: number[];
+  test: {
+    innings: number;
+    model: TestProjectionMetrics;
+    par_baseline: TestProjectionMetrics;
+    by_innings: {
+      innings_no: number;
+      model: TestProjectionMetrics;
+      par_baseline: TestProjectionMetrics;
+    }[];
+  };
+  backtest: {
+    season: number;
+    model_pinball: number;
+    par_pinball: number;
+    model_mae: number;
+    par_mae: number;
+    coverage80: number;
+  }[];
+}
+
+/** The models serving Tests, trained on Tests only. */
+export interface TestModelSet {
+  group: "test";
+  winProbability: TestWinProbabilityInsights;
+  scoreProjection: TestProjectionInsights;
+  ballOutcome: BallOutcomeInsights;
+  ratings: RatingsInsights;
+}
+
+const TEST_MODELS: TestModelSet = {
+  group: "test",
+  winProbability: testWinProbabilityData as unknown as TestWinProbabilityInsights,
+  scoreProjection: testProjectionData as unknown as TestProjectionInsights,
+  ballOutcome: testBallOutcomeData as unknown as BallOutcomeInsights,
+  ratings: testRatingsData as unknown as RatingsInsights,
+};
+
+export function testModels(): TestModelSet {
+  return TEST_MODELS;
+}
+
 /** The pooled T20 win probability of V2-3 (every T20 competition at once), which the
  * leagues' and T20Is' own models replaced: its results on each competition's test matches. */
 const POOLED_WIN_PROBABILITY = t20WinProbabilityData as unknown as Several<ModelInsights>;
 
 /** The models serving one competition, as Model Insights shows them. */
 export interface ModelSet {
-  competition: CompetitionId;
+  competition: LimitedOversId;
   /** The model group whose models serve it, trained on the group's competitions only. */
   group: ModelGroupId;
   /** The competitions the group's models were trained on. */
@@ -602,7 +736,7 @@ function resultsFor<M>(
 
 const NO_RESULTS = { winProbability: null, scoreProjection: null, ballOutcome: null };
 
-export function modelsFor(competition: CompetitionId): ModelSet {
+export function modelsFor(competition: LimitedOversId): ModelSet {
   const group = GROUP_OF[competition];
   const id = competition.toUpperCase();
   const pooled = resultsFor<Metrics>(POOLED_WIN_PROBABILITY.test.by_competition, id);

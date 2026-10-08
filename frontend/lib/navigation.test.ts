@@ -39,6 +39,15 @@ describe("navigation", () => {
     expect(isShown(matches, "t20i")).toBe(true);
   });
 
+  it("offers Tests a chase calculator instead of the simulator", () => {
+    const simulator = byLabel("Simulator");
+    const chase = byLabel("Chase calculator");
+    expect(isShown(simulator, "ipl")).toBe(true);
+    expect(isShown(simulator, "test")).toBe(false);
+    expect(isShown(chase, "test")).toBe(true);
+    expect(isShown(chase, "odi")).toBe(false);
+  });
+
   it("matches the overview exactly", () => {
     expect(isActive(overview, "/ipl", "ipl")).toBe(true);
     expect(isActive(overview, "/ipl/matches", "ipl")).toBe(false);

@@ -1,7 +1,8 @@
 /**
- * First-innings score projection in the replay. The API stores quantiles of the
- * final total after every first-innings ball; everything here derives from them.
- * The CDF construction mirrors `criciq_ml.projection.cdf_points`.
+ * Score projection in the replay. The API stores quantiles of the final total
+ * after every first-innings ball (every ball of every innings in a Test);
+ * everything here derives from them. The CDF construction mirrors
+ * `criciq_ml.projection.cdf_points`.
  */
 import type { Timeline } from "@/lib/api/types";
 
@@ -14,13 +15,14 @@ export interface Projection {
   high: number; // 90%
 }
 
-/** The projection after the cursor ball (before the first ball at -1); null outside a first innings. */
+/** The projection after the cursor ball (before the first ball at -1); null where the
+ * innings has none (a limited-overs chase). */
 export function projectionAt(timeline: Timeline, cursor: number): Projection | null {
   const levels = timeline.score_projection?.levels;
   if (!levels) return null;
   const d = cursor >= 0 ? timeline.deliveries[cursor] : null;
   const quantiles = d ? d.projection : timeline.innings[0]?.projection_start;
-  if (!quantiles || (d && d.innings_no !== 1)) return null;
+  if (!quantiles) return null;
   const at = (level: number) => quantiles[levels.indexOf(level)];
   return {
     quantiles,

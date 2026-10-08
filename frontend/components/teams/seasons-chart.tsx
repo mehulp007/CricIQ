@@ -45,6 +45,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: readonly { paylo
         <span className="font-mono text-foreground">
           {p.won}–{p.lost}
         </span>
+        {(p.drawn ?? 0) > 0 && ` · ${p.drawn} drawn`}
         {p.no_result > 0 && ` · ${p.no_result} NR`} ·{" "}
         <span className="font-mono text-foreground">{p.win_pct.toFixed(0)}%</span>
       </p>
@@ -63,7 +64,9 @@ export function SeasonsChart({ seasons }: { seasons: TeamSeason[] }) {
   const competition = useCompetition();
   const data: Point[] = seasons.map((s) => ({
     ...s,
-    win_pct: s.won + s.lost ? (100 * s.won) / (s.won + s.lost) : 0,
+    // Tests' draws count among the matches played.
+    win_pct:
+      s.won + s.lost + (s.drawn ?? 0) ? (100 * s.won) / (s.won + s.lost + (s.drawn ?? 0)) : 0,
   }));
   const legend: [Finish, string][] = [
     ["champion", "Champions"],

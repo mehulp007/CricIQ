@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SPEEDS, type ReplayAction, type ReplayState } from "@/lib/replay/state";
+import { SPEEDS, type ReplayAction, type ReplayState, type Speed } from "@/lib/replay/state";
 import { cn } from "@/lib/utils";
 
 export interface OverOption {
@@ -24,11 +24,15 @@ export function ReplayControls({
   dispatch,
   overs,
   ballLabel,
+  speeds = SPEEDS,
+  jumpLabel = "Jump to over",
 }: {
   state: ReplayState;
   dispatch: Dispatch<ReplayAction>;
   overs: OverOption[];
   ballLabel: string;
+  speeds?: readonly Speed[];
+  jumpLabel?: string;
 }) {
   const { cursor, total, playing, speed } = state;
   const currentOver = [...overs].reverse().find((o) => o.index <= cursor);
@@ -104,7 +108,7 @@ export function ReplayControls({
           role="group"
           aria-label="Playback speed"
         >
-          {SPEEDS.map((s) => (
+          {speeds.map((s) => (
             <button
               key={s}
               type="button"
@@ -126,8 +130,8 @@ export function ReplayControls({
           value={currentOver ? String(currentOver.index) : undefined}
           onValueChange={(v) => dispatch({ type: "seek", cursor: Number(v) })}
         >
-          <SelectTrigger className="w-40" aria-label="Jump to over">
-            <SelectValue placeholder="Jump to over" />
+          <SelectTrigger className="w-40" aria-label={jumpLabel}>
+            <SelectValue placeholder={jumpLabel} />
           </SelectTrigger>
           <SelectContent className="max-h-80">
             {overs.map((o) => (

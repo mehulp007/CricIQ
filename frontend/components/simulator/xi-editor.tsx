@@ -209,7 +209,9 @@ export function XIEditor({
                 <button
                   type="button"
                   onClick={() =>
-                    onChange(addPlayer(xi, p.player_id, getCompetition(competition).quota))
+                    onChange(
+                      addPlayer(xi, p.player_id, getCompetition(competition).quota ?? undefined),
+                    )
                   }
                   disabled={full}
                   className="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"

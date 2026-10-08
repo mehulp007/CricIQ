@@ -251,7 +251,11 @@ export function scoreState(frame: Frame): ScoreState {
   const { innings, runs, wickets, legalBalls } = frame;
   const target = innings.target_runs ?? null;
   const runsNeeded = target !== null ? Math.max(target - runs, 0) : null;
-  const ballsRemaining = target !== null ? Math.max(innings.max_balls - legalBalls, 0) : null;
+  // A Test innings has no over limit, so no balls remaining.
+  const ballsRemaining =
+    target !== null && innings.max_balls !== null
+      ? Math.max(innings.max_balls - legalBalls, 0)
+      : null;
   return {
     innings,
     runs,

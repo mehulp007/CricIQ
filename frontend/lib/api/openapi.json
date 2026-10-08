@@ -114,7 +114,8 @@
             "enum": [
               "won",
               "lost",
-              "no_result"
+              "no_result",
+              "drawn"
             ],
             "title": "Result",
             "type": "string"
@@ -658,7 +659,8 @@
             "enum": [
               "won",
               "lost",
-              "no_result"
+              "no_result",
+              "drawn"
             ],
             "title": "Result",
             "type": "string"
@@ -1152,6 +1154,200 @@
         "title": "CareerLine",
         "type": "object"
       },
+      "ChaseCalculation": {
+        "description": "The chase calculator: a fourth-innings chase between two sides, from scratch.",
+        "properties": {
+          "batting": {
+            "title": "Batting",
+            "type": "string"
+          },
+          "by_runs_needed": {
+            "description": "The same chase for other targets, to show how the chances move.",
+            "items": {
+              "$ref": "#/components/schemas/ChaseOutcome"
+            },
+            "title": "By Runs Needed",
+            "type": "array"
+          },
+          "fielding": {
+            "title": "Fielding",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ChaseOutcome"
+          },
+          "venue": {
+            "description": "For the batting side.",
+            "enum": [
+              "home",
+              "away",
+              "neutral"
+            ],
+            "title": "Venue",
+            "type": "string"
+          }
+        },
+        "required": [
+          "batting",
+          "fielding",
+          "venue",
+          "outcome",
+          "by_runs_needed",
+          "model_version"
+        ],
+        "title": "ChaseCalculation",
+        "type": "object"
+      },
+      "ChaseOutcome": {
+        "description": "A fourth-innings state and the chasing side's chances from it (Tests).",
+        "properties": {
+          "drawn": {
+            "title": "Drawn",
+            "type": "number"
+          },
+          "lost": {
+            "title": "Lost",
+            "type": "number"
+          },
+          "overs_left": {
+            "description": "Estimated: five days of 90 overs less those bowled.",
+            "title": "Overs Left",
+            "type": "number"
+          },
+          "runs_needed": {
+            "title": "Runs Needed",
+            "type": "integer"
+          },
+          "wickets_in_hand": {
+            "title": "Wickets In Hand",
+            "type": "integer"
+          },
+          "won": {
+            "title": "Won",
+            "type": "number"
+          }
+        },
+        "required": [
+          "runs_needed",
+          "wickets_in_hand",
+          "overs_left",
+          "won",
+          "drawn",
+          "lost"
+        ],
+        "title": "ChaseOutcome",
+        "type": "object"
+      },
+      "ChaseSide": {
+        "description": "A Test side and its rating from its results (Elo style, 1500 to start).",
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "franchise_id": {
+            "title": "Franchise Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          }
+        },
+        "required": [
+          "franchise_id",
+          "name",
+          "color",
+          "rating"
+        ],
+        "title": "ChaseSide",
+        "type": "object"
+      },
+      "ChaseSides": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The date of the last Test the ratings include.",
+            "title": "As Of"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "sides": {
+            "items": {
+              "$ref": "#/components/schemas/ChaseSide"
+            },
+            "title": "Sides",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sides",
+          "as_of",
+          "model_version"
+        ],
+        "title": "ChaseSides",
+        "type": "object"
+      },
+      "ChaseWhatIf": {
+        "description": "The chase what-if: the real state at a ball, and the edited one.",
+        "properties": {
+          "batting_team": {
+            "$ref": "#/components/schemas/TeamRef"
+          },
+          "edited": {
+            "$ref": "#/components/schemas/ChaseOutcome"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "real": {
+            "$ref": "#/components/schemas/ChaseOutcome"
+          },
+          "seq_no": {
+            "title": "Seq No",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "match_id",
+          "seq_no",
+          "batting_team",
+          "real",
+          "edited",
+          "model_version"
+        ],
+        "title": "ChaseWhatIf",
+        "type": "object"
+      },
       "CompetitionInfo": {
         "properties": {
           "format": {
@@ -1300,6 +1496,30 @@
           "withdrawn_matches"
         ],
         "title": "DataUpdate",
+        "type": "object"
+      },
+      "DayMarker": {
+        "description": "Where a day of a Test (estimated) begins: before this delivery.",
+        "properties": {
+          "day": {
+            "title": "Day",
+            "type": "integer"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "seq_no": {
+            "title": "Seq No",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "day",
+          "innings_no",
+          "seq_no"
+        ],
+        "title": "DayMarker",
         "type": "object"
       },
       "DismissalCount": {
@@ -1817,6 +2037,12 @@
             "title": "B Won",
             "type": "integer"
           },
+          "drawn": {
+            "default": 0,
+            "description": "Tests only.",
+            "title": "Drawn",
+            "type": "integer"
+          },
           "no_result": {
             "title": "No Result",
             "type": "integer"
@@ -2049,6 +2275,50 @@
         "title": "HighScore",
         "type": "object"
       },
+      "InningsScore": {
+        "description": "One innings of a side in a Test.",
+        "properties": {
+          "declared": {
+            "title": "Declared",
+            "type": "boolean"
+          },
+          "follow_on": {
+            "title": "Follow On",
+            "type": "boolean"
+          },
+          "forfeited": {
+            "title": "Forfeited",
+            "type": "boolean"
+          },
+          "innings_no": {
+            "title": "Innings No",
+            "type": "integer"
+          },
+          "overs": {
+            "title": "Overs",
+            "type": "string"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "innings_no",
+          "runs",
+          "wickets",
+          "overs",
+          "declared",
+          "follow_on",
+          "forfeited"
+        ],
+        "title": "InningsScore",
+        "type": "object"
+      },
       "InningsScorecard": {
         "properties": {
           "batting": {
@@ -2071,6 +2341,11 @@
           "bowling_team": {
             "$ref": "#/components/schemas/TeamRef"
           },
+          "declared": {
+            "default": false,
+            "title": "Declared",
+            "type": "boolean"
+          },
           "did_not_bat": {
             "items": {
               "$ref": "#/components/schemas/PlayerRef"
@@ -2087,6 +2362,11 @@
             },
             "title": "Fall Of Wickets",
             "type": "array"
+          },
+          "follow_on": {
+            "default": false,
+            "title": "Follow On",
+            "type": "boolean"
           },
           "innings_no": {
             "title": "Innings No",
@@ -2317,7 +2597,8 @@
             "enum": [
               "win",
               "tie",
-              "no_result"
+              "no_result",
+              "draw"
             ],
             "title": "Outcome Type",
             "type": "string"
@@ -2386,6 +2667,18 @@
               }
             ],
             "title": "Winner Id"
+          },
+          "won_by_innings": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tests: an innings victory.",
+            "title": "Won By Innings"
           }
         },
         "required": [
@@ -4190,6 +4483,7 @@
               "dismissals_per_100",
               "runs_per_over",
               "wickets_per_4_overs",
+              "wickets_per_20_overs",
               "points",
               "percent"
             ],
@@ -4329,6 +4623,12 @@
       "Record": {
         "description": "Results; a tie settled by a super over counts for the super-over winner.",
         "properties": {
+          "drawn": {
+            "default": 0,
+            "description": "Tests only.",
+            "title": "Drawn",
+            "type": "integer"
+          },
           "lost": {
             "title": "Lost",
             "type": "integer"
@@ -4350,7 +4650,7 @@
                 "type": "null"
               }
             ],
-            "description": "Wins as a percentage of decided matches.",
+            "description": "Wins as a percentage of matches with a result or drawn (no results left out).",
             "title": "Win Pct"
           },
           "won": {
@@ -6579,6 +6879,21 @@
             "title": "Franchise Id",
             "type": "string"
           },
+          "innings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/InningsScore"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tests: every innings of the side, in order.",
+            "title": "Innings"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -6706,6 +7021,12 @@
       },
       "TeamSeason": {
         "properties": {
+          "drawn": {
+            "default": 0,
+            "description": "Tests only.",
+            "title": "Drawn",
+            "type": "integer"
+          },
           "exit_stage": {
             "anyOf": [
               {
@@ -6943,6 +7264,21 @@
       "Timeline": {
         "description": "Everything the client needs to replay a match ball by ball, in one payload.",
         "properties": {
+          "days": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DayMarker"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tests: where each day began. Cricsheet records the dates a Test was played on, not when each day's play started, so the overs are shared evenly between the days.",
+            "title": "Days"
+          },
           "deliveries": {
             "items": {
               "$ref": "#/components/schemas/TimelineDelivery"
@@ -7145,7 +7481,7 @@
                 "type": "null"
               }
             ],
-            "description": "First innings only: quantiles of the final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).",
+            "description": "First innings only (every innings in a Test): quantiles of the innings' final total after this ball, at the levels in Timeline.score_projection.levels (model estimate).",
             "title": "Projection"
           },
           "runs_batter": {
@@ -7198,6 +7534,18 @@
             ],
             "description": "Win probability of the side batting first after this ball (model estimate).",
             "title": "Wp"
+          },
+          "wp_draw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tests: probability of a draw after this ball (the side batting second wins with the rest).",
+            "title": "Wp Draw"
           }
         },
         "required": [
@@ -7237,6 +7585,23 @@
             "title": "Bowling Team Id",
             "type": "string"
           },
+          "declared": {
+            "default": false,
+            "title": "Declared",
+            "type": "boolean"
+          },
+          "draw_start": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tests: probability of a draw before this innings' first ball.",
+            "title": "Draw Start"
+          },
           "factors_start": {
             "anyOf": [
               {
@@ -7251,6 +7616,11 @@
             ],
             "description": "Explanation of wp_start (see Timeline.win_probability).",
             "title": "Factors Start"
+          },
+          "follow_on": {
+            "default": false,
+            "title": "Follow On",
+            "type": "boolean"
           },
           "innings_no": {
             "title": "Innings No",
@@ -7273,9 +7643,16 @@
             "title": "Leverage Start"
           },
           "max_balls": {
-            "description": "Legal balls available to the batting side.",
-            "title": "Max Balls",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legal balls available to the batting side (none in a Test).",
+            "title": "Max Balls"
           },
           "pressure_start": {
             "anyOf": [
@@ -7301,7 +7678,7 @@
                 "type": "null"
               }
             ],
-            "description": "First innings only: quantiles of the final total before the first ball.",
+            "description": "First innings only (every innings in a Test): quantiles of the final total before the first ball.",
             "title": "Projection Start"
           },
           "target_balls": {
@@ -7646,22 +8023,46 @@
         "description": "The model behind a timeline's win probabilities.",
         "properties": {
           "base_innings1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Average first-innings estimate: the reference point for its factors.",
-            "title": "Base Innings1",
-            "type": "number"
+            "title": "Base Innings1"
           },
           "base_innings2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Average chase estimate: the reference point for its factors.",
-            "title": "Base Innings2",
-            "type": "number"
+            "title": "Base Innings2"
           },
           "factor_keys": {
-            "description": "Order of the values in each `factors` list.",
+            "description": "Order of the values in each `factors` list (none in Tests).",
             "items": {
               "type": "string"
             },
             "title": "Factor Keys",
             "type": "array"
+          },
+          "outcomes": {
+            "default": 2,
+            "description": "3 in Tests: a win, a draw or a loss (``wp_draw``).",
+            "enum": [
+              2,
+              3
+            ],
+            "title": "Outcomes",
+            "type": "integer"
           },
           "pressure_thresholds": {
             "anyOf": [
@@ -7794,18 +8195,188 @@
         ]
       }
     },
+    "/api/v2/{competition}/chase": {
+      "get": {
+        "description": "The chasing side's chances of winning, drawing and losing a fourth-innings chase.",
+        "operationId": "read_chase_api_v2__competition__chase_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The chasing side, e.g. IND.",
+            "in": "query",
+            "name": "batting",
+            "required": true,
+            "schema": {
+              "description": "The chasing side, e.g. IND.",
+              "maxLength": 8,
+              "title": "Batting",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The fielding side.",
+            "in": "query",
+            "name": "fielding",
+            "required": true,
+            "schema": {
+              "description": "The fielding side.",
+              "maxLength": 8,
+              "title": "Fielding",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Runs needed.",
+            "in": "query",
+            "name": "needed",
+            "required": true,
+            "schema": {
+              "description": "Runs needed.",
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Needed",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Wickets in hand.",
+            "in": "query",
+            "name": "wickets",
+            "required": true,
+            "schema": {
+              "description": "Wickets in hand.",
+              "maximum": 10,
+              "minimum": 1,
+              "title": "Wickets",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Overs left.",
+            "in": "query",
+            "name": "overs",
+            "required": true,
+            "schema": {
+              "description": "Overs left.",
+              "maximum": 450,
+              "minimum": 0,
+              "title": "Overs",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "venue",
+            "required": false,
+            "schema": {
+              "default": "neutral",
+              "enum": [
+                "home",
+                "away",
+                "neutral"
+              ],
+              "title": "Venue",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaseCalculation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Chase",
+        "tags": [
+          "chase"
+        ]
+      }
+    },
+    "/api/v2/{competition}/chase/sides": {
+      "get": {
+        "description": "The Test sides and their ratings after the last Test.",
+        "operationId": "read_sides_api_v2__competition__chase_sides_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaseSides"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Sides",
+        "tags": [
+          "chase"
+        ]
+      }
+    },
     "/api/v2/{competition}/matches": {
       "get": {
         "description": "Paginated match summaries, newest first by default.",
         "operationId": "list_matches_api_v2__competition__matches_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -7966,12 +8537,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8006,6 +8577,133 @@
         ]
       }
     },
+    "/api/v2/{competition}/matches/{match_id}/chase": {
+      "get": {
+        "description": "Tests: the chasing side's chances from a fourth-innings ball, as it was and with the\nruns needed, wickets in hand or overs left changed.",
+        "operationId": "read_chase_api_v2__competition__matches__match_id__chase_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "match_id",
+            "required": true,
+            "schema": {
+              "title": "Match Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The fourth-innings ball (0 = before it).",
+            "in": "query",
+            "name": "seq",
+            "required": true,
+            "schema": {
+              "description": "The fourth-innings ball (0 = before it).",
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Runs needed.",
+            "in": "query",
+            "name": "needed",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Runs needed.",
+              "title": "Needed"
+            }
+          },
+          {
+            "description": "Wickets in hand.",
+            "in": "query",
+            "name": "wickets",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 10,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Wickets in hand.",
+              "title": "Wickets"
+            }
+          },
+          {
+            "description": "Overs left.",
+            "in": "query",
+            "name": "overs",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 450,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Overs left.",
+              "title": "Overs"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaseWhatIf"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Chase",
+        "tags": [
+          "matches"
+        ]
+      }
+    },
     "/api/v2/{competition}/matches/{match_id}/timeline": {
       "get": {
         "description": "Every delivery with running state: one payload drives a full client-side replay.",
@@ -8021,12 +8719,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8067,12 +8765,12 @@
         "operationId": "list_matchups_api_v2__competition__matchups_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8255,12 +8953,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8362,12 +9060,12 @@
         "operationId": "read_meta_api_v2__competition__meta_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8408,12 +9106,12 @@
         "operationId": "list_players_api_v2__competition__players_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8572,12 +9270,12 @@
         "operationId": "read_player_api_v2__competition__players__player_id__get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8667,12 +9365,12 @@
         "operationId": "read_similar_api_v2__competition__players__player_id__similar_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8762,12 +9460,12 @@
         "operationId": "read_splits_api_v2__competition__players__player_id__splits_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8857,12 +9555,12 @@
         "operationId": "predict_next_ball_api_v2__competition__predict_next_ball_post",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8913,12 +9611,12 @@
         "operationId": "simulate_match_api_v2__competition__simulate_match_post",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -8969,12 +9667,12 @@
         "operationId": "read_seasons_api_v2__competition__simulate_seasons_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9037,12 +9735,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9083,12 +9781,12 @@
         "operationId": "simulate_state_api_v2__competition__simulate_state_post",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9139,12 +9837,12 @@
         "operationId": "order_xi_api_v2__competition__simulate_xi_post",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9204,12 +9902,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9250,12 +9948,12 @@
         "operationId": "read_overview_api_v2__competition__teams_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9296,12 +9994,12 @@
         "operationId": "read_head_to_head_api_v2__competition__teams_h2h_get",
         "parameters": [
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9419,12 +10117,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"
@@ -9474,12 +10172,12 @@
             }
           },
           {
-            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
             "in": "path",
             "name": "competition",
             "required": true,
             "schema": {
-              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, or t20 for all T20 cricket.",
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
               "pattern": "^[a-z0-9]{2,8}$",
               "title": "Competition",
               "type": "string"

@@ -1,6 +1,7 @@
 import {
   BookOpen,
   BrainCircuit,
+  Calculator,
   CalendarRange,
   Dices,
   FlaskConical,
@@ -13,7 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
+import { competitionPath, getCompetition, isTest, type CompetitionId } from "@/lib/competitions";
 
 export type MilestoneId =
   "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0";
@@ -26,8 +27,9 @@ export interface NavItem {
   icon: LucideIcon;
   /** Milestone in docs/PLAN.md §16 that ships this page. */
   milestone: MilestoneId;
-  /** Only shown where the competition has this content. */
-  requires?: "lab";
+  /** Only shown where the competition has this content (the Analytics Lab; the
+   * simulator in limited-overs cricket, the chase calculator in Tests). */
+  requires?: "lab" | "limited" | "test";
 }
 
 /**
@@ -58,7 +60,8 @@ export const PRIMARY_NAV: readonly NavItem[] = [
   page("/matchups", "Matchups", Swords, "M6"),
   page("/compare", "Compare", GitCompareArrows, "V1-a"),
   page("/teams", "Teams", Shield, "V1-c"),
-  page("/simulator", "Simulator", Dices, "V1-d"),
+  { ...page("/simulator", "Simulator", Dices, "V1-d"), requires: "limited" },
+  { ...page("/chase", "Chase calculator", Calculator, "V1-d"), requires: "test" },
   { ...page("/lab", "Analytics Lab", FlaskConical, "V1-b"), requires: "lab" },
   page("/models", "Model Insights", BrainCircuit, "M3"),
 ];
@@ -72,9 +75,19 @@ export function isAvailable(item: NavItem): boolean {
   return SHIPPED_MILESTONES.has(item.milestone);
 }
 
-/** Whether the competition has the item's page (the Analytics Lab covers the IPL so far). */
+/** Whether the competition has the item's page (the Analytics Lab covers the IPL so far;
+ * Tests have a chase calculator instead of a match simulator). */
 export function isShown(item: NavItem, competition: CompetitionId): boolean {
-  return item.requires !== "lab" || getCompetition(competition).lab;
+  switch (item.requires) {
+    case "lab":
+      return getCompetition(competition).lab;
+    case "limited":
+      return !isTest(competition);
+    case "test":
+      return isTest(competition);
+    default:
+      return true;
+  }
 }
 
 export function navHref(item: NavItem, competition: CompetitionId): string {

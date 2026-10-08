@@ -3,11 +3,16 @@ import type { Timeline } from "@/lib/api/types";
 import { formatPercent } from "@/lib/replay/win-probability";
 import { probabilityAtLeast, projectionAt, thresholdsFor } from "@/lib/replay/projection";
 
-/** Projected first-innings total: median, 80% range and the odds of passing round totals. */
+/** Projected total of the innings being played (the first innings in limited-overs
+ * cricket): median, 80% range and the odds of passing round totals. */
 export function ProjectionPanel({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
   const projection = projectionAt(timeline, cursor);
   if (!projection) return null;
-  const batting = timeline.summary.team_a;
+  const d = cursor >= 0 ? timeline.deliveries[cursor] : null;
+  const innings = d
+    ? timeline.innings.find((i) => i.innings_no === d.innings_no)
+    : timeline.innings[0];
+  const batting = innings ? timeline.teams[innings.batting_team_id] : timeline.summary.team_a;
   const thresholds = thresholdsFor(projection);
 
   return (

@@ -44,10 +44,13 @@ export const FINISH_RANK: Record<Finish, number> = {
   league: 3,
 };
 
-/** "148–117" plus "· 1 NR" when there were no results. */
-export function recordText(record: Pick<TeamRecord, "won" | "lost" | "no_result">): string {
-  const base = `${record.won}–${record.lost}`;
-  return record.no_result ? `${base} · ${record.no_result} NR` : base;
+/** "148–117" plus "· 37 drawn" in Tests and "· 1 NR" when there were no results. */
+export function recordText(
+  record: Pick<TeamRecord, "won" | "lost" | "no_result"> & { drawn?: number },
+): string {
+  let text = `${record.won}–${record.lost}`;
+  if (record.drawn) text += ` · ${record.drawn} drawn`;
+  return record.no_result ? `${text} · ${record.no_result} NR` : text;
 }
 
 export function pct(value: number | null | undefined, digits = 1): string {

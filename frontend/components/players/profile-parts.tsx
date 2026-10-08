@@ -262,7 +262,12 @@ export function DismissalBars({ rows, total }: { rows: DismissalCount[]; total: 
 
 // --------------------------------------------------------------------------- recent innings
 
-const RESULT: Record<string, string> = { won: "Won", lost: "Lost", no_result: "No result" };
+const RESULT: Record<string, string> = {
+  won: "Won",
+  lost: "Lost",
+  drawn: "Drawn",
+  no_result: "No result",
+};
 
 function Opposition({ team }: { team: { franchise_id: string; name: string; color: string } }) {
   return (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { type PickRecord, SimulationChip } from "@/components/simulator/sim-results";
@@ -10,7 +11,9 @@ import {
   competitionPath,
   getCompetition,
   isCompetitionId,
+  isTest,
   type CompetitionId,
+  type LimitedOversId,
 } from "@/lib/competitions";
 import { modelsFor, seasonSpan } from "@/lib/models";
 import { defaultTeams, pickSeason } from "@/lib/simulator";
@@ -41,7 +44,7 @@ async function squadOrNull(
 }
 
 /** How the serving simulator's backtest picked winners, for the result's caption. */
-function pickRecord(competition: CompetitionId): PickRecord | null {
+function pickRecord(competition: LimitedOversId): PickRecord | null {
   const win = modelsFor(competition).simulator?.win;
   const backtest = modelsFor(competition).simulator;
   if (!win || !backtest) return null;
@@ -55,7 +58,7 @@ function pickRecord(competition: CompetitionId): PickRecord | null {
 }
 
 /** Where no simulator version has passed its backtest gate, the page says so. */
-function NotServed({ competition }: { competition: CompetitionId }) {
+function NotServed({ competition }: { competition: LimitedOversId }) {
   const c = getCompetition(competition);
   const backtest = modelsFor(competition).simulatorBacktest;
   return (
@@ -92,6 +95,8 @@ export default async function SimulatorPage({
   searchParams,
 }: PageProps<"/[competition]/simulator">) {
   const competition = (await params).competition as CompetitionId;
+  // Tests have no match simulator: their chase calculator takes its place.
+  if (isTest(competition)) redirect(competitionPath(competition, "/chase"));
   const c = getCompetition(competition);
   if (modelsFor(competition).simulator === null) {
     return (

@@ -93,6 +93,7 @@ function Tally({ h2h }: { h2h: HeadToHead }) {
       <TallyBar record={r} />
       <p className="text-sm text-muted-foreground">
         {r.played} {r.played === 1 ? "meeting" : "meetings"}
+        {(r.drawn ?? 0) > 0 && `, ${r.drawn} drawn`}
         {r.no_result > 0 && `, ${r.no_result} without a result`}
         {r.tied > 0 && `, ${r.tied} settled by a super over`}.
       </p>
@@ -135,10 +136,15 @@ function SeasonStrip({ h2h }: { h2h: HeadToHead }) {
           <span className="flex flex-wrap gap-1">
             {Array.from({ length: s.record.a_won }, (_, i) => dot(COMPARE_SERIES.a.color, `a${i}`))}
             {Array.from({ length: s.record.b_won }, (_, i) => dot(COMPARE_SERIES.b.color, `b${i}`))}
-            {Array.from({ length: s.record.no_result }, (_, i) => dot(null, `n${i}`))}
+            {Array.from({ length: (s.record.drawn ?? 0) + s.record.no_result }, (_, i) =>
+              dot(null, `n${i}`),
+            )}
           </span>
           <span className="ml-auto font-mono text-xs tabular-nums">
             {s.record.a_won}–{s.record.b_won}
+            {(s.record.drawn ?? 0) > 0 && (
+              <span className="text-muted-foreground"> · {s.record.drawn} drawn</span>
+            )}
             {s.record.no_result > 0 && (
               <span className="text-muted-foreground"> · {s.record.no_result} NR</span>
             )}

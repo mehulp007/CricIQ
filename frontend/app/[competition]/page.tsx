@@ -3,6 +3,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   BrainCircuit,
+  Calculator,
   GitCompareArrows,
   Play,
   Shield,
@@ -22,12 +23,13 @@ import {
   competitionPath,
   getCompetition,
   isCompetitionId,
+  isTest,
   phrase,
   type Competition,
   type CompetitionId,
 } from "@/lib/competitions";
 import { featuredMatches, seasonSnapshot, type SeasonSnapshot } from "@/lib/featured";
-import { modelsFor } from "@/lib/models";
+import { modelsFor, testModels } from "@/lib/models";
 import { signed } from "@/lib/players";
 
 export async function generateMetadata({ params }: PageProps<"/[competition]">): Promise<Metadata> {
@@ -47,13 +49,26 @@ function capabilities(c: Competition): {
   path: string;
 }[] {
   const team = c.teamType === "national" ? "side" : "franchise";
+  const test = c.format === "Test";
   return [
     {
       icon: Activity,
       title: "Ball-by-ball replay",
-      body: `Relive any ${c.noun} delivery by delivery: live scoreboard, scorecard, commentary, worm and Manhattan charts.`,
+      body: test
+        ? `Relive any ${c.noun} delivery by delivery, day by day: the chances of a win, a draw and a defeat after every ball, every innings projected, the scorecard and the commentary.`
+        : `Relive any ${c.noun} delivery by delivery: live scoreboard, scorecard, commentary, worm and Manhattan charts.`,
       path: "/matches",
     },
+    ...(test
+      ? [
+          {
+            icon: Calculator,
+            title: "Chase calculator",
+            body: "Set up a fourth-innings chase between any two sides and see the chances of a win, a draw and a defeat, and how they move with the target.",
+            path: "/chase",
+          },
+        ]
+      : []),
     {
       icon: Users,
       title: "Player Lab",
@@ -91,6 +106,7 @@ function capabilities(c: Competition): {
 const HERO_REPLAY: Partial<Record<CompetitionId, { matchId: number; label: string }>> = {
   ipl: { matchId: 1181768, label: "2019 final" },
   odi: { matchId: 1144530, label: "2019 World Cup final" },
+  test: { matchId: 1152848, label: "Headingley 2019 Test" },
 };
 
 const LEADERS: { key: keyof SeasonSnapshot["leaders"]; label: string; unit: string }[] = [
@@ -177,9 +193,25 @@ function SeasonSnapshotSection({ competition }: { competition: CompetitionId }) 
   );
 }
 
+interface SwingCard {
+  match_id: number;
+  innings_no: number;
+  seq_no: number;
+  ball_label: string | null;
+  season: number;
+  stage?: string;
+  teams: string;
+  result: string;
+  description: string;
+  swing: number;
+}
+
 function BiggestSwings({ competition }: { competition: CompetitionId }) {
   const c = getCompetition(competition);
-  const swings = modelsFor(competition).swings.slice(0, 3);
+  const test = isTest(competition);
+  const swings: SwingCard[] = (
+    isTest(competition) ? testModels().winProbability.swings : modelsFor(competition).swings
+  ).slice(0, 3);
   if (swings.length === 0) return null;
   return (
     <section aria-labelledby="swings-heading" className="flex flex-col gap-6">
@@ -189,7 +221,9 @@ function BiggestSwings({ competition }: { competition: CompetitionId }) {
             The biggest swings in {c.label} history
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Single balls that moved the win probability the most. Open one to replay the moment.
+            {test
+              ? "Single balls that moved the expected result the most (a win counts 1, a draw a half). Open one to replay the moment."
+              : "Single balls that moved the win probability the most. Open one to replay the moment."}
           </p>
         </div>
         <Link
@@ -220,8 +254,8 @@ function BiggestSwings({ competition }: { competition: CompetitionId }) {
               </span>
               <span className="text-sm font-medium group-hover:text-primary">{s.description}</span>
               <span className="text-xs leading-relaxed text-muted-foreground">
-                {s.teams}, {s.season} {s.stage !== "League" ? s.stage.toLowerCase() : ""} · ball{" "}
-                {s.ball_label} · {s.result}
+                {s.teams}, {s.season} {s.stage && s.stage !== "League" ? s.stage.toLowerCase() : ""}{" "}
+                · {test ? `innings ${s.innings_no}, ` : ""}ball {s.ball_label} · {s.result}
               </span>
             </Link>
           </li>
@@ -254,9 +288,12 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
           <span className="block text-muted-foreground">Predict the next move.</span>
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          {prose} Replay any match with each side&apos;s chance of winning after every ball, explore
-          and compare any player&apos;s career against par, and read any batter-vs-bowler rivalry
-          without over-reading small samples. Every number comes from a tested model you can
+          {prose} Replay any match with{" "}
+          {isTest(competition)
+            ? "the chances of a win, a draw and a defeat after every ball"
+            : "each side's chance of winning after every ball"}
+          , explore and compare any player&apos;s career against par, and read any batter-vs-bowler
+          rivalry without over-reading small samples. Every number comes from a tested model you can
           inspect.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
@@ -303,7 +340,9 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
                   ? "Every men's T20 World Cup final, ready to replay ball by ball."
                   : competition === "odi"
                     ? "Every men's World Cup final since 2003, the Champions Trophy finals and the highest chase, ready to replay ball by ball."
-                    : `The latest ${c.label} finals, ready to replay ball by ball.`}
+                    : competition === "test"
+                      ? "Tests remembered for how they finished, ready to replay ball by ball."
+                      : `The latest ${c.label} finals, ready to replay ball by ball.`}
             </p>
           </div>
           <Link

@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { COMPETITIONS, type CompetitionId } from "@/lib/competitions";
+import { COMPETITIONS, type LimitedOversId } from "@/lib/competitions";
 import { dataVersion } from "@/lib/featured";
 import {
   BALL_OUTCOME,
@@ -12,6 +12,7 @@ import {
   WIN_PROBABILITY,
   modelsFor,
   seasonSpan,
+  testModels,
 } from "@/lib/models";
 
 export const metadata: Metadata = {
@@ -94,7 +95,7 @@ export default function AboutPage() {
   const scoring = RATINGS.components.find((c) => c.role === "batting" && c.key === "scoring");
   const low = RATINGS.components.filter((c) => c.stability === "low");
   const odiModels = modelsFor("odi");
-  const group = (id: CompetitionId) => {
+  const group = (id: LimitedOversId) => {
     const m = modelsFor(id);
     const wpTest = m.winProbability.test;
     return {
@@ -108,10 +109,22 @@ export default function AboutPage() {
   const t20i = group("t20i");
   const servedBy = (served: boolean) =>
     listed(
-      COMPETITIONS.filter((c) => (modelsFor(c.id).simulator !== null) === served).map(
-        (c) => c.label,
+      COMPETITIONS.flatMap((c) =>
+        c.id !== "test" && (modelsFor(c.id).simulator !== null) === served ? [c.label] : [],
       ),
     );
+  const tests = testModels();
+  const testWp = tests.winProbability.test;
+  const test = {
+    trainedMatches: tests.winProbability.trained_on.matches.toLocaleString("en-IN"),
+    tested: testWp.matches,
+    years: seasonSpan(tests.winProbability.splits.test),
+    wp: testWp.model.log_loss.toFixed(3),
+    baseline: testWp.baseline.log_loss.toFixed(3),
+    better: testWp.vs_baseline.ci_low > 0,
+    projectionMae: Math.round(tests.scoreProjection.test.model.mae),
+    parMae: Math.round(tests.scoreProjection.test.par_baseline.mae),
+  };
   const simulated = servedBy(true);
   const unsimulated = servedBy(false);
   const odi = {
@@ -129,12 +142,12 @@ export default function AboutPage() {
         <h1 className="text-3xl font-semibold tracking-tight">About &amp; Methodology</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">
           CricIQ is a full-stack cricket analytics platform. It takes every ball of the IPL since
-          2008, men&apos;s T20 internationals since 2005, men&apos;s ODIs since 2002 and the BBL,
-          PSL, CPL and SA20 from raw records through data engineering, leak-free feature
-          engineering, tested machine learning and explainability, all the way to this interface.
-          This page explains how each number on the site is made, and where it falls short. The
-          model numbers quoted below are the IPL&apos;s; each competition&apos;s are on its Model
-          Insights page.
+          2008, men&apos;s T20 internationals since 2005, men&apos;s ODIs since 2002, men&apos;s
+          Tests since 2001 and the BBL, PSL, CPL and SA20 from raw records through data engineering,
+          leak-free feature engineering, tested machine learning and explainability, all the way to
+          this interface. This page explains how each number on the site is made, and where it falls
+          short. The model numbers quoted below are the IPL&apos;s; each competition&apos;s are on
+          its Model Insights page.
         </p>
       </header>
 
@@ -202,6 +215,21 @@ export default function AboutPage() {
           and its Model Insights page says so.
         </p>
         <p>
+          <Strong>Tests have models of their own design.</Strong> A Test has four innings and a
+          third result, the draw, that comes from running out of time. Its win probability gives the
+          chances of a win, a draw and a defeat after every ball: a regression per innings on the
+          lead, wickets in hand, the time left and the scoring era, plus each side&apos;s rating
+          from earlier Tests and home advantage. Trained on {test.trainedMatches} Tests and judged
+          on the {test.tested} played in {test.years}, it scores a log loss of {test.wp} against{" "}
+          {test.baseline} for the match state alone
+          {test.better ? "" : " (better on balance, but the interval includes level)"}. Boosted
+          trees memorised individual Tests, so they were not used. Every innings is projected (off
+          by about {test.projectionMae} runs against {test.parMae} for par). Cricsheet has no
+          session times, so the time left is estimated as five days of 90 overs less those bowled.
+          Tests have no match simulator; the chase calculator and the replay&apos;s chase what-if
+          run the win probability model instead.
+        </p>
+        <p>
           <Strong>What is not there yet.</Strong> The match simulator serves {simulated}, where its
           backtests passed
           {unsimulated.length > 0
@@ -209,7 +237,7 @@ export default function AboutPage() {
             : ""}
           . League tables outside the IPL are computed at two points a win and can differ from
           official tables that used bonus points. National sides have records by year and by
-          opponent, not league tables. Test cricket comes next.
+          opponent, not league tables.
         </p>
       </Section>
 

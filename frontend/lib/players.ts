@@ -80,6 +80,8 @@ export function formatRatingValue(value: number | null | undefined, unit: Rating
       return `${signed(value, 2)} runs saved per over`;
     case "wickets_per_4_overs":
       return `${signed(value, 2)} wickets per 4 overs`;
+    case "wickets_per_20_overs":
+      return `${signed(value, 2)} wickets per 20 overs`;
     case "points":
       return `${signed(value)} pts per innings`;
     case "percent":

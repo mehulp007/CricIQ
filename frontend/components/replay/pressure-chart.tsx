@@ -159,7 +159,7 @@ export function PressureChart({
               const inn = timeline.innings.find((i) => i.innings_no === d.innings_no);
               const situation =
                 d.innings_no === 2 && inn?.target_runs
-                  ? `${inn.target_runs - d.team_runs} needed from ${inn.max_balls - d.legal_ball_no}`
+                  ? `${inn.target_runs - d.team_runs} needed from ${(inn.max_balls ?? 0) - d.legal_ball_no}`
                   : `${d.team_runs}/${d.team_wickets}`;
               return (
                 <li key={p.index}>

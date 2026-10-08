@@ -7,16 +7,22 @@ import { GroupOverview } from "@/components/models/group-overview";
 import { RatingsInsights } from "@/components/models/ratings-insights";
 import { ScoreProjectionInsights } from "@/components/models/score-projection-insights";
 import { SimulatorInsights } from "@/components/models/simulator-insights";
+import {
+  TestOverview,
+  TestProjectionInsights,
+  TestWinProbabilityInsights,
+} from "@/components/models/test-insights";
 import { WinProbabilityInsights } from "@/components/models/win-probability-insights";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   getCompetition,
   isCompetitionId,
+  isTest,
   phrase,
   possessive,
   type CompetitionId,
 } from "@/lib/competitions";
-import { modelsFor } from "@/lib/models";
+import { modelsFor, testModels } from "@/lib/models";
 
 export async function generateMetadata({
   params,
@@ -39,17 +45,66 @@ const TABS = [
   "simulator",
 ];
 
+function requestedTab(raw: string | string[] | undefined, tabs: string[]): string {
+  const requested = Array.isArray(raw) ? raw[0] : raw;
+  return requested && tabs.includes(requested) ? requested : "overview";
+}
+
+/** Tests' own models: three outcomes, every innings projected, no simulator. */
+function TestModelInsights({ tab }: { tab: string }) {
+  const models = testModels();
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-3">
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Test Model Insights</h1>
+        <p className="max-w-3xl leading-relaxed text-muted-foreground">
+          Tests have models of their own, trained on Tests alone: the chances of a win, a draw and a
+          defeat after every ball, the projected total of every innings, the next ball&apos;s odds
+          behind the Matchup Lab and CricIQ Ratings. There is no match simulator: the chase
+          calculator runs the win probability model. The overview shows how each did on years it
+          never saw, whichever way it came out; each tab shows how it was built and tested.
+        </p>
+      </header>
+      <Tabs key={tab} defaultValue={tab}>
+        <TabsList className="max-w-full flex-wrap justify-start group-data-horizontal/tabs:h-auto [&>[data-slot=tabs-trigger]]:h-7 [&>[data-slot=tabs-trigger]]:flex-none">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="win-probability">Win probability</TabsTrigger>
+          <TabsTrigger value="score-projection">Innings projection</TabsTrigger>
+          <TabsTrigger value="ball-outcome">Ball outcome</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="mt-6">
+          <TestOverview models={models} />
+        </TabsContent>
+        <TabsContent value="win-probability" className="mt-6">
+          <TestWinProbabilityInsights data={models.winProbability} />
+        </TabsContent>
+        <TabsContent value="score-projection" className="mt-6">
+          <TestProjectionInsights data={models.scoreProjection} />
+        </TabsContent>
+        <TabsContent value="ball-outcome" className="mt-6">
+          <BallOutcomeInsights data={models.ballOutcome} competition="test" />
+        </TabsContent>
+        <TabsContent value="ratings" className="mt-6">
+          <RatingsInsights data={models.ratings} competition="test" />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
 export default async function ModelInsightsPage({
   params,
   searchParams,
 }: PageProps<"/[competition]/models">) {
   const competition = (await params).competition as CompetitionId;
+  if (isTest(competition)) {
+    return <TestModelInsights tab={requestedTab((await searchParams).tab, TABS.slice(0, 5))} />;
+  }
   const models = modelsFor(competition);
   const c = getCompetition(competition);
   const tabs = models.simulator ? TABS : TABS.filter((t) => t !== "simulator");
-  const raw = (await searchParams).tab;
-  const requested = Array.isArray(raw) ? raw[0] : raw;
-  const tab = requested && tabs.includes(requested) ? requested : "overview";
+  const tab = requestedTab((await searchParams).tab, tabs);
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-3">

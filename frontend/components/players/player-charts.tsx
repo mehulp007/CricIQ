@@ -273,7 +273,10 @@ function FormTip({ active, payload }: TipProps<FormPoint>) {
       rows={[
         { label: "Runs", value: `${i.runs}${i.is_out ? "" : "*"} (${i.balls})` },
         { label: "Batting at", value: `No. ${i.position}` },
-        { label: "Result", value: { won: "Won", lost: "Lost", no_result: "No result" }[i.result] },
+        {
+          label: "Result",
+          value: { won: "Won", lost: "Lost", drawn: "Drawn", no_result: "No result" }[i.result],
+        },
         ...(i.wpa !== null && i.wpa !== undefined
           ? [{ label: "Win prob. added", value: `${signed(i.wpa * 100)} pts` }]
           : []),

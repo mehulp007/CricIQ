@@ -28,6 +28,8 @@ const td = "px-2 py-2.5 text-right font-mono tabular-nums";
 // --------------------------------------------------------------------------- seasons
 
 function YearsTable({ seasons }: { seasons: TeamSeason[] }) {
+  // Tests: draws, and no net run rate.
+  const draws = seasons.some((s) => (s.drawn ?? 0) > 0);
   return (
     <div className="overflow-x-auto" {...scrollRegion("Year table")}>
       <table className="w-full min-w-[28rem] text-sm">
@@ -44,22 +46,33 @@ function YearsTable({ seasons }: { seasons: TeamSeason[] }) {
                 W–L
               </abbr>
             </th>
-            <th scope="col" className={th}>
-              <abbr title="No result" className="no-underline">
-                NR
-              </abbr>
-            </th>
-            <th scope="col" className={th}>
-              <abbr title="Net run rate" className="no-underline">
-                NRR
-              </abbr>
-            </th>
+            {draws ? (
+              <th scope="col" className={th}>
+                <abbr title="Drawn" className="no-underline">
+                  D
+                </abbr>
+              </th>
+            ) : (
+              <>
+                <th scope="col" className={th}>
+                  <abbr title="No result" className="no-underline">
+                    NR
+                  </abbr>
+                </th>
+                <th scope="col" className={th}>
+                  <abbr title="Net run rate" className="no-underline">
+                    NRR
+                  </abbr>
+                </th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
           {[...seasons].reverse().map((s) => {
             const won = s.won + s.playoff_won;
             const lost = s.lost + s.playoff_lost;
+            const drawn = s.drawn ?? 0;
             return (
               <tr key={s.season}>
                 <th
@@ -68,12 +81,18 @@ function YearsTable({ seasons }: { seasons: TeamSeason[] }) {
                 >
                   <SeasonLabel season={s.season} />
                 </th>
-                <td className={td}>{won + lost + s.no_result}</td>
+                <td className={td}>{won + lost + drawn + s.no_result}</td>
                 <td className={td}>
                   {won}–{lost}
                 </td>
-                <td className={td}>{s.no_result || ""}</td>
-                <td className={td}>{formatNrr(s.nrr)}</td>
+                {draws ? (
+                  <td className={td}>{drawn || ""}</td>
+                ) : (
+                  <>
+                    <td className={td}>{s.no_result || ""}</td>
+                    <td className={td}>{formatNrr(s.nrr)}</td>
+                  </>
+                )}
               </tr>
             );
           })}

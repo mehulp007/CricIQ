@@ -48,13 +48,19 @@ export async function generateMetadata({
   try {
     const { player, batting, bowling } = await loadProfile(competition, id, {});
     const name = player.full_name ?? player.name;
+    // Test cricket judges batters and bowlers by their averages.
+    const test = getCompetition(competition).format === "Test";
     const lines = [
       batting &&
         batting.runs > 0 &&
-        `${batting.runs} runs at a strike rate of ${rate(batting.strike_rate, 1)}`,
+        (test
+          ? `${batting.runs} runs at an average of ${rate(batting.average)}`
+          : `${batting.runs} runs at a strike rate of ${rate(batting.strike_rate, 1)}`),
       bowling &&
         bowling.wickets > 0 &&
-        `${bowling.wickets} wickets at an economy of ${rate(bowling.economy)}`,
+        (test
+          ? `${bowling.wickets} wickets at a strike rate of ${rate(bowling.strike_rate, 1)}`
+          : `${bowling.wickets} wickets at an economy of ${rate(bowling.economy)}`),
     ].filter(Boolean);
     return {
       title: `${name}: ${label} profile`,

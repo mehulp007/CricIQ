@@ -7,12 +7,9 @@ test.describe("competitions", () => {
   test("the home page leads with every competition", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Choose a competition" })).toBeVisible();
-    for (const label of ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I", "ODI"]) {
+    for (const label of ["IPL", "BBL", "PSL", "CPL", "SA20", "T20I", "ODI", "Test"]) {
       await expect(page.getByRole("link", { name: new RegExp(`^${label}\\b`) })).toBeVisible();
     }
-    // Test cricket is listed, never linked.
-    await expect(page.getByText("Coming in V2-6")).toBeVisible();
-    await expect(page.getByRole("link", { name: /^Test/ })).toHaveCount(0);
     await page.getByRole("link", { name: /^T20I\b/ }).click();
     await expect(page).toHaveURL(/\/t20i$/);
     await expect(page.getByText("T20I · 2005 onward")).toBeVisible();
@@ -64,6 +61,51 @@ test.describe("competitions", () => {
     await expect(
       page.getByText("Match tied (England won on boundaries after a tied super over)").first(),
     ).toBeVisible();
+  });
+
+  test("a Test replays with three results, estimated days and the chase what-if", async ({
+    page,
+  }) => {
+    // Headingley 2019 is a bundled featured replay.
+    await page.goto("/test/matches/1152848");
+    await expect(page.getByRole("heading", { name: /Australia\s+vs\s+England/ })).toBeVisible();
+    await expect(page.getByTestId("outcome-probability")).toBeVisible();
+    await expect(page.getByText("Draw").first()).toBeVisible();
+    await page.locator("[data-replay-ready]").waitFor();
+    await page.getByRole("button", { name: "Jump to end" }).click();
+    await expect(page.getByText("England won by 1 wicket").first()).toBeVisible();
+    await page.getByRole("button", { name: "Previous ball" }).click();
+    const chase = page.getByRole("region", { name: "Chase what-if" });
+    await expect(chase).toBeVisible();
+    await expect(chase.getByText(/ENG need 1 with 1 wicket in hand/)).toBeVisible();
+    await page.getByRole("tab", { name: "Scorecard" }).click();
+    await expect(page.getByText("4th innings").first()).toBeVisible();
+  });
+
+  test("a Test from the API opens, and draws say so", async ({ page }) => {
+    const response = await page.goto("/test/matches/1223871");
+    expect(response?.status()).toBe(200);
+    await expect(page.getByTestId("outcome-probability")).toBeVisible();
+    await page.goto("/test/matches?season=2021");
+    await expect(page.getByText("Match drawn").first()).toBeVisible();
+  });
+
+  test("Tests have a chase calculator instead of a simulator", async ({ page }) => {
+    await page.goto("/test/simulator");
+    await expect(page).toHaveURL(/\/test\/chase$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Chase Calculator" })).toBeVisible();
+    const chances = page.getByRole("region", { name: "The chances" });
+    await expect(chances.getByText("Draw")).toBeVisible();
+    await expect(chances.getByText(/The same chase for other targets/)).toBeVisible();
+    await page.getByLabel("Runs needed").fill("50");
+    await expect(page.getByLabel("Runs needed")).toHaveValue("50");
+  });
+
+  test("Test sides count their draws", async ({ page }) => {
+    await page.goto("/test/teams/IND");
+    await expect(page.getByRole("heading", { name: "India", level: 1 })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Year by year", exact: true })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "D", exact: true })).toBeVisible();
   });
 
   test("every competition opens matches that are not featured replays", async ({ page }) => {

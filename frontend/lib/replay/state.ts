@@ -3,7 +3,8 @@
  * the first ball". Kept as a pure reducer so it is trivially testable.
  */
 
-export type Speed = 1 | 2 | 4;
+// Tests also play at 16x and 64x (about 2,000 balls a match).
+export type Speed = 1 | 2 | 4 | 16 | 64;
 
 export const SPEEDS: readonly Speed[] = [1, 2, 4];
 

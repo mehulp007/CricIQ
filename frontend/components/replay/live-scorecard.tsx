@@ -53,11 +53,15 @@ function InningsCard({
           {team.name}
           <span className="text-xs font-normal text-muted-foreground">
             {inningsLabel(card.innings.innings_no, card.innings.is_super_over)}
+            {card.innings.follow_on && " · following on"}
             {!card.complete && " · in progress"}
           </span>
         </h3>
         <p className="font-mono tabular-nums">
-          <span className="text-lg font-semibold">{formatScore(card.runs, card.wickets)}</span>
+          <span className="text-lg font-semibold">
+            {formatScore(card.runs, card.wickets)}
+            {card.complete && card.innings.declared && "d"}
+          </span>
           <span className="text-sm text-muted-foreground"> ({card.overs} ov)</span>
         </p>
       </header>

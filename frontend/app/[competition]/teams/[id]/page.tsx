@@ -159,7 +159,9 @@ export default async function TeamPage({
         title={national ? "Year by year" : "Season by season"}
         lede={
           national
-            ? "Every match in each calendar year: won, lost and net run rate."
+            ? competition === "test"
+              ? "Every Test in each calendar year: won, lost and drawn."
+              : "Every match in each calendar year: won, lost and net run rate."
             : competition === "ipl"
               ? "League-stage record, points and net run rate exactly as in the official tables, and how far each season went."
               : `League-stage record, points (two a win) and net run rate computed from the results, and how far each season went.`

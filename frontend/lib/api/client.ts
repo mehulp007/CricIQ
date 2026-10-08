@@ -3,6 +3,9 @@ import "server-only";
 import type { CompetitionId } from "@/lib/competitions";
 
 import type {
+  ChaseCalculation,
+  ChaseSides,
+  ChaseWhatIf,
   CompetitionList,
   MatchPage,
   MatchupDetail,
@@ -335,6 +338,56 @@ export function simulateMatch(
   request: SimulationRequest,
 ): Promise<SimulationResult> {
   return apiPost<SimulationResult>(`/api/v2/${competition}/simulate/match`, request);
+}
+
+export interface ChaseQuery {
+  seq: number;
+  needed?: number;
+  wickets?: number;
+  overs?: number;
+}
+
+/** Tests: the chasing side's chances from a fourth-innings ball, real and edited. */
+export function getChase(
+  competition: CompetitionId,
+  matchId: number,
+  query: ChaseQuery,
+): Promise<ChaseWhatIf> {
+  const params = new URLSearchParams({ seq: String(query.seq) });
+  if (query.needed !== undefined) params.set("needed", String(query.needed));
+  if (query.wickets !== undefined) params.set("wickets", String(query.wickets));
+  if (query.overs !== undefined) params.set("overs", String(query.overs));
+  return apiGet<ChaseWhatIf>(competition, `/matches/${matchId}/chase?${params}`);
+}
+
+/** Tests: the sides of the chase calculator and their ratings. */
+export function getChaseSides(competition: CompetitionId): Promise<ChaseSides> {
+  return apiGet<ChaseSides>(competition, "/chase/sides");
+}
+
+export interface ChaseSetup {
+  batting: string;
+  fielding: string;
+  venue: "home" | "away" | "neutral";
+  needed: number;
+  wickets: number;
+  overs: number;
+}
+
+/** Tests: a fourth-innings chase between two sides, from scratch. */
+export function calculateChase(
+  competition: CompetitionId,
+  setup: ChaseSetup,
+): Promise<ChaseCalculation> {
+  const params = new URLSearchParams({
+    batting: setup.batting,
+    fielding: setup.fielding,
+    venue: setup.venue,
+    needed: String(setup.needed),
+    wickets: String(setup.wickets),
+    overs: String(setup.overs),
+  });
+  return apiGet<ChaseCalculation>(competition, `/chase?${params}`);
 }
 
 export function simulateState(

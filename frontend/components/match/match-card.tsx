@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TeamBadge } from "@/components/match/team-badge";
 import type { MatchSummary, TeamScore } from "@/lib/api/types";
 import { competitionPath, seasonLabel, type CompetitionId } from "@/lib/competitions";
-import { formatDate, formatScore, stageLabel } from "@/lib/format";
+import { formatDate, formatScore, formatTestScore, stageLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 function TeamRow({ team, won }: { team: TeamScore; won: boolean }) {
@@ -22,8 +22,8 @@ function TeamRow({ team, won }: { team: TeamScore; won: boolean }) {
           won ? "font-semibold text-foreground" : "text-muted-foreground",
         )}
       >
-        {formatScore(team.runs, team.wickets)}
-        {team.overs && (
+        {team.innings ? formatTestScore(team.innings) : formatScore(team.runs, team.wickets)}
+        {team.overs && !team.innings && (
           <span className="ml-1.5 text-xs font-normal text-muted-foreground">({team.overs})</span>
         )}
       </span>

@@ -5,16 +5,18 @@ import {
   competitionOf,
   competitionPath,
   isCompetitionId,
+  isTest,
   seasonLabel,
   switchPath,
 } from "@/lib/competitions";
 
 describe("competitions", () => {
-  it("lists the seven served competitions once each", () => {
+  it("lists the eight served competitions once each", () => {
     const ids = COMPETITIONS.map((c) => c.id);
-    expect(ids).toEqual(["ipl", "t20i", "odi", "bbl", "psl", "cpl", "sa20"]);
+    expect(ids).toEqual(["ipl", "t20i", "odi", "test", "bbl", "psl", "cpl", "sa20"]);
     expect(isCompetitionId("odi")).toBe(true);
-    expect(isCompetitionId("test")).toBe(false);
+    expect(isCompetitionId("test")).toBe(true);
+    expect(isCompetitionId("wbbl")).toBe(false);
     expect(isCompetitionId(undefined)).toBe(false);
   });
 
@@ -24,6 +26,10 @@ describe("competitions", () => {
     for (const c of COMPETITIONS.filter((c) => c.format === "T20")) {
       expect([c.overs, c.quota]).toEqual([20, 4]);
     }
+    const test = COMPETITIONS.find((c) => c.id === "test");
+    expect([test?.format, test?.overs, test?.quota]).toEqual(["Test", null, null]);
+    expect(isTest("test")).toBe(true);
+    expect(isTest("odi")).toBe(false);
   });
 
   it("builds and reads competition paths", () => {
@@ -45,6 +51,9 @@ describe("competitions", () => {
     expect(switchPath("/ipl/teams/MI", "t20i")).toBe("/t20i/teams");
     // The Analytics Lab covers the IPL only.
     expect(switchPath("/ipl/lab/pressure", "t20i")).toBe("/t20i");
+    // Tests have a chase calculator where the others have the simulator.
+    expect(switchPath("/ipl/simulator", "test")).toBe("/test/chase");
+    expect(switchPath("/test/chase", "odi")).toBe("/odi/simulator");
     // From a global page, to the competition's overview.
     expect(switchPath("/about", "cpl")).toBe("/cpl");
   });

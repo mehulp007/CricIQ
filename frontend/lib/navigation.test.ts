@@ -33,10 +33,15 @@ describe("navigation", () => {
     expect(navHref(about, "bbl")).toBe("/about");
   });
 
-  it("shows the Analytics Lab only where it has notes", () => {
+  it("shows the Analytics Lab everywhere and series in international cricket", () => {
     expect(isShown(lab, "ipl")).toBe(true);
-    expect(isShown(lab, "t20i")).toBe(false);
+    expect(isShown(lab, "t20i")).toBe(true);
     expect(isShown(matches, "t20i")).toBe(true);
+    const series = byLabel("Series");
+    expect(isShown(series, "test")).toBe(true);
+    expect(isShown(series, "t20i")).toBe(true);
+    expect(isShown(series, "ipl")).toBe(false);
+    expect(isShown(series, "bbl")).toBe(false);
   });
 
   it("offers Tests a chase calculator instead of the simulator", () => {

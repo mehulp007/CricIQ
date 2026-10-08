@@ -7,6 +7,7 @@ import { TeamSwatch } from "@/components/match/team-badge";
 import { Panel } from "@/components/players/profile-parts";
 import { SeasonWindow } from "@/components/players/season-window";
 import { PlayerList, TotalLine } from "@/components/teams/team-sections";
+import { AcrossFormats } from "@/components/teams/across-formats";
 import { TeamPicker } from "@/components/teams/team-picker";
 import { ApiError, getHeadToHead, getTeams } from "@/lib/api/client";
 import type { H2HRecord, HeadToHead, TeamsOverview } from "@/lib/api/types";
@@ -367,13 +368,22 @@ export default async function HeadToHeadPage({
       ) : !h2h ? (
         <Empty>One of these teams is not in the data.</Empty>
       ) : h2h.record.played === 0 ? (
-        <Empty>
-          {h2h.a.name} and {h2h.b.name} never met
-          {shared && shared[0] <= shared[1]
-            ? ` in ${seasonSpan(h2h.window.first, h2h.window.last, competition)}`
-            : ""}
-          .
-        </Empty>
+        <>
+          <Empty>
+            {h2h.a.name} and {h2h.b.name} never met
+            {shared && shared[0] <= shared[1]
+              ? ` in ${seasonSpan(h2h.window.first, h2h.window.last, competition)}`
+              : ""}
+            .
+          </Empty>
+          {getCompetition(competition).teamType === "national" && (
+            <AcrossFormats
+              competition={competition}
+              a={h2h.a.franchise_id}
+              b={h2h.b.franchise_id}
+            />
+          )}
+        </>
       ) : (
         <>
           {shared && shared[0] < shared[1] && (
@@ -469,6 +479,14 @@ export default async function HeadToHeadPage({
               />
             </div>
           </Panel>
+
+          {getCompetition(competition).teamType === "national" && (
+            <AcrossFormats
+              competition={competition}
+              a={h2h.a.franchise_id}
+              b={h2h.b.franchise_id}
+            />
+          )}
 
           <Panel id="meetings" title="Every meeting" lede="Newest first. Each opens the replay.">
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

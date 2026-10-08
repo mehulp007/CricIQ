@@ -7,10 +7,14 @@ import { scrollRegion } from "@/lib/a11y";
 import {
   CLUTCH,
   type ClutchRole,
+  HOME,
   MOMENTUM,
   PRESSURE,
   RIVALRIES,
   type RivalryGroup,
+  type ShareRow,
+  TOSS,
+  pointsAboveEven,
   signed,
 } from "@/lib/lab";
 import { cn } from "@/lib/utils";
@@ -635,6 +639,225 @@ export function RivalriesNoteView() {
             or close-finish effect could hide inside the intervals.
           </p>
         </Prose>
+      </Panel>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------- formats
+
+function shareRows(rows: ShareRow[]) {
+  return rows.map((r) => ({
+    label: r.label,
+    detail: `${r.matches.toLocaleString("en-IN")} matches`,
+    estimate: {
+      value: pointsAboveEven(r.share.value),
+      low: pointsAboveEven(r.share.low),
+      high: pointsAboveEven(r.share.high),
+    },
+  }));
+}
+
+function percent(share: number): string {
+  return `${(100 * share).toFixed(1)}%`;
+}
+
+function ShareTable({ rows, label, first }: { rows: ShareRow[]; label: string; first: string }) {
+  const th = "px-3 py-2 text-right text-xs font-medium text-muted-foreground";
+  const cell = "px-3 py-2 text-right font-mono tabular-nums";
+  return (
+    <div className="overflow-x-auto" {...scrollRegion(label)}>
+      <table className="w-full min-w-[32rem] text-sm">
+        <caption className="sr-only">{label}</caption>
+        <thead className="border-b border-border">
+          <tr>
+            <th scope="col" className={cn(th, "text-left")}>
+              {first}
+            </th>
+            <th scope="col" className={th}>
+              Matches
+            </th>
+            <th scope="col" className={th}>
+              Won
+            </th>
+            <th scope="col" className={th}>
+              Drawn or tied
+            </th>
+            <th scope="col" className={th}>
+              Lost
+            </th>
+            <th scope="col" className={th}>
+              Share
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.map((r) => (
+            <tr key={r.label}>
+              <th scope="row" className="px-3 py-2 text-left font-normal">
+                {r.label}
+              </th>
+              <td className={cell}>{r.matches.toLocaleString("en-IN")}</td>
+              <td className={cell}>{r.won.toLocaleString("en-IN")}</td>
+              <td className={cell}>{r.drawn.toLocaleString("en-IN")}</td>
+              <td className={cell}>{r.lost.toLocaleString("en-IN")}</td>
+              <td className={cn(cell, "text-foreground")}>{percent(r.share.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const SHARE_NOTE =
+  "A share counts a win as one and a draw or a tie without a winner as a half; matches without a result are left out. Intervals are 90%, resampling whole matches.";
+
+export function TossNoteView() {
+  const t = TOSS;
+  const tests = t.formats.find((f) => f.key === "test");
+  const leagues = t.formats.find((f) => f.key === "leagues");
+  const ipl = t.formats.find((f) => f.key === "ipl");
+  const bowled = t.choices.find((c) => c.key === "leagues" && c.decision === "field");
+  const choices = t.choices.filter((c) => c.key === "test" || c.key === "leagues");
+  return (
+    <div className="flex flex-col gap-8">
+      <Prose>
+        <p>
+          A toss is a coin flip, so nothing about the sides decides who wins it. Over many matches
+          the toss winner&apos;s share of the results therefore measures what the toss itself is
+          worth, with no other cause mixed in. The question is whether a Test, where the pitch
+          changes over five days and the side batting last faces its worst, rewards it more than
+          one-day cricket.
+        </p>
+        <p>{SHARE_NOTE}</p>
+      </Prose>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {tests && (
+          <Finding
+            label="Toss winners in Tests"
+            value={percent(tests.share.value)}
+            detail={`of the results over ${tests.matches} Tests (90%: ${percent(tests.share.low)} to ${percent(tests.share.high)}).`}
+          />
+        )}
+        {t.formats
+          .filter((f) => f.key === "odi" || f.key === "t20i")
+          .map((f) => (
+            <Finding
+              key={f.key}
+              label={`Toss winners in ${f.label}`}
+              value={percent(f.share.value)}
+              detail={`over ${f.matches.toLocaleString("en-IN")} matches (90%: ${percent(f.share.low)} to ${percent(f.share.high)}).`}
+            />
+          ))}
+      </div>
+      <Panel
+        id="toss-formats"
+        title="What winning the toss is worth"
+        lede="Points of the results above an even 50%, by format. An interval that crosses zero means no measurable effect."
+      >
+        <IntervalRows
+          rows={shareRows(t.formats)}
+          unit="points above even"
+          caption="The toss winner's share of results above 50%, with 90% intervals."
+        />
+      </Panel>
+      {leagues && ipl && bowled && (
+        <Prose>
+          <p>
+            The surprise is the franchise leagues. In the BBL, CPL, PSL and SA20 toss winners took{" "}
+            <Strong>{percent(leagues.share.value)}</Strong> of the results, about as much as in
+            Tests, and {percent(bowled.chose)} of them chose to bowl first; in the IPL it was{" "}
+            {percent(ipl.share.value)}, within chance. Night matches with dew, which makes the ball
+            hard to grip for the side bowling second, are the usual explanation, but the data has no
+            conditions to test it.
+          </p>
+        </Prose>
+      )}
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel
+          id="toss-region"
+          title="Tests in Asia"
+          lede="Pitches in Asia are said to turn late, which should make the toss matter more. The two intervals overlap, so the data cannot tell them apart."
+        >
+          <IntervalRows
+            rows={shareRows(t.tests_by_region)}
+            unit="points above even"
+            caption="The Test toss winner's share of results above 50%, in and outside Asia."
+          />
+        </Panel>
+        <Panel
+          id="toss-choices"
+          title="What toss winners chose"
+          lede="Choices are not random (captains bowl first when conditions favour it), so these split the effect, they do not explain it."
+        >
+          <ShareTable
+            rows={choices.map((c) => ({
+              ...c,
+              label: `${t.formats.find((f) => f.key === c.key)?.label ?? c.key}: ${c.label.toLowerCase()} (${percent(c.chose)})`,
+            }))}
+            label="Toss winners' results by their choice"
+            first="Choice"
+          />
+        </Panel>
+      </div>
+      <Panel id="toss-table" title="Every format" lede="The toss winner's results.">
+        <ShareTable rows={t.formats} label="Toss winners' results by format" first="Format" />
+      </Panel>
+    </div>
+  );
+}
+
+export function HomeNoteView() {
+  const h = HOME;
+  const balanced = h.formats
+    .filter((f) => f.balanced !== null)
+    .map((f) => ({ ...f, share: f.balanced!.share, matches: f.balanced!.matches }));
+  return (
+    <div className="flex flex-col gap-8">
+      <Prose>
+        <p>
+          A side&apos;s home record mixes two things: playing at home, and being a side that hosts a
+          lot of cricket, which strong sides do. So this note measures home advantage twice. The raw
+          figure is the home side&apos;s share of the results. The balanced one takes every pair of
+          sides that met at least {h.min_each_end === 2 ? "twice" : `${h.min_each_end} times`} at
+          each end and averages the home share at the two ends, so each pair&apos;s strength cancels
+          out.
+        </p>
+        <p>
+          A side&apos;s home is its own country for national sides; for a franchise, a ground where
+          it played most of its league matches that season. {SHARE_NOTE}
+        </p>
+      </Prose>
+      <Panel
+        id="home-balanced"
+        title="Home advantage between the same pairs of sides"
+        lede="Points of the results above an even 50% for the home side, balanced for strength."
+      >
+        <IntervalRows
+          rows={shareRows(balanced)}
+          unit="points above even"
+          caption="The home side's share of results above 50%, balanced, with 90% intervals."
+        />
+      </Panel>
+      <Panel
+        id="home-raw"
+        title="The raw home record"
+        lede="Every match with a home side, before balancing. Strong sides hosting more often lifts these figures, most of all in T20Is, where associate nations rarely host the strongest sides."
+      >
+        <IntervalRows
+          rows={shareRows(h.formats)}
+          unit="points above even"
+          caption="The home side's share of results above 50%, raw, with 90% intervals."
+        />
+      </Panel>
+      <Panel id="home-table" title="Every format" lede="The home side's results, raw.">
+        <ShareTable rows={h.formats} label="Home sides' results by format" first="Format" />
+        <p className="mt-4 text-xs text-muted-foreground">
+          Matches at neutral grounds are left out:{" "}
+          {h.formats.map((f) => `${f.label} ${percent(f.neutral_share)}`).join(", ")} of each
+          format&apos;s matches.
+        </p>
       </Panel>
     </div>
   );

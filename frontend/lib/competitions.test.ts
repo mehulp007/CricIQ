@@ -49,8 +49,13 @@ describe("competitions", () => {
     expect(switchPath("/ipl/matches/1181768", "t20i")).toBe("/t20i/matches");
     expect(switchPath("/ipl/players/ba607b88", "bbl")).toBe("/bbl/players");
     expect(switchPath("/ipl/teams/MI", "t20i")).toBe("/t20i/teams");
-    // The Analytics Lab covers the IPL only.
-    expect(switchPath("/ipl/lab/pressure", "t20i")).toBe("/t20i");
+    // Every competition has an Analytics Lab; the IPL's own notes are not elsewhere.
+    expect(switchPath("/ipl/lab/pressure", "t20i")).toBe("/t20i/lab");
+    expect(switchPath("/ipl/lab", "test")).toBe("/test/lab");
+    // Series and tournaments are international only.
+    expect(switchPath("/test/series", "odi")).toBe("/odi/series");
+    expect(switchPath("/odi/series/2023-mens-cricket-world-cup", "t20i")).toBe("/t20i/series");
+    expect(switchPath("/t20i/series", "ipl")).toBe("/ipl/matches");
     // Tests have a chase calculator where the others have the simulator.
     expect(switchPath("/ipl/simulator", "test")).toBe("/test/chase");
     expect(switchPath("/test/chase", "odi")).toBe("/odi/simulator");

@@ -12,10 +12,14 @@ import type {
   MatchupList,
   MatchupPhase,
   Meta,
+  CareerRatings,
   PlayerCareers,
   PlayerPage,
   PlayerProfile,
   PlayerSplits,
+  SeriesDetail,
+  SeriesPage,
+  SeriesRecord,
   SimilarPlayers,
   SimSeason,
   SimSquad,
@@ -179,6 +183,14 @@ export async function getCareers(playerId: string): Promise<PlayerCareers> {
   );
 }
 
+/** A player's headline ratings in every competition, each among that competition's players. */
+export async function getCareerRatings(playerId: string): Promise<CareerRatings> {
+  return fetchJson<CareerRatings>(
+    `/api/v2/players/${encodeURIComponent(playerId)}/ratings`,
+    REVALIDATE_SECONDS,
+  );
+}
+
 export function getPlayerSplits(
   competition: CompetitionId,
   playerId: string,
@@ -274,6 +286,42 @@ export function getHeadToHead(
   if (window.from) params.set("from", String(window.from));
   if (window.to) params.set("to", String(window.to));
   return apiGet<HeadToHead>(competition, `/teams/h2h?${params}`);
+}
+
+export interface SeriesQuery {
+  kind?: "series" | "tournament";
+  year?: number;
+  team?: string;
+  major?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+/** Series and tournaments of an international competition, newest first. */
+export function getSeriesList(
+  competition: CompetitionId,
+  query: SeriesQuery = {},
+): Promise<SeriesPage> {
+  const params = new URLSearchParams();
+  if (query.kind) params.set("kind", query.kind);
+  if (query.year) params.set("year", String(query.year));
+  if (query.team) params.set("team", query.team);
+  if (query.major !== undefined) params.set("major", String(query.major));
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(query.pageSize ?? 30));
+  return apiGet<SeriesPage>(competition, `/series?${params}`);
+}
+
+export function getSeries(competition: CompetitionId, eventId: string): Promise<SeriesDetail> {
+  return apiGet<SeriesDetail>(competition, `/series/${encodeURIComponent(eventId)}`);
+}
+
+export function getSeriesRecord(
+  competition: CompetitionId,
+  a: string,
+  b: string,
+): Promise<SeriesRecord> {
+  return apiGet<SeriesRecord>(competition, `/series/h2h?${new URLSearchParams({ a, b })}`);
 }
 
 /** POST without caching: simulations depend on the request body. */

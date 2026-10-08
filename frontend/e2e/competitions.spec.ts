@@ -215,10 +215,10 @@ test.describe("competitions", () => {
     await expect(page.getByRole("tab", { name: "Simulator" })).toHaveCount(1);
   });
 
-  test("the Analytics Lab covers the IPL only", async ({ page }) => {
-    const response = await page.goto("/t20i/lab");
-    expect(response?.status()).toBe(404);
+  test("the IPL's own Analytics Lab notes stay with the IPL", async ({ page }) => {
+    expect((await page.goto("/t20i/lab"))?.status()).toBe(200);
     expect((await page.goto("/t20i/lab/momentum"))?.status()).toBe(404);
+    expect((await page.goto("/t20i/lab/toss"))?.status()).toBe(200);
     expect((await page.goto("/ipl/lab/momentum"))?.status()).toBe(200);
   });
 });

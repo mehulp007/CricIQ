@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 
 import {
   ClutchNoteView,
+  HomeNoteView,
   MomentumNoteView,
   PressureNoteView,
   RivalriesNoteView,
+  TossNoteView,
 } from "@/components/lab/notes";
 import { getCompetition, isCompetitionId } from "@/lib/competitions";
-import { LAB, type LabSlug, labEntry } from "@/lib/lab";
+import { LAB, type LabSlug, labEntry, labNotes } from "@/lib/lab";
 import { CompetitionLink } from "@/components/competition/competition-link";
 
 const VIEWS: Record<LabSlug, () => React.ReactNode> = {
@@ -16,13 +18,15 @@ const VIEWS: Record<LabSlug, () => React.ReactNode> = {
   pressure: PressureNoteView,
   clutch: ClutchNoteView,
   rivalries: RivalriesNoteView,
+  toss: TossNoteView,
+  home: HomeNoteView,
 };
 
 export const dynamicParams = false;
 
-// The notes are about the IPL; other competitions have no Analytics Lab yet, and their
-// note pages render as not found. (Every competition lists the notes: if one returned no
-// paths, Next.js would prerender none for any competition.)
+// The IPL's own notes render as not found elsewhere; the notes comparing formats render in
+// every competition. (Every competition lists every note: if one returned no paths, Next.js
+// would prerender none for any competition.)
 export function generateStaticParams() {
   return LAB.map((note) => ({ slug: note.slug }));
 }
@@ -37,7 +41,14 @@ export async function generateMetadata({
 export default async function LabNotePage({ params }: PageProps<"/[competition]/lab/[slug]">) {
   const { competition, slug } = await params;
   const note = labEntry(slug);
-  if (!note || !isCompetitionId(competition) || !getCompetition(competition).lab) notFound();
+  if (
+    !note ||
+    !isCompetitionId(competition) ||
+    !getCompetition(competition).lab ||
+    !labNotes(competition).includes(note)
+  ) {
+    notFound();
+  }
   const View = VIEWS[note.slug];
   return (
     <article className="flex flex-col gap-8">

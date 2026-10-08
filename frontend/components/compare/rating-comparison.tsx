@@ -31,13 +31,15 @@ export function RatingComparison({
   b,
   names,
   noun,
+  sharedOnly = false,
 }: {
   a: RatingGroup | null | undefined;
   b: RatingGroup | null | undefined;
   names: [string, string];
   noun: "batters" | "bowlers";
+  sharedOnly?: boolean;
 }) {
-  const pairs = ratingPairs(a, b);
+  const pairs = ratingPairs(a, b, sharedOnly);
   const population = a?.population ?? b?.population ?? 0;
   const minBalls = a?.min_balls ?? b?.min_balls ?? 0;
   return (

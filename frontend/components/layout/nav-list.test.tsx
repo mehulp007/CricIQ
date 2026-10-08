@@ -44,7 +44,11 @@ describe("NavList", () => {
     renderNav();
     expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute("href", "/t20i/players");
     expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute("aria-current", "page");
-    // The Analytics Lab's notes are about the IPL.
-    expect(screen.queryByRole("link", { name: "Analytics Lab" })).toBeNull();
+    // Every competition has the notes comparing formats; internationals have series.
+    expect(screen.getByRole("link", { name: "Analytics Lab" })).toHaveAttribute(
+      "href",
+      "/t20i/lab",
+    );
+    expect(screen.getByRole("link", { name: "Series" })).toHaveAttribute("href", "/t20i/series");
   });
 });

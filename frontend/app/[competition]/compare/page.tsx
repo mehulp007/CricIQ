@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { CompareSelector } from "@/components/compare/compare-selector";
@@ -9,7 +10,13 @@ import type { PickedPlayer } from "@/components/matchups/player-picker";
 import { Panel } from "@/components/players/profile-parts";
 import { SeasonWindow } from "@/components/players/season-window";
 import { ApiError, getMatchup, getPlayer } from "@/lib/api/client";
-import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/competitions";
+import {
+  competitionPath,
+  getCompetition,
+  isCompetitionId,
+  phrase,
+  type CompetitionId,
+} from "@/lib/competitions";
 import type { MatchupDetail, PlayerProfile } from "@/lib/api/types";
 import { scrollRegion } from "@/lib/a11y";
 import {
@@ -107,19 +114,32 @@ function displayName(profile: PlayerProfile): string {
   return profile.player.full_name ?? profile.player.name;
 }
 
-function PlayerCard({ profile, color }: { profile: PlayerProfile; color: string }) {
+function PlayerCard({
+  profile,
+  color,
+  competition,
+  showCompetition,
+}: {
+  profile: PlayerProfile;
+  color: string;
+  competition: CompetitionId;
+  showCompetition: boolean;
+}) {
   const p = profile.player;
   const team = p.teams[0];
   return (
     <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-border bg-card/70 p-4 sm:p-5">
       <span aria-hidden="true" className="h-1 w-10 rounded-full" style={{ background: color }} />
-      <CompetitionLink
-        href={`/players/${p.player_id}`}
+      <Link
+        href={competitionPath(competition, `/players/${p.player_id}`)}
         className="truncate text-lg font-semibold tracking-tight underline-offset-4 hover:text-primary hover:underline"
       >
         {displayName(profile)}
-      </CompetitionLink>
+      </Link>
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        {showCompetition && (
+          <span className="font-medium text-foreground">{getCompetition(competition).label}</span>
+        )}
         <span>{roleLabel(p.role, p.is_keeper)}</span>
         {team && <TeamBadge shortName={team.franchise_id} color={team.color} />}
         <span>
@@ -377,15 +397,18 @@ function Suggestions() {
 
 async function Comparison({
   competition,
+  formats,
   a,
   b,
   state,
 }: {
   competition: CompetitionId;
+  formats: [CompetitionId, CompetitionId];
   a: PlayerProfile;
   b: PlayerProfile;
   state: CompareState;
 }) {
+  const across = formats[0] !== formats[1];
   const names: [string, string] = [displayName(a), displayName(b)];
   const { roles, role } = compareRoles(a, b, state.role);
   const career: [number, number] = [
@@ -395,18 +418,38 @@ async function Comparison({
   const first = Math.max(a.window.first, career[0]);
   const last = Math.min(a.window.last, career[1]);
   const window = first === last ? String(first) : `${first}–${last}`;
-  const [aBats, bBats] = await Promise.all([
-    meeting(competition, a.player.player_id, b.player.player_id, state),
-    meeting(competition, b.player.player_id, a.player.player_id, state),
-  ]);
+  const [aBats, bBats] = across
+    ? [null, null]
+    : await Promise.all([
+        meeting(competition, a.player.player_id, b.player.player_id, state),
+        meeting(competition, b.player.player_id, a.player.player_id, state),
+      ]);
   const meetings = [aBats, bBats].filter((m): m is MatchupDetail => m !== null);
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <PlayerCard profile={a} color={COMPARE_SERIES.a.color} />
-        <PlayerCard profile={b} color={COMPARE_SERIES.b.color} />
+        <PlayerCard
+          profile={a}
+          color={COMPARE_SERIES.a.color}
+          competition={formats[0]}
+          showCompetition={across}
+        />
+        <PlayerCard
+          profile={b}
+          color={COMPARE_SERIES.b.color}
+          competition={formats[1]}
+          showCompetition={across}
+        />
       </div>
+      {across && (
+        <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm leading-relaxed">
+          {names[0]} in {phrase(formats[0])} against {names[1]} in {phrase(formats[1])}. Raw figures
+          mean different things in different formats, so read each against its own par (an average
+          player of that format on the same balls), and the ratings as each player&apos;s place
+          among their own format&apos;s players.
+        </p>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SeasonWindow career={career} first={first} last={last} />
@@ -431,13 +474,18 @@ async function Comparison({
             <Panel
               id="compare-ratings"
               title="CricIQ Ratings"
-              lede="Each player against qualified players in the same seasons, after allowing for sample size."
+              lede={
+                across
+                  ? "Each player against their own format's qualified players in the same seasons, after allowing for sample size; only the skills both formats rate."
+                  : "Each player against qualified players in the same seasons, after allowing for sample size."
+              }
             >
               <RatingComparison
                 a={a.ratings?.[role]}
                 b={b.ratings?.[role]}
                 names={names}
                 noun={role === "batting" ? "batters" : "bowlers"}
+                sharedOnly={across}
               />
             </Panel>
           </div>
@@ -464,7 +512,14 @@ async function Comparison({
                   : "Economy in each phase, with runs saved per over against par in brackets."
               }
             >
-              <PhaseTable a={a} b={b} role={role} names={names} />
+              {across ? (
+                <p className="text-sm text-muted-foreground">
+                  {getCompetition(formats[0]).label} and {getCompetition(formats[1]).label} split an
+                  innings into different phases, so phases only compare within one format.
+                </p>
+              ) : (
+                <PhaseTable a={a} b={b} role={role} names={names} />
+              )}
             </Panel>
             <Panel
               id="compare-meetings"
@@ -479,7 +534,9 @@ async function Comparison({
                 </ul>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {names[0]} and {names[1]} never faced each other in {window}.
+                  {across
+                    ? "Their meetings are counted within one format: pick the same competition for both."
+                    : `${names[0]} and ${names[1]} never faced each other in ${window}.`}
                 </p>
               )}
             </Panel>
@@ -496,18 +553,31 @@ export default async function ComparePage({
 }: PageProps<"/[competition]/compare">) {
   const competition = (await params).competition as CompetitionId;
   const state = parseCompare(await searchParams);
+  const formats: [CompetitionId, CompetitionId] = [
+    state.af ?? competition,
+    state.bf ?? competition,
+  ];
   const [a, b] = await Promise.all([
-    load(competition, state.a, state),
-    load(competition, state.b, state),
+    load(formats[0], state.a, state),
+    load(formats[1], state.b, state),
   ]);
 
   let body: ReactNode;
-  if (a && b && a.player.player_id === b.player.player_id) {
-    body = <Empty>Pick two different players.</Empty>;
+  if (a && b && a.player.player_id === b.player.player_id && formats[0] === formats[1]) {
+    body = <Empty>Pick two different players, or one player in two competitions.</Empty>;
   } else if (a && b) {
-    body = <Comparison competition={competition} a={a} b={b} state={state} />;
+    body = <Comparison competition={competition} formats={formats} a={a} b={b} state={state} />;
   } else if ((state.a && !a) || (state.b && !b)) {
-    body = <Empty>One of these players could not be found.</Empty>;
+    const missing = state.a && !a ? formats[0] : formats[1];
+    body =
+      missing === competition ? (
+        <Empty>One of these players could not be found.</Empty>
+      ) : (
+        <Empty>
+          That player has no {getCompetition(missing).label} record. Pick another player or
+          competition.
+        </Empty>
+      );
   } else if (competition === "ipl") {
     body = <Suggestions />;
   } else {
@@ -523,11 +593,12 @@ export default async function ComparePage({
         <p className="max-w-3xl text-muted-foreground">
           Any two players over the same seasons, measured against par so different eras and roles
           compare fairly: their numbers, CricIQ Ratings with honest intervals, how their seasons
-          went by year or by age, and how they fared against each other.
+          went by year or by age, and how they fared against each other. Each player can be in a
+          competition of their own, to set a Test career beside an ODI one.
         </p>
       </header>
       <Panel id="pick" title="Pick two players">
-        <CompareSelector a={picked(a)} b={picked(b)} />
+        <CompareSelector a={picked(a)} b={picked(b)} af={state.af} bf={state.bf} />
       </Panel>
       {body}
     </div>

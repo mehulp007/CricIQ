@@ -2,31 +2,36 @@ import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { LAB } from "@/lib/lab";
+import { labNotes } from "@/lib/lab";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { getCompetition, isCompetitionId } from "@/lib/competitions";
 
 export const metadata: Metadata = {
   title: "Analytics Lab",
   description:
-    "Research notes on IPL cricket: is momentum real, what pressure does to batting, and whether clutch is a skill and whether rivalries repeat, each answered with a test that could have gone the other way.",
+    "Research notes on cricket: is momentum real, what pressure does to batting, whether clutch is a skill and rivalries repeat, whether the toss matters more in Tests and how home advantage changes by format, each answered with a test that could have gone the other way.",
 };
 
 export default async function LabPage({ params }: PageProps<"/[competition]/lab">) {
   const { competition } = await params;
   if (!isCompetitionId(competition) || !getCompetition(competition).lab) notFound();
+  const notes = labNotes(competition);
+  const ipl = competition === "ipl";
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Analytics Lab</h1>
         <p className="max-w-3xl text-muted-foreground">
-          Questions about cricket that people argue about, answered with every IPL ball since 2008.
-          Each note states its method, shows its uncertainty and reports the answer even when it is
-          &quot;no&quot;.
+          Questions about cricket that people argue about,{" "}
+          {ipl
+            ? "answered with every IPL ball since 2008, and with every format side by side"
+            : "answered with every format side by side, each from its own matches"}
+          . Each note states its method, shows its uncertainty and reports the answer even when it
+          is &quot;no&quot;.
         </p>
       </header>
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {LAB.map((note) => (
+        {notes.map((note) => (
           <li key={note.slug} className="flex">
             <CompetitionLink
               href={`/lab/${note.slug}`}

@@ -18,6 +18,7 @@ import {
 import { isFeatured, loadFeaturedTimeline } from "@/lib/featured";
 import { formatDate, stageLabel } from "@/lib/format";
 import { modelsFor } from "@/lib/models";
+import { seriesTitle } from "@/lib/series";
 
 // Featured replays read bundled data; any other match comes from the API (cached
 // for a day). No generateStaticParams: the competition layout sets
@@ -66,6 +67,17 @@ export default async function MatchPage({ params }: PageProps<"/[competition]/ma
           Matches
         </Link>
         <span aria-hidden="true"> / </span>
+        {timeline.series && (
+          <>
+            <Link
+              href={competitionPath(competition, `/series/${timeline.series.event_id}`)}
+              className="hover:text-foreground"
+            >
+              {seriesTitle(timeline.series)}
+            </Link>
+            <span aria-hidden="true"> / </span>
+          </>
+        )}
         <span className="text-foreground">
           {seasonLabel(competition, summary.season)} ·{" "}
           {stageLabel(summary.stage, summary.match_number)}

@@ -4,6 +4,7 @@
  * same seasons and against par, so eras and roles compare fairly.
  */
 import type { PlayerProfile, Rating, RatingGroup } from "@/lib/api/types";
+import { isCompetitionId, type CompetitionId } from "@/lib/competitions";
 import { parsePlayerId } from "@/lib/matchups";
 import { parseSeason, rate, signed } from "@/lib/players";
 
@@ -21,6 +22,14 @@ export interface CompareState {
   from?: number;
   to?: number;
   role?: CompareRole;
+  /** Each player's competition when it is not the page's: compare across formats. */
+  af?: CompetitionId;
+  bf?: CompetitionId;
+}
+
+function competitionParam(raw: string | string[] | undefined): CompetitionId | undefined {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return isCompetitionId(value) ? value : undefined;
 }
 
 type Params = Record<string, string | string[] | undefined>;
@@ -36,6 +45,8 @@ export function parseCompare(raw: Params): CompareState {
     from: low,
     to: high,
     role: role === "batting" || role === "bowling" ? role : undefined,
+    af: competitionParam(raw.af),
+    bf: competitionParam(raw.bf),
   };
 }
 
@@ -50,6 +61,8 @@ export function compareHref(
   if (rest.from) params.set("from", String(rest.from));
   if (rest.to) params.set("to", String(rest.to));
   if (rest.role) params.set("role", rest.role);
+  if (rest.af) params.set("af", rest.af);
+  if (rest.bf) params.set("bf", rest.bf);
   const query = params.toString();
   return query ? `/compare?${query}` : "/compare";
 }
@@ -187,6 +200,7 @@ export interface RatingPair {
 export function ratingPairs(
   a: RatingGroup | null | undefined,
   b: RatingGroup | null | undefined,
+  sharedOnly = false,
 ): RatingPair[] {
   const rows = new Map<string, RatingPair>();
   for (const [side, group] of [
@@ -205,7 +219,8 @@ export function ratingPairs(
       rows.set(item.key, found);
     }
   }
-  return [...rows.values()];
+  // Across formats only the skills both rate line up (a Test has no death overs).
+  return [...rows.values()].filter((r) => !sharedOnly || (r.a !== null && r.b !== null));
 }
 
 // --------------------------------------------------------------------------- seasons

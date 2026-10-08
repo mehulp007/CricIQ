@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Shield,
   Swords,
+  Trophy,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -17,7 +18,7 @@ import {
 import { competitionPath, getCompetition, isTest, type CompetitionId } from "@/lib/competitions";
 
 export type MilestoneId =
-  "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0";
+  "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0" | "V2-7";
 
 export interface NavItem {
   /** Within the competition being browsed ("/matches" is /ipl/matches), or a global page. */
@@ -28,8 +29,9 @@ export interface NavItem {
   /** The milestone that shipped this page. */
   milestone: MilestoneId;
   /** Only shown where the competition has this content (the Analytics Lab; the
-   * simulator in limited-overs cricket, the chase calculator in Tests). */
-  requires?: "lab" | "limited" | "test";
+   * simulator in limited-overs cricket, the chase calculator in Tests, series and
+   * tournaments in international cricket). */
+  requires?: "lab" | "limited" | "test" | "national";
 }
 
 /**
@@ -48,6 +50,7 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "V1-c",
   "V1-d",
   "v1.0",
+  "V2-7",
 ]);
 
 const page = (path: string, label: string, icon: LucideIcon, milestone: MilestoneId) =>
@@ -56,6 +59,7 @@ const page = (path: string, label: string, icon: LucideIcon, milestone: Mileston
 export const PRIMARY_NAV: readonly NavItem[] = [
   page("", "Overview", LayoutDashboard, "M0"),
   page("/matches", "Matches", CalendarRange, "M2"),
+  { ...page("/series", "Series", Trophy, "V2-7"), requires: "national" },
   page("/players", "Players", Users, "M5"),
   page("/matchups", "Matchups", Swords, "M6"),
   page("/compare", "Compare", GitCompareArrows, "V1-a"),
@@ -85,6 +89,8 @@ export function isShown(item: NavItem, competition: CompetitionId): boolean {
       return !isTest(competition);
     case "test":
       return isTest(competition);
+    case "national":
+      return getCompetition(competition).teamType === "national";
     default:
       return true;
   }

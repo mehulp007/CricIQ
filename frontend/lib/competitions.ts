@@ -19,7 +19,8 @@ export interface Competition {
   teamType: "club" | "national";
   /** Seasons that span the new year are named "2023/24". */
   spansNewYear: boolean;
-  /** Whether the Analytics Lab's notes cover this competition. */
+  /** Whether the competition has an Analytics Lab (every one has the notes comparing formats;
+   * the IPL has notes of its own too). */
   lab: boolean;
   /** The year of its first season in the data ("2011/12" is 2012). */
   firstSeason: number;
@@ -60,7 +61,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Men's T20 Internationals",
     teamType: "national",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2005,
     noun: "men's T20 international",
     collective: "men's T20 internationals",
@@ -74,7 +75,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Men's One-Day Internationals",
     teamType: "national",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2002,
     noun: "men's ODI",
     collective: "men's ODIs",
@@ -88,7 +89,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Men's Test cricket",
     teamType: "national",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2001,
     noun: "men's Test",
     collective: "men's Test cricket",
@@ -102,7 +103,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Big Bash League",
     teamType: "club",
     spansNewYear: true,
-    lab: false,
+    lab: true,
     firstSeason: 2012,
     noun: "BBL match",
     collective: "the BBL",
@@ -116,7 +117,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Pakistan Super League",
     teamType: "club",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2016,
     noun: "PSL match",
     collective: "the PSL",
@@ -130,7 +131,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "Caribbean Premier League",
     teamType: "club",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2013,
     noun: "CPL match",
     collective: "the CPL",
@@ -144,7 +145,7 @@ export const COMPETITIONS: readonly Competition[] = [
     name: "SA20",
     teamType: "club",
     spansNewYear: false,
-    lab: false,
+    lab: true,
     firstSeason: 2023,
     noun: "SA20 match",
     collective: "the SA20",
@@ -197,6 +198,10 @@ export function switchPath(pathname: string, to: CompetitionId): string {
   const [section, ...more] = pathname.split("/").filter(Boolean).slice(1);
   if (!section) return competitionPath(to);
   if (section === "lab" && !getCompetition(to).lab) return competitionPath(to);
+  // Series and tournaments are kept for international cricket only.
+  if (section === "series" && getCompetition(to).teamType !== "national") {
+    return competitionPath(to, "/matches");
+  }
   // Tests have a chase calculator where limited-overs cricket has its simulator.
   if (section === "chase" && !isTest(to)) return competitionPath(to, "/simulator");
   if (section === "simulator" && isTest(to)) return competitionPath(to, "/chase");

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { CareerTable, CareerTabs } from "@/components/players/career-tabs";
+import { CareerRatingsTable, CareerTable, CareerTabs } from "@/components/players/career-tabs";
 import { BattingView, BowlingView, PlayerHeader } from "@/components/players/player-profile";
 import { SeasonWindow } from "@/components/players/season-window";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ApiError,
+  getCareerRatings,
   getCareers,
   getMatchups,
   getPlayer,
@@ -84,17 +85,19 @@ export default async function PlayerPage({
     getMatchups(competition, { [side]: id, ...window, minBalls: 12, pageSize: 6 }).catch(
       () => null,
     );
-  const [profile, splits, bowlersFaced, battersFaced, similar, careers] = await Promise.all([
-    loadProfile(competition, id, window),
-    getPlayerSplits(competition, id, window).catch((error: unknown) => {
-      if (error instanceof ApiError && error.status === 404) notFound();
-      throw error;
-    }),
-    opponents("batter"),
-    opponents("bowler"),
-    getSimilarPlayers(competition, id, window).catch(() => null),
-    getCareers(id).catch(() => null),
-  ]);
+  const [profile, splits, bowlersFaced, battersFaced, similar, careers, ratings] =
+    await Promise.all([
+      loadProfile(competition, id, window),
+      getPlayerSplits(competition, id, window).catch((error: unknown) => {
+        if (error instanceof ApiError && error.status === 404) notFound();
+        throw error;
+      }),
+      opponents("batter"),
+      opponents("bowler"),
+      getSimilarPlayers(competition, id, window).catch(() => null),
+      getCareers(id).catch(() => null),
+      getCareerRatings(id).catch(() => null),
+    ]);
   const { player } = profile;
   const first = Math.max(profile.window.first, player.first_season);
   const last = Math.min(profile.window.last, player.last_season);
@@ -154,6 +157,7 @@ export default async function PlayerPage({
       )}
 
       {careers && <CareerTable careers={careers} />}
+      {ratings && <CareerRatingsTable ratings={ratings} />}
     </div>
   );
 }

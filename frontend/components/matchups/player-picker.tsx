@@ -4,6 +4,7 @@ import { Search, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { useCompetition } from "@/components/competition/use-competition";
+import type { CompetitionId } from "@/lib/competitions";
 import { roleLabel } from "@/lib/players";
 import type { PlayerRole } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
@@ -29,12 +30,15 @@ export function PlayerPicker({
   role,
   placeholder,
   onChange,
+  competition: searchIn,
 }: {
   label: string;
   value: PickedPlayer | null;
   role: "batter" | "bowler";
   placeholder?: string;
   onChange: (player: PickedPlayer | null) => void;
+  /** Search another competition's players than the page's. */
+  competition?: CompetitionId;
 }) {
   const id = useId();
   const listId = `${id}-list`;
@@ -44,7 +48,8 @@ export function PlayerPicker({
   const [active, setActive] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
-  const competition = useCompetition();
+  const page = useCompetition();
+  const competition = searchIn ?? page;
 
   useEffect(() => {
     const q = query.trim();

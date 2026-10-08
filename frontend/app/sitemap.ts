@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { COMPETITIONS, competitionPath } from "@/lib/competitions";
 import { featuredMatches } from "@/lib/featured";
-import { LAB } from "@/lib/lab";
+import { labNotes } from "@/lib/lab";
 import { SITE_URL } from "@/lib/site";
 
 const SECTIONS = [
@@ -27,8 +27,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}${competitionPath(c.id, path)}`,
       priority: path ? 0.7 : 0.9,
     })),
+    ...(c.teamType === "national"
+      ? [{ url: `${SITE_URL}${competitionPath(c.id, "/series")}`, priority: 0.7 }]
+      : []),
     ...(c.lab
-      ? ["/lab", ...LAB.map((note) => `/lab/${note.slug}`)].map((path) => ({
+      ? ["/lab", ...labNotes(c.id).map((note) => `/lab/${note.slug}`)].map((path) => ({
           url: `${SITE_URL}${competitionPath(c.id, path)}`,
           priority: 0.7,
         }))

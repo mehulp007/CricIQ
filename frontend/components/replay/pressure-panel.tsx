@@ -100,7 +100,7 @@ export function PressurePanel({
                 {formatLeverage(reading.leverage)}
               </span>{" "}
               as much as a typical {c.label} ball.{" "}
-              {c.lab && (
+              {competition === "ipl" && (
                 <Link
                   href={competitionPath(competition, "/lab/pressure")}
                   className="text-foreground underline-offset-4 hover:underline"
@@ -136,7 +136,7 @@ export function PressurePanel({
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {team.name}&apos;s change in win probability over the last 12 balls. It describes
                   what just happened; it barely predicts what comes next.{" "}
-                  {c.lab && (
+                  {competition === "ipl" && (
                     <Link
                       href={competitionPath(competition, "/lab/momentum")}
                       className="text-foreground underline-offset-4 hover:underline"

@@ -9,7 +9,7 @@ import {
 } from "@/components/models/charts";
 import { scrollRegion } from "@/lib/a11y";
 import type { LimitedOversId } from "@/lib/competitions";
-import { CLUTCH, MOMENTUM, PRESSURE } from "@/lib/lab";
+import { CLUTCH, HOME, MOMENTUM, PRESSURE, TOSS } from "@/lib/lab";
 import {
   BALL_OUTCOME,
   RATINGS,
@@ -160,6 +160,10 @@ export default function WriteupPage() {
     (r) => r.model_log_loss < r.baseline_log_loss,
   ).length;
 
+  const tossTests = TOSS.formats.find((f) => f.key === "test");
+  const tossLeagues = TOSS.formats.find((f) => f.key === "leagues");
+  const homeOf = (key: string) => HOME.formats.find((f) => f.key === key)?.balanced?.share.value;
+
   const tests = testModels();
   const twp = tests.winProbability;
   const tsp = tests.scoreProjection;
@@ -180,7 +184,7 @@ export default function WriteupPage() {
     <article className="flex max-w-3xl flex-col gap-12">
       <header className="flex flex-col gap-4">
         <p className="text-xs tracking-wide text-muted-foreground uppercase">
-          The write-up · October 2026 · about 18 minutes
+          The write-up · October 2026 · about 20 minutes
         </p>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Building CricIQ</h1>
         <p className="text-lg leading-8 text-muted-foreground">
@@ -196,9 +200,10 @@ export default function WriteupPage() {
           CricIQ began with every IPL delivery since 2008 and now covers men&apos;s Tests, ODIs and
           T20 internationals and four more T20 leagues (the BBL, CPL, PSL and SA20). For each of
           them you can replay any match ball by ball with each side&apos;s chances, see a projected
-          total with an honest range, read any batter against any bowler, rate players and rebuild
-          any season, and for the limited-overs competitions play any two sides 10,000 times. New
-          matches arrive within days of being played.
+          total with an honest range, read any batter against any bowler, rate players across
+          formats and rebuild any season or international series, and for the limited-overs
+          competitions play any two sides 10,000 times. New matches arrive within days of being
+          played.
         </p>
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>
@@ -579,8 +584,8 @@ export default function WriteupPage() {
 
       <Section id="lab" title="Testing ideas that could fail">
         <p>
-          The Analytics Lab exists for ideas that sound true. Each got a test on the IPL it could
-          fail.
+          The Analytics Lab exists for ideas that sound true. Each got a test it could fail: four on
+          the IPL&apos;s balls, two across every format.
         </p>
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>
@@ -603,6 +608,19 @@ export default function WriteupPage() {
             <Strong>Rivalries do not repeat.</Strong> Past head-to-heads add nothing to form, and
             even form is weak: the side in better form wins 53% of meetings.
           </li>
+          <li>
+            <Strong>The toss matters in Tests, and in the leagues.</Strong> The toss is random, so
+            the toss winner&apos;s results measure it cleanly: they took{" "}
+            {tossTests ? pct(tossTests.share.value) : "—"} of results in Tests and{" "}
+            {tossLeagues ? pct(tossLeagues.share.value) : "—"} in the BBL, CPL, PSL and SA20, and
+            nothing measurable in ODIs, T20Is or the IPL.
+          </li>
+          <li>
+            <Strong>Home advantage grows with the match.</Strong> Balanced for each pair of
+            sides&apos; strength, home sides took {pct(homeOf("test") ?? 0.5)} of results in Tests,{" "}
+            {pct(homeOf("odi") ?? 0.5)} in ODIs and {pct(homeOf("t20i") ?? 0.5)} in T20Is, and none
+            in the IPL ({pct(homeOf("ipl") ?? 0.5)}).
+          </li>
         </ul>
       </Section>
 
@@ -615,6 +633,16 @@ export default function WriteupPage() {
           the balls and matches the official one, points and net run rate included. The same code
           builds every competition&apos;s season records; for Tests it counts draws, and a result
           reads &quot;won by an innings and 120 runs&quot; where it should.
+        </p>
+        <p>
+          International cricket is followed by series and tournaments, which Cricsheet does not
+          record: each match only names its event, inconsistently (the World Cup has had three
+          names, and the 2005 Ashes is &quot;Australia tour of England and Scotland&quot;). Matches
+          of one event within a few weeks become one series or tournament, with tables and
+          knockouts, and every build must reproduce 27 known results: every World Cup, Champions
+          Trophy, T20 World Cup and World Test Championship champion in the data, and a set of
+          complete Test series. What the data lacks is said out loud: the 2005 Ashes is missing its
+          third Test, and no table has Afghanistan&apos;s matches.
         </p>
       </Section>
 
@@ -738,10 +766,6 @@ export default function WriteupPage() {
 
       <Section id="next" title="What I would do next">
         <ul className="flex list-disc flex-col gap-2 pl-5">
-          <li>
-            <Strong>Series and careers.</Strong> A player&apos;s whole career across formats, and
-            series and tournaments as units of their own, are the next step.
-          </li>
           <li>
             <Strong>Players who change.</Strong> The ball model rates each player once; a strength
             that drifts season to season would capture peaks and declines.

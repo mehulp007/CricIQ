@@ -17,6 +17,7 @@ import { Suspense } from "react";
 
 import { MatchCard } from "@/components/match/match-card";
 import { LatestMatches } from "@/components/matches/latest-matches";
+import { LatestSeries } from "@/components/series/latest-series";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -325,6 +326,10 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
 
       <Suspense fallback={null}>
         <LatestMatches competition={competition} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <LatestSeries competition={competition} />
       </Suspense>
 
       <section aria-labelledby="featured-heading" className="flex flex-col gap-6">

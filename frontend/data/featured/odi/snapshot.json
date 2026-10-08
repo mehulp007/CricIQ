@@ -1,18 +1,18 @@
 {
   "season": 2026,
   "label": "2026",
-  "matches": 69,
+  "matches": 74,
   "champion": null,
-  "first_innings_average": 241.7,
+  "first_innings_average": 247.9,
   "previous_first_innings_average": 258.9,
-  "sixes": 645,
+  "sixes": 726,
   "leaders": {
     "runs": {
-      "player_id": "1747ea18",
-      "name": "Dipendra Singh Airee",
-      "team": "NEP",
-      "value": 513.0,
-      "detail": "strike rate 86.9"
+      "player_id": "b4b99816",
+      "name": "Shubman Gill",
+      "team": "IND",
+      "value": 547.0,
+      "detail": "strike rate 116.4"
     },
     "wickets": {
       "player_id": "5318ee68",
@@ -22,17 +22,17 @@
       "detail": "economy 4.52"
     },
     "runs_above_par": {
-      "player_id": "80fe764d",
-      "name": "Tanzid Hasan",
-      "team": "BAN",
-      "value": 135.0,
-      "detail": "from 468 balls"
+      "player_id": "b4b99816",
+      "name": "Shubman Gill",
+      "team": "IND",
+      "value": 181.0,
+      "detail": "from 470 balls"
     },
     "runs_saved": {
       "player_id": "b410bd3d",
       "name": "Sandeep Lamichhane",
       "team": "NEP",
-      "value": 145.0,
+      "value": 158.0,
       "detail": "from 696 balls"
     }
   }

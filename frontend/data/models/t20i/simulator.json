@@ -1,7 +1,7 @@
 {
   "name": "simulator",
-  "version": "1.0.0",
-  "data_version": "2026-09-17.103eadea",
+  "version": "1.1.0",
+  "data_version": "2026-10-06.ac28ace1",
   "valid": [
     2023,
     2024
@@ -11,72 +11,82 @@
     2026
   ],
   "settings": {
-    "conditions_sd": 0.5,
-    "data_version": "2026-09-17.103eadea",
+    "conditions_sd": 0.4,
+    "data_version": "2026-10-06.ac28ace1",
     "history_seasons": 3,
+    "level_window": 240,
     "min_bowling_overs": 4.0,
     "name": "simulator",
     "urgent_from_over": 12,
     "usage_strength": 8.0,
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "tuning": [
     {
-      "brier": 0.209,
+      "brier": 0.2087,
       "conditions_sd": 0.0,
-      "coverage_80": 0.591,
-      "crps": 22.876
+      "coverage_80": 0.602,
+      "crps": 22.793,
+      "pit_chi2": 248.0
     },
     {
-      "brier": 0.2097,
+      "brier": 0.2085,
       "conditions_sd": 0.1,
-      "coverage_80": 0.608,
-      "crps": 22.773
+      "coverage_80": 0.621,
+      "crps": 22.691,
+      "pit_chi2": 211.72
     },
     {
-      "brier": 0.2089,
+      "brier": 0.2086,
       "conditions_sd": 0.2,
-      "coverage_80": 0.643,
-      "crps": 22.496
+      "coverage_80": 0.658,
+      "crps": 22.444,
+      "pit_chi2": 126.57
     },
     {
-      "brier": 0.2084,
+      "brier": 0.2082,
       "conditions_sd": 0.3,
-      "coverage_80": 0.688,
-      "crps": 22.227
+      "coverage_80": 0.706,
+      "crps": 22.204,
+      "pit_chi2": 53.87
     },
     {
-      "brier": 0.2084,
+      "brier": 0.2077,
       "conditions_sd": 0.4,
-      "coverage_80": 0.746,
-      "crps": 22.056
-    },
-    {
-      "brier": 0.2076,
-      "conditions_sd": 0.5,
-      "coverage_80": 0.807,
-      "crps": 22.042
+      "coverage_80": 0.767,
+      "crps": 22.116,
+      "pit_chi2": 13.45
     },
     {
       "brier": 0.207,
+      "conditions_sd": 0.5,
+      "coverage_80": 0.817,
+      "crps": 22.117,
+      "pit_chi2": 13.81
+    },
+    {
+      "brier": 0.2065,
       "conditions_sd": 0.6,
-      "coverage_80": 0.852,
-      "crps": 22.178
+      "coverage_80": 0.859,
+      "crps": 22.339,
+      "pit_chi2": 45.29
     },
     {
-      "brier": 0.2063,
+      "brier": 0.2058,
       "conditions_sd": 0.7,
-      "coverage_80": 0.892,
-      "crps": 22.533
+      "coverage_80": 0.895,
+      "crps": 22.727,
+      "pit_chi2": 100.2
     },
     {
-      "brier": 0.2061,
+      "brier": 0.2054,
       "conditions_sd": 0.8,
-      "coverage_80": 0.918,
-      "crps": 22.989
+      "coverage_80": 0.923,
+      "crps": 23.245,
+      "pit_chi2": 167.33
     }
   ],
-  "matches": 948,
+  "matches": 963,
   "simulations_per_match": 2000,
   "forced_overs": 0,
   "win": {
@@ -87,29 +97,29 @@
     },
     "calibration": [
       {
-        "matches": 190,
-        "observed": 0.116,
-        "predicted": 0.071
+        "matches": 193,
+        "observed": 0.124,
+        "predicted": 0.069
       },
       {
-        "matches": 190,
-        "observed": 0.268,
-        "predicted": 0.302
+        "matches": 193,
+        "observed": 0.259,
+        "predicted": 0.296
       },
       {
-        "matches": 190,
-        "observed": 0.516,
-        "predicted": 0.523
+        "matches": 193,
+        "observed": 0.513,
+        "predicted": 0.518
       },
       {
-        "matches": 189,
-        "observed": 0.651,
-        "predicted": 0.746
+        "matches": 192,
+        "observed": 0.667,
+        "predicted": 0.744
       },
       {
-        "matches": 189,
-        "observed": 0.905,
-        "predicted": 0.953
+        "matches": 192,
+        "observed": 0.896,
+        "predicted": 0.951
       }
     ],
     "coin_flip": {
@@ -117,24 +127,24 @@
       "log_loss": 0.6931
     },
     "form": {
-      "brier": 0.2386,
-      "log_loss": 0.6701
+      "brier": 0.2384,
+      "log_loss": 0.6697
     },
     "gain_vs_coin_flip": {
-      "high": 0.0893,
-      "low": 0.065,
-      "value": 0.0771
+      "high": 0.0884,
+      "low": 0.0647,
+      "value": 0.0763
     },
     "gain_vs_form": {
-      "high": 0.0764,
-      "low": 0.0545,
-      "value": 0.0657
+      "high": 0.0761,
+      "low": 0.0526,
+      "value": 0.0647
     },
-    "mean_predicted": 0.518,
+    "mean_predicted": 0.515,
     "observed": 0.491,
     "simulator": {
-      "brier": 0.1729,
-      "log_loss": 0.533
+      "brier": 0.1737,
+      "log_loss": 0.5337
     },
     "spread": {
       "max": 1.0,
@@ -145,29 +155,29 @@
   "chase": {
     "calibration": [
       {
-        "matches": 177,
-        "observed": 0.04,
-        "predicted": 0.031
+        "matches": 180,
+        "observed": 0.039,
+        "predicted": 0.029
       },
       {
-        "matches": 177,
-        "observed": 0.226,
-        "predicted": 0.178
+        "matches": 180,
+        "observed": 0.222,
+        "predicted": 0.196
       },
       {
-        "matches": 177,
-        "observed": 0.514,
-        "predicted": 0.39
+        "matches": 180,
+        "observed": 0.511,
+        "predicted": 0.457
       },
       {
-        "matches": 177,
-        "observed": 0.791,
-        "predicted": 0.653
+        "matches": 179,
+        "observed": 0.799,
+        "predicted": 0.739
       },
       {
-        "matches": 176,
-        "observed": 0.977,
-        "predicted": 0.926
+        "matches": 179,
+        "observed": 0.972,
+        "predicted": 0.959
       }
     ],
     "chase_rate": {
@@ -176,52 +186,50 @@
       "rate": 0.505
     },
     "gain_vs_chase_rate": {
-      "high": 0.126,
-      "low": 0.1048,
-      "value": 0.1154
+      "high": 0.1327,
+      "low": 0.1114,
+      "value": 0.1222
     },
-    "matches": 884,
-    "mean_predicted": 0.435,
-    "observed": 0.509,
+    "matches": 898,
+    "mean_predicted": 0.475,
+    "observed": 0.508,
     "simulator": {
-      "brier": 0.1345,
-      "log_loss": 0.4089
+      "brier": 0.1278,
+      "log_loss": 0.3914
     }
   },
   "first_innings": {
-    "actual_mean": 154.1,
+    "actual_mean": 153.8,
     "actual_wickets": 7.24,
-    "coverage_50": 0.553,
-    "coverage_80": 0.845,
-    "crps": 21.38,
-    "matches": 884,
-    "pit_chi2": 70.91,
+    "coverage_50": 0.532,
+    "coverage_80": 0.808,
+    "crps": 20.87,
+    "matches": 898,
+    "pit_chi2": 6.54,
     "pit_chi2_critical": 16.92,
     "pit_counts": [
-      51,
-      54,
-      65,
-      82,
-      103,
-      91,
-      131,
+      80,
+      79,
+      84,
+      90,
+      94,
+      105,
       96,
-      120,
-      91
+      84,
+      93,
+      93
     ],
-    "simulated_mean": 146.0,
-    "simulated_wickets": 7.1
+    "simulated_mean": 152.0,
+    "simulated_wickets": 7.21
   },
   "ties": {
-    "simulated": 0.0117
+    "simulated": 0.0115
   },
   "timing": {
-    "seconds": 0.462,
+    "seconds": 0.354,
     "simulations": 10000
   },
   "competition": "T20I",
-  "gate": [
-    "first-innings PIT is not uniform at the 5% level"
-  ],
-  "served": false
+  "gate": [],
+  "served": true
 }

@@ -1,24 +1,105 @@
 {
-  "version": "1.1.0",
-  "served": [
-    "BBL",
-    "CPL",
-    "PSL",
-    "SA20"
-  ],
   "competitions": {
     "BBL": {
-      "name": "simulator",
-      "version": "1.1.0",
+      "chase": {
+        "calibration": [
+          {
+            "matches": 16,
+            "observed": 0.312,
+            "predicted": 0.1
+          },
+          {
+            "matches": 16,
+            "observed": 0.688,
+            "predicted": 0.307
+          },
+          {
+            "matches": 16,
+            "observed": 0.625,
+            "predicted": 0.454
+          },
+          {
+            "matches": 16,
+            "observed": 0.75,
+            "predicted": 0.596
+          },
+          {
+            "matches": 16,
+            "observed": 0.938,
+            "predicted": 0.86
+          }
+        ],
+        "chase_rate": {
+          "brier": 0.2475,
+          "log_loss": 0.6881,
+          "rate": 0.508
+        },
+        "gain_vs_chase_rate": {
+          "high": 0.0559,
+          "low": -0.0253,
+          "value": 0.0161
+        },
+        "matches": 80,
+        "mean_predicted": 0.464,
+        "observed": 0.662,
+        "simulator": {
+          "brier": 0.2314,
+          "log_loss": 0.6689
+        }
+      },
       "data_version": "2026-10-06.ac28ace1",
-      "valid": [
-        2023,
-        2024
-      ],
-      "test": [
-        2025,
-        2026
-      ],
+      "first_innings": {
+        "actual_mean": 168.0,
+        "actual_wickets": 7.24,
+        "coverage_50": 0.6,
+        "coverage_80": 0.812,
+        "crps": 18.24,
+        "matches": 80,
+        "pit_chi2": 7.0,
+        "pit_chi2_critical": 16.92,
+        "pit_counts": [
+          5,
+          5,
+          11,
+          7,
+          11,
+          11,
+          7,
+          6,
+          7,
+          10
+        ],
+        "simulated_mean": 165.9,
+        "simulated_wickets": 6.56
+      },
+      "forced_overs": 0,
+      "level": {
+        "grid": [
+          {
+            "bias": -0.09,
+            "crps": 16.306,
+            "window": 0
+          },
+          {
+            "bias": -0.92,
+            "crps": 16.244,
+            "window": 60
+          },
+          {
+            "bias": 0.17,
+            "crps": 16.313,
+            "window": 120
+          },
+          {
+            "bias": -0.11,
+            "crps": 16.289,
+            "window": 240
+          }
+        ],
+        "window": 60
+      },
+      "matches": 84,
+      "name": "simulator",
       "settings": {
         "conditions_sd": 0.3,
         "data_version": "2026-10-06.ac28ace1",
@@ -29,6 +110,18 @@
         "urgent_from_over": 12,
         "usage_strength": 8.0,
         "version": "1.1.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0181
+      },
+      "timing": {
+        "seconds": 0.388,
+        "simulations": 10000
       },
       "tuning": [
         {
@@ -95,9 +188,11 @@
           "pit_chi2": 49.74
         }
       ],
-      "matches": 84,
-      "simulations_per_match": 2000,
-      "forced_overs": 0,
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.1.0",
       "win": {
         "bat_first_rate": {
           "brier": 0.2476,
@@ -160,99 +255,108 @@
           "min": 0.428,
           "sd": 0.039
         }
-      },
+      }
+    },
+    "CPL": {
       "chase": {
         "calibration": [
           {
-            "matches": 16,
-            "observed": 0.312,
-            "predicted": 0.1
+            "matches": 13,
+            "observed": 0.308,
+            "predicted": 0.211
           },
           {
-            "matches": 16,
-            "observed": 0.688,
-            "predicted": 0.307
+            "matches": 13,
+            "observed": 0.538,
+            "predicted": 0.4
           },
           {
-            "matches": 16,
-            "observed": 0.625,
-            "predicted": 0.454
+            "matches": 13,
+            "observed": 0.538,
+            "predicted": 0.546
           },
           {
-            "matches": 16,
-            "observed": 0.75,
-            "predicted": 0.596
+            "matches": 12,
+            "observed": 0.833,
+            "predicted": 0.692
           },
           {
-            "matches": 16,
-            "observed": 0.938,
-            "predicted": 0.86
+            "matches": 12,
+            "observed": 1.0,
+            "predicted": 0.897
           }
         ],
         "chase_rate": {
-          "brier": 0.2475,
-          "log_loss": 0.6881,
-          "rate": 0.508
+          "brier": 0.2411,
+          "log_loss": 0.6754,
+          "rate": 0.538
         },
         "gain_vs_chase_rate": {
-          "high": 0.0559,
-          "low": -0.0253,
-          "value": 0.0161
+          "high": 0.0964,
+          "low": 0.0211,
+          "value": 0.059
         },
-        "matches": 80,
-        "mean_predicted": 0.464,
-        "observed": 0.662,
+        "matches": 63,
+        "mean_predicted": 0.542,
+        "observed": 0.635,
         "simulator": {
-          "brier": 0.2314,
-          "log_loss": 0.6689
+          "brier": 0.1822,
+          "log_loss": 0.5337
         }
       },
+      "data_version": "2026-10-06.ac28ace1",
       "first_innings": {
-        "actual_mean": 168.0,
-        "actual_wickets": 7.24,
-        "coverage_50": 0.6,
-        "coverage_80": 0.812,
-        "crps": 18.24,
-        "matches": 80,
-        "pit_chi2": 7.0,
+        "actual_mean": 162.8,
+        "actual_wickets": 6.86,
+        "coverage_50": 0.651,
+        "coverage_80": 0.905,
+        "crps": 18.97,
+        "matches": 63,
+        "pit_chi2": 14.94,
         "pit_chi2_critical": 16.92,
         "pit_counts": [
+          4,
+          9,
           5,
+          8,
+          10,
+          4,
+          12,
+          4,
           5,
-          11,
-          7,
-          11,
-          11,
-          7,
-          6,
-          7,
-          10
+          2
         ],
-        "simulated_mean": 165.9,
-        "simulated_wickets": 6.56
+        "simulated_mean": 169.0,
+        "simulated_wickets": 6.69
       },
-      "ties": {
-        "simulated": 0.0181
+      "forced_overs": 0,
+      "level": {
+        "grid": [
+          {
+            "bias": -7.06,
+            "crps": 19.899,
+            "window": 0
+          },
+          {
+            "bias": -7.04,
+            "crps": 19.925,
+            "window": 60
+          },
+          {
+            "bias": -7.2,
+            "crps": 19.886,
+            "window": 120
+          },
+          {
+            "bias": -7.3,
+            "crps": 19.879,
+            "window": 240
+          }
+        ],
+        "window": 240
       },
-      "timing": {
-        "seconds": 0.388,
-        "simulations": 10000
-      },
-      "competition": "BBL",
-      "gate": []
-    },
-    "CPL": {
+      "matches": 68,
       "name": "simulator",
-      "version": "1.1.0",
-      "data_version": "2026-10-06.ac28ace1",
-      "valid": [
-        2023,
-        2024
-      ],
-      "test": [
-        2025,
-        2026
-      ],
       "settings": {
         "conditions_sd": 0.4,
         "data_version": "2026-10-06.ac28ace1",
@@ -263,6 +367,18 @@
         "urgent_from_over": 12,
         "usage_strength": 8.0,
         "version": "1.1.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0168
+      },
+      "timing": {
+        "seconds": 0.423,
+        "simulations": 10000
       },
       "tuning": [
         {
@@ -329,9 +445,11 @@
           "pit_chi2": 33.59
         }
       ],
-      "matches": 68,
-      "simulations_per_match": 2000,
-      "forced_overs": 0,
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.1.0",
       "win": {
         "bat_first_rate": {
           "brier": 0.2413,
@@ -394,99 +512,108 @@
           "min": 0.306,
           "sd": 0.108
         }
-      },
+      }
+    },
+    "PSL": {
       "chase": {
         "calibration": [
           {
-            "matches": 13,
-            "observed": 0.308,
-            "predicted": 0.211
+            "matches": 15,
+            "observed": 0.2,
+            "predicted": 0.08
           },
           {
-            "matches": 13,
-            "observed": 0.538,
-            "predicted": 0.4
+            "matches": 15,
+            "observed": 0.4,
+            "predicted": 0.218
           },
           {
-            "matches": 13,
-            "observed": 0.538,
-            "predicted": 0.546
+            "matches": 15,
+            "observed": 0.533,
+            "predicted": 0.366
           },
           {
-            "matches": 12,
-            "observed": 0.833,
-            "predicted": 0.692
+            "matches": 14,
+            "observed": 0.857,
+            "predicted": 0.625
           },
           {
-            "matches": 12,
-            "observed": 1.0,
-            "predicted": 0.897
+            "matches": 14,
+            "observed": 0.929,
+            "predicted": 0.903
           }
         ],
         "chase_rate": {
-          "brier": 0.2411,
-          "log_loss": 0.6754,
-          "rate": 0.538
+          "brier": 0.2445,
+          "log_loss": 0.6821,
+          "rate": 0.562
         },
         "gain_vs_chase_rate": {
-          "high": 0.0964,
-          "low": 0.0211,
-          "value": 0.059
+          "high": 0.1105,
+          "low": 0.0103,
+          "value": 0.0618
         },
-        "matches": 63,
-        "mean_predicted": 0.542,
-        "observed": 0.635,
+        "matches": 73,
+        "mean_predicted": 0.43,
+        "observed": 0.575,
         "simulator": {
-          "brier": 0.1822,
-          "log_loss": 0.5337
+          "brier": 0.1827,
+          "log_loss": 0.5331
         }
       },
+      "data_version": "2026-10-06.ac28ace1",
       "first_innings": {
-        "actual_mean": 162.8,
-        "actual_wickets": 6.86,
-        "coverage_50": 0.651,
-        "coverage_80": 0.905,
-        "crps": 18.97,
-        "matches": 63,
-        "pit_chi2": 14.94,
+        "actual_mean": 182.2,
+        "actual_wickets": 6.85,
+        "coverage_50": 0.397,
+        "coverage_80": 0.726,
+        "crps": 23.44,
+        "matches": 73,
+        "pit_chi2": 10.42,
         "pit_chi2_critical": 16.92,
         "pit_counts": [
-          4,
-          9,
+          8,
+          7,
+          6,
+          3,
+          5,
           5,
           8,
-          10,
-          4,
           12,
-          4,
-          5,
-          2
+          7,
+          12
         ],
-        "simulated_mean": 169.0,
-        "simulated_wickets": 6.69
+        "simulated_mean": 174.3,
+        "simulated_wickets": 6.59
       },
-      "ties": {
-        "simulated": 0.0168
+      "forced_overs": 0,
+      "level": {
+        "grid": [
+          {
+            "bias": -12.52,
+            "crps": 17.68,
+            "window": 0
+          },
+          {
+            "bias": -13.75,
+            "crps": 18.138,
+            "window": 60
+          },
+          {
+            "bias": -13.75,
+            "crps": 18.138,
+            "window": 120
+          },
+          {
+            "bias": -13.75,
+            "crps": 18.138,
+            "window": 240
+          }
+        ],
+        "window": 0
       },
-      "timing": {
-        "seconds": 0.423,
-        "simulations": 10000
-      },
-      "competition": "CPL",
-      "gate": []
-    },
-    "PSL": {
+      "matches": 76,
       "name": "simulator",
-      "version": "1.1.0",
-      "data_version": "2026-10-06.ac28ace1",
-      "valid": [
-        2023,
-        2024
-      ],
-      "test": [
-        2025,
-        2026
-      ],
       "settings": {
         "conditions_sd": 0.3,
         "data_version": "2026-10-06.ac28ace1",
@@ -496,6 +623,18 @@
         "urgent_from_over": 12,
         "usage_strength": 8.0,
         "version": "1.1.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0175
+      },
+      "timing": {
+        "seconds": 0.415,
+        "simulations": 10000
       },
       "tuning": [
         {
@@ -562,9 +701,11 @@
           "pit_chi2": 49.76
         }
       ],
-      "matches": 76,
-      "simulations_per_match": 2000,
-      "forced_overs": 0,
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.1.0",
       "win": {
         "bat_first_rate": {
           "brier": 0.2457,
@@ -627,99 +768,108 @@
           "min": 0.427,
           "sd": 0.034
         }
-      },
+      }
+    },
+    "SA20": {
       "chase": {
         "calibration": [
           {
-            "matches": 15,
-            "observed": 0.2,
-            "predicted": 0.08
+            "matches": 12,
+            "observed": 0.167,
+            "predicted": 0.178
           },
           {
-            "matches": 15,
-            "observed": 0.4,
-            "predicted": 0.218
+            "matches": 12,
+            "observed": 0.167,
+            "predicted": 0.338
           },
           {
-            "matches": 15,
-            "observed": 0.533,
-            "predicted": 0.366
+            "matches": 11,
+            "observed": 0.545,
+            "predicted": 0.46
           },
           {
-            "matches": 14,
-            "observed": 0.857,
-            "predicted": 0.625
+            "matches": 11,
+            "observed": 0.636,
+            "predicted": 0.643
           },
           {
-            "matches": 14,
-            "observed": 0.929,
-            "predicted": 0.903
+            "matches": 11,
+            "observed": 0.909,
+            "predicted": 0.885
           }
         ],
         "chase_rate": {
-          "brier": 0.2445,
-          "log_loss": 0.6821,
-          "rate": 0.562
+          "brier": 0.2495,
+          "log_loss": 0.6921,
+          "rate": 0.46
         },
         "gain_vs_chase_rate": {
-          "high": 0.1105,
-          "low": 0.0103,
-          "value": 0.0618
+          "high": 0.1173,
+          "low": 0.0453,
+          "value": 0.0823
         },
-        "matches": 73,
-        "mean_predicted": 0.43,
-        "observed": 0.575,
+        "matches": 57,
+        "mean_predicted": 0.492,
+        "observed": 0.474,
         "simulator": {
-          "brier": 0.1827,
-          "log_loss": 0.5331
+          "brier": 0.1672,
+          "log_loss": 0.4984
         }
       },
+      "data_version": "2026-10-06.ac28ace1",
       "first_innings": {
-        "actual_mean": 182.2,
-        "actual_wickets": 6.85,
-        "coverage_50": 0.397,
-        "coverage_80": 0.726,
-        "crps": 23.44,
-        "matches": 73,
-        "pit_chi2": 10.42,
+        "actual_mean": 164.5,
+        "actual_wickets": 6.32,
+        "coverage_50": 0.632,
+        "coverage_80": 0.825,
+        "crps": 19.95,
+        "matches": 57,
+        "pit_chi2": 4.23,
         "pit_chi2_critical": 16.92,
         "pit_counts": [
-          8,
-          7,
           6,
           3,
-          5,
-          5,
-          8,
-          12,
           7,
-          12
+          6,
+          4,
+          8,
+          5,
+          7,
+          7,
+          4
         ],
-        "simulated_mean": 174.3,
-        "simulated_wickets": 6.59
+        "simulated_mean": 164.8,
+        "simulated_wickets": 6.69
       },
-      "ties": {
-        "simulated": 0.0175
+      "forced_overs": 0,
+      "level": {
+        "grid": [
+          {
+            "bias": -8.18,
+            "crps": 23.916,
+            "window": 0
+          },
+          {
+            "bias": -8.18,
+            "crps": 23.916,
+            "window": 60
+          },
+          {
+            "bias": -8.18,
+            "crps": 23.916,
+            "window": 120
+          },
+          {
+            "bias": -8.18,
+            "crps": 23.916,
+            "window": 240
+          }
+        ],
+        "window": 0
       },
-      "timing": {
-        "seconds": 0.415,
-        "simulations": 10000
-      },
-      "competition": "PSL",
-      "gate": []
-    },
-    "SA20": {
+      "matches": 60,
       "name": "simulator",
-      "version": "1.1.0",
-      "data_version": "2026-10-06.ac28ace1",
-      "valid": [
-        2023,
-        2024
-      ],
-      "test": [
-        2025,
-        2026
-      ],
       "settings": {
         "conditions_sd": 0.4,
         "data_version": "2026-10-06.ac28ace1",
@@ -729,6 +879,18 @@
         "urgent_from_over": 12,
         "usage_strength": 8.0,
         "version": "1.1.0"
+      },
+      "simulations_per_match": 2000,
+      "test": [
+        2025,
+        2026
+      ],
+      "ties": {
+        "simulated": 0.0174
+      },
+      "timing": {
+        "seconds": 0.386,
+        "simulations": 10000
       },
       "tuning": [
         {
@@ -795,9 +957,11 @@
           "pit_chi2": 21.79
         }
       ],
-      "matches": 60,
-      "simulations_per_match": 2000,
-      "forced_overs": 0,
+      "valid": [
+        2023,
+        2024
+      ],
+      "version": "1.1.0",
       "win": {
         "bat_first_rate": {
           "brier": 0.2503,
@@ -860,86 +1024,10 @@
           "min": 0.421,
           "sd": 0.038
         }
-      },
-      "chase": {
-        "calibration": [
-          {
-            "matches": 12,
-            "observed": 0.167,
-            "predicted": 0.178
-          },
-          {
-            "matches": 12,
-            "observed": 0.167,
-            "predicted": 0.338
-          },
-          {
-            "matches": 11,
-            "observed": 0.545,
-            "predicted": 0.46
-          },
-          {
-            "matches": 11,
-            "observed": 0.636,
-            "predicted": 0.643
-          },
-          {
-            "matches": 11,
-            "observed": 0.909,
-            "predicted": 0.885
-          }
-        ],
-        "chase_rate": {
-          "brier": 0.2495,
-          "log_loss": 0.6921,
-          "rate": 0.46
-        },
-        "gain_vs_chase_rate": {
-          "high": 0.1173,
-          "low": 0.0453,
-          "value": 0.0823
-        },
-        "matches": 57,
-        "mean_predicted": 0.492,
-        "observed": 0.474,
-        "simulator": {
-          "brier": 0.1672,
-          "log_loss": 0.4984
-        }
-      },
-      "first_innings": {
-        "actual_mean": 164.5,
-        "actual_wickets": 6.32,
-        "coverage_50": 0.632,
-        "coverage_80": 0.825,
-        "crps": 19.95,
-        "matches": 57,
-        "pit_chi2": 4.23,
-        "pit_chi2_critical": 16.92,
-        "pit_counts": [
-          6,
-          3,
-          7,
-          6,
-          4,
-          8,
-          5,
-          7,
-          7,
-          4
-        ],
-        "simulated_mean": 164.8,
-        "simulated_wickets": 6.69
-      },
-      "ties": {
-        "simulated": 0.0174
-      },
-      "timing": {
-        "seconds": 0.386,
-        "simulations": 10000
-      },
-      "competition": "SA20",
-      "gate": []
+      }
     }
-  }
+  },
+  "data_version": "2026-10-06.ac28ace1",
+  "name": "simulator",
+  "version": "1.1.0"
 }

@@ -4,9 +4,20 @@
 # the seasons before each period and folded for each league. Each league is
 # backtested on its own serving-shaped database and is served only where its own
 # backtest passes (see ../simulator.yaml).
+#
+# 1.0.0 passed for the BBL, CPL and SA20 and failed for the PSL (PIT chi-square 18.9
+# against 16.9). A level calibrated once on the validation years did not carry over to
+# the test years (the PSL 19.2, the CPL failing at 17.7) and was not kept.
+#
+# 1.1.0 passes for all four (PIT chi-square: BBL 7.0, CPL 14.9, PSL 10.4, SA20 4.2), as
+# the T20Is' 1.1.0 does: each league may follow its recent scoring level over a window
+# of previous matches, chosen on the validation years by CRPS (the BBL 60 matches, the
+# CPL 240, the PSL and SA20 none), and the spread is chosen to make the validation
+# years' PIT most uniform. The CPL's is wider than 1.0.0's (90.5% of totals inside the
+# 80% range) but within the gate.
 
 name: simulator
-version: 1.0.0
+version: 1.1.0
 competitions: [BBL, CPL, PSL, SA20]
 
 valid: [2023, 2024]      # the conditions spread is tuned here ...
@@ -17,9 +28,5 @@ simulations: 2000        # per test match
 history_seasons: 3       # bowling usage, extras and run outs from this many previous seasons
 timing_simulations: 10000
 seed: 2026
-
-# Tried and not kept (2026-10-08): shifting the scoring era so simulated totals
-# average the actual ones on the validation years. The shortfall does not carry over
-# from 2023-24 to 2025-26: the PSL's totals ran 12.5 runs short in validation and the
-# shifted simulator ran 6 runs long in the test (PIT chi-square 19.2, from 18.9), and the
-# CPL's, right in the test without it (9.0), failed with it (17.7).
+level_windows: [60, 120, 240]
+tune_spread: pit

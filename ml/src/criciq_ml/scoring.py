@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from criciq_ml import leverage
-from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, GROUPS, RUNS, BallOutcomeModel
+from criciq_ml.ball_outcome import CLASSES, ENV_WINDOW, RUNS, BallOutcomeModel, groups
 from criciq_ml.data import Inputs
 from criciq_ml.features import LABEL
 from criciq_ml.model import WinProbabilityModel, round_points, terminal_probability
@@ -339,7 +339,7 @@ def publish_ball_model(
                 "env_mean": manifest["env_mean"],
                 "env_std": manifest["env_std"],
                 "env_now": env_now,
-                "groups": {k: list(v) for k, v in GROUPS.items()},
+                "groups": {k: list(v) for k, v in groups().items()},
             },
         )
         return int(con.execute("SELECT count(*) FROM matchup_cells").fetchone()[0])  # type: ignore[index]

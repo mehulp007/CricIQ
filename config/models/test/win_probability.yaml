@@ -1,0 +1,52 @@
+# Win probability for Tests: training configuration.
+#
+# Three outcomes for the batting side (win, draw, loss), a multinomial regression
+# per innings (criciq_ml.test_match.win_probability). Trained on Test matches only
+# (the `test` model group): splits by calendar year, every choice made on the
+# pre-test years, the test years touched once.
+
+name: win_probability
+version: 1.0.0
+scope: TEST
+
+splits:
+  validation: [2023, 2024]   # the last pre-test years
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2012        # rolling origin: each year predicted from every year before it
+
+# History settings (criciq_ml.test_match.states.TestFeatureConfig).
+features:
+  env_window_matches: 40     # Tests the scoring era is measured over
+  bat_prior_outs: 6          # shrinkage of batting averages towards the era's
+  bowl_prior_wickets: 8
+  player_decay: 0.98         # per Test played
+  elo_k: 24                  # side ratings from results
+  elo_home: 60
+  xi_batters: 7
+  xi_bowlers: 5
+
+# Context groups served on top of the match state, per innings
+# (criciq_core.test_win_probability.GROUPS). Unset: chosen when training, by forward
+# selection on the rolling origin over the pre-test years (2012-2024).
+# served_extras:
+
+c: 1.0
+
+# Fits use every third state of an innings: neighbouring balls say almost the same
+# thing, and a Test has about 2,000 of them.
+train_every: 3
+
+# Boosted trees on the same features and rolling origin, reported for comparison.
+alternatives:
+  num_leaves: 7
+  min_data_in_leaf: 3000
+  learning_rate: 0.03
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 5.0
+  num_threads: 12
+  seed: 7
+  rounds: 300
+
+n_jobs: 6

@@ -7,12 +7,15 @@ Typical use::
     criciq-ml train ball_outcome --group odi
     criciq-ml train ratings --group leagues    # rating shrinkage and stability (scored players)
     criciq-ml train simulator --group leagues  # backtest the match simulator on the test seasons
+    criciq-ml train win_probability --group test  # Tests: win, draw or loss per innings
     criciq-ml score     # score every ball with the models serving each competition
     criciq-ml report --group t20i  # model cards + the Model Insights data bundled with the web app
 
 Each model group (``config/model_groups.yaml``: the IPL, the other T20 leagues,
-T20 internationals, ODIs) trains on its own competitions only. ``scripts/train_group.py``
-(``just train-group <group>``) trains a whole group in order and writes a summary.
+T20 internationals, ODIs, Tests) trains on its own competitions only.
+``scripts/train_group.py`` (``just train-group <group>``) trains a whole group in order
+and writes a summary. Tests have models of their own design (``criciq_ml.test_match``)
+for win probability and the innings projection, and no match simulator.
 
 Deployments only run ``score``: training is an explicit, reviewed step whose
 artifacts are committed under ``models/``.
@@ -57,6 +60,17 @@ from criciq_ml.config import load_config
 from criciq_ml.data import Inputs, load_inputs
 from criciq_ml.features import FeatureConfig, build_states
 from criciq_ml.projection_training import load_projection_config, train_projection
+from criciq_ml.test_match import projection as test_projection
+from criciq_ml.test_match import report as test_report
+from criciq_ml.test_match import scoring as test_scoring
+from criciq_ml.test_match import win_probability as test_wp
+from criciq_ml.test_match.states import (
+    TestFeatureConfig,
+    TestInputs,
+    context_now,
+    load_test_inputs,
+)
+from criciq_ml.test_match.states import build_states as build_test_states
 from criciq_ml.training import train_model
 
 app = typer.Typer(help="CricIQ models.", no_args_is_help=True, add_completion=False)
@@ -523,7 +537,7 @@ GroupOption = Annotated[
     str | None,
     typer.Option(
         "--group",
-        help="The model group (config/model_groups.yaml): ipl, leagues, t20i or odi. "
+        help="The model group (config/model_groups.yaml): ipl, leagues, t20i, odi or test. "
         "Its models train on its own competitions only.",
     ),
 ]
@@ -563,6 +577,9 @@ def _format(value: str) -> str:
 
 
 def _train(model: ModelName, force: bool, promote: bool) -> None:
+    if model_format() == TEST_FORMAT:
+        _train_test(model, force, promote)
+        return
     if model is ModelName.win_probability:
         _train_win_probability(force, promote)
     elif model is ModelName.score_projection:
@@ -573,6 +590,148 @@ def _train(model: ModelName, force: bool, promote: bool) -> None:
         _train_simulator(force, promote)
     else:
         _train_ratings(force, promote)
+
+
+# --------------------------------------------------------------------------- Tests
+
+TEST_FORMAT = "Test"
+
+
+def _test_states(warehouse: Path, cfg: TestFeatureConfig) -> tuple[pd.DataFrame, str]:
+    """Every Test state, with the training protocols' seasons (calendar years)."""
+    inputs = load_test_inputs(warehouse)
+    states = build_test_states(inputs, cfg)
+    return _for_training(states), inputs.data_version
+
+
+def _train_test(model: ModelName, force: bool, promote: bool) -> None:
+    """Train one of the Test group's models (``criciq_ml.test_match`` for win
+    probability and the projection; the shared ball-outcome model and ratings)."""
+    if model is ModelName.ball_outcome:
+        _train_ball_outcome(force, promote)
+        return
+    if model is ModelName.ratings:
+        _train_ratings(force, promote)
+        return
+    if model is ModelName.simulator:
+        typer.echo("Tests have no match simulator (the chase what-if uses the win probability)")
+        raise typer.Exit(code=1)
+    if model is ModelName.win_probability:
+        cfg = test_wp.load_test_wp_config()
+        name = registry.NAME
+    else:
+        cfg_projection = test_projection.load_test_projection_config()
+        name = registry.PROJECTION
+    version = cfg.version if model is ModelName.win_probability else cfg_projection.version
+    if registry.version_dir(version, name).exists() and not force:
+        typer.echo(f"version {version} already exists; bump `version` or pass --force")
+        raise typer.Exit(code=1)
+    wp_cfg = test_wp.load_test_wp_config()
+    states, data_version = _timed(
+        "building Test states",
+        lambda: _test_states(paths.warehouse_path(wp_cfg.scope), wp_cfg.feature_config()),
+    )
+    if model is ModelName.win_probability:
+        result = _timed(
+            "training",
+            lambda: test_wp.train_test_wp(states, cfg, data_version=data_version, log=typer.echo),
+        )
+        registry.save(result.model, result.evaluation, name)
+        test = result.evaluation["test"]
+        typer.echo(
+            f"  test log loss {test['model']['log_loss']:.4f} "
+            f"(baseline {test['baseline']['log_loss']:.4f}), "
+            f"brier {test['model']['brier']:.4f} (baseline {test['baseline']['brier']:.4f})"
+        )
+        _finish(test_wp.gate(result.evaluation), promote, version, name)
+        return
+    trained = _timed(
+        "training",
+        lambda: test_projection.train_test_projection(
+            states, cfg_projection, wp_cfg.features, data_version=data_version, log=typer.echo
+        ),
+    )
+    registry.save(trained.model, trained.evaluation, name)
+    test = trained.evaluation["test"]
+    typer.echo(
+        f"  test 80% coverage {test['model']['coverage80']:.1%}, "
+        f"MAE {test['model']['mae']:.1f} (par {test['par_baseline']['mae']:.1f}), "
+        f"pinball {test['model']['pinball']:.2f} (par {test['par_baseline']['pinball']:.2f})"
+    )
+    band = cfg_projection.gate["coverage_band"]
+    _finish(test_projection.gate(trained.evaluation, band), promote, version, name)
+
+
+def _score_test_serving(serving: Path, sources: _Sources, competition: str) -> None:
+    """Score the Test serving database with the Test group's models."""
+    target = serving.with_name(serving.name + ".scoring")
+    shutil.copyfile(current(serving), target)
+    typer.echo(f"> scoring {competition}")
+    try:
+        wp_model = registry.load_current_test_win_probability(competition)
+        warehouse = sources.warehouse(wp_model.manifest)
+        states = _of(sources.test_states(warehouse, wp_model.feature_config), {competition})
+        predictions = _timed("win probability", lambda: test_scoring.score_wp(wp_model, states))
+        chase = test_scoring.chase_states(states, wp_model)
+        now = context_now(sources.test_inputs(warehouse), wp_model.feature_config)
+        count = _timed(
+            "publishing",
+            lambda: test_scoring.publish_wp(target, predictions, wp_model, chase, now),
+        )
+        typer.echo(f"  {count:,} win and draw probabilities from model {wp_model.version}")
+
+        projection = registry.load_current_test_projection(competition)
+        projections = _timed(
+            "innings projection", lambda: test_scoring.score_projections(projection, states)
+        )
+        count = _timed(
+            "publishing",
+            lambda: test_scoring.publish_projections(target, projections, projection),
+        )
+        typer.echo(f"  {count:,} innings projections from model {projection.version}")
+
+        ball_model = registry.load_current_ball_outcome(competition)
+        balls = _of(sources.balls(sources.warehouse(ball_model.manifest)), {competition})
+        served = ball_model.for_competition(competition)
+        cells = _timed("ball outcomes", lambda: scoring.score_matchups(served, balls))
+        count = _timed(
+            "publishing",
+            lambda: scoring.publish_ball_model(target, cells, served, scoring.current_env(balls)),
+        )
+        typer.echo(f"  {count:,} head-to-head cells from model {ball_model.version}")
+
+        if registry.current_version(registry.RATINGS) is None:
+            typer.echo(f"  no ratings for {competition} yet")
+        else:
+            constants = registry.load_current_ratings()
+            _timed(
+                "publishing ratings",
+                lambda: scoring.publish_ratings(target, constants, competition),
+            )
+            typer.echo(f"  rating constants {constants.version} -> {target}")
+        scoring.drop_level_shifts(target)
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
+    placed = publish(target, serving)
+    typer.echo(f"  scored database -> {placed}")
+
+
+def _test_players_wpa(competitions: list[str], sources: _Sources) -> list[pd.DataFrame]:
+    """Expected result added in Tests, for the players database."""
+    if registry.current_version(registry.NAME, competitions[0]) is None:
+        typer.echo(f"  no win probability model for {', '.join(competitions)} yet")
+        return []
+    model = registry.load_current_test_win_probability(competitions[0])
+    warehouse = sources.warehouse(model.manifest)
+    states = _of(sources.test_states(warehouse, model.feature_config), set(competitions))
+    predictions = _timed(
+        f"win probability for {', '.join(competitions)}",
+        functools.partial(test_scoring.score_wp, model, states),
+    )
+    wpa = test_scoring.player_wpa(predictions, states, sources.test_inputs(warehouse).deliveries)
+    competition_of = states.drop_duplicates("match_id").set_index("match_id")["competition_id"]
+    return [wpa.assign(competition_id=wpa["match_id"].map(competition_of))]
 
 
 class _Sources:
@@ -591,6 +750,8 @@ class _Sources:
         self._inputs: dict[Path, Inputs] = {}
         self._states: dict[tuple[Path, FeatureConfig], pd.DataFrame] = {}
         self._balls: dict[Path, pd.DataFrame] = {}
+        self._test_inputs: dict[Path, TestInputs] = {}
+        self._test_states: dict[tuple[Path, TestFeatureConfig], pd.DataFrame] = {}
 
     def warehouse(self, manifest: dict[str, Any]) -> Path:
         competitions = [str(c) for c in manifest.get("trained_on", {}).get("competitions", [])]
@@ -616,6 +777,22 @@ class _Sources:
                 f"building {warehouse.stem} features", lambda: build_states(inputs, cfg)
             )
         return self._states[key]
+
+    def test_inputs(self, warehouse: Path) -> TestInputs:
+        if warehouse not in self._test_inputs:
+            self._test_inputs[warehouse] = _timed(
+                f"loading {warehouse.stem}", lambda: load_test_inputs(warehouse)
+            )
+        return self._test_inputs[warehouse]
+
+    def test_states(self, warehouse: Path, cfg: TestFeatureConfig) -> pd.DataFrame:
+        key = (warehouse, cfg)
+        if key not in self._test_states:
+            inputs = self.test_inputs(warehouse)
+            self._test_states[key] = _timed(
+                f"building {warehouse.stem} states", lambda: build_test_states(inputs, cfg)
+            )
+        return self._test_states[key]
 
     def balls(self, warehouse: Path) -> pd.DataFrame:
         if warehouse not in self._balls:
@@ -665,6 +842,9 @@ def score(
         with _serving_models(competition, path):
             if registry.current_version(registry.NAME, competition) is None:
                 typer.echo(f"> no {model_format()} models yet: {competition} is not scored")
+                continue
+            if model_format() == TEST_FORMAT:
+                _score_test_serving(path, sources, competition)
                 continue
             _score_serving(path, sources, competition)
     target = players or paths.players_path()
@@ -857,6 +1037,8 @@ def _score_players(players: Path, sources: _Sources) -> None:
 
 def _players_wpa(competitions: list[str], sources: _Sources) -> list[pd.DataFrame]:
     """Win probability added in some competitions of the current format."""
+    if model_format() == TEST_FORMAT:
+        return _test_players_wpa(competitions, sources)
     by_version: dict[str, list[str]] = {}
     for competition in competitions:
         version = registry.current_version(registry.NAME, competition)
@@ -893,11 +1075,12 @@ def report_cmd(match_format: FormatOption = MODEL_FORMAT, group_id: GroupOption 
             if c in owner.competitions and current(p).exists()
         }
         with formats.use_group(owner):
-            written = (
-                report.write_all(_serving_path(), {})
-                if owner.models == ""
-                else report.write_format(servings)
-            )
+            if owner.models == "":
+                written = report.write_all(_serving_path(), {})
+            elif owner.format == TEST_FORMAT:
+                written = test_report.write_test(servings)
+            else:
+                written = report.write_format(servings)
         for path in written:
             typer.echo(f"wrote {path}")
         return

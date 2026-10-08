@@ -35,7 +35,6 @@ from criciq_core.phases import model_format, use_format
 from criciq_ml import formats
 from criciq_ml.ball_outcome import (
     CLASSES,
-    PHASES,
     RUNS,
     BallOutcomeModel,
     FloatArray,
@@ -44,6 +43,7 @@ from criciq_ml.ball_outcome import (
     fit_kappa,
     log_loss,
     pair_counts,
+    phases,
 )
 
 Log = Callable[[str], None]
@@ -352,7 +352,7 @@ def train_ball_outcome(
     baseline = MarginalBaseline(train[train["season"] >= min(s.test) - 2])
     p_base = baseline.predict(test)
     by_phase = []
-    for phase in PHASES:
+    for phase in phases():
         mask = (test["phase"] == phase).to_numpy()
         by_phase.append(
             {

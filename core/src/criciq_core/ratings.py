@@ -12,6 +12,10 @@ Every component is a sum of per-innings evidence ``e`` over an exposure ``n``
 A player's estimate is shrunk towards the window's average by ``k`` units of
 exposure (fitted per component), and the rating is the share of qualified
 players in the window whose shrunk estimate is lower (0-100).
+
+Test cricket has its own phases (the new ball, the middle overs, the second new
+ball), judges wicket-taking per 20 overs rather than per four, and rates the
+fourth innings where limited-overs cricket rates the chase.
 """
 
 from __future__ import annotations
@@ -28,6 +32,7 @@ Unit = Literal[
     "dismissals_per_100",
     "runs_per_over",
     "wickets_per_4_overs",
+    "wickets_per_20_overs",
     "points",
     "percent",
 ]
@@ -66,9 +71,23 @@ _WPA = """
 """
 
 
-def _phases(match_format: str) -> list[tuple[str, str, int, int]]:
+def _phases(match_format: str) -> list[tuple[str, str, str]]:
+    """Each phase's key, label and overs in words ("overs 1\u201320", "overs 81 onwards")."""
     phases = default_phase_config().for_format(match_format).phases
-    return [(p.key, p.label, p.first_over, p.last_over) for p in phases if p.last_over]
+    return [
+        (
+            p.key,
+            p.label,
+            f"overs {p.first_over}\u2013{p.last_over}"
+            if p.last_over
+            else f"overs {p.first_over} onwards",
+        )
+        for p in sorted(phases, key=lambda p: p.first_over)
+    ]
+
+
+def _is_test(match_format: str) -> bool:
+    return default_phase_config().for_format(match_format).overs is None
 
 
 def components(match_format: str | None = None) -> tuple[Component, ...]:
@@ -107,13 +126,16 @@ def _components(match_format: str) -> tuple[Component, ...]:
             show=MIN_RATED_BALLS,
         ),
     ]
-    for key, label, first, last in _phases(match_format):
+    test = _is_test(match_format)
+    # The innings a side bats last in: the fourth in a Test, else the chase.
+    last_innings = 4 if test else 2
+    for key, label, overs in _phases(match_format):
         batting.append(
             Component(
                 key=key,
                 role="batting",
                 label=label,
-                description=f"Runs per 100 balls above par in overs {first}\u2013{last}.",
+                description=f"Runs per 100 balls above par in {overs}.",
                 unit="runs_per_100",
                 scale=100,
                 exposure="balls",
@@ -125,15 +147,16 @@ def _components(match_format: str) -> tuple[Component, ...]:
         )
     batting += [
         Component(
-            key="chasing",
+            key="fourth_innings" if test else "chasing",
             role="batting",
-            label="Chasing",
-            description="Runs per 100 balls above par in the second innings.",
+            label="Fourth innings" if test else "Chasing",
+            description="Runs per 100 balls above par in the "
+            + ("fourth innings." if test else "second innings."),
             unit="runs_per_100",
             scale=100,
             exposure="balls",
             sql="SELECT player_id, season, runs - par_runs AS e, balls AS n "
-            "FROM player_batting_innings WHERE innings_no = 2",
+            f"FROM player_batting_innings WHERE innings_no = {last_innings}",
             qualify=MIN_SUBSET_BALLS,
             show=30,
         ),
@@ -141,7 +164,12 @@ def _components(match_format: str) -> tuple[Component, ...]:
             key="impact",
             role="batting",
             label="Impact",
-            description="Win probability added per innings, in percentage points.",
+            description=(
+                "Expected result added per innings (a win counts 1, a draw a half), "
+                "in percentage points."
+                if test
+                else "Win probability added per innings, in percentage points."
+            ),
             unit="points",
             scale=100,
             exposure="innings",
@@ -183,9 +211,13 @@ def _components(match_format: str) -> tuple[Component, ...]:
             key="wickets",
             role="bowling",
             label="Wicket-taking",
-            description="Wickets per four overs above par for the same balls.",
-            unit="wickets_per_4_overs",
-            scale=24,
+            description=(
+                "Wickets per 20 overs above par for the same balls."
+                if test
+                else "Wickets per four overs above par for the same balls."
+            ),
+            unit="wickets_per_20_overs" if test else "wickets_per_4_overs",
+            scale=120 if test else 24,
             exposure="balls",
             sql="SELECT player_id, season, wickets - par_wickets AS e, balls AS n "
             "FROM player_bowling_innings",
@@ -193,13 +225,13 @@ def _components(match_format: str) -> tuple[Component, ...]:
             show=MIN_RATED_BALLS,
         ),
     ]
-    for key, label, first, last in _phases(match_format):
+    for key, label, overs in _phases(match_format):
         bowling.append(
             Component(
                 key=key,
                 role="bowling",
                 label=label,
-                description=f"Runs per over saved against par in overs {first}\u2013{last}.",
+                description=f"Runs per over saved against par in {overs}.",
                 unit="runs_per_over",
                 scale=6,
                 exposure="balls",
@@ -211,15 +243,16 @@ def _components(match_format: str) -> tuple[Component, ...]:
         )
     bowling += [
         Component(
-            key="defending",
+            key="fourth_innings" if test else "defending",
             role="bowling",
-            label="Defending",
-            description="Runs per over saved against par in the second innings.",
+            label="Fourth innings" if test else "Defending",
+            description="Runs per over saved against par in the "
+            + ("fourth innings." if test else "second innings."),
             unit="runs_per_over",
             scale=6,
             exposure="balls",
             sql="SELECT player_id, season, par_runs - runs AS e, balls AS n "
-            "FROM player_bowling_innings WHERE innings_no = 2",
+            f"FROM player_bowling_innings WHERE innings_no = {last_innings}",
             qualify=MIN_SUBSET_BALLS,
             show=30,
         ),
@@ -227,7 +260,12 @@ def _components(match_format: str) -> tuple[Component, ...]:
             key="impact",
             role="bowling",
             label="Impact",
-            description="Win probability added per innings bowled, in percentage points.",
+            description=(
+                "Expected result added per innings bowled (a win counts 1, a draw a half), "
+                "in percentage points."
+                if test
+                else "Win probability added per innings bowled, in percentage points."
+            ),
             unit="points",
             scale=100,
             exposure="innings",

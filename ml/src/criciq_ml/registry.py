@@ -29,6 +29,8 @@ from criciq_ml.model import WinProbabilityModel
 from criciq_ml.projection import ScoreProjectionModel
 from criciq_ml.ratings import RatingsModel
 from criciq_ml.simulator import SimulatorSettings
+from criciq_ml.test_match.projection import TestProjectionModel
+from criciq_ml.test_match.win_probability import TestWinProbabilityModel
 
 NAME = "win_probability"
 PROJECTION = "score_projection"
@@ -154,6 +156,22 @@ def load_current_simulator(competition: str | None = None) -> SimulatorSettings:
     return SimulatorSettings(manifest)
 
 
+def load_current_test_win_probability(
+    competition: str | None = None,
+) -> TestWinProbabilityModel:
+    """The Test group's win probability model (three outcomes)."""
+    return TestWinProbabilityModel.load(
+        _current_dir(NAME, competition, f"no current Test {NAME} model; run `criciq-ml train`")
+    )
+
+
+def load_current_test_projection(competition: str | None = None) -> TestProjectionModel:
+    """The Test group's innings projection."""
+    return TestProjectionModel.load(
+        _current_dir(PROJECTION, competition, "no current Test projection; run `criciq-ml train`")
+    )
+
+
 def load_evaluation(version: str, name: str = NAME) -> dict[str, Any]:
     data: dict[str, Any] = json.loads(
         (version_dir(version, name) / "evaluation.json").read_text(encoding="utf-8")
@@ -166,7 +184,9 @@ def save(
     | ScoreProjectionModel
     | BallOutcomeModel
     | RatingsModel
-    | SimulatorSettings,
+    | SimulatorSettings
+    | TestWinProbabilityModel
+    | TestProjectionModel,
     evaluation: dict[str, Any],
     name: str = NAME,
 ) -> Path:

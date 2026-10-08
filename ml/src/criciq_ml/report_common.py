@@ -28,6 +28,7 @@ COMPETITION_LABELS: dict[str, str] = {
     "T20I": "Men's T20 internationals",
     "T20": "All T20 cricket",
     "ODI": "Men's ODIs",
+    "TEST": "Men's Tests",
 }
 
 
@@ -75,11 +76,11 @@ _PHASE_NAMES = {"powerplay": "Powerplay", "middle": "Middle", "death": "Death"}
 
 def phase_labels() -> dict[str, str]:
     """Each phase with its overs in the models' format: "Powerplay (overs 1-6)",
-    "Middle (7-15)", "Death (16-20)" in a T20."""
+    "Middle (7-15)", "Death (16-20)" in a T20; "Second new ball (81+)" in a Test."""
     phases = sorted(model_phases().phases, key=lambda p: p.first_over)
     labels = {}
     for i, p in enumerate(phases):
-        overs = f"{p.first_over}-{p.last_over}"
+        overs = f"{p.first_over}-{p.last_over}" if p.last_over else f"{p.first_over}+"
         labels[p.key] = f"{_PHASE_NAMES.get(p.key, p.label)} ({'overs ' if i == 0 else ''}{overs})"
     return labels
 
@@ -89,7 +90,9 @@ def match_phrase(competitions: list[str]) -> str:
     if len(competitions) > 1:
         return "a T20 match (" + ", ".join(label(c) for c in competitions) + ")"
     only = competitions[0] if competitions else IPL
-    return {IPL: "an IPL match", "ODI": "an ODI"}.get(only, f"a {label(only)} match")
+    return {IPL: "an IPL match", "ODI": "an ODI", "TEST": "a Test"}.get(
+        only, f"a {label(only)} match"
+    )
 
 
 def format_path(path: Path) -> Path:

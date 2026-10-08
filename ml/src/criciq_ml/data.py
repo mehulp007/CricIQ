@@ -38,7 +38,9 @@ coalesce(i.target_runs,
 def max_balls_sql() -> str:
     """The balls an innings could last: its revised allocation (a rain-shortened
     chase), else the scheduled overs, never more than the models' format allows
-    (Cricsheet records a few T20Is as 50-over matches)."""
+    (Cricsheet records a few T20Is as 50-over matches). A Test innings has no limit."""
+    if model_phases().overs is None:
+        return "NULL::INTEGER"
     return f"""
     least(coalesce(i.target_balls, m.scheduled_overs * m.balls_per_over),
           {model_phases().limit} * m.balls_per_over)

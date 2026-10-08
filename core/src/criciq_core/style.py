@@ -57,8 +57,43 @@ BOWLING_FEATURES: tuple[StyleFeature, ...] = (
 )
 
 
+# Test cricket has no powerplay or death overs: its first and last phases are the
+# new ball and the second new ball, and a bowler has no quota to fill.
+TEST_WORDING: dict[Role, dict[str, StyleFeature]] = {
+    "batting": {
+        "powerplay": StyleFeature(
+            "powerplay", "Balls against the new ball", "Faces the new ball", "Rarely faces it"
+        ),
+        "death": StyleFeature(
+            "death",
+            "Balls against the second new ball",
+            "Bats on into the second new ball",
+            "Rarely bats that long",
+        ),
+    },
+    "bowling": {
+        "powerplay": StyleFeature(
+            "powerplay", "Overs with the new ball", "New-ball bowler", "Rarely takes the new ball"
+        ),
+        "death": StyleFeature(
+            "death",
+            "Overs with the second new ball",
+            "Bowls with the second new ball",
+            "Rarely bowls with it",
+        ),
+        "workload": StyleFeature(
+            "workload", "Balls per innings", "Bowls long spells", "Bowls little"
+        ),
+    },
+}
+
+
 def features(role: Role) -> tuple[StyleFeature, ...]:
-    return BATTING_FEATURES if role == "batting" else BOWLING_FEATURES
+    base = BATTING_FEATURES if role == "batting" else BOWLING_FEATURES
+    if model_phases().overs is not None:
+        return base
+    wording = TEST_WORDING[role]
+    return tuple(wording.get(f.key, f) for f in base)
 
 
 def _edge_phases() -> tuple[str, str]:

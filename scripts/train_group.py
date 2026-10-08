@@ -6,13 +6,13 @@ Usage (through uv, e.g. `just train-group leagues` and `just publish-models`):
     uv run python scripts/train_group.py publish
     uv run python scripts/train_group.py status
 
-A model group (config/model_groups.yaml: ipl, leagues, t20i, odi) has models of its
-own, trained on its own competitions only. ``train`` runs every step for one group:
+A model group (config/model_groups.yaml: ipl, leagues, t20i, odi, test) has models of
+its own, trained on its own competitions only. ``train`` runs every step for one group:
 
 1. the ball-outcome model, win probability and the score projection
    (`criciq-ml train <model> --group <group>`);
 2. scoring every competition, so the ratings see the new win probabilities;
-3. the ratings, then the match simulator's backtest.
+3. the ratings, then the match simulator's backtest (Tests have no simulator).
 
 Each model is promoted only if it passes its gate; one that fails is kept on disk,
 reported, and the run goes on. A new run names new versions (1.0.0 the first time,
@@ -70,6 +70,11 @@ KEY_LINE = re.compile(
 
 def training_dir(group_id: str) -> Path:
     return paths.data_dir() / "training" / group_id
+
+
+def models_of(owner: ModelGroup) -> tuple[str, ...]:
+    """A group's models, in training order (Tests have no match simulator)."""
+    return tuple(m for m in MODELS if not (owner.format == "Test" and m == "simulator"))
 
 
 # --------------------------------------------------------------------------- running
@@ -298,7 +303,7 @@ def _train(owner: ModelGroup, only: list[str] | None, fresh: bool) -> int:
     folder = training_dir(owner.id)
     folder.mkdir(parents=True, exist_ok=True)
     log = folder / "training.log"
-    wanted = [m for m in MODELS if only is None or m in only]
+    wanted = [m for m in models_of(owner) if only is None or m in only]
     version_now = data_version()
 
     state = None if fresh else RunState.load(owner.id)
@@ -661,7 +666,7 @@ def status() -> int:
     for owner in model_groups().groups:
         with formats.use_group(owner, serving=True):
             parts = []
-            for model in MODELS:
+            for model in models_of(owner):
                 if model == "simulator":
                     parts.append(_simulators(owner))
                     continue
@@ -710,6 +715,10 @@ def _group(value: str) -> ModelGroup:
 
 
 def main() -> int:
+    # Child output is UTF-8; a console or log on a legacy code page must not stop the run.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
     trainer = sub.add_parser("train", help="train a model group's models in order")

@@ -1,0 +1,40 @@
+# Innings projection for Tests: training configuration.
+#
+# Quantiles of where the current innings will finish, for any of the four innings
+# (criciq_ml.test_match.projection): one LightGBM quantile model per level on the
+# runs still to come, shifted by conformal calibration on held-out years. Trained
+# on Test matches only (the `test` model group).
+
+name: score_projection
+version: 1.0.0
+scope: TEST
+
+splits:
+  tune_train_through: 2020   # grid candidates are fit on Tests up to 2020 ...
+  tune_valid: [2021, 2022]   # ... with early stopping and selection here
+  calibrate: [2023, 2024]    # conformal shifts for the headline model
+  test: [2025, 2026]         # reported once; never used for any choice
+  backtest_from: 2014        # rolling origin: fit < y-2, calibrate y-2 and y-1, test y
+
+# Fits use every third state of an innings.
+train_every: 3
+
+lightgbm:
+  base:
+    learning_rate: 0.05
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 1
+    lambda_l2: 5.0
+    max_rounds: 1500
+    early_stopping_rounds: 100
+    seed: 7
+    num_threads: 12
+  grid:
+    num_leaves: [15, 31]
+    # A total is shared by a whole innings (~150 rows once thinned): leaves must
+    # span many innings.
+    min_data_in_leaf: [1000, 4000]
+
+gate:
+  coverage_band: [0.75, 0.85]   # 80% range must cover 75-85% of test totals

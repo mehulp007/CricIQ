@@ -27,6 +27,7 @@ UNIT_LABELS = {
     "dismissals_per_100": "dismissals avoided per 100 balls",
     "runs_per_over": "runs saved per over",
     "wickets_per_4_overs": "wickets per 4 overs above par",
+    "wickets_per_20_overs": "wickets per 20 overs above par",
     "points": "win probability points per innings",
     "percent": "% of innings at or better than par",
 }

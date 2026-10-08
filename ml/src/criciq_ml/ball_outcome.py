@@ -57,7 +57,18 @@ BOUNDARY = [CLASSES.index("four"), CLASSES.index("six")]
 ENV_WINDOW = 60
 ENV_DEFAULT = 1.2
 
-PHASES = tuple(p.key for p in sorted(model_phases().phases, key=lambda p: p.first_over))
+
+def phases() -> tuple[str, ...]:
+    """The current format's phases, in order (Tests have their own)."""
+    return tuple(p.key for p in sorted(model_phases().phases, key=lambda p: p.first_over))
+
+
+def main_innings() -> int:
+    """Innings a match of the current format has: four in a Test, else two."""
+    return 4 if model_phases().overs is None else 2
+
+
+PHASES = phases()  # the T20 models' (the default format)
 
 # Optional group of a model fitted on several competitions (its levels are the
 # competitions in the data).
@@ -65,14 +76,22 @@ COMPETITION = "competition"
 # Optional groups of national sides, on international balls only.
 SIDES = ("batting_side", "bowling_side")
 
-# One-hot groups describing the situation; each row belongs to one level per group.
-GROUPS: dict[str, tuple[str, ...]] = {
-    "phase": tuple(f"{p}_{i}" for i in (1, 2) for p in PHASES),
-    "wickets": ("0-1", "2-3", "4-5", "6+"),
-    "settled": ("0-5", "6-15", "16-30", "31+"),
-    "matchup": ("right_pace", "right_spin", "left_pace", "left_spin"),
-    "pressure": ("none", "low", "par", "high", "extreme"),
-}
+
+def groups() -> dict[str, tuple[str, ...]]:
+    """One-hot groups describing the situation in the current format; each ball
+    belongs to one level per group. A Test has four innings and no chase pressure
+    (there is no required rate without an over limit), so its pressure is always
+    "none"."""
+    return {
+        "phase": tuple(f"{p}_{i}" for i in range(1, main_innings() + 1) for p in phases()),
+        "wickets": ("0-1", "2-3", "4-5", "6+"),
+        "settled": ("0-5", "6-15", "16-30", "31+"),
+        "matchup": ("right_pace", "right_spin", "left_pace", "left_spin"),
+        "pressure": ("none", "low", "par", "high", "extreme"),
+    }
+
+
+GROUPS = groups()  # the T20 models' (the default format)
 
 
 def _balls_sql() -> str:
@@ -172,15 +191,17 @@ def add_situation(balls: pd.DataFrame) -> pd.DataFrame:
         balls[f"g_{group}"] = np.where(international, sides.fillna("").astype(str), "")
 
     balls["g_phase"] = balls["phase"] + "_" + balls["innings_no"].astype(str)
-    balls["g_wickets"] = _bucket(balls["wickets_before"], [2, 4, 6], GROUPS["wickets"])
-    balls["g_settled"] = _bucket(balls["batter_balls"], [6, 16, 31], GROUPS["settled"])
+    levels = groups()
+    balls["g_wickets"] = _bucket(balls["wickets_before"], [2, 4, 6], levels["wickets"])
+    balls["g_settled"] = _bucket(balls["batter_balls"], [6, 16, 31], levels["settled"])
     balls["g_matchup"] = balls["batting_hand"] + "_" + balls["bowling_type"]
 
     remaining = (balls["max_balls"] - balls["balls_before"]).clip(lower=1)
     required = (balls["target_runs"] - balls["runs_before"]) * 6 / remaining
     relative = required / (balls["env"] * 6)
-    pressure = _bucket(relative.fillna(0), [0.8, 1.1, 1.4], GROUPS["pressure"][1:])
-    balls["g_pressure"] = np.where(balls["innings_no"] == 2, pressure, "none")
+    pressure = _bucket(relative.fillna(0), [0.8, 1.1, 1.4], levels["pressure"][1:])
+    chasing = (balls["innings_no"] == 2) & (main_innings() == 2)
+    balls["g_pressure"] = np.where(chasing, pressure, "none")
     return balls
 
 
@@ -210,7 +231,7 @@ class Design:
         competition_terms: bool = False,
         side_terms: bool = False,
     ) -> Design:
-        context = tuple(f"{g}={level}" for g, levels in GROUPS.items() for level in levels)
+        context = tuple(f"{g}={level}" for g, levels in groups().items() for level in levels)
         extra: tuple[str, ...] = ()
         if competition_terms:
             extra = (COMPETITION,)
@@ -242,7 +263,7 @@ class Design:
             ("bowler", "bowler_id", self.bowlers, None),
         ]
         if self.phase_players:
-            for phase in PHASES:
+            for phase in phases():
                 blocks.append((f"batter@{phase}", "batter_id", self.batters, phase))
                 blocks.append((f"bowler@{phase}", "bowler_id", self.bowlers, phase))
         return blocks
@@ -253,7 +274,7 @@ class Design:
         cols: list[npt.NDArray[np.int64]] = []
         vals: list[FloatArray] = []
         index = {name: i for i, name in enumerate(self.context)}
-        for group in (*GROUPS, *self.extra_groups):
+        for group in (*groups(), *self.extra_groups):
             keys = (group + "=" + balls[f"g_{group}"].astype(str)).map(index)
             known = keys.notna().to_numpy()
             rows.append(np.arange(n)[known])
@@ -398,6 +419,7 @@ class BallOutcomeModel:
 
     def logits(self, balls: pd.DataFrame) -> FloatArray:
         out = np.tile(self.terms["intercept"], (len(balls), 1))
+        # The groups' names are every format's; only their levels differ.
         for group in (*GROUPS, *self.manifest.get("extra_groups", [])):
             keys = group + "=" + balls[f"g_{group}"].astype(str)
             out += np.stack([self.terms.get(k, np.zeros(len(CLASSES))) for k in keys])

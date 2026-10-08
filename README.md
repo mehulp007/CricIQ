@@ -11,13 +11,32 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**[Live demo → criciq-eight.vercel.app](https://criciq-eight.vercel.app)** · v1.0.0 · [Read the write-up](https://criciq-eight.vercel.app/writeup)
+**[Every competition on localhost (v2)](https://github.com/mehulp007/CricIQ/tree/v2#run-it-on-your-machine)** · [Live demo, IPL edition → criciq-eight.vercel.app](https://criciq-eight.vercel.app) · [Read the write-up](https://criciq-eight.vercel.app/writeup)
 
 <img src="docs/images/demo.gif" alt="A tour of CricIQ: the last over of the 2019 IPL final replayed ball by ball with win probability, then the Player Lab, Matchups, Compare, Teams, the Match Simulator, the Analytics Lab and Model Insights" width="880">
 
 </div>
 
 ---
+
+> [!IMPORTANT]
+> **CricIQ now covers all of men's cricket.** The [`v2` branch](https://github.com/mehulp007/CricIQ/tree/v2)
+> adds Tests, ODIs and T20 internationals and the BBL, CPL, PSL and SA20 beside the IPL (about
+> 9,900 matches and 4.6 million balls), each with models trained on its own kind of cricket,
+> every international series and tournament with its tables and knockouts, careers and
+> comparisons across formats, a Test chase calculator, and new matches within days of play. It
+> runs on your own machine:
+>
+> ```bash
+> git clone -b v2 https://github.com/mehulp007/CricIQ.git
+> cd CricIQ
+> just setup
+> just v2-up    # download, build every competition, score every ball, serve http://localhost:3000
+> ```
+>
+> Prerequisites and everything else: [the v2 README](https://github.com/mehulp007/CricIQ/tree/v2#run-it-on-your-machine).
+> This branch (`main`) is **v1.0.0, the IPL edition**, which the hosted demo serves and the rest of
+> this page describes.
 
 CricIQ turns every IPL delivery since 2008 into interactive analytics. Today you can replay any match ball by ball with an explainable win probability and a projected total after every delivery, explore every player's career measured against par, read any batter-vs-bowler rivalry without over-reading small samples, rate players with honest allowances for sample size, see the pressure on every ball, rebuild any season's league table, and play any two sides from any season 10,000 times with XIs picked from that season's squads, all behind a polished web interface.
 

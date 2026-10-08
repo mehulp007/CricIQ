@@ -6,6 +6,7 @@ import { CompetitionLink } from "@/components/competition/competition-link";
 import { getChaseSides } from "@/lib/api/client";
 import { isCompetitionId, isTest, type CompetitionId } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
+import { testModels } from "@/lib/models";
 
 export async function generateMetadata({
   params,
@@ -64,6 +65,7 @@ export default async function ChasePage({
         sides={sides.sides}
         initialBatting={batting}
         initialFielding={fielding}
+        usesRatings={(testModels().winProbability.groups["4"] ?? []).some((g) => g.key === "teams")}
       />
     </div>
   );

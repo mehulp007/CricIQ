@@ -117,11 +117,14 @@ export function ChaseCalculator({
   sides,
   initialBatting,
   initialFielding,
+  usesRatings,
 }: {
   competition: CompetitionId;
   sides: ChaseSide[];
   initialBatting: string;
   initialFielding: string;
+  /** Whether the fourth-innings model uses the sides' ratings (else they are context only). */
+  usesRatings: boolean;
 }) {
   const [batting, setBatting] = useState(initialBatting);
   const [fielding, setFielding] = useState(initialFielding);
@@ -202,6 +205,14 @@ export function ChaseCalculator({
             onChange={setFielding}
           />
         </div>
+        <p className="-mt-2 text-xs leading-relaxed text-muted-foreground">
+          The number beside each side is its rating from its Test results: every side starts at
+          1500, wins take points from the loser (a draw counts half), and a side 100 points higher
+          is expected to take about 64% of the points between them.{" "}
+          {usesRatings
+            ? "The fourth-innings model uses the gap between the two."
+            : "The fourth-innings model does not use it (it did not help predict fourth innings in earlier years), so it is shown for reference; where the Test is played does count."}
+        </p>
         <div className="flex flex-col gap-1.5">
           <span className="text-sm text-muted-foreground">Where</span>
           <div className="flex flex-wrap gap-1" role="group" aria-label="Where the Test is played">

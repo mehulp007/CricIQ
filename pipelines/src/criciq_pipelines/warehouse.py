@@ -154,10 +154,22 @@ _INTERIM = (
 )
 
 
+# Interim columns added after a data version was extracted: read as NULL from older
+# interim tables until the next full extract.
+_LATER_COLUMNS = {"matches": {"event_group": "VARCHAR"}}
+
+
 def _register_interim(con: duckdb.DuckDBPyConnection, interim_dir: Path) -> None:
     for name in _INTERIM:
         path = (interim_dir / f"{name}.parquet").as_posix()
-        con.execute(f"CREATE TEMP VIEW all_{name} AS SELECT * FROM read_parquet('{path}')")
+        source = f"read_parquet('{path}')"
+        have = {c for (c,) in con.execute(f"SELECT name FROM parquet_schema('{path}')").fetchall()}
+        extra = "".join(
+            f", NULL::{kind} AS {column}"
+            for column, kind in _LATER_COLUMNS.get(name, {}).items()
+            if column not in have
+        )
+        con.execute(f"CREATE TEMP VIEW all_{name} AS SELECT *{extra} FROM {source}")
 
 
 def _classify(
@@ -702,7 +714,8 @@ def _load_matches(con: duckdb.DuckDBPyConnection) -> None:
             m.cricsheet_version,
             m.event_name,
             m.match_type_number,
-            coalesce(m.has_supersubs, false)
+            coalesce(m.has_supersubs, false),
+            m.event_group
         FROM raw_matches m
         JOIN match_team mt USING (match_id)
         JOIN venue_map va ON va.raw_name = m.venue_raw

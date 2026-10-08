@@ -230,10 +230,11 @@ def run_export_competition(
 ) -> dict[str, int]:
     """One competition's serving-shaped database, from its v1-shaped copy of the full
     warehouse (written beside ``target`` and removed afterwards)."""
+    full = warehouse or paths.cricket_warehouse_path()
     scoped = target.with_name(target.stem + "-scope.duckdb")
-    build_scope(warehouse or paths.cricket_warehouse_path(), competition, scoped)
+    build_scope(full, competition, scoped)
     try:
-        return export_serving(scoped, target, updates=updates)
+        return export_serving(scoped, target, updates=updates, events=full)
     finally:
         scoped.unlink(missing_ok=True)
 

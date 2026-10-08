@@ -133,6 +133,8 @@ CREATE TABLE matches (
     event_name            VARCHAR,
     match_type_number     INTEGER,
     has_supersubs         BOOLEAN NOT NULL,
+    -- The tournament group Cricsheet records ("A", "1"); NULL outside group stages.
+    event_group           VARCHAR,
     UNIQUE (competition_id, match_order),
     CHECK (team1_id <> team2_id)
 );

@@ -12,10 +12,12 @@ from pathlib import Path
 
 import duckdb
 
+from criciq_pipelines.events import EVENT_TABLES, build_event_tables, check_events
 from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
 from criciq_pipelines.reference import (
     LeagueTablesConfig,
     load_competitions,
+    load_events,
     load_league_tables,
     load_teams,
 )
@@ -208,6 +210,10 @@ class LeagueTableMismatchError(RuntimeError):
     pass
 
 
+class EventResultMismatchError(RuntimeError):
+    pass
+
+
 def copy_core_tables(con: duckdb.DuckDBPyConnection) -> None:
     """Copy the tables the serving database keeps from the attached warehouse ``wh``."""
     for table in COPIED_TABLES:
@@ -232,14 +238,23 @@ def copy_core_tables(con: duckdb.DuckDBPyConnection) -> None:
     )
 
 
-def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -> dict[str, int]:
+def export_serving(
+    warehouse: Path,
+    target: Path,
+    updates: Path | None = None,
+    *,
+    events: Path | None = None,
+) -> dict[str, int]:
     """Write the serving database to ``target`` atomically; return row counts.
 
     Fails if a computed league table differs from the official one for any season
     the data fully covers. The league-tables config (official tables, abandoned
     fixtures, voided matches) is the IPL's; other competitions are built without
     it. ``updates`` is the sync's ingest database: its record of data updates for
-    the served competitions goes into ``data_updates``.
+    the served competitions goes into ``data_updates``. ``events`` is the full
+    warehouse, whose Cricsheet event names and groups make a national
+    competition's series and tournaments (``criciq_pipelines.events``); building
+    them fails if a known result in ``config/events.yaml`` comes out differently.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
     staging = target.with_name(target.name + ".building")
@@ -288,6 +303,18 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
             ),
         )
         build_simulation_tables(con)
+        event_tables: tuple[str, ...] = ()
+        if events is not None and len(national) == 1 and len(competitions) == 1:
+            competition = national[0].id
+            con.execute(f"ATTACH '{events.as_posix()}' AS ev (READ_ONLY)")
+            config = load_events()
+            build_event_tables(con, competition, config)
+            con.execute("DETACH ev")
+            wrong = [c for c in check_events(con, competition, config) if not c.passed]
+            if wrong:
+                details = "; ".join(f"{c.description}: {', '.join(c.problems)}" for c in wrong)
+                raise EventResultMismatchError(f"events differ from known results: {details}")
+            event_tables = EVENT_TABLES
         failed = [c for c in check_league_tables(con, league_tables) if not c.passed]
         if failed:
             details = "; ".join(f"{c.season}: {', '.join(c.problems)}" for c in failed)
@@ -304,6 +331,7 @@ def export_serving(warehouse: Path, target: Path, updates: Path | None = None) -
                 *PLAYER_TABLES,
                 *TEAM_TABLES,
                 *SIMULATION_TABLES,
+                *event_tables,
             )
         }
         con.execute("CHECKPOINT")

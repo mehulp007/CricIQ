@@ -333,3 +333,71 @@ class LeagueTablesConfig(BaseModel):
 
 def load_league_tables(directory: Path | None = None) -> LeagueTablesConfig:
     return LeagueTablesConfig.model_validate(_load_yaml("league_tables.yaml", directory))
+
+
+# --------------------------------------------------------------------------- series and tournaments
+
+
+class Edition(BaseModel):
+    """How one edition of a tournament names its rounds, where Cricsheet does not."""
+
+    # Group labels as Cricsheet records them ("1") -> the round's name.
+    groups: dict[str, str] = Field(default_factory=dict)
+    # The name of the matches outside any group and before the knockouts.
+    ungrouped: str | None = None
+
+
+class Tournament(BaseModel):
+    id: str
+    name: str
+    competition: str
+    names: list[str]
+    editions: dict[int, Edition] = Field(default_factory=dict)
+
+
+class EventResult(BaseModel):
+    """A result the build must reproduce: a tournament's champion, or a series' score."""
+
+    competition: str
+    tournament: str | None = None
+    # A series' two sides (team ids).
+    series: tuple[str, str] | None = None
+    year: int
+    champion: str | None = None
+    matches: int | None = None
+    wins: dict[str, int] = Field(default_factory=dict)
+    drawn: int = 0
+
+    @model_validator(mode="after")
+    def _one_kind(self) -> EventResult:
+        if (self.tournament is None) == (self.series is None):
+            raise ValueError("a result names either a tournament or a series' two sides")
+        if self.tournament is not None and self.champion is None:
+            raise ValueError(f"{self.tournament} {self.year}: a tournament result needs a champion")
+        if self.series is not None and (self.matches is None or not self.wins):
+            raise ValueError(f"{self.description}: a series result needs matches and wins")
+        return self
+
+    @property
+    def description(self) -> str:
+        if self.series is not None:
+            return f"{' v '.join(self.series)} {self.year}"
+        return f"{self.tournament} {self.year}"
+
+
+class EventsConfig(BaseModel):
+    tournaments: list[Tournament] = []
+    results: list[EventResult] = []
+
+    def tournament_of(self, competition: str, event_name: str | None) -> Tournament | None:
+        """The major tournament a match's Cricsheet event name belongs to, if any."""
+        if event_name is None:
+            return None
+        for t in self.tournaments:
+            if t.competition == competition and event_name in t.names:
+                return t
+        return None
+
+
+def load_events(directory: Path | None = None) -> EventsConfig:
+    return EventsConfig.model_validate(_load_yaml("events.yaml", directory))

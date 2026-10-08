@@ -54,6 +54,8 @@ SCHEMAS: dict[str, pa.Schema] = {
             ("player_of_match_ids", pa.list_(pa.string())),
             ("match_type_number", pa.int32()),
             ("has_supersubs", pa.bool_()),
+            # The tournament group ("A", "1"); absent outside group stages.
+            ("event_group", pa.string()),
         ]
     ),
     "innings": pa.schema(
@@ -196,6 +198,7 @@ def parse_match(match_id: int, doc: dict[str, Any]) -> dict[str, list[Row]]:
             "player_of_match_ids": [pid(p) for p in info.get("player_of_match", [])],
             "match_type_number": info.get("match_type_number"),
             "has_supersubs": bool(info.get("supersubs")),
+            "event_group": None if event.get("group") is None else str(event["group"]),
         }
     )
 

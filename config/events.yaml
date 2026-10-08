@@ -1,0 +1,75 @@
+# Series and tournaments of the international competitions (criciq_pipelines.events).
+#
+# Cricsheet names each match's event ("The Ashes", "India tour of Australia",
+# "ICC Cricket World Cup"). Matches of one event within a few weeks of each other are
+# one series or tournament. The major tournaments below were named differently over
+# the years, so each lists every name Cricsheet uses for it.
+
+tournaments:
+  - id: cricket-world-cup
+    name: Men's Cricket World Cup
+    competition: ODI
+    names: ["ICC World Cup", "ICC Cricket World Cup", "World Cup", "ICC Men's Cricket World Cup"]
+    editions:
+      2007: { ungrouped: Super Eight }
+  - id: champions-trophy
+    name: Champions Trophy
+    competition: ODI
+    names: ["ICC Champions Trophy"]
+    editions:
+      2006: { ungrouped: Qualifying round }
+  - id: asia-cup-odi
+    name: Asia Cup
+    competition: ODI
+    names: ["Asia Cup"]
+  - id: t20-world-cup
+    name: Men's T20 World Cup
+    competition: T20I
+    names: ["ICC World Twenty20", "World T20", "ICC Men's T20 World Cup"]
+    editions:
+      2021: { groups: { "1": Super 12 Group 1, "2": Super 12 Group 2 } }
+      2022: { groups: { "1": Super 12 Group 1, "2": Super 12 Group 2 } }
+      2024: { groups: { "1": Super 8 Group 1, "2": Super 8 Group 2 } }
+      2026: { groups: { "1": Super 8 Group 1, "2": Super 8 Group 2 } }
+  - id: asia-cup-t20i
+    name: Asia Cup
+    competition: T20I
+    names: ["Asia Cup", "Men's T20 Asia Cup"]
+  - id: world-test-championship-final
+    name: World Test Championship final
+    competition: TEST
+    names: ["ICC World Test Championship"]
+
+# Results the build must reproduce wherever the data covers the event: a
+# tournament's champion (when its final is in the data), or a series' score (when
+# the data has all its matches). Tournaments are named by the year of their final;
+# a series by its two sides and the year it started (Cricsheet often names a series
+# by the tour, "Australia tour of England and Scotland", rather than "The Ashes").
+results:
+  - { competition: ODI, tournament: cricket-world-cup, year: 2003, champion: AUS }
+  - { competition: ODI, tournament: cricket-world-cup, year: 2007, champion: AUS }
+  - { competition: ODI, tournament: cricket-world-cup, year: 2011, champion: IND }
+  - { competition: ODI, tournament: cricket-world-cup, year: 2015, champion: AUS }
+  - { competition: ODI, tournament: cricket-world-cup, year: 2019, champion: ENG }
+  - { competition: ODI, tournament: cricket-world-cup, year: 2023, champion: AUS }
+  - { competition: ODI, tournament: champions-trophy, year: 2013, champion: IND }
+  - { competition: ODI, tournament: champions-trophy, year: 2017, champion: PAK }
+  - { competition: ODI, tournament: champions-trophy, year: 2025, champion: IND }
+  - { competition: T20I, tournament: t20-world-cup, year: 2007, champion: IND }
+  - { competition: T20I, tournament: t20-world-cup, year: 2009, champion: PAK }
+  - { competition: T20I, tournament: t20-world-cup, year: 2010, champion: ENG }
+  - { competition: T20I, tournament: t20-world-cup, year: 2012, champion: WI }
+  - { competition: T20I, tournament: t20-world-cup, year: 2014, champion: SL }
+  - { competition: T20I, tournament: t20-world-cup, year: 2016, champion: WI }
+  - { competition: T20I, tournament: t20-world-cup, year: 2021, champion: AUS }
+  - { competition: T20I, tournament: t20-world-cup, year: 2022, champion: ENG }
+  - { competition: T20I, tournament: t20-world-cup, year: 2024, champion: IND }
+  - { competition: TEST, tournament: world-test-championship-final, year: 2021, champion: NZ }
+  - { competition: TEST, tournament: world-test-championship-final, year: 2023, champion: AUS }
+  - { competition: TEST, tournament: world-test-championship-final, year: 2025, champion: SA }
+  - { competition: TEST, series: [AUS, ENG], year: 2010, matches: 5, wins: { ENG: 3, AUS: 1 }, drawn: 1 }
+  - { competition: TEST, series: [AUS, ENG], year: 2023, matches: 5, wins: { ENG: 2, AUS: 2 }, drawn: 1 }
+  - { competition: TEST, series: [AUS, IND], year: 2018, matches: 4, wins: { IND: 2, AUS: 1 }, drawn: 1 }
+  - { competition: TEST, series: [AUS, ENG], year: 2019, matches: 5, wins: { AUS: 2, ENG: 2 }, drawn: 1 }
+  - { competition: TEST, series: [AUS, IND], year: 2020, matches: 4, wins: { IND: 2, AUS: 1 }, drawn: 1 }
+  - { competition: TEST, series: [AUS, ENG], year: 2021, matches: 5, wins: { AUS: 4 }, drawn: 1 }

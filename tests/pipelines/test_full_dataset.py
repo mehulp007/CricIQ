@@ -5,6 +5,9 @@ import duckdb
 import pytest
 
 from criciq_core import paths
+from criciq_core.publish import current
+from criciq_pipelines.events import check_events
+from criciq_pipelines.reference import load_events
 from criciq_pipelines.validation import validate
 
 WAREHOUSE = paths.warehouse_path()
@@ -27,3 +30,20 @@ def test_every_season_since_2008_is_present() -> None:
         con.close()
     assert years[0] == 2008
     assert years == list(range(2008, years[-1] + 1))
+
+
+@pytest.mark.parametrize("competition", ["TEST", "ODI", "T20I"])
+def test_every_known_series_and_tournament_result_is_checked(competition: str) -> None:
+    """Each known result in config/events.yaml is covered by the full data and reproduced;
+    on fixtures they pass uncovered, so only the full data shows none is silently skipped."""
+    serving = current(paths.serving_path(competition))
+    if not serving.exists():
+        pytest.skip(f"{serving.name} not exported")
+    con = duckdb.connect(str(serving), read_only=True)
+    try:
+        checks = check_events(con, competition, load_events())
+    finally:
+        con.close()
+    assert checks
+    assert [c.description for c in checks if not c.covered] == []
+    assert [c.description for c in checks if not c.passed] == []

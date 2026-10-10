@@ -1,6 +1,7 @@
 "use client";
 
 import { Keyboard } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 
 import { BallFeed } from "@/components/replay/ball-feed";
@@ -10,7 +11,6 @@ import { PressurePanel } from "@/components/replay/pressure-panel";
 import { WhatIfPanel } from "@/components/replay/what-if-panel";
 import { ProjectionPanel } from "@/components/replay/projection-panel";
 import { LiveScorecard } from "@/components/replay/live-scorecard";
-import { ReplayCharts } from "@/components/replay/replay-charts";
 import { type OverOption, ReplayControls } from "@/components/replay/replay-controls";
 import { Scoreboard } from "@/components/replay/scoreboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +20,12 @@ import { inningsLabel } from "@/lib/format";
 import { buildFrames, overStarts, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { wpAt } from "@/lib/replay/win-probability";
+
+// The charts load after the replay paints: the charting library stays out of its first JavaScript.
+const ReplayCharts = dynamic(
+  () => import("@/components/replay/replay-charts").then((m) => m.ReplayCharts),
+  { ssr: false, loading: () => <div className="h-80 animate-pulse rounded-xl bg-muted/40" /> },
+);
 
 const SPEED_KEYS: Record<string, Speed> = { "1": 1, "2": 2, "4": 4 };
 

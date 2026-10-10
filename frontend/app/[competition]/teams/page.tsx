@@ -4,7 +4,7 @@ import { CompetitionLink } from "@/components/competition/competition-link";
 import { MatchCard } from "@/components/match/match-card";
 import { TeamSwatch } from "@/components/match/team-badge";
 import { Panel, StatTile } from "@/components/players/profile-parts";
-import { LeagueTrendsChart } from "@/components/teams/league-trends-chart";
+import { LeagueTrendsChartLazy as LeagueTrendsChart } from "@/components/teams/league-trends-chart-lazy";
 import { FranchiseCard } from "@/components/teams/parts";
 import { SeasonPicker } from "@/components/teams/season-picker";
 import { StandingsTable } from "@/components/teams/standings-table";

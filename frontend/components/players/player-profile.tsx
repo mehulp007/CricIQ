@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import { MatchupTable } from "@/components/matchups/matchup-table";
-import { FormChart, SeasonCharts } from "@/components/players/player-charts";
+import { FormChart, SeasonCharts } from "@/components/players/player-charts-lazy";
 import {
   BattingPhaseTable,
   BowlingPhaseTable,

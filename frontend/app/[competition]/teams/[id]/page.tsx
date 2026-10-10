@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { Panel, StatTile } from "@/components/players/profile-parts";
 import { SeasonWindow } from "@/components/players/season-window";
 import { RecordCell, SeasonChips } from "@/components/teams/parts";
-import { SeasonsChart } from "@/components/teams/seasons-chart";
+import { SeasonsChartLazy as SeasonsChart } from "@/components/teams/seasons-chart-lazy";
 import {
   MarginLine,
   OpponentsTable,

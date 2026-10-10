@@ -1,8 +1,8 @@
 "use client";
 
 import { Keyboard } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useReducer, useRef } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { BallFeed } from "@/components/replay/ball-feed";
 import { CreasePanel } from "@/components/replay/crease-panel";
@@ -10,21 +10,27 @@ import { LiveScorecard } from "@/components/replay/live-scorecard";
 import { ProjectionPanel } from "@/components/replay/projection-panel";
 import { type OverOption, ReplayControls } from "@/components/replay/replay-controls";
 import { ChasePanel } from "@/components/replay/test/chase-panel";
-import { OutcomeChart } from "@/components/replay/test/outcome-chart";
 import { TestScoreboard } from "@/components/replay/test/test-scoreboard";
-import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import type { CompetitionId } from "@/lib/competitions";
-import { inningsLabel } from "@/lib/format";
-import { buildFrames, oversUpTo, scorecardAt } from "@/lib/replay/engine";
+import { buildFrames, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { outcomeAt, testJumps } from "@/lib/replay/test";
+
+// The charts load after the replay paints: the charting library stays out of its first JavaScript.
+const OutcomeChart = dynamic(
+  () => import("@/components/replay/test/outcome-chart").then((m) => m.OutcomeChart),
+  { ssr: false, loading: () => <div className="h-72 animate-pulse rounded-xl bg-muted/40" /> },
+);
+const InningsOvers = dynamic(
+  () => import("@/components/replay/test/innings-overs").then((m) => m.InningsOvers),
+  { ssr: false, loading: () => <div className="h-56 animate-pulse rounded-xl bg-muted/40" /> },
+);
 
 // A Test is about 2,000 balls: faster speeds than a T20's.
 const TEST_SPEEDS: readonly Speed[] = [1, 4, 16, 64];
 const SPEED_KEYS: Record<string, Speed> = { "1": 1, "2": 4, "3": 16, "4": 64 };
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
 const INTERACTIVE_ROLES = new Set([
   "button",
@@ -52,44 +58,6 @@ function linkedBall(timeline: Timeline): number | null {
   const [innings, seq] = [Number(match[1]), Number(match[2])];
   const index = timeline.deliveries.findIndex((d) => d.innings_no === innings && d.seq_no === seq);
   return index >= 0 ? index : null;
-}
-
-/** Runs per over in the innings being played, up to the cursor. */
-function InningsOvers({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
-  const d = cursor >= 0 ? timeline.deliveries[cursor] : null;
-  if (!d) return null;
-  const inn = timeline.innings.find((i) => i.innings_no === d.innings_no);
-  const side = inn?.batting_team_id === timeline.summary.team_a.team_season_id ? "a" : "b";
-  const team = inn ? timeline.teams[inn.batting_team_id] : null;
-  const data = oversUpTo(timeline, d.innings_no, cursor);
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">
-        {team?.name}, {inningsLabel(d.innings_no, false)}: runs in each over
-      </p>
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -20 }}>
-            <CartesianGrid stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="over" {...AXIS} />
-            <YAxis allowDecimals={false} width={40} {...AXIS} />
-            <Tooltip
-              cursor={{ fill: "var(--muted)" }}
-              contentStyle={{
-                background: "var(--popover)",
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-              labelFormatter={(over) => `Over ${over}`}
-              formatter={(value) => [`${value} runs`, ""]}
-            />
-            <Bar dataKey="runs" fill={SIDE_COLORS[side]} isAnimationActive={false} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
 }
 
 /** The replay of a Test: four innings, three results, estimated days, the chase what-if. */

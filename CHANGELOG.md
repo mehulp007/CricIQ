@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **V3-pre: the 3D toolchain.** three.js 0.186.1, React Three Fiber 9.8.1 and drei 10.7.9 in the
+  web app, and `gltf-transform` 4.5.0 to compress models; `frontend/assets-src/3d/` describes how
+  models go from Blender (5.2.2, with the Blender Lab MCP add-on) to the site. CI runs on the `v3`
+  branch, and Blender, glTF and image files are stored as binary.
+
 ### Changed
 - The README is short: what CricIQ is, how to run it in three commands without extra tools, a
   troubleshooting table, headline results and how it is built. The detailed results moved to

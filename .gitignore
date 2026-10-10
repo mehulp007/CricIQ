@@ -40,3 +40,6 @@ docs/images/frames/
 
 # --- private planning notes (kept locally, never committed) ---
 docs/PLAN*.md
+
+# Blender backup files
+*.blend1

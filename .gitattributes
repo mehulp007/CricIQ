@@ -7,3 +7,9 @@
 *.zip binary
 *.duckdb binary
 *.parquet binary
+*.blend binary
+*.blend1 binary
+*.glb binary
+*.webp binary
+*.avif binary
+*.ktx2 binary

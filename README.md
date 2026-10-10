@@ -152,6 +152,11 @@ just sync       # take in new and corrected matches
 just train-group leagues   # retrain one model group: ipl, leagues, t20i, odi or test
 ```
 
+**Editing the 3D models** (only for that: the site runs without it) needs [Blender](https://www.blender.org)
+5.1 or newer with the Blender Lab MCP add-on (`mcp`, from the extensions repository
+`https://lab.blender.org/`), enabled with online access allowed; its server listens on
+`localhost:9876`. The models' sources and how to rebuild them are in `frontend/assets-src/3d/`.
+
 ```
 core/  pipelines/  ml/  backend/  frontend/   the packages and the web app
 config/  reference/  models/                  configuration, player data, trained models

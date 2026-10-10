@@ -102,10 +102,11 @@ class Database:
             raise ServingDataMissingError(
                 f"serving database not found at {self.path}; run `criciq-data run` (or `export`)"
             )
-        config: dict[str, str | bool | int | float | list[str]] = (
-            {"memory_limit": self.memory_limit} if self.memory_limit else {}
-        )
-        self._con = duckdb.connect(str(self.path), read_only=True, config=config)
+        self._con = duckdb.connect(str(self.path), read_only=True)
+        if self.memory_limit:
+            # Set on the connection, not in its config: other readers of the same file (the
+            # tests, the featured export) open it with DuckDB's default config.
+            self._con.execute(f"SET memory_limit = '{self.memory_limit}'")
         meta = dict(self._con.execute("SELECT key, value FROM meta").fetchall())
         self.data_version: str = meta["data_version"]
         # The serving database holds one competition; its format (T20, ODI or Test)

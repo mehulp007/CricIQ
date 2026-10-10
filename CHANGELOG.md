@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The README is short: what CricIQ is, how to run every competition (v2) in three commands,
+  headline results and how it is built. The detailed results moved to `docs/models.md`.
+
 ### Fixed
 - The API image fetches Cricsheet's IPL archive and register with `ADD`, so a rebuild picks up
   new matches instead of reusing stale data from the Docker layer cache.

@@ -4,9 +4,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-v2 ("all of cricket") is being built on the `v2` branch.
+## [2.0.0] - 2026-10-11
+
+v2, "all of cricket": men's Tests, ODIs and T20Is and the IPL, BBL, CPL, PSL and SA20, each with its
+own models. It runs on your machine (`just v2-up`, ADR-0016) from the `v2` branch; the hosted demo
+stays v1.0.0, the IPL edition, on `main`.
 
 ### Added
+- **V2-8: the local release** (ADR-0016)
+  - `just v2-up` serves a production build of the web app: it starts the API, waits for its health
+    check, builds the web app only when its sources changed since the last build, then serves it;
+    it stops early, saying what to do, if a port is busy or no data has been built. `--dev` runs
+    the Next.js dev server instead.
+  - `scripts/perf.py` times every competition's key endpoints (cold and warm) and a 10,000-match
+    simulation against the running API. Measured on a laptop: warm p95 median 50 ms, worst 178 ms
+    (an ODI team page); simulations 0.5-0.6 s for the T20 competitions and 1.2 s for ODIs.
+  - Lighthouse (mobile, throttled, production build): 92-95 performance on every competition's
+    overview, replay, players, teams, Model Insights and series pages and the write-up; 100
+    accessibility, best practices and SEO on all of them.
 - **Series, tournaments and careers across formats** (V2-7, ADR-0015).
   - Data: Cricsheet's event group is extracted (`matches.event_group` in the full warehouse);
     the T20I, ODI and Test serving databases get `events`, `event_matches` and
@@ -173,7 +188,8 @@ v2 ("all of cricket") is being built on the `v2` branch.
     the sync every six hours with Windows Task Scheduler.
   - The site shows how fresh the data is ("Data updated 6 Oct 2026 · 2 new matches") and leads the
     overview with the latest matches; `/api/v1/meta` reports `last_update` and `latest_match_date`.
-  - `.github/workflows/data-sync.yml` for the launch (switched off until V2-8).
+  - `.github/workflows/data-sync.yml` for a hosted v2 (switched off; removed in 2.0.0, since v2
+    runs locally).
 - **V2-0: multi-competition foundation**
   - One warehouse for every competition (ADR-0007): the IPL, BBL, PSL, CPL and SA20, and men's
     T20Is, ODIs and Tests, about 9,900 matches and 4.6 million deliveries, registered in
@@ -195,6 +211,14 @@ v2 ("all of cricket") is being built on the `v2` branch.
     API and the web app together.
 
 ### Changed
+- **V2-8:**
+  - Charts load after the page paints (`next/dynamic`): the charting library left the first
+    JavaScript of the teams, team, replay, player, Model Insights and write-up pages, which took
+    the slowest pages from 70-85 to 92 and above in Lighthouse.
+  - Each database's DuckDB buffer pool is capped (`CRICIQ_DUCKDB_MEMORY_LIMIT`, default 384 MB)
+    where DuckDB allowed each of the nine up to 80% of RAM; the API holds about 0.9 GB with every
+    competition loaded.
+  - Versions are 2.0.0 across the Python packages, the web app and the OpenAPI document.
 - **The write-up** (`/writeup`) tells the v2 story: the data of all eight competitions, the five
   model groups and the price of training each on its own matches (own against pooled T20 win
   probability), every group's win probability, projection and simulator against their baselines,
@@ -203,7 +227,7 @@ v2 ("all of cricket") is being built on the `v2` branch.
   table, the projection's baseline, the rating components and the registry read; the simulator's
   overs, quota and phases travel with each side. T20 output is unchanged. The players database
   has an ODI scope after All T20, and player pages list every competition.
-- **V2-4:** `/api/v1` is retired on the v2 branch (it stays on `main` until the launch), and every
+- **V2-4:** `/api/v1` is retired on the v2 branch (it stays on `main`, the hosted IPL edition), and every
   page, API client function and route handler takes the competition. The `meta` table records
   whether seasons span the new year, so the BBL's read "2025/26".
 - Teams without curated colours (some league sides) get a neutral grey everywhere.
@@ -217,6 +241,10 @@ v2 ("all of cricket") is being built on the `v2` branch.
 - `criciq-data download` and `run` fetch every selected competition (`CRICIQ_COMPETITIONS`, default
   all); `snapshot` takes several archives. The API image builds the IPL only.
 - `config/franchises.yaml` moved to `config/teams/ipl.yaml`.
+
+### Removed
+- `.github/workflows/data-sync.yml`: the cloud sync was for a hosted v2. The sync runs locally
+  (`just sync`, scheduled with `scripts/sync_task.ps1`).
 
 ### Fixed
 - **V2-5:**

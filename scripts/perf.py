@@ -1,4 +1,4 @@
-"""Time the local API's key endpoints for every competition (V2-8's performance check).
+"""Time the local API's key endpoints for every competition (the v2.0 performance check).
 
 Usage:  uv run python scripts/perf.py [--base http://127.0.0.1:8000] [--repeat 20]
 

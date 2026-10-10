@@ -255,7 +255,7 @@ wheels = [
 
 [[package]]
 name = "criciq"
-version = "1.0.0"
+version = "2.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "criciq-api" },
@@ -314,7 +314,7 @@ notebooks = [
 
 [[package]]
 name = "criciq-api"
-version = "1.0.0"
+version = "2.0.0"
 source = { editable = "backend" }
 dependencies = [
     { name = "criciq-core" },
@@ -335,7 +335,7 @@ requires-dist = [
 
 [[package]]
 name = "criciq-core"
-version = "1.0.0"
+version = "2.0.0"
 source = { editable = "core" }
 dependencies = [
     { name = "numpy" },
@@ -352,7 +352,7 @@ requires-dist = [
 
 [[package]]
 name = "criciq-ml"
-version = "1.0.0"
+version = "2.0.0"
 source = { editable = "ml" }
 dependencies = [
     { name = "criciq-core" },
@@ -381,7 +381,7 @@ requires-dist = [
 
 [[package]]
 name = "criciq-pipelines"
-version = "1.0.0"
+version = "2.0.0"
 source = { editable = "pipelines" }
 dependencies = [
     { name = "criciq-core" },

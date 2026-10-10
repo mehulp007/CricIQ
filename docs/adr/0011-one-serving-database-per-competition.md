@@ -28,7 +28,7 @@ questions had to be settled:
 - **`/api/v2/{competition}/...` throughout.** `get_db` picks the database a request's
   `{competition}` names, so every router, service and repository serves any competition
   unchanged; the Player Lab keeps reading the players database. `/api/v1` lives on only on
-  `main` until the v2 launch (V2-8). `/meta` describes the competition (name, format, club or
+  `main`, the hosted IPL edition (v2 stays local, ADR-0016). `/meta` describes the competition (name, format, club or
   national, season names) and what serves it (`features.simulator` is false until a simulator
   version passes its backtest there).
 - **Every data page moves under `/[competition]/`** (`/ipl/matches`, `/t20i/players/[id]`); the
@@ -58,7 +58,8 @@ questions had to be settled:
 
 **Negative / accepted trade-offs**
 - Six serving databases (about 160 MB scored) instead of one; the API opens all of them at
-  startup (about 1.5 s with warm-up), which V2-8's paid instance has to fit.
+  startup (about 1.5 s with warm-up); more than a free instance holds, so v2 runs locally
+  (ADR-0016).
 - Player tables exist in each serving database and in the players database; the Player Lab reads
   only the latter.
 - League tables for the BBL, PSL, CPL and SA20 are not checked against official tables.

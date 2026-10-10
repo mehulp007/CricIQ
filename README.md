@@ -40,7 +40,8 @@ just v2-up            # download Cricsheet, build and validate every competition
 
 The first `just v2-up` takes a few minutes: it downloads about 45 MB of Cricsheet archives, builds
 the warehouse (about 1.5 GB of local data under `data/`), validates it, exports a serving database
-per competition, scores every ball with the committed models and starts both servers. Then open
+per competition, scores every ball with the committed models, builds the web app for production
+and starts both servers. Then open
 **http://localhost:3000** (use `localhost`, not `127.0.0.1`) and pick a competition in the top bar;
 the API and its docs are at http://localhost:8000/docs. Ctrl+C stops both.
 
@@ -48,6 +49,7 @@ the API and its docs are at http://localhost:8000/docs. Ctrl+C stops both.
 |---|---|
 | Start the site again, without rebuilding | `just v2-up --serve-only` |
 | Rebuild from the last download, offline | `just v2-up --no-download` |
+| Work on the web app (Next.js dev server, reloads on edits) | `just v2-up --serve-only --dev` |
 | Take in new and corrected matches (seconds to a couple of minutes) | `just sync`, then `just sync-status` |
 | Retrain one model group (the IPL, leagues, T20Is, ODIs or Tests; hours) | `just train-group <group>`, then `just publish-models` |
 
@@ -71,7 +73,7 @@ in the sections below.
 | League tables | Rebuilt from the balls for all 19 seasons and identical to the official tables, net run rate included; the build fails if they ever differ |
 | Simulator | 10,000 complete matches in half a second on a laptop; first-innings totals calibrated on 2025–2026 (PIT uniform); pre-match winners no better than a coin flip, reported as such |
 | Quality | 280+ Python tests, 100+ frontend unit tests, 110+ end-to-end tests on desktop and mobile, axe WCAG 2.1 AA scan of every key page |
-| Performance | Lighthouse 95–100 performance (mobile, throttled) and 100 on desktop; 100 accessibility and best practices on every key page |
+| Performance | Lighthouse 92–95 performance (mobile, throttled) on every competition's key pages, served locally; 100 accessibility, best practices and SEO; API warm p95 under 200 ms |
 
 ## Features
 
@@ -568,7 +570,7 @@ scored and smoke-tested) and end-to-end (Playwright on desktop and mobile agains
 
 ```bash
 just setup      # install Python + frontend deps and git hooks
-just v2-up      # build every competition, score, and serve API + web (--serve-only, --no-download)
+just v2-up      # build every competition, score, and serve API + web (--serve-only, --no-download, --dev)
 just dev-api    # API on http://localhost:8000 (OpenAPI docs at /docs)
 just dev-web    # web app on http://localhost:3000
 just check      # everything CI runs: lint, types, tests, build

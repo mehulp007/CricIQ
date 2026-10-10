@@ -40,7 +40,8 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
             ball-model terms with plain arithmetic (ADR-0005); the Player Lab reads one
             scope of players.duckdb (search_path), also for all T20 (ADR-0009)
                         ▼
-  [frontend] Next.js on Vercel: every data page under /[competition]/, a switcher in
+  [frontend] Next.js, a production build served locally (v1 on Vercel): every data
+             page under /[competition]/, a switcher in
              the top bar, server components + client-side replay engine (featured
              replays bundled per competition; see deployment.md)
 ```
@@ -100,7 +101,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 
 - [ADR-0001](adr/0001-duckdb-over-postgres.md): DuckDB + Parquet instead of PostgreSQL
 - [ADR-0002](adr/0002-uv-workspace-python-312.md): uv workspace pinned to Python 3.12
-- [ADR-0003](adr/0003-hosting-vercel-and-render.md): Vercel for the web app, Render for the API
+- [ADR-0003](adr/0003-hosting-vercel-and-render.md): Vercel for the web app, Render for the API (the hosted IPL edition)
 - [ADR-0004](adr/0004-committed-models-precomputed-predictions.md): committed model versions, precomputed predictions
 - [ADR-0005](adr/0005-ball-model-as-additive-terms.md): the ball-outcome model served as additive terms
 - [ADR-0006](adr/0006-simulator-in-the-api-with-numpy.md): the simulator runs in the API with numpy
@@ -113,6 +114,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0013](adr/0013-models-per-group.md): each model group (the IPL, the other leagues, T20Is, ODIs, Tests) trains on its own competitions only
 - [ADR-0014](adr/0014-test-cricket-models.md): Test cricket has models of its own design: three outcomes, every innings projected, no simulator
 - [ADR-0015](adr/0015-series-and-tournaments.md): series and tournaments from Cricsheet's event names, with known results the build must reproduce
+- [ADR-0016](adr/0016-v2-runs-locally.md): v2 runs on your machine; the hosted demo stays the IPL edition
 
 ## Precompute vs live
 

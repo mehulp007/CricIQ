@@ -5,4 +5,4 @@ the ML package and the API. Anything that both training and serving depend on
 lives here so the two can never drift apart.
 """
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"

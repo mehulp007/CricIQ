@@ -54,5 +54,5 @@ failed the whole build.
 - **The interim tables are rewritten whole, not partitioned.** They are about 20 MB for every
   competition; rewriting them takes a second, which partitions would not improve.
 - **Withdrawals are only found by a full check.** The recent feeds list additions, not removals.
-- The schedule runs locally (Windows Task Scheduler) until the v2.0 launch; the GitHub workflow that
-  will run it in the cloud is written but switched off (V2-8).
+- The schedule runs locally (Windows Task Scheduler). A GitHub workflow to run it in the cloud was
+  written for a hosted v2 and removed when v2 stayed local (ADR-0016).

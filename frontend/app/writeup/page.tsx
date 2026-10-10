@@ -756,6 +756,14 @@ export default function WriteupPage() {
           message instead of an error.
         </p>
         <p>
+          All of cricket does not fit there: about 525 MB of serving data and an API that settles
+          near 1 GB of memory, against the free instance&apos;s 512 MB. So the full version runs on
+          your own machine instead: one command downloads Cricsheet, builds and validates every
+          competition, scores every ball and serves a production build, and a scheduled sync keeps
+          it current. Each database&apos;s memory is capped, every competition&apos;s cached pages
+          answer within about a tenth of a second, and the hosted demo stays the IPL edition.
+        </p>
+        <p>
           Quality is enforced, not hoped for: strict typing, Python and frontend unit tests,
           end-to-end tests on desktop and mobile against a real API across the competitions, an
           accessibility scan of every key page, a regression test that keeps the IPL&apos;s serving

@@ -297,8 +297,7 @@ powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1 -RunOnce   # run 
 powershell -ExecutionPolicy Bypass -File scripts/sync_task.ps1 -Remove    # unregister
 ```
 
-At the v2.0 launch the same sync runs in GitHub Actions (`.github/workflows/data-sync.yml`, written
-but switched off until V2-8; see [deployment.md](deployment.md)).
+v2 stays local, so the sync runs on your machine only ([deployment.md](deployment.md)).
 
 ### Model inputs (`criciq_ml.data`)
 

@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     serving_db: Path = paths.exports_dir() / "serving.duckdb"
     # Player Lab tables for every T20 competition (/api/v2); optional.
     players_db: Path = paths.exports_dir() / "players.duckdb"
+    # DuckDB's buffer pool per database (nine of them); unset, each may take 80% of RAM.
+    duckdb_memory_limit: str = "384MB"
     # Historical data only changes on redeploy, so responses are safe to cache.
     cache_max_age: int = 300
     cache_s_maxage: int = 86_400

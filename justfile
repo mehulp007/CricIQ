@@ -96,7 +96,7 @@ featured:
 e2e:
     pnpm --dir frontend e2e
 
-# v2 local runtime: build every competition, score, then serve API + web (Ctrl+C stops)
-# e.g. `just v2-up`, `just v2-up --no-download` or `just v2-up --serve-only`
+# CricIQ locally: build every competition, score, then serve the API + a production web build (Ctrl+C stops)
+# e.g. `just v2-up`, `just v2-up --no-download`, `just v2-up --serve-only` or `--dev` (Next.js dev server)
 v2-up *args:
     uv run python scripts/v2_up.py {{args}}

@@ -80,8 +80,10 @@ class ServingDataMissingError(RuntimeError):
 
 
 class Database:
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, memory_limit: str | None = None) -> None:
         self.path = path
+        # Bounds DuckDB's buffer pool for this database ("384MB"); None keeps DuckDB's default.
+        self.memory_limit = memory_limit
         self._lock = threading.Condition()
         self._readers = 0
         self._swapping = False
@@ -100,7 +102,10 @@ class Database:
             raise ServingDataMissingError(
                 f"serving database not found at {self.path}; run `criciq-data run` (or `export`)"
             )
-        self._con = duckdb.connect(str(self.path), read_only=True)
+        config: dict[str, str | bool | int | float | list[str]] = (
+            {"memory_limit": self.memory_limit} if self.memory_limit else {}
+        )
+        self._con = duckdb.connect(str(self.path), read_only=True, config=config)
         meta = dict(self._con.execute("SELECT key, value FROM meta").fetchall())
         self.data_version: str = meta["data_version"]
         # The serving database holds one competition; its format (T20, ODI or Test)

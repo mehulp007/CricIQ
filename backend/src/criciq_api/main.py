@@ -57,12 +57,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.serving = {}
         for path in serving_paths(settings.serving_db):
             if path == settings.serving_db or path.exists() or pending(path).exists():
-                db = Database(path)
+                db = Database(path, settings.duckdb_memory_limit)
                 app.state.serving[(db.competition_id or "IPL").lower()] = db
         # The players database is optional: without it the Player Lab answers 503.
         players = settings.players_db
         app.state.players_db = (
-            Database(players) if players.exists() or pending(players).exists() else None
+            Database(players, settings.duckdb_memory_limit)
+            if players.exists() or pending(players).exists()
+            else None
         )
         for db in app.state.serving.values():
             _warm_up(db)

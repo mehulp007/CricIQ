@@ -2,6 +2,9 @@
 
 Usage:  uv run python scripts/v2_up.py [--no-download] [--serve-only] [--dev]   (or `just v2-up`)
 
+Before anything slow, it checks that Node.js and pnpm are installed and the ports are free,
+and installs the web app's dependencies when they are missing or out of date.
+
 1. ``criciq-data run`` downloads the Cricsheet archives of every competition in
    config/competitions.yaml, builds and validates the full warehouse, and exports a
    serving database per competition and the players database.
@@ -49,10 +52,20 @@ WEB_SOURCES = (
 )
 
 
+RUN = "uv run python scripts/v2_up.py"
+# What to do when a program is missing, in plain terms.
+MISSING = {
+    "node": "Node.js is not installed: install Node.js 24 (LTS) from https://nodejs.org, "
+    "then open a new terminal.",
+    "pnpm": "pnpm is not installed: run `npm install -g pnpm` (in PowerShell, if npm is "
+    "blocked: `npm.cmd install -g pnpm`), then open a new terminal.",
+}
+
+
 def tool(name: str) -> str:
     found = shutil.which(name)
     if found is None:
-        raise SystemExit(f"{name} not found on PATH (run through `uv run` / `just v2-up`)")
+        raise SystemExit(MISSING.get(name, f"{name} not found: start this script with `{RUN}`"))
     return found
 
 
@@ -86,7 +99,7 @@ def port_in_use(port: int) -> bool:
 
 def preflight(serve_only: bool) -> None:
     """Fail early, with what to do, rather than half-way through."""
-    problems = []
+    problems = [MISSING[name] for name in ("node", "pnpm") if shutil.which(name) is None]
     for port, what in ((API_PORT, "API"), (WEB_PORT, "web app")):
         if port_in_use(port):
             problems.append(
@@ -100,7 +113,7 @@ def preflight(serve_only: bool) -> None:
         and not serving.with_name("serving.duckdb.next").exists()
     ):
         problems.append(
-            f"no data at {serving.parent}: run `just v2-up` once without --serve-only to "
+            f"no data at {serving.parent} yet: run `{RUN}` once without --serve-only to "
             "download and build it."
         )
     if problems:
@@ -151,6 +164,19 @@ def newest_source() -> float:
                 if f.is_file():
                     newest = max(newest, f.stat().st_mtime)
     return newest
+
+
+def ensure_web_dependencies(env: dict[str, str]) -> None:
+    """Install the web app's packages on the first run, or after its lockfile changes."""
+    installed = FRONTEND / "node_modules" / ".modules.yaml"
+    lockfile = FRONTEND / "pnpm-lock.yaml"
+    if installed.exists() and installed.stat().st_mtime >= lockfile.stat().st_mtime:
+        return
+    step(
+        "web app: install packages",
+        [tool("pnpm"), "--dir", "frontend", "install", "--frozen-lockfile"],
+        env,
+    )
 
 
 def build_is_current() -> bool:
@@ -214,6 +240,7 @@ def main() -> int:
     env.pop("CRICIQ_COMPETITIONS", None)  # every configured competition
     env.setdefault("PYTHONIOENCODING", "utf-8")
     preflight(args.serve_only)
+    ensure_web_dependencies(env)
     if not args.serve_only:
         run = [tool("criciq-data"), "run", "--report", str(DATA / "data-quality-report.md")]
         if args.no_download:

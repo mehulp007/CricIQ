@@ -65,6 +65,10 @@ just v2-up --serve-only  # serve the data already built
 just v2-up --dev         # the Next.js dev server instead of a production build
 ```
 
+Without `just`, `uv run python scripts/v2_up.py` takes the same options; it installs the web app's
+packages on the first run, so a fresh clone needs only Git, uv, Node.js 24 and pnpm (the README's
+[Run it on your machine](../README.md#run-it-on-your-machine)).
+
 `scripts/v2_up.py` starts the API on port 8000; once it answers, it builds the web app for
 production (only when its sources changed since the last build, because the build pre-renders
 pages from the API) and serves it on port 3000. It stops early, saying what to do, if a port is

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The README is short: what CricIQ is, how to run it in three commands without extra tools, a
+  troubleshooting table, headline results and how it is built. The detailed results moved to
+  `docs/models.md`.
+- `scripts/v2_up.py` checks for Node.js and pnpm before the slow steps, says how to install what
+  is missing, and installs the web app's packages itself on the first run, so `uv run python
+  scripts/v2_up.py` is all a fresh clone needs.
+
 ## [2.0.0] - 2026-10-11
 
 v2, "all of cricket": men's Tests, ODIs and T20Is and the IPL, BBL, CPL, PSL and SA20, each with its

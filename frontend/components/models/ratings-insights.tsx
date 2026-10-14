@@ -210,7 +210,7 @@ export function RatingsInsights({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Shrinking helps"
           value={`${beatsRaw} of ${components.length}`}
@@ -249,13 +249,13 @@ export function RatingsInsights({
         <ComponentTable role="bowling" ri={ri} />
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="ratings-similar-heading"
           title="Do style profiles identify a player?"
           lede={`From a player's style in one season, how often is the most similar profile among next season's players the same player? Season windows, ${t.style_min_balls}+ balls in both seasons.`}
         >
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
             {(["batting", "bowling"] as const).map((role) => (
               <div key={role} className="flex flex-col gap-2">
                 <h3 className="text-sm font-medium">

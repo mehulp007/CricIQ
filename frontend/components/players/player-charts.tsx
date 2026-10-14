@@ -20,8 +20,7 @@ import { useCompetition } from "@/components/competition/use-competition";
 import { competitionPath } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
 import { PLAYER_SERIES, rate, signed } from "@/lib/players";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 interface TipProps<T> {
   active?: boolean;
@@ -236,7 +235,7 @@ export function SeasonCharts({
   const total = batting ? "Runs" : "Wickets";
   const rateLabel = batting ? "Strike rate" : "Economy";
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <figure className="flex min-w-0 flex-col gap-2">
         <figcaption className="text-xs text-muted-foreground">{total} by season</figcaption>
         <SeasonTotals points={points} label={total} />

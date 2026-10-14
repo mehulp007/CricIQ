@@ -23,8 +23,7 @@ import {
 } from "@/lib/compare";
 import { signed } from "@/lib/players";
 import { cn } from "@/lib/utils";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 interface TipProps {
   active?: boolean;

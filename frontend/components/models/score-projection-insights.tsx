@@ -54,7 +54,7 @@ export function ScoreProjectionInsights({ data: sp = SCORE_PROJECTION }: { data?
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="80% range covers"
           value={pct(test.model.coverage80)}
@@ -77,7 +77,7 @@ export function ScoreProjectionInsights({ data: sp = SCORE_PROJECTION }: { data?
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="levels-heading"
           title="Does the 90% line mean 90%?"
@@ -158,7 +158,7 @@ export function ScoreProjectionInsights({ data: sp = SCORE_PROJECTION }: { data?
         </div>
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="projection-phase-heading"
           title="Sharper as the innings goes on"
@@ -242,7 +242,7 @@ export function ScoreProjectionInsights({ data: sp = SCORE_PROJECTION }: { data?
         title="How it works"
         lede="LightGBM quantile regression, conformally calibrated."
       >
-        <ul className="grid gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
           <li>
             <span className="font-medium text-foreground">Runs relative to the era.</span> The model
             predicts the runs still to come as a share of what the era&apos;s scoring rate would

@@ -22,10 +22,10 @@ import type { Timeline } from "@/lib/api/types";
 import { oversUpTo, wormUpTo } from "@/lib/replay/engine";
 import { projectionCone } from "@/lib/replay/projection";
 import { inningsOvers, overTicks } from "@/lib/replay/win-probability";
+import { AXIS } from "@/lib/chart-theme";
 
 // Chart roles map to design tokens: side batting first = team A, chasing side = team B.
 const COLORS = { a: "var(--team-a)", b: "var(--team-b)" };
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
 interface Side {
   key: "a" | "b";

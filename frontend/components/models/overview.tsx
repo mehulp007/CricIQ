@@ -361,7 +361,7 @@ export function ModelsOverview() {
   const batting = CLUTCH.roles.batting;
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Favourite goes on to win"
           value={pct(accuracy)}
@@ -405,7 +405,7 @@ export function ModelsOverview() {
         title="How every number is tested"
         lede="The same rules apply to every model and metric on the site."
       >
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {PRINCIPLES.map((p) => (
             <li key={p.title} className="flex flex-col gap-1">
               <span className="text-sm font-medium">{p.title}</span>
@@ -420,7 +420,7 @@ export function ModelsOverview() {
         title="Custom metrics, put to the test"
         lede="CricIQ's own measures were each given a test they could fail. Two passed and became part of the replay; two failed and are reported as findings."
       >
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Metric title="Pressure" href="/ipl/lab/pressure" verdict="Passed: in the replay">
             Leverage predicts how far the next ball moves the match: from {calm.leverage.toFixed(2)}
             × a typical ball expected and {calm.realised.value.toFixed(2)}× realised in the calmest

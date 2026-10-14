@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "gen:api": "openapi-typescript lib/api/openapi.json -o lib/api/schema.d.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "visual": "playwright test -c playwright.visual.config.ts"
   },
   "dependencies": {
     "@react-three/drei": "10.7.9",

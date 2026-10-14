@@ -9,7 +9,7 @@ export const SeasonCharts = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="h-64 animate-pulse rounded-xl bg-muted/40" />
         <div className="h-64 animate-pulse rounded-xl bg-muted/40" />
       </div>

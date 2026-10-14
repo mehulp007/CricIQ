@@ -5,6 +5,7 @@ import { Logo } from "@/components/brand/logo";
 import { CompetitionSwitcher } from "@/components/competition/competition-switcher";
 import { DataFreshness } from "@/components/layout/data-badges";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function TopBar() {
   return (
@@ -18,6 +19,7 @@ export function TopBar() {
           <DataFreshness />
         </Suspense>
         <CompetitionSwitcher />
+        <ThemeToggle />
       </div>
     </header>
   );

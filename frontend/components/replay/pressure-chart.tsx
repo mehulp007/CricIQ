@@ -21,8 +21,8 @@ import {
   pressureSeries,
 } from "@/lib/replay/pressure";
 import { inningsOvers, overTicks } from "@/lib/replay/win-probability";
+import { AXIS } from "@/lib/chart-theme";
 
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 const COLOR = "var(--chart-4)";
 const FLOOR = 0.25;
 const CEILING = 32;

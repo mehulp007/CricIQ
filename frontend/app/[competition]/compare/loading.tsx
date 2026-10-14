@@ -11,7 +11,7 @@ export default function CompareLoading() {
         <div className="h-5 w-[32rem] max-w-full animate-pulse rounded bg-muted/70" />
       </div>
       <div className="h-32 animate-pulse rounded-2xl border border-border bg-card/50" />
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <div className="h-[28rem] animate-pulse rounded-2xl border border-border bg-card/50" />
         <div className="h-[28rem] animate-pulse rounded-2xl border border-border bg-card/50" />
       </div>

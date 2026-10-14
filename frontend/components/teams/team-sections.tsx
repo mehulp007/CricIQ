@@ -319,7 +319,7 @@ function PhaseRows({ phases, role }: { phases: TeamPhase[]; role: "batting" | "b
 
 export function PhaseTables({ phases }: { phases: TeamPhase[] }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
       <PhaseRows phases={phases} role="batting" />
       <PhaseRows phases={phases} role="bowling" />
     </div>

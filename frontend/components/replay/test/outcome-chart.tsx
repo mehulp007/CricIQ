@@ -15,6 +15,7 @@ import { DRAW_COLOR } from "@/components/replay/test/outcome-bar";
 import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { describeDelivery } from "@/lib/replay/engine";
+import { AXIS } from "@/lib/chart-theme";
 import {
   dayStarts,
   inningsOffsets,
@@ -23,8 +24,6 @@ import {
   outcomeSeries,
   testTurningPoints,
 } from "@/lib/replay/test";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
 interface Row extends OutcomePoint {
   aPct: number;

@@ -146,7 +146,7 @@ function SeasonSnapshotSection({ competition }: { competition: CompetitionId }) 
           All {s.label} matches
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Card className="bg-card/70">
           <CardContent className="flex flex-col gap-2">
             <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
@@ -234,7 +234,7 @@ function BiggestSwings({ competition }: { competition: CompetitionId }) {
           Top 10
         </Link>
       </div>
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {swings.map((s) => (
           <li key={`${s.match_id}-${s.seq_no}`} className="flex">
             <Link
@@ -357,7 +357,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
             All matches
           </Link>
         </div>
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {featured.slice(0, 6).map((m) => (
             <li key={m.match_id} className="flex">
               <MatchCard competition={competition} match={m.summary} headline={m.headline} />
@@ -379,7 +379,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
             Each capability shipped as a complete, tested slice, from data to model to interface.
           </p>
         </div>
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {capabilities(c).map(({ icon: Icon, title, body, path }) => (
             <li key={title} className="flex">
               <Link

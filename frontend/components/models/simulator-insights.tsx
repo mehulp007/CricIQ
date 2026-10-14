@@ -121,7 +121,10 @@ export function SimulatorInsights({
   const levelWindow = s.settings.level_window;
   return (
     <div className="flex flex-col gap-6">
-      <section aria-label="Headline results" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-label="Headline results"
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
         <Stat
           label="Who wins, pre-match"
           value={win.simulator.brier.toFixed(3)}
@@ -190,7 +193,7 @@ export function SimulatorInsights({
         </div>
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="simulator-totals"
           title="First-innings totals"

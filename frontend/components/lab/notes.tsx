@@ -77,7 +77,7 @@ export function MomentumNoteView() {
         <p>{EXPECTED} Intervals come from resampling whole matches.</p>
       </Prose>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Finding
           label="Next 12 balls, per 10 points"
           value={`${signed(m.runs_per_10_points.value, 2)} runs`}
@@ -95,7 +95,7 @@ export function MomentumNoteView() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="momentum-runs"
           title="The next two overs"
@@ -180,7 +180,7 @@ export function PressureNoteView() {
       </Prose>
 
       {extreme && (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Finding
             label="Very high pressure, chasing"
             value={`${extreme.strike_rate.toFixed(0)} vs ${extreme.expected_strike_rate.toFixed(0)}`}
@@ -247,7 +247,7 @@ export function PressureNoteView() {
         </p>
       </Panel>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {[
           ["pressure-chase", "Chasing", chase],
           ["pressure-first", "Batting first", first],
@@ -406,7 +406,7 @@ export function ClutchNoteView() {
         </p>
       </Prose>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Finding
           label="Batters, odd vs even seasons"
           value={`r = ${bat.split_half_r?.toFixed(2) ?? "n/a"}`}
@@ -419,7 +419,7 @@ export function ClutchNoteView() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="clutch-halves"
           title="Under pressure, season to season"
@@ -497,7 +497,7 @@ export function RivalriesNoteView() {
         </p>
       </Prose>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Finding
           label="Side in better form won"
           value={`${r.favourite.win_pct ?? "n/a"}%`}
@@ -524,7 +524,7 @@ export function RivalriesNoteView() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="rivalries-form"
           title="How much form is worth"
@@ -600,7 +600,7 @@ export function RivalriesNoteView() {
         title="Close finishes"
         lede={`${r.close_share}% of matches end within 5 runs, with 2 balls or fewer to spare, or in a super over.`}
       >
-        <div className="grid gap-6 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <IntervalRows
             rows={excessRows(
               r.favourites,
@@ -732,7 +732,7 @@ export function TossNoteView() {
         </p>
         <p>{SHARE_NOTE}</p>
       </Prose>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {tests && (
           <Finding
             label="Toss winners in Tests"
@@ -774,7 +774,7 @@ export function TossNoteView() {
           </p>
         </Prose>
       )}
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="toss-region"
           title="Tests in Asia"

@@ -20,8 +20,7 @@ import {
   type ReliabilityBin,
   SERIES,
 } from "@/lib/models";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 interface TipProps<T> {
   active?: boolean;

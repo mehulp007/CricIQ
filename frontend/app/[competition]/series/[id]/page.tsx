@@ -115,7 +115,7 @@ function Matches({
   withRound?: boolean;
 }) {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {entries.map((e) => (
         <li key={e.summary.match_id} className="flex">
           <MatchCard
@@ -144,7 +144,7 @@ function Performers({ detail, test }: { detail: SeriesDetail; test: boolean }) {
     </th>
   );
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
       <Panel id="batters-heading" title="Most runs">
         <div className="overflow-x-auto" {...scrollRegion("Runs in this event")}>
           <table className="w-full min-w-[30rem] text-sm">
@@ -244,7 +244,7 @@ function Decisive({ detail, test }: { detail: SeriesDetail; test: boolean }) {
           : "Win probability added over the event: how much each player's balls moved their side's chance of winning, in matches won, from the win probability model."
       }
     >
-      <ol className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+      <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
         {detail.decisive.map((d, i) => (
           <li key={d.player_id} className="flex items-center gap-3 rounded-xl bg-muted/40 p-3">
             <span className="w-5 font-mono text-xs text-muted-foreground tabular-nums">

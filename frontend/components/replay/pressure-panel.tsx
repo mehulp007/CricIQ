@@ -79,7 +79,7 @@ export function PressurePanel({
   return (
     <section
       aria-label="Pressure and momentum"
-      className="grid gap-5 rounded-2xl border border-border bg-card/70 p-5 sm:grid-cols-2"
+      className="grid grid-cols-1 gap-5 rounded-2xl border border-border bg-card/70 p-5 sm:grid-cols-2"
     >
       <div className="flex flex-col gap-2">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">

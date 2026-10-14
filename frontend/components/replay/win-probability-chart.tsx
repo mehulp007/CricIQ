@@ -16,6 +16,7 @@ import {
 import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { describeDelivery } from "@/lib/replay/engine";
+import { AXIS } from "@/lib/chart-theme";
 import {
   inningsOvers,
   overTicks,
@@ -23,8 +24,6 @@ import {
   type WpPoint,
   wpSeries,
 } from "@/lib/replay/win-probability";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
 interface ChartRow extends WpPoint {
   above: number;

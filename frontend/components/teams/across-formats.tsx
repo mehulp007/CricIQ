@@ -113,7 +113,7 @@ export async function AcrossFormats({
       {here && here.series.length > 0 && (
         <div className="mt-6 flex flex-col gap-3">
           <h3 className="text-sm font-medium">Their latest series and tournaments here</h3>
-          <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {here.series.slice(0, SHOWN_SERIES).map((s) => (
               <li key={s.event_id} className="flex">
                 <SeriesCard competition={competition} series={s} />

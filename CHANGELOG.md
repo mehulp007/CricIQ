@@ -5,6 +5,22 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V3-0: light and dark themes, and the design system.**
+  - A theme switch in the top bar: System (the default, following the device), Light or Dark,
+    remembered in a cookie. An inline script reads it before the first paint, so pages stay
+    statically prerendered and never flash the wrong theme; switching cross-fades where the
+    browser supports it. `lib/theme.ts`, `components/theme/theme-toggle.tsx`.
+  - Tokens for both themes in `app/globals.css`: the "floodlit night" dark palette refined and a
+    "day match" light palette whose accents and team colours pass WCAG AA as text on white;
+    elevation (`shadow-elev-1` to `-3`), glow, a type scale (`text-display`, `text-headline`,
+    `text-title`) and Sora for headings beside Geist.
+  - Primitives: `PageHeader`, `SectionHeader`, `StatTile`, `Skeleton` and `EmptyState`; cards,
+    buttons and tabs use the elevation tokens. Every chart reads one theme helper
+    (`lib/chart-theme.ts`) instead of thirteen copies.
+  - Tests: the accessibility scan runs every key page in both themes, a theme spec checks the
+    switch, persistence, the system preference and that the theme is set before any script
+    bundle runs, and a layout spec checks that no key page scrolls sideways on mobile.
+    `pnpm visual` captures the key pages in both themes on desktop and mobile for review.
 - **V3-pre: the 3D toolchain.** three.js 0.186.1, React Three Fiber 9.8.1 and drei 10.7.9 in the
   web app, and `gltf-transform` 4.5.0 to compress models; `frontend/assets-src/3d/` describes how
   models go from Blender (5.2.2, with the Blender Lab MCP add-on) to the site. CI runs on the `v3`
@@ -17,6 +33,13 @@ All notable changes to this project are documented here. The format follows [Kee
 - `scripts/v2_up.py` checks for Node.js and pnpm before the slow steps, says how to install what
   is missing, and installs the web app's packages itself on the first run, so `uv run python
   scripts/v2_up.py` is all a fresh clone needs.
+
+### Fixed
+- On phones, the competition home, match list, teams and team pages scrolled sideways. Responsive
+  grids had no column count below their breakpoint, so a long unbroken name (a venue) widened the
+  single column; every such grid now starts from one shrinkable column (`grid-cols-1`). A
+  screen-reader-only header label escaped its table's scroll region; scroll regions now contain
+  their positioned descendants.
 
 ## [2.0.0] - 2026-10-11
 

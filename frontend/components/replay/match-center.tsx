@@ -152,7 +152,7 @@ export function MatchCenter({
         </div>
 
         <TabsContent value="live" className="mt-4">
-          <div className="grid gap-4 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
               <Scoreboard timeline={timeline} frame={frame} atEnd={atEnd} wp={wp} />
               <ProjectionPanel timeline={timeline} cursor={cursor} />

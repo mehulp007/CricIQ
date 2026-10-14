@@ -77,7 +77,7 @@ export default async function SeriesListPage({
           <h2 id="majors-heading" className="text-xl font-semibold tracking-tight">
             Major tournaments
           </h2>
-          <ul className="grid gap-4 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {tournaments.map((t) => (
               <li
                 key={t.id}
@@ -132,7 +132,7 @@ export default async function SeriesListPage({
           {result.total === 1 ? "series or tournament" : "series and tournaments"}
         </p>
         {result.items.length > 0 ? (
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {result.items.map((s) => (
               <li key={s.event_id} className="flex">
                 <SeriesCard competition={competition} series={s} />

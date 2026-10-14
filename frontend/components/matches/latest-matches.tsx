@@ -37,7 +37,7 @@ export async function LatestMatches({ competition }: { competition: CompetitionI
           All matches
         </Link>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {matches.map((match) => (
           <li key={match.match_id} className="flex">
             <MatchCard competition={competition} match={match} />

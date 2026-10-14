@@ -17,8 +17,7 @@ import { useCompetition } from "@/components/competition/use-competition";
 import { seasonLabel } from "@/lib/competitions";
 import type { Finish, TeamSeason } from "@/lib/api/types";
 import { finishLabel } from "@/lib/teams";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 /** Bar opacity by how far the season went; the finish is also named in the tooltip and table. */
 const FINISH_OPACITY: Record<Finish, number> = {

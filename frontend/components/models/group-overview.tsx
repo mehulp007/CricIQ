@@ -122,7 +122,7 @@ export function GroupOverview({ models }: { models: ModelSet }) {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Trained on"
           value={`${count(matches)} matches`}
@@ -204,7 +204,7 @@ export function GroupOverview({ models }: { models: ModelSet }) {
         title="Models of the leagues' own"
         lede="Every kind of cricket on CricIQ is modelled from its own matches only."
       >
-        <ul className="grid gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
           <li>
             <span className="font-medium text-foreground">Four leagues, one set of models.</span>{" "}
             The {names(models.trainedOn)} are trained together, so a player who has played in

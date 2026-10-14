@@ -223,7 +223,7 @@ export function BattingView({
   const recentOuts = last10.filter((i) => i.is_out).length;
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatTile label="Runs" value={b.runs.toLocaleString("en-IN")}>
           {b.innings} innings · {b.not_outs} not out · {b.balls.toLocaleString("en-IN")} balls
         </StatTile>
@@ -266,7 +266,7 @@ export function BattingView({
         </StatTile>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {profile.ratings?.batting && (
           <Panel
             id="batting-ratings"
@@ -368,7 +368,7 @@ export function BowlingView({
   const recent = profile.recent.bowling.slice(0, 10);
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatTile label="Wickets" value={b.wickets}>
           {b.innings} innings · {b.overs} overs
           {b.maidens > 0 && ` · ${b.maidens} ${b.maidens === 1 ? "maiden" : "maidens"}`}
@@ -413,7 +413,7 @@ export function BowlingView({
         </StatTile>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {profile.ratings?.bowling && (
           <Panel
             id="bowling-ratings"

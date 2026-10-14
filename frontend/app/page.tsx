@@ -71,7 +71,7 @@ export default function HomePage() {
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-sm font-medium text-muted-foreground">Leagues</h3>
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {leagues.map((c) => (
               <li key={c.id}>
                 <CompetitionCard c={c} />
@@ -81,7 +81,7 @@ export default function HomePage() {
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-sm font-medium text-muted-foreground">Internationals</h3>
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {internationals.map((c) => (
               <li key={c.id}>
                 <CompetitionCard c={c} />
@@ -113,7 +113,7 @@ export default function HomePage() {
         <h2 id="more-heading" className="text-xl font-semibold tracking-tight">
           How it works
         </h2>
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <li>
             <Link
               href="/about"

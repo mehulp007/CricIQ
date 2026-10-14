@@ -9,17 +9,19 @@ function luminance(hex: string): number {
 
 /**
  * Franchise identity: a small colour swatch plus the short name. Colour is
- * an accent only; the text always carries the identity. Very dark franchise
- * colours get a brighter outline so the swatch stays visible on dark surfaces.
+ * an accent only; the text always carries the identity. The outline keeps the
+ * swatch visible on either theme: very dark colours get a bright one on dark
+ * surfaces, very pale colours a dark one on light surfaces.
  */
 export function TeamSwatch({ color, className }: { color: string; className?: string }) {
-  const dark = /^#[0-9a-f]{6}$/i.test(color) && luminance(color) < 0.05;
+  const lum = /^#[0-9a-f]{6}$/i.test(color) ? luminance(color) : 0.3;
   return (
     <span
       aria-hidden="true"
       className={cn(
         "size-2.5 shrink-0 rounded-full ring-1",
-        dark ? "ring-white/60" : "ring-white/20",
+        lum > 0.6 ? "ring-foreground/45" : "ring-foreground/15",
+        lum < 0.05 ? "dark:ring-white/60" : "dark:ring-white/20",
         className,
       )}
       style={{ backgroundColor: color }}

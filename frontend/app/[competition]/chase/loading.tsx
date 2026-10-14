@@ -10,7 +10,7 @@ export default function ChaseLoading() {
         <div className="h-9 w-64 animate-pulse rounded-lg bg-muted" />
         <div className="h-5 w-[30rem] max-w-full animate-pulse rounded bg-muted/70" />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="h-32 animate-pulse rounded-2xl border border-border bg-card/50" />
         ))}

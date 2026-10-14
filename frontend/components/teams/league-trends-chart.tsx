@@ -15,8 +15,7 @@ import {
 import { useCompetition } from "@/components/competition/use-competition";
 import { seasonLabel } from "@/lib/competitions";
 import type { SeasonTrend } from "@/lib/api/types";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 export const TREND_SERIES = [
   { key: "chasing_win_pct", label: "Chasing side won", color: "var(--chart-1)" },

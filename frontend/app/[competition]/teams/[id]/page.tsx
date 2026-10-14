@@ -182,7 +182,7 @@ export default async function TeamPage({
         />
       )}
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="situations"
           title="Results by situation"
@@ -218,7 +218,7 @@ export default async function TeamPage({
               : `Batting first, ${team.franchise_id} averaged ${profile.scoring.avg_first_innings.toFixed(1)} in ${profile.scoring.first_innings} full-length innings (${scope}).`
           }
         >
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <TotalLine label="Highest total" total={profile.scoring.highest} />
             <TotalLine label="Lowest completed total" total={profile.scoring.lowest} />
             <MarginLine label="Biggest win by runs" margin={profile.scoring.biggest_win_runs} />
@@ -242,7 +242,7 @@ export default async function TeamPage({
         )}
       </Panel>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="comebacks"
           title="Greatest comebacks"
@@ -264,13 +264,13 @@ export default async function TeamPage({
         title={`Leading players for ${team.franchise_id}`}
         lede={`Runs and wickets for ${national ? "this side" : "this franchise"} only, ${scope}.`}
       >
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <TopBatters batters={profile.batters} />
           <TopBowlers bowlers={profile.bowlers} />
         </div>
       </Panel>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel id="opponents" title="Against each opponent">
           <OpponentsTable
             team={team.franchise_id}

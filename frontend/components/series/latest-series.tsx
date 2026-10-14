@@ -38,7 +38,7 @@ export async function LatestSeries({ competition }: { competition: CompetitionId
           All series
         </Link>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((s) => (
           <li key={s.event_id} className="flex">
             <SeriesCard competition={competition} series={s} />

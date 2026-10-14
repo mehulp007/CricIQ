@@ -5,11 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * CricIQ design tokens — "floodlit night match".
- * Dark is the primary theme (the <html> element carries `.dark`); the light
- * values in :root exist so a light theme can be added later without touching
- * components. Team colours are a colour-blind-safe blue/amber pair and are
- * used only as data accents, never as surfaces.
+ * CricIQ design tokens.
+ * Two themes from one identity: "floodlit night" (dark: night sky, stand shadows, floodlit turf)
+ * and "day match" (light: bright sky, white stands, the same turf green). The <head> script puts
+ * `.dark` on <html> for the dark theme (lib/theme.ts). Team colours are a colour-blind-safe
+ * blue/amber pair, used as data accents, never as surfaces; in the light theme they are dark
+ * enough to read as text on white.
  */
 
 @theme inline {
@@ -17,7 +18,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
+  --font-heading: var(--font-sora);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -47,6 +48,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-surface: var(--surface);
 
   /* cricket semantics */
   --color-team-a: var(--team-a);
@@ -58,6 +60,23 @@
   --color-six: var(--six);
   --color-wicket: var(--wicket);
 
+  /* elevation and light: `shadow-elev-1` … `shadow-elev-3`, `shadow-glow` */
+  --shadow-elev-1: var(--elevation-1);
+  --shadow-elev-2: var(--elevation-2);
+  --shadow-elev-3: var(--elevation-3);
+  --shadow-glow: var(--glow);
+
+  /* type scale: `text-display`, `text-headline`, `text-title` (fluid on the larger sizes) */
+  --text-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.25rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.035em;
+  --text-headline: clamp(1.75rem, 1.35rem + 1.6vw, 2.5rem);
+  --text-headline--line-height: 1.12;
+  --text-headline--letter-spacing: -0.025em;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.015em;
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -67,77 +86,90 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Day match (light) */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.985 0.003 250);
-  --foreground: oklch(0.2 0.02 255);
+  --background: oklch(0.982 0.004 250);
+  --foreground: oklch(0.2 0.022 258);
+  --surface: oklch(0.965 0.006 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 255);
+  --card-foreground: oklch(0.2 0.022 258);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 255);
-  --primary: oklch(0.52 0.12 158);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.955 0.006 250);
-  --secondary-foreground: oklch(0.25 0.02 255);
-  --muted: oklch(0.955 0.006 250);
-  --muted-foreground: oklch(0.5 0.02 255);
-  --accent: oklch(0.94 0.02 158);
-  --accent-foreground: oklch(0.25 0.04 158);
-  --destructive: oklch(0.577 0.21 27);
-  --border: oklch(0.91 0.008 250);
-  --input: oklch(0.91 0.008 250);
-  --ring: oklch(0.52 0.12 158);
+  --popover-foreground: oklch(0.2 0.022 258);
+  --primary: oklch(0.5 0.12 158);
+  --primary-foreground: oklch(0.99 0.005 158);
+  --secondary: oklch(0.95 0.007 250);
+  --secondary-foreground: oklch(0.24 0.022 258);
+  --muted: oklch(0.95 0.007 250);
+  --muted-foreground: oklch(0.47 0.022 258);
+  --accent: oklch(0.94 0.025 158);
+  --accent-foreground: oklch(0.27 0.05 158);
+  --destructive: oklch(0.55 0.2 27);
+  --border: oklch(0.9 0.009 250);
+  --input: oklch(0.88 0.01 250);
+  --ring: oklch(0.5 0.12 158 / 55%);
 
-  --team-a: oklch(0.55 0.15 250);
-  --team-b: oklch(0.66 0.15 65);
-  --positive: oklch(0.55 0.13 158);
-  --negative: oklch(0.58 0.19 25);
-  --dot: oklch(0.7 0.01 255);
-  --boundary: oklch(0.55 0.15 250);
-  --six: oklch(0.55 0.17 300);
-  --wicket: oklch(0.58 0.19 25);
+  --team-a: oklch(0.5 0.15 252);
+  --team-b: oklch(0.56 0.13 58);
+  --positive: oklch(0.5 0.12 158);
+  --negative: oklch(0.53 0.19 27);
+  --dot: oklch(0.66 0.012 258);
+  --boundary: oklch(0.5 0.15 252);
+  --six: oklch(0.5 0.17 300);
+  --wicket: oklch(0.53 0.19 27);
 
   --chart-1: var(--team-a);
   --chart-2: var(--team-b);
   --chart-3: oklch(0.55 0.13 158);
-  --chart-4: oklch(0.55 0.17 300);
-  --chart-5: oklch(0.6 0.02 255);
+  --chart-4: oklch(0.52 0.17 300);
+  --chart-5: oklch(0.62 0.02 258);
 
-  --sidebar: oklch(0.97 0.004 250);
-  --sidebar-foreground: oklch(0.25 0.02 255);
-  --sidebar-primary: oklch(0.52 0.12 158);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.93 0.01 250);
-  --sidebar-accent-foreground: oklch(0.2 0.02 255);
-  --sidebar-border: oklch(0.91 0.008 250);
-  --sidebar-ring: oklch(0.52 0.12 158);
+  --sidebar: oklch(0.972 0.005 250);
+  --sidebar-foreground: oklch(0.26 0.022 258);
+  --sidebar-primary: oklch(0.5 0.12 158);
+  --sidebar-primary-foreground: oklch(0.99 0.005 158);
+  --sidebar-accent: oklch(0.93 0.012 250);
+  --sidebar-accent-foreground: oklch(0.2 0.022 258);
+  --sidebar-border: oklch(0.9 0.009 250);
+  --sidebar-ring: oklch(0.5 0.12 158 / 55%);
+
+  --elevation-1: 0 1px 2px oklch(0.25 0.03 258 / 6%), 0 1px 1px oklch(0.25 0.03 258 / 4%);
+  --elevation-2: 0 4px 12px -2px oklch(0.25 0.03 258 / 8%), 0 2px 4px oklch(0.25 0.03 258 / 5%);
+  --elevation-3:
+    0 18px 40px -12px oklch(0.25 0.03 258 / 16%), 0 6px 12px -4px oklch(0.25 0.03 258 / 7%);
+  --glow: 0 0 0 1px oklch(0.5 0.12 158 / 18%), 0 8px 28px -8px oklch(0.5 0.12 158 / 35%);
+
+  --glass-border: oklch(0.2 0.022 258 / 8%);
+  --light-a: oklch(0.85 0.09 158 / 22%);
+  --light-b: oklch(0.85 0.07 240 / 22%);
 }
 
+/* Floodlit night (dark) */
 .dark {
-  /* night sky -> stand shadows -> floodlit turf */
-  --background: oklch(0.155 0.018 255);
+  --background: oklch(0.15 0.019 258);
   --foreground: oklch(0.955 0.005 250);
-  --card: oklch(0.195 0.02 255);
+  --surface: oklch(0.17 0.02 258);
+  --card: oklch(0.192 0.021 258);
   --card-foreground: oklch(0.955 0.005 250);
-  --popover: oklch(0.2 0.02 255);
+  --popover: oklch(0.205 0.022 258);
   --popover-foreground: oklch(0.955 0.005 250);
-  --primary: oklch(0.78 0.14 158);
-  --primary-foreground: oklch(0.18 0.03 160);
-  --secondary: oklch(0.25 0.02 255);
+  --primary: oklch(0.79 0.145 158);
+  --primary-foreground: oklch(0.18 0.035 160);
+  --secondary: oklch(0.25 0.021 258);
   --secondary-foreground: oklch(0.93 0.005 250);
-  --muted: oklch(0.24 0.018 255);
-  --muted-foreground: oklch(0.7 0.018 255);
-  --accent: oklch(0.27 0.03 200);
+  --muted: oklch(0.235 0.02 258);
+  --muted-foreground: oklch(0.71 0.018 255);
+  --accent: oklch(0.27 0.035 200);
   --accent-foreground: oklch(0.95 0.01 158);
   --destructive: oklch(0.68 0.18 25);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.78 0.14 158 / 60%);
+  --ring: oklch(0.79 0.145 158 / 60%);
 
   --team-a: oklch(0.72 0.13 245);
   --team-b: oklch(0.8 0.14 75);
-  --positive: oklch(0.78 0.14 158);
+  --positive: oklch(0.79 0.145 158);
   --negative: oklch(0.7 0.17 25);
   --dot: oklch(0.55 0.015 255);
   --boundary: oklch(0.72 0.13 245);
@@ -146,18 +178,27 @@
 
   --chart-1: var(--team-a);
   --chart-2: var(--team-b);
-  --chart-3: oklch(0.78 0.14 158);
+  --chart-3: oklch(0.79 0.145 158);
   --chart-4: oklch(0.72 0.15 300);
   --chart-5: oklch(0.6 0.02 255);
 
-  --sidebar: oklch(0.135 0.018 255);
+  --sidebar: oklch(0.13 0.019 258);
   --sidebar-foreground: oklch(0.88 0.008 250);
-  --sidebar-primary: oklch(0.78 0.14 158);
-  --sidebar-primary-foreground: oklch(0.18 0.03 160);
-  --sidebar-accent: oklch(0.22 0.02 255);
+  --sidebar-primary: oklch(0.79 0.145 158);
+  --sidebar-primary-foreground: oklch(0.18 0.035 160);
+  --sidebar-accent: oklch(0.215 0.021 258);
   --sidebar-accent-foreground: oklch(0.97 0.005 250);
   --sidebar-border: oklch(1 0 0 / 7%);
-  --sidebar-ring: oklch(0.78 0.14 158 / 60%);
+  --sidebar-ring: oklch(0.79 0.145 158 / 60%);
+
+  --elevation-1: 0 1px 2px oklch(0 0 0 / 30%), inset 0 1px 0 oklch(1 0 0 / 4%);
+  --elevation-2: 0 6px 16px -4px oklch(0 0 0 / 45%), inset 0 1px 0 oklch(1 0 0 / 5%);
+  --elevation-3: 0 24px 48px -16px oklch(0 0 0 / 60%), inset 0 1px 0 oklch(1 0 0 / 6%);
+  --glow: 0 0 0 1px oklch(0.79 0.145 158 / 25%), 0 10px 36px -10px oklch(0.79 0.145 158 / 45%);
+
+  --glass-border: oklch(1 0 0 / 8%);
+  --light-a: oklch(0.79 0.145 158 / 9%);
+  --light-b: oklch(0.72 0.13 245 / 8%);
 }
 
 @layer base {
@@ -170,22 +211,46 @@
   html {
     @apply font-sans;
   }
-  /* Scrollable table wrappers take keyboard focus (see lib/a11y.ts). */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+  /* Scrollable table wrappers (see lib/a11y.ts) contain their absolutely positioned descendants,
+     such as screen-reader-only labels, which would otherwise escape the scroll clipping and
+     widen the page on small screens. */
+  [role="region"][tabindex="0"] {
+    position: relative;
+  }
+  /* They take keyboard focus. */
   [role="region"][tabindex="0"]:focus-visible {
     @apply rounded-lg outline-2 outline-offset-2 outline-ring;
   }
 }
 
 @layer components {
-  /* Soft floodlight glow behind page content; purely decorative. */
+  /* Soft floodlight (night) or sunlight (day) behind page content; purely decorative. */
   .floodlight {
     background-image:
-      radial-gradient(60rem 28rem at 15% -10%, oklch(0.78 0.14 158 / 9%), transparent 70%),
-      radial-gradient(50rem 24rem at 95% -5%, oklch(0.72 0.13 245 / 8%), transparent 70%);
+      radial-gradient(60rem 28rem at 15% -10%, var(--light-a), transparent 70%),
+      radial-gradient(50rem 24rem at 95% -5%, var(--light-b), transparent 70%);
   }
 
   /* Glass surface for hero cards only — not for dense data panels. */
   .glass {
-    @apply border border-white/8 bg-card/60 backdrop-blur-md;
+    @apply border border-(--glass-border) bg-card/60 shadow-elev-2 backdrop-blur-md;
+  }
+}
+
+/* The theme switch cross-fades (View Transitions) instead of animating every colour. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }

@@ -131,7 +131,7 @@ export function TestMatchCenter({
         </div>
 
         <TabsContent value="live" className="mt-4">
-          <div className="grid gap-4 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
               <TestScoreboard
                 timeline={timeline}

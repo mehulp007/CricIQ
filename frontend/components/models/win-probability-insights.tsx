@@ -56,7 +56,7 @@ export function WinProbabilityInsights({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Log loss"
           value={test.model.log_loss.toFixed(3)}
@@ -79,7 +79,7 @@ export function WinProbabilityInsights({
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="calibration-heading"
           title="Does 70% mean 70%?"
@@ -164,7 +164,7 @@ export function WinProbabilityInsights({
         </p>
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="phase-heading"
           title="Where it helps most"
@@ -274,7 +274,7 @@ export function WinProbabilityInsights({
         title="Calibration, decided by the data"
         lede="Calibrating on the latest seasons tracks the rising scoring rate, but it costs those seasons as training data, and a season-specific shift (dew, the toss) can overshoot. So each training run measures both options on the seasons before the test set and keeps the better one."
       >
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {calibration.map((c) => (
             <li
               key={c.method}
@@ -338,7 +338,7 @@ export function WinProbabilityInsights({
         title="How it works"
         lede="Two gradient-boosted tree models (LightGBM): one for the first innings, one for the chase."
       >
-        <ul className="grid gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
           <li>
             <span className="font-medium text-foreground">Leak-free by construction.</span> Every
             feature uses only what was known at that ball, or earlier matches. A test deletes and

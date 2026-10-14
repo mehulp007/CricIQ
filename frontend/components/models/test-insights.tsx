@@ -88,7 +88,7 @@ export function TestOverview({ models }: { models: TestModelSet }) {
   ];
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Trained on"
           value={`${count(wpData.trained_on.matches)} Tests`}
@@ -171,7 +171,7 @@ export function TestWinProbabilityInsights({ data }: { data: WinProbabilityData 
   ] as const;
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Log loss on the test years"
           value={t.model.log_loss.toFixed(3)}
@@ -322,7 +322,7 @@ export function TestWinProbabilityInsights({ data }: { data: WinProbabilityData 
         lede="For each outcome, the chance the model gave against how often it happened, in bins of the predicted chance. Points on the diagonal are well calibrated."
       >
         <SeriesLegend baseline="Match state alone" />
-        <div className="mt-4 grid gap-6 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {outcomes.map(([key, label]) => (
             <div key={key}>
               <p className="text-sm font-medium">{label}</p>
@@ -408,7 +408,7 @@ export function TestProjectionInsights({ data }: { data: ProjectionData }) {
   const wins = data.backtest.filter((r) => r.model_pinball < r.par_pinball).length;
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Typical miss"
           value={`${t.model.mae.toFixed(0)} runs`}

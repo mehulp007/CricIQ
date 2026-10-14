@@ -152,7 +152,7 @@ export function MatchupView({ detail }: { detail: MatchupDetail }) {
 
       {hasHistory ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile label="Balls" value={h2h.balls}>
               {h2h.runs} runs · {h2h.dots} dots · {h2h.fours} fours · {h2h.sixes} sixes
             </StatTile>
@@ -195,7 +195,7 @@ export function MatchupView({ detail }: { detail: MatchupDetail }) {
         </p>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Panel
           id="next-ball"
           title="Next ball"

@@ -376,7 +376,7 @@ function Suggestions() {
       <h2 id="suggestions" className="text-lg font-semibold tracking-tight">
         Try a classic
       </h2>
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {SUGGESTIONS.map((s) => (
           <li key={s.a[0] + s.b[0]}>
             <CompetitionLink
@@ -428,7 +428,7 @@ async function Comparison({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <PlayerCard
           profile={a}
           color={COMPARE_SERIES.a.color}
@@ -463,7 +463,7 @@ async function Comparison({
         </Empty>
       ) : (
         <>
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <Panel
               id="compare-numbers"
               title={role === "batting" ? "Batting side by side" : "Bowling side by side"}
@@ -502,7 +502,7 @@ async function Comparison({
             <TrendChart a={a} b={b} role={role} names={names} />
           </Panel>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <Panel
               id="compare-phases"
               title="By phase"

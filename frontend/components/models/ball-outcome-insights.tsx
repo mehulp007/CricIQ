@@ -66,7 +66,7 @@ export function BallOutcomeInsights({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Better than baseline"
           value={gain(test.model.log_loss, test.baseline.log_loss)}
@@ -89,7 +89,7 @@ export function BallOutcomeInsights({
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="outcome-calibration-heading"
           title="Does a 10% six mean 10%?"
@@ -152,7 +152,7 @@ export function BallOutcomeInsights({
         </p>
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section
           id="ball-phase-heading"
           title="By phase"
@@ -211,7 +211,7 @@ export function BallOutcomeInsights({
         title="How it works"
         lede="Multinomial logistic regression with penalised player effects, plus empirical-Bayes shrinkage for head-to-head records."
       >
-        <ul className="grid gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 text-sm leading-relaxed text-muted-foreground md:grid-cols-2">
           <li>
             <span className="font-medium text-foreground">The situation.</span> Phase and innings,
             wickets down, how many balls the batter has faced, batter hand against bowler type, the

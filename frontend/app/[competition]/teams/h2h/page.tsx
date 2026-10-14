@@ -297,7 +297,7 @@ function Suggestions({
     [busiest[4], busiest[5]],
   ];
   return (
-    <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
       {pairs
         .filter(([a, b]) => a && b && byId.has(a) && byId.has(b))
         .map(([a, b]) => (
@@ -394,7 +394,7 @@ export default async function HeadToHeadPage({
               allLabel="All meetings"
             />
           )}
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <Panel id="record" title="The record">
               <Tally h2h={h2h} />
             </Panel>
@@ -403,7 +403,7 @@ export default async function HeadToHeadPage({
             </Panel>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <Panel id="situations" title="By ground, batting order and stage">
               <SplitTable h2h={h2h} />
             </Panel>
@@ -427,7 +427,7 @@ export default async function HeadToHeadPage({
               .join("; ")
               .concat(" (full-length innings).")}
           >
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <TotalLine
                 label={`${h2h.a.franchise_id}'s highest total`}
                 total={h2h.scoring.a_highest}
@@ -444,7 +444,7 @@ export default async function HeadToHeadPage({
             title="Who decided it"
             lede="Most runs and wickets in these meetings, for each side."
           >
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <PlayerList
                 title="Most runs"
                 rows={[...h2h.batters]
@@ -489,7 +489,7 @@ export default async function HeadToHeadPage({
           )}
 
           <Panel id="meetings" title="Every meeting" lede="Newest first. Each opens the replay.">
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {h2h.meetings.map((m) => (
                 <MatchCard key={m.match_id} competition={competition} match={m} />
               ))}

@@ -6,8 +6,7 @@ import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { inningsLabel } from "@/lib/format";
 import { oversUpTo } from "@/lib/replay/engine";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS, TOOLTIP_STYLE } from "@/lib/chart-theme";
 
 /** Runs per over in the innings being played, up to the cursor. */
 export function InningsOvers({ timeline, cursor }: { timeline: Timeline; cursor: number }) {
@@ -30,12 +29,7 @@ export function InningsOvers({ timeline, cursor }: { timeline: Timeline; cursor:
             <YAxis allowDecimals={false} width={40} {...AXIS} />
             <Tooltip
               cursor={{ fill: "var(--muted)" }}
-              contentStyle={{
-                background: "var(--popover)",
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
+              contentStyle={TOOLTIP_STYLE}
               labelFormatter={(over) => `Over ${over}`}
               formatter={(value) => [`${value} runs`, ""]}
             />

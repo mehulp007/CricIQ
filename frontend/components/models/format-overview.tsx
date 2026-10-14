@@ -115,7 +115,7 @@ export function FormatOverview({ models }: { models: ModelSet }) {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Trained on"
           value={`${count(wpData.trained_on.matches)} matches`}

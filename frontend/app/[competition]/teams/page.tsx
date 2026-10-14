@@ -72,7 +72,7 @@ function Rivalries({ competition }: { competition: CompetitionId }) {
       lede={`Any two ${team}' record against each other, set against what each side's form going into those matches predicted.`}
     >
       {pairs ? (
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {pairs.map(([a, b, why]) => (
             <li key={`${a}-${b}`}>
               <CompetitionLink
@@ -219,7 +219,7 @@ function NationalTeams({
           {regular.length > 0 ? `Sides with ${REGULAR_SIDE_MATCHES} or more matches` : "Every side"}
         </h2>
         {regular.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
             {regular.map((f) => (
               <FranchiseCard key={f.franchise_id} team={f} national />
             ))}
@@ -293,7 +293,7 @@ export default async function TeamsPage({
         <h2 id="franchises" className="text-lg font-semibold tracking-tight">
           Franchises
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           {active.map((f) => (
             <FranchiseCard key={f.franchise_id} team={f} />
           ))}
@@ -301,7 +301,7 @@ export default async function TeamsPage({
         {former.length > 0 && (
           <>
             <h3 className="text-sm font-medium text-muted-foreground">Former franchises</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
               {former.map((f) => (
                 <FranchiseCard key={f.franchise_id} team={f} />
               ))}
@@ -346,7 +346,7 @@ export default async function TeamsPage({
           {standings.playoffs.length > 0 && (
             <div className="flex flex-col gap-3">
               <h3 className="text-sm font-medium">Playoffs</h3>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {standings.playoffs.map((m) => (
                   <MatchCard key={m.match_id} competition={competition} match={m} />
                 ))}
@@ -361,7 +361,7 @@ export default async function TeamsPage({
         title="Champions"
         lede="The final of every season. Select a season to open the replay."
       >
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {[...overview.champions].reverse().map((ch) => (
             <li key={ch.season}>
               <CompetitionLink

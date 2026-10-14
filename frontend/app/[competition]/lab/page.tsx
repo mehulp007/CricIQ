@@ -30,7 +30,7 @@ export default async function LabPage({ params }: PageProps<"/[competition]/lab"
           is &quot;no&quot;.
         </p>
       </header>
-      <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {notes.map((note) => (
           <li key={note.slug} className="flex">
             <CompetitionLink

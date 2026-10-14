@@ -61,16 +61,26 @@ const PAGES = [
   "/about",
 ];
 
-for (const path of PAGES) {
-  test(`no accessibility violations on ${path}`, async ({ page }) => {
-    await page.goto(path);
-    await page.getByRole("main").waitFor();
-    const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .analyze();
-    const summary = results.violations.map(
-      (v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`,
-    );
-    expect(summary).toEqual([]);
+// In both themes: with no stored preference the site follows the system colour scheme.
+for (const colorScheme of ["dark", "light"] as const) {
+  test.describe(`${colorScheme} theme`, () => {
+    test.use({ colorScheme });
+
+    for (const path of PAGES) {
+      test(`no accessibility violations on ${path}`, async ({ page }) => {
+        await page.goto(path);
+        await page.getByRole("main").waitFor();
+        await expect(page.locator("html")).toHaveClass(
+          colorScheme === "dark" ? /\bdark\b/ : /^(?!.*\bdark\b)/,
+        );
+        const results = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .analyze();
+        const summary = results.violations.map(
+          (v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`,
+        );
+        expect(summary).toEqual([]);
+      });
+    }
   });
 }

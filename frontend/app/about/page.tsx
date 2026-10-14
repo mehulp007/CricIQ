@@ -155,7 +155,7 @@ export default function AboutPage() {
         <h2 id="principles" className="text-xl font-semibold tracking-tight">
           Principles
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {PRINCIPLES.map((p) => (
             <Card key={p.title} className="bg-card/70">
               <CardHeader>

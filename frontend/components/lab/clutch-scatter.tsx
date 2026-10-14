@@ -15,8 +15,7 @@ import {
 import type { ClutchNote } from "@/lib/lab";
 import { signed } from "@/lib/lab";
 import { cn } from "@/lib/utils";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 interface Point {
   name: string;

@@ -26,10 +26,9 @@ import type { CompetitionId } from "@/lib/competitions";
 import { formatPercent } from "@/lib/replay/win-probability";
 import { cn } from "@/lib/utils";
 import { fetchAwake, wakeSimulator } from "@/lib/wake";
+import { AXIS, TOOLTIP_STYLE } from "@/lib/chart-theme";
 
 type Venue = "home" | "away" | "neutral";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
 
 function Slider({
   id,
@@ -184,12 +183,12 @@ export function ChaseCalculator({
   ];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-12">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
       <section
         aria-label="The chase"
         className="flex flex-col gap-5 rounded-2xl border border-border bg-card/70 p-5 lg:col-span-5"
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <SidePicker
             label="Chasing"
             value={batting}
@@ -326,12 +325,7 @@ export function ChaseCalculator({
                     />
                     <ReferenceLine x={needed} stroke="var(--foreground)" strokeDasharray="4 3" />
                     <Tooltip
-                      contentStyle={{
-                        background: "var(--popover)",
-                        border: "1px solid var(--border)",
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
+                      contentStyle={TOOLTIP_STYLE}
                       labelFormatter={(v) => `${v} runs needed`}
                       formatter={(value, key) => [
                         `${Number(value).toFixed(0)}%`,

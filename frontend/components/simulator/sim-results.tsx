@@ -8,8 +8,7 @@ import { rate } from "@/lib/players";
 import { SIM_SERIES, bowlingOvers, pct } from "@/lib/simulator";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
-
-const AXIS = { stroke: "var(--border)", tick: { fill: "var(--muted-foreground)", fontSize: 11 } };
+import { AXIS } from "@/lib/chart-theme";
 
 function sideName(side: SimSideResult, fallback: string): string {
   return side.team?.name ?? fallback;
@@ -411,7 +410,7 @@ export function SimResults({
           shares of all simulated matches. Bowlers&apos; runs are off the bat; extras are the
           team&apos;s.
         </p>
-        <div className="grid gap-8 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
           <Scorecard side={a} name={names[0]} />
           <Scorecard side={b} name={names[1]} />
         </div>

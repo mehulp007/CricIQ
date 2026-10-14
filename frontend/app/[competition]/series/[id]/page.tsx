@@ -7,6 +7,7 @@ import { MatchCard } from "@/components/match/match-card";
 import { TeamSwatch } from "@/components/match/team-badge";
 import { Panel } from "@/components/players/profile-parts";
 import { StandingsTable } from "@/components/series/standings-table";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ApiError, getSeries } from "@/lib/api/client";
 import type { SeriesDetail, SeriesMatch, SeriesSummary } from "@/lib/api/types";
 import { scrollRegion } from "@/lib/a11y";
@@ -284,13 +285,9 @@ export default async function SeriesPage({ params }: PageProps<"/[competition]/s
 
   return (
     <div className="flex flex-col gap-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <CompetitionLink href="/series" className="hover:text-foreground">
-          Series
-        </CompetitionLink>
-        <span aria-hidden="true"> / </span>
-        <span className="text-foreground">{seriesTitle(summary)}</span>
-      </nav>
+      <Breadcrumbs
+        items={[{ label: "Series", href: "/series" }, { label: seriesTitle(summary) }]}
+      />
 
       <header className="flex flex-col gap-2">
         <p className="text-xs tracking-wide text-muted-foreground uppercase">

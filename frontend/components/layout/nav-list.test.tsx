@@ -39,6 +39,24 @@ describe("NavList", () => {
     expect(document.querySelector("[aria-disabled]")).toBeNull();
   });
 
+  it("lists the pages in two sections: Explore, then Analyse", () => {
+    pathname.current = "/ipl";
+    renderNav();
+    const lists = screen.getAllByRole("list");
+    expect(screen.getByText("Explore")).toBeInTheDocument();
+    expect(screen.getByText("Analyse")).toBeInTheDocument();
+    const names = (list: HTMLElement) =>
+      Array.from(list.querySelectorAll("a")).map((a) => a.textContent);
+    expect(names(lists[0])).toEqual(["Overview", "Matches", "Players", "Teams"]);
+    expect(names(lists[1])).toEqual([
+      "Matchups",
+      "Compare",
+      "Simulator",
+      "Analytics Lab",
+      "Model Insights",
+    ]);
+  });
+
   it("follows the competition being browsed", () => {
     pathname.current = "/t20i/players/abc";
     renderNav();

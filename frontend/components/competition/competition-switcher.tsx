@@ -14,23 +14,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  COMPETITIONS,
-  UPCOMING,
-  getCompetition,
-  isCompetitionId,
-  switchPath,
-} from "@/lib/competitions";
+import { getCompetition, isCompetitionId, switchPath } from "@/lib/competitions";
+import type { CompetitionCard } from "@/lib/shell";
 import { cn } from "@/lib/utils";
 
-const LEAGUES = COMPETITIONS.filter((c) => c.teamType === "club");
-const INTERNATIONALS = COMPETITIONS.filter((c) => c.teamType === "national");
+const GROUPS = ["Leagues", "Internationals"] as const;
 
 /**
- * Picks the competition the site shows. Switching keeps the same kind of page
- * (matches stay matches); a page about one match, player or team goes to its list.
+ * Picks the competition the site shows, as cards with each one's format and years. Switching
+ * keeps the same kind of page (matches stay matches); a page about one match, player or team goes
+ * to its list.
  */
-export function CompetitionSwitcher({ className }: { className?: string }) {
+export function CompetitionSwitcher({
+  cards,
+  className,
+}: {
+  cards: CompetitionCard[];
+  className?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const competition = useCompetition();
@@ -54,32 +55,33 @@ export function CompetitionSwitcher({ className }: { className?: string }) {
       >
         <SelectValue>{getCompetition(competition).label}</SelectValue>
       </SelectTrigger>
-      <SelectContent align="end">
-        <SelectGroup>
-          <SelectLabel>Leagues</SelectLabel>
-          {LEAGUES.map((c) => (
-            <SelectItem key={c.id} value={c.id} textValue={c.label}>
-              <span className="font-medium">{c.label}</span>
-              <span className="hidden text-xs text-muted-foreground sm:inline">{c.name}</span>
-            </SelectItem>
-          ))}
-        </SelectGroup>
-        <SelectSeparator />
-        <SelectGroup>
-          <SelectLabel>Internationals</SelectLabel>
-          {INTERNATIONALS.map((c) => (
-            <SelectItem key={c.id} value={c.id} textValue={c.label}>
-              <span className="font-medium">{c.label}</span>
-              <span className="hidden text-xs text-muted-foreground sm:inline">{c.name}</span>
-            </SelectItem>
-          ))}
-          {UPCOMING.map((f) => (
-            <SelectItem key={f.label} value={`upcoming-${f.label}`} disabled textValue={f.label}>
-              <span className="font-medium">{f.label}</span>
-              <span className="text-xs text-muted-foreground">coming in {f.milestone}</span>
-            </SelectItem>
-          ))}
-        </SelectGroup>
+      <SelectContent position="popper" align="end" className="w-[min(34rem,calc(100vw-2rem))]">
+        {GROUPS.map((group, i) => (
+          <SelectGroup key={group} className="p-1">
+            {i > 0 && <SelectSeparator className="mb-2" />}
+            <SelectLabel>{group}</SelectLabel>
+            <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+              {cards
+                .filter((c) => c.group === group)
+                .map((c) => (
+                  <SelectItem
+                    key={c.id}
+                    value={c.id}
+                    textValue={c.label}
+                    className="items-start rounded-lg border border-transparent py-2 data-[state=checked]:border-primary/40 data-[state=checked]:bg-primary/5"
+                  >
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="flex items-baseline gap-2">
+                        <span className="font-mono text-sm font-semibold">{c.label}</span>
+                        <span className="truncate text-xs text-muted-foreground">{c.name}</span>
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{c.detail}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+            </div>
+          </SelectGroup>
+        ))}
       </SelectContent>
     </Select>
   );

@@ -41,7 +41,7 @@ export function ReplayControls({
     <div
       role="toolbar"
       aria-label="Replay controls"
-      className="sticky bottom-3 z-20 flex flex-col gap-3 rounded-2xl border border-border bg-popover/90 p-3 shadow-lg backdrop-blur-md sm:flex-row sm:items-center"
+      className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-20 flex flex-col gap-3 rounded-2xl border border-border bg-popover/90 p-3 shadow-lg backdrop-blur-md sm:flex-row sm:items-center lg:bottom-3"
     >
       <div className="flex items-center gap-1">
         <Button

@@ -11,7 +11,7 @@ import {
 } from "@/components/lab/notes";
 import { getCompetition, isCompetitionId } from "@/lib/competitions";
 import { LAB, type LabSlug, labEntry, labNotes } from "@/lib/lab";
-import { CompetitionLink } from "@/components/competition/competition-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const VIEWS: Record<LabSlug, () => React.ReactNode> = {
   momentum: MomentumNoteView,
@@ -52,13 +52,7 @@ export default async function LabNotePage({ params }: PageProps<"/[competition]/
   const View = VIEWS[note.slug];
   return (
     <article className="flex flex-col gap-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <CompetitionLink href="/lab" className="hover:text-foreground">
-          Analytics Lab
-        </CompetitionLink>
-        <span aria-hidden="true"> / </span>
-        <span className="text-foreground">{note.title}</span>
-      </nav>
+      <Breadcrumbs items={[{ label: "Analytics Lab", href: "/lab" }, { label: note.title }]} />
       <header className="flex flex-col gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">{note.title}</h1>
         <p className="max-w-3xl text-muted-foreground">{note.question}</p>

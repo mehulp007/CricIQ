@@ -18,7 +18,7 @@ import {
 import type { PlayerProfile } from "@/lib/api/types";
 import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/competitions";
 import { parseSeason, rate, roleLabel } from "@/lib/players";
-import { CompetitionLink } from "@/components/competition/competition-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 function windowFrom(raw: Record<string, string | string[] | undefined>): Window {
   const from = parseSeason(raw.from);
@@ -109,13 +109,9 @@ export default async function PlayerPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <CompetitionLink href="/players" className="hover:text-foreground">
-          Players
-        </CompetitionLink>
-        <span aria-hidden="true"> / </span>
-        <span className="text-foreground">{player.full_name ?? player.name}</span>
-      </nav>
+      <Breadcrumbs
+        items={[{ label: "Players", href: "/players" }, { label: player.full_name ?? player.name }]}
+      />
 
       {careers && <CareerTabs careers={careers} current={competition} />}
 

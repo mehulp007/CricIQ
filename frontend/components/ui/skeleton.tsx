@@ -1,12 +1,18 @@
+import type { CSSProperties } from "react";
+
 import { cn } from "@/lib/utils";
 
-/** A loading placeholder; give it the size of what it stands in for so nothing shifts. */
-export function Skeleton({ className }: { className?: string }) {
+/**
+ * A loading placeholder with a soft shimmer (still when motion is reduced); give it the size of
+ * what it stands in for so nothing shifts when the content arrives.
+ */
+export function Skeleton({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
     <div
       aria-hidden="true"
       data-slot="skeleton"
-      className={cn("animate-pulse rounded-xl bg-muted/60 motion-reduce:animate-none", className)}
+      style={style}
+      className={cn("skeleton rounded-xl", className)}
     />
   );
 }

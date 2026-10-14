@@ -1,20 +1,14 @@
 import { CalendarDays, MapPin, Trophy } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import { MatchCenter } from "@/components/replay/match-center";
 import { TestMatchCenter } from "@/components/replay/test/test-match-center";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ApiError, getTimeline } from "@/lib/api/client";
 import type { Timeline } from "@/lib/api/types";
-import {
-  competitionPath,
-  isCompetitionId,
-  isTest,
-  seasonLabel,
-  type CompetitionId,
-} from "@/lib/competitions";
+import { isCompetitionId, isTest, seasonLabel, type CompetitionId } from "@/lib/competitions";
 import { isFeatured, loadFeaturedTimeline } from "@/lib/featured";
 import { formatDate, stageLabel } from "@/lib/format";
 import { modelsFor } from "@/lib/models";
@@ -62,27 +56,22 @@ export default async function MatchPage({ params }: PageProps<"/[competition]/ma
 
   return (
     <div className="flex flex-col gap-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <Link href={competitionPath(competition, "/matches")} className="hover:text-foreground">
-          Matches
-        </Link>
-        <span aria-hidden="true"> / </span>
-        {timeline.series && (
-          <>
-            <Link
-              href={competitionPath(competition, `/series/${timeline.series.event_id}`)}
-              className="hover:text-foreground"
-            >
-              {seriesTitle(timeline.series)}
-            </Link>
-            <span aria-hidden="true"> / </span>
-          </>
-        )}
-        <span className="text-foreground">
-          {seasonLabel(competition, summary.season)} ·{" "}
-          {stageLabel(summary.stage, summary.match_number)}
-        </span>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { label: "Matches", href: "/matches" },
+          ...(timeline.series
+            ? [
+                {
+                  label: seriesTitle(timeline.series),
+                  href: `/series/${timeline.series.event_id}`,
+                },
+              ]
+            : []),
+          {
+            label: `${seasonLabel(competition, summary.season)} · ${stageLabel(summary.stage, summary.match_number)}`,
+          },
+        ]}
+      />
 
       <header className="flex flex-col gap-3">
         <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-semibold tracking-tight sm:text-3xl">

@@ -5,6 +5,20 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V3-2: the app shell and navigation.**
+  - Search everything from anywhere: Ctrl/⌘ K, "/" or the Search button opens a palette over the
+    page's pages, competitions, players (searched as you type), teams and featured replays, used
+    entirely from the keyboard (an accessible combobox, results announced). Its code loads once
+    the page is idle; teams and featured replays come from a small `/api/{competition}/search`.
+  - The sidebar lists its pages in two sections, Explore and Analyse, under a card naming the
+    competition being browsed; the current page is marked with an accent.
+  - The competition switcher shows cards with each competition's format and years.
+  - On phones, a bottom bar reaches Overview, Matches, Players and Teams in one tap and everything
+    else under More (the replay's controls sit above it).
+  - Every detail page (match, player, team, series, head to head, Lab note) has the same
+    breadcrumbs, starting from the competition.
+  - Pages fade between each other (React view transitions), with the shell held still; loading
+    screens shimmer instead of pulsing; both stop when motion is reduced.
 - **V3-1: the 3D pipeline and the first models.**
   - Made in Blender (sources in `frontend/assets-src/3d/`): a cricket ball with a raised seam and
     four rows of stitching, the stumps and bails to the Laws' sizes as separate nodes, and a

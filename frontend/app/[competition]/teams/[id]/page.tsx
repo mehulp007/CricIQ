@@ -23,7 +23,7 @@ import type { TeamProfile } from "@/lib/api/types";
 import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/competitions";
 import { parseSeason } from "@/lib/players";
 import { parseTeamId, pct, recordText, seasonSpan } from "@/lib/teams";
-import { CompetitionLink } from "@/components/competition/competition-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 function windowFrom(raw: Record<string, string | string[] | undefined>): Window {
   const from = parseSeason(raw.from);
@@ -95,13 +95,7 @@ export default async function TeamPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <CompetitionLink href="/teams" className="hover:text-foreground">
-          Teams
-        </CompetitionLink>
-        <span aria-hidden="true"> / </span>
-        <span className="text-foreground">{team.name}</span>
-      </nav>
+      <Breadcrumbs items={[{ label: "Teams", href: "/teams" }, { label: team.name }]} />
 
       <header className="flex flex-col gap-3">
         <span aria-hidden="true" className="flex gap-1">

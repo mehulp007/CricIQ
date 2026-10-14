@@ -20,6 +20,9 @@ import { competitionPath, getCompetition, isTest, type CompetitionId } from "@/l
 export type MilestoneId =
   "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0" | "V2-7";
 
+export type NavSection = "Explore" | "Analyse";
+export const NAV_SECTIONS: readonly NavSection[] = ["Explore", "Analyse"];
+
 export interface NavItem {
   /** Within the competition being browsed ("/matches" is /ipl/matches), or a global page. */
   path: string;
@@ -28,6 +31,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** The milestone that shipped this page. */
   milestone: MilestoneId;
+  /** Where the sidebar lists it: finding things, or analysing them. */
+  section?: NavSection;
   /** Only shown where the competition has this content (the Analytics Lab; the
    * simulator in limited-overs cricket, the chase calculator in Tests, series and
    * tournaments in international cricket). */
@@ -53,22 +58,30 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "V2-7",
 ]);
 
-const page = (path: string, label: string, icon: LucideIcon, milestone: MilestoneId) =>
-  ({ path, scope: "competition", label, icon, milestone }) as const;
+const page = (
+  path: string,
+  label: string,
+  icon: LucideIcon,
+  milestone: MilestoneId,
+  section: NavSection,
+) => ({ path, scope: "competition", label, icon, milestone, section }) as const;
 
 export const PRIMARY_NAV: readonly NavItem[] = [
-  page("", "Overview", LayoutDashboard, "M0"),
-  page("/matches", "Matches", CalendarRange, "M2"),
-  { ...page("/series", "Series", Trophy, "V2-7"), requires: "national" },
-  page("/players", "Players", Users, "M5"),
-  page("/matchups", "Matchups", Swords, "M6"),
-  page("/compare", "Compare", GitCompareArrows, "V1-a"),
-  page("/teams", "Teams", Shield, "V1-c"),
-  { ...page("/simulator", "Simulator", Dices, "V1-d"), requires: "limited" },
-  { ...page("/chase", "Chase calculator", Calculator, "V1-d"), requires: "test" },
-  { ...page("/lab", "Analytics Lab", FlaskConical, "V1-b"), requires: "lab" },
-  page("/models", "Model Insights", BrainCircuit, "M3"),
+  page("", "Overview", LayoutDashboard, "M0", "Explore"),
+  page("/matches", "Matches", CalendarRange, "M2", "Explore"),
+  { ...page("/series", "Series", Trophy, "V2-7", "Explore"), requires: "national" },
+  page("/players", "Players", Users, "M5", "Explore"),
+  page("/teams", "Teams", Shield, "V1-c", "Explore"),
+  page("/matchups", "Matchups", Swords, "M6", "Analyse"),
+  page("/compare", "Compare", GitCompareArrows, "V1-a", "Analyse"),
+  { ...page("/simulator", "Simulator", Dices, "V1-d", "Analyse"), requires: "limited" },
+  { ...page("/chase", "Chase calculator", Calculator, "V1-d", "Analyse"), requires: "test" },
+  { ...page("/lab", "Analytics Lab", FlaskConical, "V1-b", "Analyse"), requires: "lab" },
+  page("/models", "Model Insights", BrainCircuit, "M3", "Analyse"),
 ];
+
+/** The four pages a phone's bottom bar links to directly; everything else is under "More". */
+export const BOTTOM_NAV_PATHS: readonly string[] = ["", "/matches", "/players", "/teams"];
 
 export const SECONDARY_NAV: readonly NavItem[] = [
   { path: "/writeup", scope: "global", label: "The write-up", icon: BookOpen, milestone: "v1.0" },

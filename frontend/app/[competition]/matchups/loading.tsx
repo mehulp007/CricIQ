@@ -1,3 +1,5 @@
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function MatchupsLoading() {
   return (
     <div
@@ -7,11 +9,11 @@ export default function MatchupsLoading() {
       aria-label="Loading matchups"
     >
       <div className="flex flex-col gap-3">
-        <div className="h-9 w-64 animate-pulse rounded-lg bg-muted" />
-        <div className="h-5 w-[32rem] max-w-full animate-pulse rounded bg-muted/70" />
+        <Skeleton className="h-9 w-64 rounded-lg" />
+        <Skeleton className="h-5 w-[32rem] max-w-full rounded" />
       </div>
-      <div className="h-32 animate-pulse rounded-2xl border border-border bg-card/50" />
-      <div className="h-[28rem] animate-pulse rounded-2xl border border-border bg-card/50" />
+      <Skeleton className="h-32 rounded-2xl border border-border" />
+      <Skeleton className="h-[28rem] rounded-2xl border border-border" />
     </div>
   );
 }

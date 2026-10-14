@@ -18,6 +18,7 @@ import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/compe
 import { expectationVerdict, h2hHref, parseTeamId, seasonSpan } from "@/lib/teams";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export async function generateMetadata({
   params,
@@ -342,13 +343,7 @@ export default async function HeadToHeadPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <CompetitionLink href="/teams" className="hover:text-foreground">
-          Teams
-        </CompetitionLink>
-        <span aria-hidden="true"> / </span>
-        <span className="text-foreground">Head to head</span>
-      </nav>
+      <Breadcrumbs items={[{ label: "Teams", href: "/teams" }, { label: "Head to head" }]} />
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Head to head</h1>
         <p className="max-w-3xl text-muted-foreground">

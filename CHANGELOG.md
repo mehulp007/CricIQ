@@ -5,6 +5,21 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V3-1: the 3D pipeline and the first models.**
+  - Made in Blender (sources in `frontend/assets-src/3d/`): a cricket ball with a raised seam and
+    four rows of stitching, the stumps and bails to the Laws' sizes as separate nodes, and a
+    "bowled" composition with its camera. `pnpm models` compresses them with meshopt (ball 482 KB
+    to 88 KB, bowled 522 KB to 95 KB, stumps 39 KB to 7 KB) and fails over a 400 KB budget or
+    without a poster.
+  - `Scene3D` (`components/three/`): every scene starts as a poster rendered in Blender with the
+    same camera, and the 3D version (React Three Fiber) takes over only once on screen and the
+    browser is idle; reduced motion, saving data, no WebGL or a narrow screen keep the poster, and
+    a scene that fails leaves it. Scenes draw only while visible, cap the pixel ratio, and light
+    themselves for the theme: floodlights at night, sunlight by day. Nothing loads from another
+    site (no CDN decoders or HDR files).
+  - The home page hero shows the ball turning, from tablet width up; the 404 page shows the stumps
+    broken, the camera drifting slowly. Lighthouse: the home page 94 on mobile (the ball does not
+    load there) and 99 to 100 on desktop with it.
 - **V3-0: light and dark themes, and the design system.**
   - A theme switch in the top bar: System (the default, following the device), Light or Dark,
     remembered in a cookie. An inline script reads it before the first paint, so pages stay

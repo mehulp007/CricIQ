@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, Info } from "lucide-react";
 import Link from "next/link";
 
+import { Scene3D } from "@/components/three/scene-3d";
 import { Badge } from "@/components/ui/badge";
 import {
   COMPETITIONS,
@@ -43,21 +44,35 @@ export default function HomePage() {
   const internationals = COMPETITIONS.filter((c) => c.teamType === "national");
   return (
     <div className="flex flex-col gap-14">
-      <section className="glass relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16">
-        <Badge variant="outline" className="mb-6 font-mono text-[11px] tracking-wide text-primary">
-          T20, one-day and Test cricket · ball by ball
-        </Badge>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-          Decode the game.
-          <span className="block text-muted-foreground">Predict the next move.</span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          CricIQ turns every delivery of the IPL, men&apos;s T20 internationals, ODIs and Tests, and
-          the BBL, PSL, CPL and SA20 into interactive analytics: replay any match with each
-          side&apos;s chance of winning after every ball, explore any player&apos;s career against
-          par in every competition, and read any batter-vs-bowler rivalry without over-reading small
-          samples. Every number comes from a tested model you can inspect.
-        </p>
+      <section className="glass relative grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16 md:grid-cols-[minmax(0,1fr)_16rem] lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div>
+          <Badge
+            variant="outline"
+            className="mb-6 font-mono text-[11px] tracking-wide text-primary"
+          >
+            T20, one-day and Test cricket · ball by ball
+          </Badge>
+          <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+            Decode the game.
+            <span className="block text-muted-foreground">Predict the next move.</span>
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            CricIQ turns every delivery of the IPL, men&apos;s T20 internationals, ODIs and Tests,
+            and the BBL, PSL, CPL and SA20 into interactive analytics: replay any match with each
+            side&apos;s chance of winning after every ball, explore any player&apos;s career against
+            par in every competition, and read any batter-vs-bowler rivalry without over-reading
+            small samples. Every number comes from a tested model you can inspect.
+          </p>
+        </div>
+        <Scene3D
+          scene="ball"
+          poster="/3d/posters/cricket-ball.webp"
+          width={640}
+          height={640}
+          label="A cricket ball, turning slowly"
+          minWidth={768}
+          className="hidden w-full md:block"
+        />
       </section>
 
       <section aria-labelledby="choose-heading" className="flex flex-col gap-6">

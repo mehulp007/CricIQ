@@ -1,8 +1,16 @@
 # 3D model sources
 
-The site's 3D models are made in Blender. This folder keeps each model's `.blend` source; the
-compressed models the site loads live in `frontend/public/models/`, with a poster image for each in
-`frontend/public/models/posters/`. Running the site never needs Blender.
+The site's 3D models are made in Blender. This folder keeps each model's `.blend` source and its
+raw glTF export; the compressed models the site loads live in `frontend/public/3d/`, with a poster
+image for each in `frontend/public/3d/posters/`. Running the site never needs Blender.
+
+| Source               | Export             | What it is                                                                                                                   |
+| -------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `cricket-ball.blend` | `cricket-ball.glb` | The ball: leather, a raised seam and four rows of stitching (about 11,800 triangles).                                        |
+| `stumps.blend`       | `stumps.glb`       | Three stumps and two bails to the Laws' sizes, each its own node so it can move.                                             |
+| `bowled.blend`       | `bowled.glb`       | Both, composed as "bowled", with its camera. Its scene `Hero` holds the camera and turn of the ball poster on the home page. |
+
+One unit is 36 mm, the ball's radius.
 
 ## Tools
 
@@ -10,20 +18,24 @@ compressed models the site loads live in `frontend/public/models/`, with a poste
 - The Blender Lab MCP add-on (`mcp`, from the extensions repository `https://lab.blender.org/`),
   enabled, with _Allow Online Access_ on in Blender's system preferences. Its server starts with
   Blender and listens on `localhost:9876`.
-- `gltf-transform` (a dev dependency of the web app: `pnpm exec gltf-transform`).
+- `gltf-transform` (a dev dependency of the web app).
 
 ## From Blender to the site
 
 1. Model in Blender and save the source here as `<name>.blend`.
-2. Export the model as binary glTF (`File > Export > glTF 2.0`, format `.glb`, selected objects).
-3. Compress it into the web app:
+2. Export it here as binary glTF, `<name>.glb` (selected objects, no Draco; include the camera
+   when the scene's framing matters, as `bowled.glb` does).
+3. Render its poster with Cycles on a transparent background to
+   `../../public/3d/posters/<name>.webp`, from the camera the site uses, so the 3D version takes
+   over without a jump. The site shows the poster while the scene loads, and instead of it when
+   motion is reduced, data is saved, WebGL is unavailable or the scene fails.
+4. Compress every model into the web app, which also checks the budget and the posters:
 
    ```bash
    cd frontend
-   pnpm exec gltf-transform optimize <exported>.glb public/models/<name>.glb --compress meshopt --texture-compress webp
+   pnpm models
    ```
 
-4. Render a poster of the model to `public/models/posters/<name>.webp`; the site shows it while
-   the 3D scene loads, and instead of it when motion is reduced or WebGL is unavailable.
-
-Each compressed model must stay at or under 400 KB.
+   Meshopt compression with quantised attributes, no simplification (it would eat the stitching)
+   and no joining (the stumps and bails stay separate). Each compressed model must stay at or
+   under 400 KB.

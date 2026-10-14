@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { TeamSwatch } from "@/components/match/team-badge";
 import type { SeriesSummary } from "@/lib/api/types";
+import { CARD_LINK } from "@/lib/card";
 import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
 import { dateRange, kindLabel, seriesTitle } from "@/lib/series";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ export function SeriesCard({
   return (
     <Link
       href={competitionPath(competition, `/series/${series.event_id}`)}
-      className="group flex w-full flex-col gap-3 rounded-xl border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className={cn(CARD_LINK, "gap-3 p-4")}
     >
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">

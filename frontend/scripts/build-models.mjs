@@ -2,7 +2,8 @@
 //   pnpm models
 // Meshopt geometry compression with quantised attributes; no simplification (it would eat the
 // ball's stitching) and no joining or flattening (the stumps and bails stay separate nodes so they
-// can move on their own). Fails if a model is over the 400 KB budget or has no poster.
+// can move on their own). Fails if a model is over the 400 KB budget or has no poster (one
+// <name>.webp, or a pair <name>-night.webp and <name>-day.webp for a scene lit by the theme).
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
@@ -44,7 +45,10 @@ for (const file of models) {
     { stdio: "inherit", shell: process.platform === "win32" },
   );
   const size = statSync(out).size;
-  const poster = join(POSTERS, file.replace(/\.glb$/, ".webp"));
+  const name = file.replace(/\.glb$/, "");
+  const posters = existsSync(join(POSTERS, `${name}.webp`))
+    ? [`${name}.webp`]
+    : [`${name}-night.webp`, `${name}-day.webp`];
   console.log(
     `${file}: ${(statSync(join(SRC, file)).size / 1024).toFixed(0)} KB -> ${(size / 1024).toFixed(0)} KB`,
   );
@@ -52,9 +56,11 @@ for (const file of models) {
     console.error(`  over the ${BUDGET / 1024} KB budget`);
     failed = true;
   }
-  if (!existsSync(poster)) {
-    console.error(`  no poster at ${poster}`);
-    failed = true;
+  for (const poster of posters.map((p) => join(POSTERS, p))) {
+    if (!existsSync(poster)) {
+      console.error(`  no poster at ${poster}`);
+      failed = true;
+    }
   }
 }
 process.exit(failed ? 1 : 0);

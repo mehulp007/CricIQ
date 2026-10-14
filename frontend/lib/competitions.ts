@@ -34,12 +34,6 @@ export interface Competition {
   quota: number | null;
 }
 
-export interface UpcomingFormat {
-  label: string;
-  name: string;
-  milestone: string;
-}
-
 export const COMPETITIONS: readonly Competition[] = [
   {
     id: "ipl",
@@ -154,9 +148,6 @@ export const COMPETITIONS: readonly Competition[] = [
     quota: 4,
   },
 ];
-
-/** Formats on their way (shown in the switcher, never linked). */
-export const UPCOMING: readonly UpcomingFormat[] = [];
 
 export const DEFAULT_COMPETITION: CompetitionId = "ipl";
 

@@ -9,8 +9,12 @@ image for each in `frontend/public/3d/posters/`. Running the site never needs Bl
 | `cricket-ball.blend` | `cricket-ball.glb` | The ball: leather, a raised seam and four rows of stitching (about 11,800 triangles).                                        |
 | `stumps.blend`       | `stumps.glb`       | Three stumps and two bails to the Laws' sizes, each its own node so it can move.                                             |
 | `bowled.blend`       | `bowled.glb`       | Both, composed as "bowled", with its camera. Its scene `Hero` holds the camera and turn of the ball poster on the home page. |
+| `stadium.blend`      | `stadium.glb`      | A generic floodlit oval stadium (not a real ground) with its camera, built by `stadium.py`; posters for night and day.       |
 
-One unit is 36 mm, the ball's radius.
+One unit is 36 mm, the ball's radius, except in the stadium, which is in metres. The stadium is
+made by a script: `blender --python stadium.py` builds it, and in Blender's Python console
+`export()` writes `stadium.glb` and `posters()` renders `stadium-night.webp` and `stadium-day.webp`
+(the site shows the one for the theme).
 
 ## Tools
 

@@ -13,7 +13,10 @@ describe("3D assets", () => {
 
   it.each(glbs)("%s stays within the 400 KB budget and has a poster", (file) => {
     expect(statSync(join(MODELS, file)).size).toBeLessThanOrEqual(400 * 1024);
-    expect(existsSync(join(MODELS, "posters", file.replace(/\.glb$/, ".webp")))).toBe(true);
+    // One poster, or a night and a day one for a scene lit by the theme.
+    const name = file.replace(/\.glb$/, "");
+    const poster = (suffix: string) => existsSync(join(MODELS, "posters", `${name}${suffix}.webp`));
+    expect(poster("") || (poster("-night") && poster("-day"))).toBe(true);
   });
 
   it.each(glbs)("%s has its Blender source", (file) => {

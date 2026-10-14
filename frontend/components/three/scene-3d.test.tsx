@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Scene3D } from "@/components/three/scene-3d";
@@ -53,10 +53,22 @@ describe("Scene3D", () => {
     expect(scene.querySelector("img")).toHaveAttribute("alt", "");
   });
 
-  it("loads the scene once the browser is idle and the scene is on screen", () => {
+  it("loads the scene after the visitor's first move, once the browser is idle", () => {
     setup();
     renderScene();
+    act(() => vi.runAllTimers());
+    // Nothing starts on its own: the page loads without the 3D's work.
     expect(screen.queryByTestId("scene-canvas")).toBeNull();
+    fireEvent.pointerMove(window);
+    expect(screen.queryByTestId("scene-canvas")).toBeNull();
+    act(() => vi.runAllTimers());
+    expect(screen.getByTestId("scene-canvas")).toBeInTheDocument();
+  });
+
+  it("starts on a key or a scroll as well", () => {
+    setup();
+    renderScene();
+    fireEvent.keyDown(window, { key: "Tab" });
     act(() => vi.runAllTimers());
     expect(screen.getByTestId("scene-canvas")).toBeInTheDocument();
   });
@@ -64,13 +76,36 @@ describe("Scene3D", () => {
   it("keeps the poster when motion should be reduced", () => {
     setup({ reducedMotion: true });
     renderScene();
+    fireEvent.pointerMove(window);
     act(() => vi.runAllTimers());
     expect(screen.queryByTestId("scene-canvas")).toBeNull();
+  });
+
+  it("has a poster per theme, only the theme's own showing", () => {
+    setup();
+    render(
+      <Scene3D
+        scene="stadium"
+        poster={{ dark: "/3d/posters/stadium-night.webp", light: "/3d/posters/stadium-day.webp" }}
+        width={1200}
+        height={900}
+        label="A stadium"
+      />,
+    );
+    const [night, day] = screen.getByRole("img", { name: "A stadium" }).querySelectorAll("img");
+    expect(night.getAttribute("src")).toContain("stadium-night.webp");
+    expect(night).toHaveClass("hidden", "dark:block");
+    expect(day.getAttribute("src")).toContain("stadium-day.webp");
+    expect(day).toHaveClass("dark:hidden");
+    // Neither is fetched before it shows.
+    expect(night).toHaveAttribute("loading", "lazy");
+    expect(day).toHaveAttribute("loading", "lazy");
   });
 
   it("keeps the poster without WebGL", () => {
     setup({ webgl: false });
     renderScene();
+    fireEvent.pointerMove(window);
     act(() => vi.runAllTimers());
     expect(screen.queryByTestId("scene-canvas")).toBeNull();
   });

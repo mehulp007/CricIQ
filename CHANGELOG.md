@@ -5,6 +5,29 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V3-3: the landing page and the competition homes.**
+  - A floodlit stadium leads the home page, made in Blender from a script
+    (`frontend/assets-src/3d/stadium.py`): a generic oval ground (not a real one) with the pitch,
+    creases and stumps to the Laws' sizes, mowing stripes, three tiers of stands, roofs, sight
+    screens and four floodlight towers, 117 KB compressed. It turns slowly; at night (dark theme)
+    the floodlights light the ground, the lamps glare and a ribbon of turf green glows round the
+    rim, and by day (light theme) the sun lights it and casts its shadows. A theme switch fades
+    one into the other. Its poster comes in a night and a day version, and only the theme's own
+    downloads; phones and tablets see the poster.
+  - The competitions are chosen from cards with depth: each leans towards the mouse pointer, its
+    top layer rises and a light follows the pointer (flat for touch, the keyboard and reduced
+    motion). Each names its format, years, latest champions and lead featured replay.
+  - Every competition's home page opens with the competition's name over the turning ball, then
+    its headline numbers (matches and seasons in the data, the latest season's first-innings
+    average and the latest match), and every section uses the new section headers, stat tiles and
+    cards. Match cards carry both sides' colours along their top edge, and every card that is a
+    link lifts under the pointer.
+  - Every 3D scene now starts after the visitor's first move (pointer, touch, wheel, scroll or
+    key) as well as once the browser is idle, so starting three.js (a task of about 0.8 s in a
+    software-rendered browser) no longer lands while the page loads; the poster, the scene's first
+    frame, shows till then. Lighthouse on the fixture data, three runs each: desktop 100 on the
+    home page and a competition home in both themes (the home page was 76 to 80 with the 3D
+    starting on load), mobile 91 to 92; accessibility, best practices and SEO 100 throughout.
 - **V3-2: the app shell and navigation.**
   - Search everything from anywhere: Ctrl/⌘ K, "/" or the Search button opens a palette over the
     page's pages, competitions, players (searched as you type), teams and featured replays, used

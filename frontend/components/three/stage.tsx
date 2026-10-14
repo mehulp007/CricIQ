@@ -73,8 +73,15 @@ export function Stage({
   onReady,
   camera,
   shadows = false,
+  lights = true,
   children,
-}: SceneProps & { camera?: CameraProps; shadows?: boolean; children: ReactNode }) {
+}: SceneProps & {
+  camera?: CameraProps;
+  shadows?: boolean;
+  /** The shared lights; a scene that lights itself turns them off. */
+  lights?: boolean;
+  children: ReactNode;
+}) {
   return (
     <Canvas
       shadows={shadows ? "soft" : false}
@@ -84,7 +91,7 @@ export function Stage({
       camera={camera}
       aria-hidden="true"
     >
-      <Lights theme={theme} />
+      {lights && <Lights theme={theme} />}
       <Suspense fallback={null}>
         {children}
         <Ready onReady={onReady} />

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
 import type { MatchSummary, TeamScore } from "@/lib/api/types";
+import { CARD_LINK } from "@/lib/card";
 import { competitionPath, seasonLabel, type CompetitionId } from "@/lib/competitions";
 import { formatDate, formatScore, formatTestScore, stageLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -43,8 +44,16 @@ export function MatchCard({
   return (
     <Link
       href={competitionPath(competition, `/matches/${match.match_id}`)}
-      className="group flex w-full flex-col gap-4 rounded-xl border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className={cn(CARD_LINK, "relative gap-4 overflow-hidden p-4 pt-5")}
     >
+      {/* The two sides' colours along the top edge. */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-1"
+        style={{
+          background: `linear-gradient(90deg, ${match.team_a.color} 0 50%, ${match.team_b.color} 50% 100%)`,
+        }}
+      />
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <CalendarDays className="size-3.5" aria-hidden="true" />

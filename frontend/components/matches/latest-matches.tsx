@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { MatchCard } from "@/components/match/match-card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { getMatches } from "@/lib/api/client";
 import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
 
@@ -20,23 +21,19 @@ export async function LatestMatches({ competition }: { competition: CompetitionI
   if (matches.length === 0) return null;
   return (
     <section aria-labelledby="latest-heading" className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 id="latest-heading" className="text-xl font-semibold tracking-tight">
-            Latest matches
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The newest {getCompetition(competition).noun.replace(/ match$/, "")} matches in the
-            data, updated from Cricsheet after each match.
-          </p>
-        </div>
-        <Link
-          href={competitionPath(competition, "/matches")}
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          All matches
-        </Link>
-      </div>
+      <SectionHeader
+        id="latest-heading"
+        title="Latest matches"
+        description={`The newest ${getCompetition(competition).noun.replace(/ match$/, "")} matches in the data, updated from Cricsheet after each match.`}
+        action={
+          <Link
+            href={competitionPath(competition, "/matches")}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            All matches
+          </Link>
+        }
+      />
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {matches.map((match) => (
           <li key={match.match_id} className="flex">

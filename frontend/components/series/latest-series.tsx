@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SeriesCard } from "@/components/series/series-card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { getSeriesList } from "@/lib/api/client";
 import { competitionPath, getCompetition, type CompetitionId } from "@/lib/competitions";
 
@@ -21,23 +22,19 @@ export async function LatestSeries({ competition }: { competition: CompetitionId
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="latest-series-heading" className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 id="latest-series-heading" className="text-xl font-semibold tracking-tight">
-            Latest series
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The newest series and tournaments in the data, with the score so far where more matches
-            may follow.
-          </p>
-        </div>
-        <Link
-          href={competitionPath(competition, "/series")}
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          All series
-        </Link>
-      </div>
+      <SectionHeader
+        id="latest-series-heading"
+        title="Latest series"
+        description="The newest series and tournaments in the data, with the score so far where more matches may follow."
+        action={
+          <Link
+            href={competitionPath(competition, "/series")}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            All series
+          </Link>
+        }
+      />
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((s) => (
           <li key={s.event_id} className="flex">

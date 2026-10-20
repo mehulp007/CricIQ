@@ -11,6 +11,7 @@ import {
   describeDelivery,
   oversUpTo,
   overStarts,
+  replayMarks,
   scoreState,
   scorecardAt,
   wicketIndices,
@@ -135,5 +136,19 @@ describe("commentary", () => {
     const out = final.deliveries.find((d) => d.wicket?.is_dismissal)!;
     expect(describeDelivery(final, out)).toContain("OUT!");
     expect(ballChip(out)).toBe("W");
+  });
+});
+
+describe("replayMarks", () => {
+  it("marks every dismissal and the innings break", () => {
+    const marks = replayMarks(final);
+    expect(marks.filter((m) => m.kind === "wicket").map((m) => m.index)).toEqual(
+      wicketIndices(final),
+    );
+    const breaks = marks.filter((m) => m.kind === "innings");
+    expect(breaks).toHaveLength(1);
+    const [{ index }] = breaks;
+    expect(final.deliveries[index].innings_no).toBe(1);
+    expect(final.deliveries[index + 1].innings_no).toBe(2);
   });
 });

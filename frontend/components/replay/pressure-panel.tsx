@@ -79,7 +79,7 @@ export function PressurePanel({
   return (
     <section
       aria-label="Pressure and momentum"
-      className="grid grid-cols-1 gap-5 rounded-2xl border border-border bg-card/70 p-5 sm:grid-cols-2"
+      className="panel grid grid-cols-1 gap-5 sm:grid-cols-2"
     >
       <div className="flex flex-col gap-2">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">
@@ -103,7 +103,7 @@ export function PressurePanel({
               {competition === "ipl" && (
                 <Link
                   href={competitionPath(competition, "/lab/pressure")}
-                  className="text-foreground underline-offset-4 hover:underline"
+                  className="text-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:decoration-foreground"
                 >
                   About pressure
                 </Link>
@@ -139,7 +139,7 @@ export function PressurePanel({
                   {competition === "ipl" && (
                     <Link
                       href={competitionPath(competition, "/lab/momentum")}
-                      className="text-foreground underline-offset-4 hover:underline"
+                      className="text-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:decoration-foreground"
                     >
                       The evidence
                     </Link>

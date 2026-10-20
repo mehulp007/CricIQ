@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { Component, useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState } from "react";
 
 import type { SceneProps } from "@/components/three/stage";
+import { SceneBoundary, use3DAllowed, useInView, usePageVisible } from "@/components/three/use-3d";
 import { useResolvedTheme } from "@/components/theme/use-resolved-theme";
-import { can3D, readCapabilities } from "@/lib/three";
 import { cn } from "@/lib/utils";
 
 // Each scene, and three.js with it, is its own chunk: nothing 3D downloads until a scene is
@@ -18,23 +18,6 @@ const SCENES = {
 } satisfies Record<string, React.ComponentType<SceneProps>>;
 
 export type SceneName = keyof typeof SCENES;
-
-/** The events that show a visitor is on the page: any of them lets the 3D start. */
-const FIRST_MOVES = ["pointermove", "pointerdown", "touchstart", "wheel", "scroll", "keydown"];
-
-/** A scene that fails (a model that will not load, a lost WebGL context) leaves the poster. */
-class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  componentDidCatch(error: unknown) {
-    console.warn("3D scene unavailable, showing its poster:", error);
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
 
 /**
  * A 3D scene with its pre-rendered poster. The poster is what everyone sees first, and all that
@@ -65,55 +48,11 @@ export function Scene3D({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [allowed, setAllowed] = useState(false);
-  const [inView, setInView] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
+  const allowed = use3DAllowed(minWidth);
+  const inView = useInView(ref);
+  const pageVisible = usePageVisible();
   const [ready, setReady] = useState(false);
   const theme = useResolvedTheme();
-
-  useEffect(() => {
-    // Starting three.js takes the main thread for a moment, so it waits for the visitor's first
-    // move (pointer, touch, wheel, scroll or key) and then for the browser to be idle: the page
-    // loads and answers at full speed, and the poster (the scene's first frame) stands in till then.
-    let idle: number | undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const decide = () => setAllowed(can3D(readCapabilities(minWidth)));
-    const start = () => {
-      stop();
-      if ("requestIdleCallback" in window)
-        idle = window.requestIdleCallback(decide, { timeout: 1500 });
-      else timer = setTimeout(decide, 100);
-    };
-    const stop = () => {
-      for (const name of FIRST_MOVES) window.removeEventListener(name, start);
-    };
-    for (const name of FIRST_MOVES) window.addEventListener(name, start, { passive: true });
-    return () => {
-      stop();
-      if (idle !== undefined) window.cancelIdleCallback(idle);
-      clearTimeout(timer);
-    };
-  }, [minWidth]);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    if (!("IntersectionObserver" in window)) {
-      const id = setTimeout(() => setInView(true), 0);
-      return () => clearTimeout(id);
-    }
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
-      rootMargin: "120px",
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const onChange = () => setPageVisible(document.visibilityState === "visible");
-    document.addEventListener("visibilitychange", onChange);
-    return () => document.removeEventListener("visibilitychange", onChange);
-  }, []);
 
   const Scene = SCENES[scene];
   const posters: { src: string; theme?: "dark" | "light" }[] =

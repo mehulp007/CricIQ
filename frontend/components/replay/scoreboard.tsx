@@ -1,27 +1,21 @@
 import { TeamSwatch } from "@/components/match/team-badge";
+import { ScoreboardFrame, Stat } from "@/components/replay/scoreboard-frame";
 import { WinProbabilityBar } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { formatRate } from "@/lib/cricket";
 import { formatScore, inningsLabel } from "@/lib/format";
-import { type Frame, scoreState } from "@/lib/replay/engine";
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] tracking-wide text-muted-foreground uppercase">{label}</span>
-      <span className="font-mono text-base tabular-nums">{value}</span>
-    </div>
-  );
-}
+import { type Frame, type LiveInningsCard, scoreState } from "@/lib/replay/engine";
 
 export function Scoreboard({
   timeline,
   frame,
+  cards,
   atEnd,
   wp,
 }: {
   timeline: Timeline;
   frame: Frame | null;
+  cards: LiveInningsCard[];
   atEnd: boolean;
   wp: number | null;
 }) {
@@ -30,11 +24,14 @@ export function Scoreboard({
   if (!frame) {
     const toss = summary.toss;
     return (
-      <section aria-label="Scoreboard" className="glass rounded-2xl p-6">
-        <p className="text-xs tracking-wide text-muted-foreground uppercase">
-          Before the first ball
-        </p>
-        <p className="mt-3 text-2xl font-semibold tracking-tight">
+      <ScoreboardFrame
+        timeline={timeline}
+        cards={cards}
+        battingTeamId={null}
+        withOvers
+        heading="Before the first ball"
+      >
+        <p className="text-2xl font-semibold tracking-tight">
           {summary.team_a.name} <span className="text-muted-foreground">vs</span>{" "}
           {summary.team_b.name}
         </p>
@@ -48,7 +45,7 @@ export function Scoreboard({
           or the play button to start the replay.
         </p>
         <WinProbabilityBar timeline={timeline} wp={wp} />
-      </section>
+      </ScoreboardFrame>
     );
   }
 
@@ -57,15 +54,15 @@ export function Scoreboard({
   const chasing = state.target !== null;
 
   return (
-    <section aria-label="Scoreboard" className="glass rounded-2xl p-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs tracking-wide text-muted-foreground uppercase">
-          {inningsLabel(frame.innings.innings_no, frame.innings.is_super_over)}
-        </p>
-        <p className="font-mono text-xs text-muted-foreground">Ball {frame.delivery.ball_label}</p>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+    <ScoreboardFrame
+      timeline={timeline}
+      cards={cards}
+      battingTeamId={frame.innings.batting_team_id}
+      withOvers
+      heading={inningsLabel(frame.innings.innings_no, frame.innings.is_super_over)}
+      ball={frame.delivery.ball_label ?? undefined}
+    >
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <span className="flex items-center gap-2 text-lg font-medium">
           <TeamSwatch color={batting.color} />
           {batting.name}
@@ -114,6 +111,6 @@ export function Scoreboard({
       )}
 
       <WinProbabilityBar timeline={timeline} wp={wp} />
-    </section>
+    </ScoreboardFrame>
   );
 }

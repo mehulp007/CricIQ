@@ -14,18 +14,18 @@ import { TestScoreboard } from "@/components/replay/test/test-scoreboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import type { CompetitionId } from "@/lib/competitions";
-import { buildFrames, scorecardAt } from "@/lib/replay/engine";
+import { buildFrames, replayMarks, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { outcomeAt, testJumps } from "@/lib/replay/test";
 
 // The charts load after the replay paints: the charting library stays out of its first JavaScript.
 const OutcomeChart = dynamic(
   () => import("@/components/replay/test/outcome-chart").then((m) => m.OutcomeChart),
-  { ssr: false, loading: () => <div className="h-72 animate-pulse rounded-xl bg-muted/40" /> },
+  { ssr: false, loading: () => <div className="skeleton h-72 rounded-xl" /> },
 );
 const InningsOvers = dynamic(
   () => import("@/components/replay/test/innings-overs").then((m) => m.InningsOvers),
-  { ssr: false, loading: () => <div className="h-56 animate-pulse rounded-xl bg-muted/40" /> },
+  { ssr: false, loading: () => <div className="skeleton h-56 rounded-xl" /> },
 );
 
 // A Test is about 2,000 balls: faster speeds than a T20's.
@@ -110,6 +110,7 @@ export function TestMatchCenter({
   }, [timeline]);
 
   const jumps: OverOption[] = useMemo(() => testJumps(timeline), [timeline]);
+  const marks = useMemo(() => replayMarks(timeline), [timeline]);
   const frame = cursor >= 0 ? frames[cursor] : null;
   const atEnd = cursor === frames.length - 1;
   const cards = useMemo(() => scorecardAt(timeline, cursor), [timeline, cursor]);
@@ -136,16 +137,14 @@ export function TestMatchCenter({
               <TestScoreboard
                 timeline={timeline}
                 frame={frame}
+                cards={cards}
                 cursor={cursor}
                 atEnd={atEnd}
                 outcome={outcome}
               />
               <ProjectionPanel timeline={timeline} cursor={cursor} />
               {frame && <CreasePanel timeline={timeline} frame={frame} />}
-              <section
-                aria-label="Charts"
-                className="rounded-2xl border border-border bg-card/70 p-5"
-              >
+              <section aria-label="Charts" className="panel">
                 <Tabs defaultValue="chances">
                   <TabsList>
                     <TabsTrigger value="chances">Result chances</TabsTrigger>
@@ -176,6 +175,7 @@ export function TestMatchCenter({
         state={state}
         dispatch={dispatch}
         overs={jumps}
+        marks={marks}
         ballLabel={frame ? `${frame.delivery.innings_no}·${frame.delivery.ball_label}` : "0.0"}
         speeds={TEST_SPEEDS}
         jumpLabel="Jump to day or innings"

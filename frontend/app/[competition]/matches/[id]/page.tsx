@@ -74,7 +74,7 @@ export default async function MatchPage({ params }: PageProps<"/[competition]/ma
       />
 
       <header className="flex flex-col gap-3">
-        <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-headline font-semibold">
           <span>{summary.team_a.name}</span>
           <span className="text-base font-normal text-muted-foreground">vs</span>
           <span>{summary.team_b.name}</span>

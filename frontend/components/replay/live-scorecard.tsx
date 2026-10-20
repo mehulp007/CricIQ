@@ -45,7 +45,7 @@ function InningsCard({
   return (
     <section
       aria-label={`${team.name}, ${inningsLabel(card.innings.innings_no, card.innings.is_super_over)}`}
-      className="rounded-2xl border border-border bg-card/70 p-5"
+      className="panel"
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="flex items-center gap-2 font-medium">

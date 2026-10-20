@@ -64,18 +64,28 @@ export function WinProbabilityBar({ timeline, wp }: { timeline: Timeline; wp: nu
           />
         </span>
       </div>
-      <div
-        role="img"
-        aria-label={label}
-        className={cn("flex h-2 overflow-hidden rounded-full", a > 0 && a < 100 && "gap-0.5")}
-      >
+      <div className="relative">
+        <div
+          role="img"
+          aria-label={label}
+          className={cn(
+            "flex h-3 overflow-hidden rounded-full shadow-inner",
+            a > 0 && a < 100 && "gap-0.5",
+          )}
+        >
+          <span
+            className="h-full shrink-0 transition-[width] duration-500 ease-out"
+            style={{ width: `${a}%`, background: SIDE_COLORS.a }}
+          />
+          <span
+            className="h-full min-w-0 flex-1 transition-[width] duration-500 ease-out"
+            style={{ background: SIDE_COLORS.b }}
+          />
+        </div>
+        {/* Even money. */}
         <span
-          className="h-full shrink-0 transition-[width] duration-500 ease-out"
-          style={{ width: `${a}%`, background: SIDE_COLORS.a }}
-        />
-        <span
-          className="h-full min-w-0 flex-1 transition-[width] duration-500 ease-out"
-          style={{ background: SIDE_COLORS.b }}
+          aria-hidden="true"
+          className="absolute -inset-y-1 left-1/2 w-px -translate-x-1/2 bg-foreground/50"
         />
       </div>
     </div>

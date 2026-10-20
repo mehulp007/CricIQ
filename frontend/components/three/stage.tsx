@@ -84,7 +84,7 @@ export function Stage({
 }) {
   return (
     <Canvas
-      shadows={shadows ? "soft" : false}
+      shadows={shadows}
       frameloop={active ? "always" : "never"}
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}

@@ -386,3 +386,20 @@ export function overStarts(
 export function wicketIndices(timeline: Timeline): number[] {
   return timeline.deliveries.flatMap((d, i) => (d.wicket?.is_dismissal ? [i] : []));
 }
+
+export interface ReplayMark {
+  /** The delivery the mark sits after. */
+  index: number;
+  kind: "wicket" | "innings";
+}
+
+/** Marks for the replay's timeline: every dismissal, and where each new innings begins. */
+export function replayMarks(timeline: Timeline): ReplayMark[] {
+  const marks: ReplayMark[] = [];
+  timeline.deliveries.forEach((d, i) => {
+    const prev = timeline.deliveries[i - 1];
+    if (prev && prev.innings_no !== d.innings_no) marks.push({ index: i - 1, kind: "innings" });
+    if (d.wicket?.is_dismissal) marks.push({ index: i, kind: "wicket" });
+  });
+  return marks;
+}

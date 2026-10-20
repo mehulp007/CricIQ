@@ -51,7 +51,11 @@ export function OutcomeBar({ timeline, outcome }: { timeline: Timeline; outcome:
           </span>
         ))}
       </div>
-      <div role="img" aria-label={label} className="flex h-2 gap-0.5 overflow-hidden rounded-full">
+      <div
+        role="img"
+        aria-label={label}
+        className="flex h-3 gap-0.5 overflow-hidden rounded-full shadow-inner"
+      >
         {parts.map((p) => (
           <span
             key={p.key}

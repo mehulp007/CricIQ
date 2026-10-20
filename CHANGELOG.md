@@ -5,6 +5,25 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **V3-4: the match replay.**
+  - Over by over, in 3D: each over of both innings is a bar on a strip of turf (a mowing stripe
+    per over), rising ball by ball as the replay plays, the side batting first behind and the
+    chase in front. On each wicket the stumps (the Blender model) fall on top of the over's bar,
+    the over being bowled glows, and four floodlight towers brighten with the pressure on the next
+    ball (the model's leverage percentile). Pointing at an over names it; clicking it replays from
+    its first ball. Lit by floodlights at night and the sun by day, with the theme. A T20 and an
+    ODI fill the same ground, so bars read at the same scale.
+  - A switch keeps the Manhattan chart, and the choice is remembered in the browser. The chart is
+    what shows first, and all that shows on phones, with reduced motion or without WebGL; the 3D
+    view loads only after the visitor's first move, once on screen.
+  - The scoreboard (limited overs and Tests) has a header with the innings and the ball, both
+    sides' innings so far with the side batting marked ("MI 149/8 (20)", "ENG 67 & 362/9"), the
+    live score, and thicker win-probability and result-chance bars with an even-money mark.
+  - The replay timeline marks every wicket and each innings break above the scrubber.
+  - Every replay panel shares one raised panel style; links inside panel text are underlined (axe
+    flagged them once the panels became opaque).
+  - Lighthouse (fixture data, three runs each): the 2019 IPL final 98 on desktop and 80 to 81 on
+    mobile (V3-3: 99 and 80 to 82); the Headingley 2019 Test 99 and 82, unchanged.
 - **V3-3: the landing page and the competition homes.**
   - A floodlit stadium leads the home page, made in Blender from a script
     (`frontend/assets-src/3d/stadium.py`): a generic oval ground (not a real one) with the pitch,
@@ -87,6 +106,8 @@ All notable changes to this project are documented here. The format follows [Kee
   scripts/v2_up.py` is all a fresh clone needs.
 
 ### Fixed
+- The 3D capability check opened a WebGL context even on phones, where no 3D can show (slow
+  without a GPU): it now opens one only when the rest of the check allows 3D.
 - On phones, the competition home, match list, teams and team pages scrolled sideways. Responsive
   grids had no column count below their breakpoint, so a long unbroken name (a venue) widened the
   single column; every such grid now starts from one shrinkable column (`grid-cols-1`). A

@@ -38,7 +38,7 @@ function BatterRow({
 export function CreasePanel({ timeline, frame }: { timeline: Timeline; frame: Frame }) {
   const { striker, nonStriker, bowler, partnership, thisOver } = frame;
   return (
-    <section aria-label="At the crease" className="rounded-2xl border border-border bg-card/70 p-5">
+    <section aria-label="At the crease" className="panel">
       <table className="w-full text-sm">
         <caption className="mb-2 text-left text-xs tracking-wide text-muted-foreground uppercase">
           Batting

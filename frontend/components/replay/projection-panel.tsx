@@ -16,10 +16,7 @@ export function ProjectionPanel({ timeline, cursor }: { timeline: Timeline; curs
   const thresholds = thresholdsFor(projection);
 
   return (
-    <section
-      aria-label="Projected total"
-      className="rounded-2xl border border-border bg-card/70 p-5"
-    >
+    <section aria-label="Projected total" className="panel">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">
           Projected total · {batting.franchise_id}

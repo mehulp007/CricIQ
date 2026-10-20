@@ -67,10 +67,7 @@ export function BallFeed({
   }
 
   return (
-    <section
-      aria-label="Ball by ball"
-      className="flex min-h-0 flex-col rounded-2xl border border-border bg-card/70 p-5"
-    >
+    <section aria-label="Ball by ball" className="panel flex min-h-0 flex-col">
       <h2 className="text-xs tracking-wide text-muted-foreground uppercase">Ball by ball</h2>
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">

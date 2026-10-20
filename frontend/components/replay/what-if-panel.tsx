@@ -111,10 +111,7 @@ function WhatIf({
 
   if (!position) {
     return (
-      <section
-        aria-label="What if?"
-        className="rounded-2xl border border-border bg-card/70 p-5 text-sm text-muted-foreground"
-      >
+      <section aria-label="What if?" className="panel text-sm text-muted-foreground">
         <h2 className="mb-1 text-xs tracking-wide text-muted-foreground uppercase">What if?</h2>
         The match is over at this ball. Step back to try a different score.
       </section>
@@ -156,10 +153,7 @@ function WhatIf({
 
   const base = result?.model_win_pct ?? result?.actual.simulated_win_pct ?? null;
   return (
-    <section
-      aria-label="What if?"
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-card/70 p-5"
-    >
+    <section aria-label="What if?" className="panel flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">What if?</h2>
         <span className="rounded-md border border-border px-2 py-0.5 text-[10px] tracking-wide text-muted-foreground uppercase">
@@ -268,7 +262,7 @@ function WhatIf({
                 : "Simulated chance."}{" "}
               <Link
                 href={competitionPath(competition, "/models?tab=simulator#simulator")}
-                className="text-foreground underline-offset-4 hover:underline"
+                className="text-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:decoration-foreground"
               >
                 How
               </Link>

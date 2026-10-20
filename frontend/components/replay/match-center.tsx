@@ -13,18 +13,24 @@ import { ProjectionPanel } from "@/components/replay/projection-panel";
 import { LiveScorecard } from "@/components/replay/live-scorecard";
 import { type OverOption, ReplayControls } from "@/components/replay/replay-controls";
 import { Scoreboard } from "@/components/replay/scoreboard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Timeline } from "@/lib/api/types";
 import type { CompetitionId } from "@/lib/competitions";
 import { inningsLabel } from "@/lib/format";
-import { buildFrames, overStarts, scorecardAt } from "@/lib/replay/engine";
+import { buildFrames, overStarts, replayMarks, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { wpAt } from "@/lib/replay/win-probability";
 
 // The charts load after the replay paints: the charting library stays out of its first JavaScript.
 const ReplayCharts = dynamic(
   () => import("@/components/replay/replay-charts").then((m) => m.ReplayCharts),
-  { ssr: false, loading: () => <div className="h-80 animate-pulse rounded-xl bg-muted/40" /> },
+  { ssr: false, loading: () => <Skeleton className="h-80 rounded-2xl" /> },
+);
+// The over-by-over view (its chart, and its 3D once allowed) loads the same way.
+const OversPanel = dynamic(
+  () => import("@/components/replay/overs-panel").then((m) => m.OversPanel),
+  { ssr: false, loading: () => <Skeleton className="h-[23.5rem] rounded-2xl" /> },
 );
 
 const SPEED_KEYS: Record<string, Speed> = { "1": 1, "2": 2, "4": 4 };
@@ -131,6 +137,7 @@ export function MatchCenter({
     });
   }, [timeline]);
 
+  const marks = useMemo(() => replayMarks(timeline), [timeline]);
   const frame = cursor >= 0 ? frames[cursor] : null;
   const atEnd = cursor === frames.length - 1;
   const cards = useMemo(() => scorecardAt(timeline, cursor), [timeline, cursor]);
@@ -154,7 +161,8 @@ export function MatchCenter({
         <TabsContent value="live" className="mt-4">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
-              <Scoreboard timeline={timeline} frame={frame} atEnd={atEnd} wp={wp} />
+              <Scoreboard timeline={timeline} frame={frame} cards={cards} atEnd={atEnd} wp={wp} />
+              <OversPanel timeline={timeline} cursor={cursor} onSeek={seek} />
               <ProjectionPanel timeline={timeline} cursor={cursor} />
               {frame && <CreasePanel timeline={timeline} frame={frame} />}
               <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
@@ -179,6 +187,7 @@ export function MatchCenter({
         state={state}
         dispatch={dispatch}
         overs={overs}
+        marks={marks}
         ballLabel={frame?.delivery.ball_label ?? "0.0"}
       />
     </div>

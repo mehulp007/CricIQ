@@ -19,10 +19,7 @@ export function ExplainPanel({ timeline, cursor }: { timeline: Timeline; cursor:
 
   if (!explanation || wp === null) {
     return (
-      <section
-        aria-label="Why this estimate"
-        className="rounded-2xl border border-border bg-card/70 p-5"
-      >
+      <section aria-label="Why this estimate" className="panel">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">Why this estimate</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           {cursor >= 0 && timeline.deliveries[cursor]?.innings_no > 2
@@ -38,10 +35,7 @@ export function ExplainPanel({ timeline, cursor }: { timeline: Timeline; cursor:
   const usesTeams = timeline.win_probability.factor_keys.includes("teams");
   if (cursor < 0) {
     return (
-      <section
-        aria-label="Why this estimate"
-        className="rounded-2xl border border-border bg-card/70 p-5"
-      >
+      <section aria-label="Why this estimate" className="panel">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">Why this estimate</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Before a ball is bowled, the model gives the side batting first{" "}
@@ -63,10 +57,7 @@ export function ExplainPanel({ timeline, cursor }: { timeline: Timeline; cursor:
   const moment = explanation.inningsNo === 1 ? "first-innings moment" : "moment in a chase";
 
   return (
-    <section
-      aria-label="Why this estimate"
-      className="rounded-2xl border border-border bg-card/70 p-5"
-    >
+    <section aria-label="Why this estimate" className="panel">
       <h2 className="text-xs tracking-wide text-muted-foreground uppercase">Why this estimate</h2>
       <p className="mt-2 text-sm">
         <span className="font-medium">{batting.name}</span>{" "}

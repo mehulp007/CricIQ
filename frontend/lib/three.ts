@@ -27,11 +27,15 @@ function hasWebGL(): boolean {
 /** Read the browser's capabilities (client only). */
 export function readCapabilities(minWidth = 0): Capabilities {
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData = Boolean(connection?.saveData);
+  const wideEnough = minWidth === 0 || window.matchMedia(`(min-width: ${minWidth}px)`).matches;
   return {
-    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    saveData: Boolean(connection?.saveData),
-    webgl: hasWebGL(),
-    wideEnough: minWidth === 0 || window.matchMedia(`(min-width: ${minWidth}px)`).matches,
+    reducedMotion,
+    saveData,
+    // Opening a WebGL context is slow (very slow without a GPU): only when the rest allows 3D.
+    webgl: wideEnough && !reducedMotion && !saveData && hasWebGL(),
+    wideEnough,
   };
 }
 

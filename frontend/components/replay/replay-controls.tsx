@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { ReplayMark } from "@/lib/replay/engine";
 import { SPEEDS, type ReplayAction, type ReplayState, type Speed } from "@/lib/replay/state";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ export function ReplayControls({
   state,
   dispatch,
   overs,
+  marks = [],
   ballLabel,
   speeds = SPEEDS,
   jumpLabel = "Jump to over",
@@ -30,6 +32,8 @@ export function ReplayControls({
   state: ReplayState;
   dispatch: Dispatch<ReplayAction>;
   overs: OverOption[];
+  /** Wickets and innings breaks, drawn along the timeline. */
+  marks?: readonly ReplayMark[];
   ballLabel: string;
   speeds?: readonly Speed[];
   jumpLabel?: string;
@@ -41,7 +45,7 @@ export function ReplayControls({
     <div
       role="toolbar"
       aria-label="Replay controls"
-      className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-20 flex flex-col gap-3 rounded-2xl border border-border bg-popover/90 p-3 shadow-lg backdrop-blur-md sm:flex-row sm:items-center lg:bottom-3"
+      className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-20 flex flex-col gap-3 rounded-2xl border border-border bg-popover/90 p-3 shadow-elev-3 backdrop-blur-md sm:flex-row sm:items-center lg:bottom-3"
     >
       <div className="flex items-center gap-1">
         <Button
@@ -87,16 +91,38 @@ export function ReplayControls({
       </div>
 
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <input
-          type="range"
-          min={-1}
-          max={total - 1}
-          value={cursor}
-          onChange={(e) => dispatch({ type: "seek", cursor: Number(e.target.value) })}
-          aria-label="Replay position"
-          aria-valuetext={cursor < 0 ? "Before the first ball" : `Ball ${ballLabel}`}
-          className="h-1.5 min-w-0 flex-1 cursor-pointer accent-primary"
-        />
+        <div className="relative flex min-w-0 flex-1 items-center">
+          <input
+            type="range"
+            min={-1}
+            max={total - 1}
+            value={cursor}
+            onChange={(e) => dispatch({ type: "seek", cursor: Number(e.target.value) })}
+            aria-label="Replay position"
+            aria-valuetext={cursor < 0 ? "Before the first ball" : `Ball ${ballLabel}`}
+            className="h-1.5 w-full min-w-0 cursor-pointer accent-primary"
+          />
+          {/* Wickets (dots) and innings breaks (ticks) above the track, inset by half a thumb. */}
+          <div
+            aria-hidden="true"
+            data-testid="replay-marks"
+            className="pointer-events-none absolute inset-x-2 -top-2 h-2"
+          >
+            {marks.map((mark) => (
+              <span
+                key={`${mark.kind}-${mark.index}`}
+                className={cn(
+                  "absolute -translate-x-1/2",
+                  mark.kind === "wicket"
+                    ? "top-0.5 size-1.5 rounded-full bg-wicket"
+                    : "-top-0.5 h-3 w-0.5 rounded-full bg-muted-foreground/70",
+                  mark.index > cursor && "opacity-40",
+                )}
+                style={{ left: `${((mark.index + 1) / total) * 100}%` }}
+              />
+            ))}
+          </div>
+        </div>
         <span className="w-12 shrink-0 text-right font-mono text-xs text-muted-foreground tabular-nums">
           {cursor < 0 ? "0.0" : ballLabel}
         </span>

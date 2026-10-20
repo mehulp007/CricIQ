@@ -170,10 +170,7 @@ function ChaseWhatIfView({
     timeline.summary.team_b.team_season_id === result?.batting_team.team_season_id ? "b" : "a";
   const edited = result?.edited ?? null;
   return (
-    <section
-      aria-label="Chase what-if"
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-card/70 p-5"
-    >
+    <section aria-label="Chase what-if" className="panel flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-xs tracking-wide text-muted-foreground uppercase">Chase what-if</h2>
         <span className="rounded-md border border-border px-2 py-0.5 text-[10px] tracking-wide text-muted-foreground uppercase">
@@ -272,7 +269,7 @@ function ChaseWhatIfView({
             as they were. Overs left are estimated (five days of 90 overs less those bowled).{" "}
             <Link
               href={competitionPath(competition, "/models")}
-              className="text-foreground underline-offset-4 hover:underline"
+              className="text-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:decoration-foreground"
             >
               How
             </Link>

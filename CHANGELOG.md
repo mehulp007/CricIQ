@@ -85,6 +85,16 @@ All notable changes to this project are documented here. The format follows [Kee
     `pnpm visual` captures the key pages in both themes on desktop and mobile for review.
 
 ### Changed
+- Running CricIQ on your own computer no longer builds the data first. `scripts/v2_up.py` now
+  downloads the ready-built databases the site serves (every competition, validated and scored;
+  one zip of about 150 MB from the repository's `data` release, refreshed weekly), checks every
+  file against the zip's manifest and starts the site: a first run takes about 5 minutes instead
+  of about 25 with every CPU core busy, and uses about 400 MB of disk instead of 1.6 GB.
+  `--update-data` fetches the latest week's data; `--build-data` builds it here as before (with
+  `--no-download` to reuse Cricsheet archives already downloaded). An install refuses data from
+  another pipeline version, and a failed download changes nothing. The web app is rebuilt when
+  the data is newer than its last build. `scripts/data_snapshot.py` (and `just pack-data`)
+  packs the data for publishing.
 - CI runs on the `v3` branch too.
 - Animation stays light. Most of it is CSS; GSAP and Lenis load only on the home page after it
   has painted, and set the story up a chapter at a time; Motion loads only with the match replay,

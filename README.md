@@ -51,10 +51,13 @@ cd CricIQ
 uv run python scripts/v2_up.py
 ```
 
-The first run takes about 25 minutes on a laptop. It downloads the data (about 45 MB), builds and
-checks every competition (about 1.5 GB on disk), scores every ball with the trained models and
+The first run takes about 5 minutes. It downloads the ready-built data (one file of about
+150 MB, checked after download, about 400 MB on disk), installs the website's packages and
 builds the website. When it prints **`CricIQ is up`**, open **http://localhost:3000**. Press
 **Ctrl+C** in the terminal to stop it.
+
+The data is every competition already built, validated and scored with the trained models,
+the same data the screenshots show. It is refreshed weekly.
 
 ### 3. Next time
 
@@ -63,8 +66,15 @@ cd CricIQ
 uv run python scripts/v2_up.py --serve-only
 ```
 
-It starts in seconds, using the data already built. To add matches played since then, run
-`uv run criciq-data sync`; the running site picks them up by itself.
+It starts in seconds, using the data you already have. To get the latest week's data:
+
+```bash
+uv run python scripts/v2_up.py --update-data
+```
+
+To build the data on your own computer instead, from Cricsheet's files, run it with
+`--build-data`. That takes about 25 minutes, keeps every CPU core busy and uses about 1.6 GB
+of disk; after it, `uv run criciq-data sync` adds new matches as they are played.
 
 ### If something goes wrong
 
@@ -73,6 +83,7 @@ It starts in seconds, using the data already built. To add matches played since 
 | `'git'`, `'uv'` or `'npm'` is not recognized | Install it (step 1), then open a **new** terminal |
 | `npm.ps1 cannot be loaded because running scripts is disabled` | Run `npm.cmd install -g pnpm` instead |
 | `pnpm is not installed` or `Node.js is not installed` | Install it (step 1), then open a new terminal |
+| `could not download the data` | Check the internet connection and run the same command again |
 | `port 3000` or `port 8000 is already in use` | CricIQ is already running in another window: use that one, or close it first |
 | `scripts/v2_up.py` does not exist | You have the IPL edition (`main`): run `git checkout v3` inside the folder |
 | The page does not open | Wait for `CricIQ is up`, then use http://localhost:3000 |
@@ -173,10 +184,18 @@ The repository has a task runner, [just](https://just.systems) (`uv tool install
 ```bash
 just setup      # install dependencies and git hooks
 just check      # everything CI runs: lint, types, tests, build
-just v2-up      # same as scripts/v2_up.py (--serve-only, --no-download, --dev)
+just v2-up      # same as scripts/v2_up.py (--update-data, --build-data, --serve-only, --dev)
 just sync       # take in new and corrected matches
 just train-group leagues   # retrain one model group: ipl, leagues, t20i, odi or test
+just pack-data  # zip the built data for publishing
 ```
+
+**Publishing the data.** The ready-built data everyone downloads is `criciq-data.zip` on this
+repository's release tagged `data` (not marked as latest). To refresh it, build or sync the data
+(`just v2-up --build-data`, or `just sync`), run `just pack-data`, then on GitHub edit that
+release, delete its old `criciq-data.zip` and upload the new one under the same name. The zip
+holds the databases, a manifest with every file's checksum and the pipeline version (an install
+refuses data from another pipeline version), and the data's licences.
 
 ```
 core/  pipelines/  ml/  backend/  frontend/   the packages and the web app

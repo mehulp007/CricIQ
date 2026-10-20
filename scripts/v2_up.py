@@ -1,22 +1,28 @@
-"""CricIQ on your machine: build every competition, score, then serve the API and the web app.
+"""CricIQ on your machine: get the data, then serve the API and the web app.
 
-Usage:  uv run python scripts/v2_up.py [--no-download] [--serve-only] [--dev]   (or `just v2-up`)
+Usage:  uv run python scripts/v2_up.py [--update-data | --build-data [--no-download]]
+                                      [--serve-only] [--dev]          (or `just v2-up`)
 
 Before anything slow, it checks that Node.js and pnpm are installed and the ports are free,
 and installs the web app's dependencies when they are missing or out of date.
 
-1. ``criciq-data run`` downloads the Cricsheet archives of every competition in
-   config/competitions.yaml, builds and validates the full warehouse, and exports a
-   serving database per competition and the players database.
-2. ``criciq-ml score`` adds every ball's predictions with the committed models.
-3. The API starts on port 8000; once it answers, the web app is built for production
-   (only when its sources changed since the last build: the build pre-renders pages
-   from the API) and served on port 3000. ``--dev`` serves the Next.js dev server
-   instead, for working on the web app. Ctrl+C stops both. Open http://localhost:3000.
+1. The data. On the first run it downloads the ready-built databases the site serves (one per
+   competition and the players database, about 150 MB, refreshed weekly) from the repository's
+   ``data`` release and checks them (scripts/data_snapshot.py). After that it uses what is
+   there; ``--update-data`` fetches the latest week's.
+   ``--build-data`` builds them here instead, as the project does (about 25 minutes, all CPU
+   cores): ``criciq-data run`` downloads the Cricsheet archives of every competition in
+   config/competitions.yaml, builds and validates the full warehouse and exports the
+   databases, then ``criciq-ml score`` adds every ball's predictions with the committed
+   models. ``--no-download`` rebuilds from the Cricsheet archives already downloaded.
+2. The API starts on port 8000; once it answers, the web app is built for production (only
+   when its sources or the data changed since the last build: the build pre-renders pages
+   from the API) and served on port 3000. ``--dev`` serves the Next.js dev server instead,
+   for working on the web app. Ctrl+C stops both. Open http://localhost:3000.
 
-``--serve-only`` skips steps 1 and 2 and serves the data already built. The
-data-quality reports go to data/data-quality-report.md and data/data-quality/ so local
-runs never touch the committed ones in docs/.
+``--serve-only`` never touches the data: it serves what is there. A local build's
+data-quality reports go to data/data-quality-report.md and data/data-quality/ so local runs
+never touch the committed ones in docs/.
 """
 
 from __future__ import annotations
@@ -32,8 +38,11 @@ import time
 import urllib.request
 from pathlib import Path
 
+import data_snapshot
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get("CRICIQ_DATA_DIR", ROOT / "data"))
+EXPORTS = DATA / "exports"
 FRONTEND = ROOT / "frontend"
 API_PORT, WEB_PORT = 8000, 3000
 WINDOWS = os.name == "nt"
@@ -91,6 +100,32 @@ def report_disk() -> None:
     print(f"  {'total':<10} {folder_size(DATA) / 1e9:6.2f} GB")
 
 
+def has_data() -> bool:
+    serving = EXPORTS / "serving.duckdb"
+    return (EXPORTS / "players.duckdb").exists() and (
+        serving.exists() or serving.with_name("serving.duckdb.next").exists()
+    )
+
+
+def get_data(update: bool) -> None:
+    """Install the published, ready-built data on the first run, or when asked to update."""
+    current = data_snapshot.installed(EXPORTS)
+    if has_data() and not update:
+        if current:
+            print(f"\n== data: {current['data_version']} (--update-data gets the latest)")
+        return
+    print("\n== data: download the ready-built databases", flush=True)
+    started = time.monotonic()
+    try:
+        manifest = data_snapshot.fetch(EXPORTS)
+    except data_snapshot.SnapshotError as error:
+        raise SystemExit(f"\n== data: {error}") from error
+    print(
+        f"== data: {manifest['data_version']} installed ({time.monotonic() - started:.0f} s)",
+        flush=True,
+    )
+
+
 def port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.settimeout(0.5)
@@ -106,15 +141,9 @@ def preflight(serve_only: bool) -> None:
                 f"port {port} (the {what}) is already in use: is CricIQ already running? "
                 "Stop it (Ctrl+C in its window) or the program using the port."
             )
-    serving = DATA / "exports" / "serving.duckdb"
-    if (
-        serve_only
-        and not serving.exists()
-        and not serving.with_name("serving.duckdb.next").exists()
-    ):
+    if serve_only and not has_data():
         problems.append(
-            f"no data at {serving.parent} yet: run `{RUN}` once without --serve-only to "
-            "download and build it."
+            f"no data at {EXPORTS} yet: run `{RUN}` once without --serve-only to download it."
         )
     if problems:
         raise SystemExit("cannot start:\n- " + "\n- ".join(problems))
@@ -179,9 +208,14 @@ def ensure_web_dependencies(env: dict[str, str]) -> None:
     )
 
 
+def newest_data() -> float:
+    """When the served data last changed: pages are pre-rendered from it."""
+    return max((f.stat().st_mtime for f in EXPORTS.glob("*.duckdb")), default=0.0)
+
+
 def build_is_current() -> bool:
     build_id = FRONTEND / ".next" / "BUILD_ID"
-    return build_id.exists() and build_id.stat().st_mtime >= newest_source()
+    return build_id.exists() and build_id.stat().st_mtime >= max(newest_source(), newest_data())
 
 
 def serve(env: dict[str, str], dev: bool) -> int:
@@ -226,28 +260,47 @@ def serve(env: dict[str, str], dev: bool) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build every competition, score and serve.")
-    parser.add_argument(
-        "--no-download", action="store_true", help="rebuild from the latest local snapshot"
+    parser = argparse.ArgumentParser(description="Get CricIQ's data, then serve the site.")
+    data = parser.add_mutually_exclusive_group()
+    data.add_argument(
+        "--update-data", action="store_true", help="download the latest ready-built data"
     )
-    parser.add_argument("--serve-only", action="store_true", help="skip the build and scoring")
+    data.add_argument(
+        "--build-data",
+        action="store_true",
+        help="build and score every competition here (about 25 minutes)",
+    )
+    parser.add_argument(
+        "--no-download",
+        action="store_true",
+        help="with --build-data: rebuild from the Cricsheet archives already downloaded",
+    )
+    parser.add_argument("--serve-only", action="store_true", help="serve the data already here")
     parser.add_argument(
         "--dev", action="store_true", help="serve the Next.js dev server, not a production build"
     )
     args = parser.parse_args()
+    if args.no_download and not args.build_data:
+        parser.error("--no-download goes with --build-data")
+    if args.serve_only and (args.build_data or args.update_data):
+        parser.error("--serve-only serves the data already here: drop it to get new data")
 
     env = dict(os.environ)
     env.pop("CRICIQ_COMPETITIONS", None)  # every configured competition
     env.setdefault("PYTHONIOENCODING", "utf-8")
     preflight(args.serve_only)
     ensure_web_dependencies(env)
-    if not args.serve_only:
+    if args.build_data:
         run = [tool("criciq-data"), "run", "--report", str(DATA / "data-quality-report.md")]
         if args.no_download:
             run.append("--no-download")
         step("data: every competition", run, env)
         step("models: score every ball", [tool("criciq-ml"), "score"], env)
+        # Built here, so no longer the published snapshot.
+        (EXPORTS / data_snapshot.INSTALLED).unlink(missing_ok=True)
         report_disk()
+    elif not args.serve_only:
+        get_data(args.update_data)
     return serve(env, args.dev)
 
 

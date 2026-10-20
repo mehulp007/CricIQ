@@ -21,7 +21,9 @@ export async function DataFreshness() {
   return (
     <Badge
       variant="outline"
-      className="hidden gap-1.5 text-[11px] text-muted-foreground sm:inline-flex"
+      // Wide screens only: below about 1,140px the top bar has no room for it beside the search,
+      // the switcher and the theme switch, and it pushed the page sideways.
+      className="hidden gap-1.5 text-[11px] text-muted-foreground xl:inline-flex"
       data-testid="data-freshness"
     >
       <RefreshCw className="size-3" aria-hidden="true" />

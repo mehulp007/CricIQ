@@ -42,7 +42,7 @@ test.describe("data freshness", () => {
   });
 
   test("the top bar says how fresh the data is", async ({ page, isMobile }) => {
-    test.skip(isMobile, "the freshness note is shown from tablet width up");
+    test.skip(isMobile, "the freshness note is shown on wide screens only");
     await page.goto("/ipl/matches");
     await expect(page.getByTestId("data-freshness")).toHaveText(/^Data (updated|to) \d/);
   });

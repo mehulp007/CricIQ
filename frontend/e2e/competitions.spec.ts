@@ -123,7 +123,10 @@ test.describe("competitions", () => {
       const response = await page.goto(`/${competition}/matches/${id}`);
       expect(response?.status(), `${competition} ${id}`).toBe(200);
       await expect(page.getByRole("heading", { level: 1 })).toContainText(" vs ");
-      await expect(page.getByTestId("win-probability")).toBeVisible();
+      // In the scoreboard: while the page streams in, React briefly keeps a hidden copy of it.
+      await expect(
+        page.getByRole("region", { name: "Scoreboard" }).getByTestId("win-probability"),
+      ).toBeVisible();
     }
     await page.goto("/t20i/matches/99999999");
     await expect(page.getByRole("heading", { name: "This page doesn't exist." })).toBeVisible();

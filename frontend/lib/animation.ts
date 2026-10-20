@@ -39,6 +39,9 @@ export function whenIdle(callback: () => void, timeout = 1200): () => void {
   return () => clearTimeout(id);
 }
 
+/** For `<LazyMotion features={motionFeatures}>`: Motion's features, loaded on demand. */
+export const motionFeatures = () => import("@/lib/motion-features").then((m) => m.default);
+
 /** Clamp a value between min and max. */
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);

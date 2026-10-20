@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useTransition, type CSSProperties } from "react";
 
 import { useCompetition } from "@/components/competition/use-competition";
 import {
@@ -68,7 +68,9 @@ export function CompetitionSwitcher({
                     key={c.id}
                     value={c.id}
                     textValue={c.label}
-                    className="items-start rounded-lg border border-transparent py-2 data-[state=checked]:border-primary/40 data-[state=checked]:bg-primary/5"
+                    // Cards arrive one after another as the list opens (app/globals.css).
+                    style={{ "--i": cards.indexOf(c) } as CSSProperties}
+                    className="switcher-card items-start rounded-lg border border-transparent py-2 data-[state=checked]:border-primary/40 data-[state=checked]:bg-primary/5"
                   >
                     <span className="flex min-w-0 flex-col gap-0.5">
                       <span className="flex items-baseline gap-2">

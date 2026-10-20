@@ -82,6 +82,9 @@ It starts in seconds, using the data already built. To add matches played since 
   real win-probability curve, then fans out into simulated outcomes, before you choose a
   competition. Every number in it is the real figure, and visitors who prefer reduced motion get
   the same story as a still page.
+- **Find anything fast**: search pages, players, teams and replays with Ctrl/⌘ K, switch
+  competitions from the top bar, and choose a light or dark theme. Pages glide in as you move
+  between them, and every animation calms down when your device asks for reduced motion.
 - **Replay any match** ball by ball, with each side's win chance, a projected total and a
   plain-language explanation after every ball.
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and

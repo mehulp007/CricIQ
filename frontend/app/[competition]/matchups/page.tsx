@@ -17,6 +17,7 @@ import {
 import { parsePhase, parsePlayerId } from "@/lib/matchups";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
+import { SlideIn } from "@/components/ui/slide-in";
 
 export async function generateMetadata({
   params,
@@ -184,7 +185,12 @@ export default async function MatchupsPage({
     if (detail) {
       batter = picked(detail.batter);
       bowler = picked(detail.bowler);
-      body = <MatchupView detail={detail} />;
+      // A new pair springs up into place (a new phase for the same pair stays put).
+      body = (
+        <SlideIn key={`${batterId}-${bowlerId}`}>
+          <MatchupView detail={detail} />
+        </SlideIn>
+      );
     } else {
       [batter, bowler] = await Promise.all([
         pickedById(competition, batterId),

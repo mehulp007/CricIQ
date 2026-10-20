@@ -15,7 +15,7 @@ export function StaggerGrid({
 }: {
   children: React.ReactNode;
   className?: string;
-  as?: "div" | "ul" | "ol";
+  as?: "div" | "ul" | "ol" | "header" | "tbody";
 }) {
   const { ref, initial } = useReveal<HTMLElement>({ stagger: true });
   return (

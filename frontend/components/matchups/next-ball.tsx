@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { CountUp } from "@/components/ui/count-up";
 import type { NextBall } from "@/lib/api/types";
 import { READINGS, percent } from "@/lib/matchups";
 import { cn } from "@/lib/utils";
@@ -59,7 +60,7 @@ export function NextBallPanel({
               <span className="text-sm">{o.label}</span>
               <span className="relative h-2.5 rounded-full bg-muted" aria-hidden="true">
                 <span
-                  className="absolute inset-y-0 left-0 rounded-full"
+                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none"
                   style={{
                     width: `${(o.probability / max) * 100}%`,
                     background: hasHistory ? READINGS.estimate.color : READINGS.expected.color,
@@ -73,7 +74,7 @@ export function NextBallPanel({
                 )}
               </span>
               <span className="text-right font-mono text-xs tabular-nums">
-                {percent(o.probability)}
+                <CountUp value={o.probability * 100} text={percent(o.probability)} />
                 {hasHistory && <span className="text-muted-foreground"> ({percent(model)})</span>}
               </span>
             </li>

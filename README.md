@@ -96,11 +96,13 @@ It starts in seconds, using the data already built. To add matches played since 
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and
   champions.
 - **Player Lab**: every player's career in every format, measured against par for their era, with
-  ratings, splits and similar players.
+  ratings, splits and similar players. Each rating grows out along its 0–100 track as you reach it.
 - **Matchups and Compare**: any batter against any bowler without over-reading small samples, and
-  any two players side by side.
+  any two players side by side. A new matchup springs into place with its next-ball odds counting
+  up, and two players to compare come in from either side.
 - **Teams**: seasons, league tables rebuilt from the balls (identical to the official ones) and head
-  to heads.
+  to heads. Table rows arrive in turn, and the league's trends draw themselves as they come into
+  view.
 - **Match Simulator and what-if**: play two limited-overs sides 10,000 times in about half a second,
   or change the score in any replay and see what follows. Tests get a chase calculator.
 - **Analytics Lab**: research notes that test ideas like momentum, clutch, the toss and home

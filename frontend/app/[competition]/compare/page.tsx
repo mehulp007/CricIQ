@@ -31,6 +31,7 @@ import {
 import { rate, roleLabel, signed } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
+import { SlideIn } from "@/components/ui/slide-in";
 
 export async function generateMetadata({
   params,
@@ -128,7 +129,7 @@ function PlayerCard({
   const p = profile.player;
   const team = p.teams[0];
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-border bg-card/70 p-4 sm:p-5">
+    <div className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-border bg-card/70 p-4 sm:p-5">
       <span aria-hidden="true" className="h-1 w-10 rounded-full" style={{ background: color }} />
       <Link
         href={competitionPath(competition, `/players/${p.player_id}`)}
@@ -428,19 +429,30 @@ async function Comparison({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* The two players come in from either side and meet in the middle; a new pick for one
+          side brings in just that card. */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <PlayerCard
-          profile={a}
-          color={COMPARE_SERIES.a.color}
-          competition={formats[0]}
-          showCompetition={across}
-        />
-        <PlayerCard
-          profile={b}
-          color={COMPARE_SERIES.b.color}
-          competition={formats[1]}
-          showCompetition={across}
-        />
+        <SlideIn key={`${formats[0]}-${a.player.player_id}`} from="left" className="flex min-w-0">
+          <PlayerCard
+            profile={a}
+            color={COMPARE_SERIES.a.color}
+            competition={formats[0]}
+            showCompetition={across}
+          />
+        </SlideIn>
+        <SlideIn
+          key={`${formats[1]}-${b.player.player_id}`}
+          from="right"
+          delay={0.06}
+          className="flex min-w-0"
+        >
+          <PlayerCard
+            profile={b}
+            color={COMPARE_SERIES.b.color}
+            competition={formats[1]}
+            showCompetition={across}
+          />
+        </SlideIn>
       </div>
       {across && (
         <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm leading-relaxed">

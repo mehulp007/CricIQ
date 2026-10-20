@@ -1,5 +1,7 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
+import { StaggerGrid } from "@/components/ui/stagger-grid";
 import type { Rating, RatingGroup } from "@/lib/api/types";
 import { PLAYER_SERIES, STABILITY_LABELS, formatRatingValue, ratingBand } from "@/lib/players";
 import { cn } from "@/lib/utils";
@@ -32,20 +34,24 @@ export function RatingTrack({
       />
       <span aria-hidden="true" className="absolute -inset-y-0.5 left-1/2 w-px bg-foreground/30" />
       {item.rating !== null && item.rating !== undefined && (
+        // Positions are CSS variables, so a list revealing itself can grow the band and slide the
+        // dot in from zero (app/globals.css).
         <>
           <span
             aria-hidden="true"
-            className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full opacity-30"
-            style={{
-              left: `${item.low ?? item.rating}%`,
-              width: `${Math.max((item.high ?? item.rating) - (item.low ?? item.rating), 1)}%`,
-              background: color,
-            }}
+            className="rating-band absolute top-1/2 h-2 -translate-y-1/2 rounded-full opacity-30"
+            style={
+              {
+                "--from": `${item.low ?? item.rating}%`,
+                "--span": `${Math.max((item.high ?? item.rating) - (item.low ?? item.rating), 1)}%`,
+                background: color,
+              } as CSSProperties
+            }
           />
           <span
             aria-hidden="true"
-            className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-card"
-            style={{ left: `${item.rating}%`, background: color }}
+            className="rating-dot absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-card"
+            style={{ "--at": `${item.rating}%`, background: color } as CSSProperties}
           />
         </>
       )}
@@ -107,7 +113,8 @@ export function RatingBars({
           ratings lean heavily on the average and the intervals are wide.
         </p>
       )}
-      <ul className="flex flex-col gap-4">
+      {/* As the list scrolls into view each rating's band grows and its dot slides out from 0. */}
+      <StaggerGrid as="ul" className="flex flex-col gap-4">
         {group.items.map((item) => (
           <li
             key={item.key}
@@ -136,7 +143,7 @@ export function RatingBars({
             </div>
           </li>
         ))}
-      </ul>
+      </StaggerGrid>
       <p className="text-xs leading-relaxed text-muted-foreground">
         0–100 against {group.population} {noun} with {group.min_balls}+ balls in {window}; 50 (the
         tick) is a typical one. Each record is first blended with the average according to how much

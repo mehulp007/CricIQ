@@ -403,6 +403,38 @@
   }
 }
 
+/* Rating tracks (components/players/ratings.tsx): the 90% band and the estimate's dot. In a list
+   that reveals itself, the band grows from its left end and the dot slides out from 0. */
+.rating-band {
+  left: var(--from);
+  width: var(--span);
+  transform-origin: left center;
+}
+.rating-dot {
+  left: var(--at);
+}
+[data-stagger][data-reveal="hidden"] .rating-band {
+  transform: scaleX(0);
+}
+[data-stagger][data-reveal="hidden"] .rating-dot {
+  left: 0%;
+}
+[data-stagger][data-reveal="in"] .rating-band,
+[data-stagger][data-reveal="in"] .rating-dot {
+  transition:
+    transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    left 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 60ms + 150ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-stagger][data-reveal] .rating-band {
+    transform: none;
+  }
+  [data-stagger][data-reveal] .rating-dot {
+    left: var(--at);
+  }
+}
+
 /* A competition's hero breathes: its edge glows a little brighter and softer on a slow 4s loop,
    like an instrument at rest. Barely there, and still for reduced motion. */
 .breathe::after {

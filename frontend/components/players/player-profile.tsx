@@ -39,6 +39,7 @@ import {
 } from "@/lib/players";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { SeasonLabel } from "@/components/competition/season-label";
+import { StaggerGrid } from "@/components/ui/stagger-grid";
 
 export function PlayerHeader({
   profile,
@@ -50,7 +51,8 @@ export function PlayerHeader({
   const p = profile.player;
   const hand = handLabel(p.batting_hand);
   return (
-    <header className="flex flex-col gap-4">
+    // Name, details, then teams, one after another as the page arrives from a link.
+    <StaggerGrid as="header" className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {p.full_name ?? p.name}
@@ -110,7 +112,7 @@ export function PlayerHeader({
           ))}
         </ul>
       </div>
-    </header>
+    </StaggerGrid>
   );
 }
 

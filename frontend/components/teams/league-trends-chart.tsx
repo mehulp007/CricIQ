@@ -1,5 +1,8 @@
 "use client";
 
+import { useInView } from "motion/react";
+import { useRef } from "react";
+
 import { SeasonLabel } from "@/components/competition/season-label";
 import {
   CartesianGrid,
@@ -16,6 +19,7 @@ import { useCompetition } from "@/components/competition/use-competition";
 import { seasonLabel } from "@/lib/competitions";
 import type { SeasonTrend } from "@/lib/api/types";
 import { AXIS } from "@/lib/chart-theme";
+import { usePrefersReducedMotion } from "@/lib/animation";
 
 export const TREND_SERIES = [
   { key: "chasing_win_pct", label: "Chasing side won", color: "var(--chart-1)" },
@@ -60,6 +64,10 @@ function Tip({
 /** Share of matches won by the chasing side, the home side and the toss winner, by season. */
 export function LeagueTrendsChart({ seasons }: { seasons: SeasonTrend[] }) {
   const competition = useCompetition();
+  const reduced = usePrefersReducedMotion();
+  // The chart is drawn once it scrolls into view, so its lines draw themselves where they are seen.
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -60px 0px" });
   return (
     <div className="flex flex-col gap-3">
       <ul
@@ -78,44 +86,50 @@ export function LeagueTrendsChart({ seasons }: { seasons: SeasonTrend[] }) {
         ))}
       </ul>
       <div
+        ref={ref}
         className="h-64"
         role="img"
         aria-label="Share of matches won by the chasing side, the home side and the toss winner in each season, against an even 50% line"
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={seasons} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-            <CartesianGrid stroke="var(--border)" vertical={false} />
-            <XAxis
-              dataKey="season"
-              {...AXIS}
-              tickLine={false}
-              minTickGap={16}
-              tickFormatter={(s: number) => seasonLabel(competition, s)}
-            />
-            <YAxis
-              {...AXIS}
-              tickLine={false}
-              width={44}
-              domain={[20, 80]}
-              ticks={[20, 35, 50, 65, 80]}
-              tickFormatter={(v: number) => `${v}%`}
-            />
-            <ReferenceLine y={50} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
-            <Tooltip content={<Tip />} />
-            {TREND_SERIES.map((s) => (
-              <Line
-                key={s.key}
-                dataKey={s.key}
-                name={s.label}
-                stroke={s.color}
-                strokeWidth={2}
-                dot={{ r: 3, strokeWidth: 0, fill: s.color }}
-                activeDot={{ r: 5, stroke: "var(--card)", strokeWidth: 2 }}
-                isAnimationActive={false}
+        {inView && (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={seasons} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid stroke="var(--border)" vertical={false} />
+              <XAxis
+                dataKey="season"
+                {...AXIS}
+                tickLine={false}
+                minTickGap={16}
+                tickFormatter={(s: number) => seasonLabel(competition, s)}
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+              <YAxis
+                {...AXIS}
+                tickLine={false}
+                width={44}
+                domain={[20, 80]}
+                ticks={[20, 35, 50, 65, 80]}
+                tickFormatter={(v: number) => `${v}%`}
+              />
+              <ReferenceLine y={50} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+              <Tooltip content={<Tip />} />
+              {TREND_SERIES.map((s, i) => (
+                <Line
+                  key={s.key}
+                  dataKey={s.key}
+                  name={s.label}
+                  stroke={s.color}
+                  strokeWidth={2}
+                  dot={{ r: 3, strokeWidth: 0, fill: s.color }}
+                  activeDot={{ r: 5, stroke: "var(--card)", strokeWidth: 2 }}
+                  isAnimationActive={!reduced}
+                  animationBegin={i * 180}
+                  animationDuration={1400}
+                  animationEasing="ease-out"
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

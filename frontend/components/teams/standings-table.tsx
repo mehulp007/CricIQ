@@ -5,6 +5,7 @@ import { finishLabel, formatNrr } from "@/lib/teams";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { SeasonLabel } from "@/components/competition/season-label";
+import { StaggerGrid } from "@/components/ui/stagger-grid";
 
 const th = "px-2 py-2 text-right text-xs font-medium text-muted-foreground";
 const td = "px-2 py-2.5 text-right font-mono tabular-nums";
@@ -60,7 +61,8 @@ export function StandingsTable({ standings }: { standings: Standings }) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        {/* Rows arrive top to bottom as the table scrolls into view. */}
+        <StaggerGrid as="tbody" className="divide-y divide-border">
           {standings.rows.map((r) => (
             <tr
               key={r.team.franchise_id}
@@ -96,7 +98,7 @@ export function StandingsTable({ standings }: { standings: Standings }) {
               </td>
             </tr>
           ))}
-        </tbody>
+        </StaggerGrid>
       </table>
     </div>
   );

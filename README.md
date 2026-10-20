@@ -13,7 +13,7 @@
 
 **[Run it on your machine](#run-it-on-your-machine)** · [Live demo (IPL edition)](https://criciq-eight.vercel.app) · [Write-up](https://criciq-eight.vercel.app/writeup) · [Models and results](docs/models.md)
 
-<img src="docs/images/demo.gif" alt="A tour of CricIQ: the last over of the 2019 IPL final replayed ball by ball with win probability, then the Player Lab, Matchups, Compare, Teams, the Match Simulator, the Analytics Lab and Model Insights" width="880">
+<img src="docs/images/landing.png" alt="CricIQ's home page: the headline 'Decode the game. Predict the next move.' beside a cricket ball drawn in particles, with the deliveries, matches and competitions in the data" width="880">
 
 </div>
 
@@ -25,8 +25,10 @@ matches and 4.6 million balls. Replay any match with a live, explained win proba
 every series and tournament, and explore players, rivalries, teams and simulations. Each kind of
 cricket has models trained on its own matches only.
 
-> **Two editions.** The [live demo](https://criciq-eight.vercel.app) is v1.0.0, the IPL edition
-> (branch `main`). **v2.0.0, every competition, is on the `v2` branch and runs on your machine.**
+> **Editions.** The [live demo](https://criciq-eight.vercel.app) is v1.0.0, the IPL edition
+> (branch `main`). **This branch, `v3`, has every competition with the redesigned, animated
+> interface, and runs on your machine.** v2.0.0 (branch `v2`) has the same competitions with the
+> earlier interface.
 
 ## Run it on your machine
 
@@ -44,7 +46,7 @@ cricket has models trained on its own matches only.
 ### 2. Download CricIQ and start it
 
 ```bash
-git clone -b v2 https://github.com/mehulp007/CricIQ.git
+git clone -b v3 https://github.com/mehulp007/CricIQ.git
 cd CricIQ
 uv run python scripts/v2_up.py
 ```
@@ -72,7 +74,7 @@ It starts in seconds, using the data already built. To add matches played since 
 | `npm.ps1 cannot be loaded because running scripts is disabled` | Run `npm.cmd install -g pnpm` instead |
 | `pnpm is not installed` or `Node.js is not installed` | Install it (step 1), then open a new terminal |
 | `port 3000` or `port 8000 is already in use` | CricIQ is already running in another window: use that one, or close it first |
-| `scripts/v2_up.py` does not exist | You have the IPL edition (`main`): run `git checkout v2` inside the folder |
+| `scripts/v2_up.py` does not exist | You have the IPL edition (`main`): run `git checkout v3` inside the folder |
 | The page does not open | Wait for `CricIQ is up`, then use http://localhost:3000 |
 
 ## What you can do
@@ -127,9 +129,11 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
 
 ## Screenshots
 
-| Match replay | Player Lab |
+| The home page's story | A competition's home |
 |---|---|
-| ![Match Center with win probability during the 2019 final](docs/images/replay.png) | ![Virat Kohli's profile against par](docs/images/player.png) |
+| ![The 2019 IPL final's win probability drawn as a ribbon of particles, with Pollard's six and Malinga's final over marked](docs/images/ribbon.png) | ![The IPL home page: its headline, the way into a replay, players and matchups, and its numbers](docs/images/home.png) |
+| **Match replay** | **Player Lab** |
+| ![The 2019 final with Chennai Super Kings needing 9 from 6 balls: the scoreboard, a 78% win chance and very high pressure on the next ball](docs/images/replay.png) | ![Virat Kohli's IPL career against par](docs/images/player.png) |
 | **Match Simulator** | **Model Insights** |
 | ![Mumbai Indians against Chennai Super Kings simulated 10,000 times](docs/images/simulator.png) | ![Model Insights overview: every model against its baseline on the 2025–2026 seasons](docs/images/models.png) |
 

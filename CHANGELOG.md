@@ -5,6 +5,35 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **The home page's scroll story, and motion across the site.**
+  - The home page tells what CricIQ does as you scroll, in five chapters over a canvas of about
+    3,000 particles (900 on phones): a cricket ball with its seam, which breaks into a cloud as
+    the real number of deliveries counts up (4,570,681 in this build), becomes the 2019 IPL
+    final's win-probability ribbon with Pollard's six and Malinga's final over marked, fans out
+    into simulated outcomes, and dissolves into the competition picker. GSAP ScrollTrigger pins
+    the chapters, SplitText reveals their headlines and Lenis smooths the scrolling, on this page
+    only. Visitors who prefer reduced motion get the same story as a still page, switched by CSS
+    before the first paint. `components/landing/`, `lib/canvas-particles.ts`, `lib/landing.ts`.
+  - Pages rise in on a spring curve when reached by a link; the sidebar's current-page pill
+    slides to the item under the pointer or keyboard focus; the top bar turns more solid and
+    gains a lit edge as the page scrolls (a scroll-driven animation, no script); the search
+    palette springs open and the competition switcher's cards arrive in turn.
+  - Competition homes: the headline numbers count up as they come into view, sections and cards
+    arrive one after another, the hero breathes with a slow glow and match cards light up under
+    the pointer. `CountUp`, `StaggerGrid`, `Reveal` and `lib/use-reveal.ts`.
+  - The match replay reads like a broadcast: the score's digits flip, the win-probability bar
+    glides on a spring and pulses faster as the pressure on the next ball rises, each new ball
+    slides into the feed with wickets, sixes and fours flashing, and wickets ring on the
+    timeline as the replay reaches them.
+  - Player Lab ratings grow along their 0–100 tracks, a new matchup springs in with its
+    next-ball odds counting up, two players to compare arrive from either side, league table
+    rows arrive in turn and the league trends draw themselves as they come into view.
+  - Themes refined: the dark "floodlit night" has a fine film grain and the light "day match"
+    warmer shadows; page and section headings arrive word by word; loading skeletons shimmer in
+    a wave; the 404 page has a ball knock the bails off (canvas, replayable).
+  - Nothing a visitor already sees animates when a page first loads (only content that arrives
+    later or scrolls into view does), and every animation calms to a fade or stops when the
+    device asks for reduced motion.
 - **V3-4: the match replay.**
   - Over by over: the Manhattan chart has a panel of its own, under the scoreboard.
   - The scoreboard (limited overs and Tests) has a header with the innings and the ball, both
@@ -57,6 +86,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - CI runs on the `v3` branch too.
+- Animation stays light. Most of it is CSS; GSAP and Lenis load only on the home page after it
+  has painted, and set the story up a chapter at a time; Motion loads only with the match replay,
+  so other pages start with about as much JavaScript as before. The particles draw their many
+  small points in batched fills rather than an image each (desktop frames from about 36 ms to
+  12 ms on a CPU slowed four times), and the Player Lab's charts load once the page is idle.
+  Lighthouse on mobile stays within a few points of the earlier build on every key page, with
+  accessibility, best practices and SEO at 100.
+- The README shows the redesigned interface: new screenshots, and `git clone -b v3` to run it.
 - The README is short: what CricIQ is, how to run it in three commands without extra tools, a
   troubleshooting table, headline results and how it is built. The detailed results moved to
   `docs/models.md`.

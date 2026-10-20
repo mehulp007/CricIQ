@@ -19,7 +19,6 @@ import { HeadlineNumbers } from "@/components/competition/headline-numbers";
 import { MatchCard } from "@/components/match/match-card";
 import { LatestMatches } from "@/components/matches/latest-matches";
 import { LatestSeries } from "@/components/series/latest-series";
-import { Scene3D } from "@/components/three/scene-3d";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatTile } from "@/components/ui/stat-tile";
@@ -297,7 +296,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
   return (
     <div className="flex flex-col gap-14">
       <div className="flex flex-col gap-4">
-        <section className="glass relative grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <section className="glass relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-14">
           <div>
             <Badge
               variant="outline"
@@ -337,15 +336,6 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
               </Link>
             </div>
           </div>
-          <Scene3D
-            scene="ball"
-            poster="/3d/posters/cricket-ball.webp"
-            width={640}
-            height={640}
-            label="A cricket ball, turning slowly"
-            minWidth={1024}
-            className="hidden w-full lg:block"
-          />
         </section>
 
         <Suspense fallback={null}>

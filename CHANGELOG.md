@@ -6,47 +6,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - **V3-4: the match replay.**
-  - Over by over, in 3D: each over of both innings is a bar on a strip of turf (a mowing stripe
-    per over), rising ball by ball as the replay plays, the side batting first behind and the
-    chase in front. On each wicket the stumps (the Blender model) fall on top of the over's bar,
-    the over being bowled glows, and four floodlight towers brighten with the pressure on the next
-    ball (the model's leverage percentile). Pointing at an over names it; clicking it replays from
-    its first ball. Lit by floodlights at night and the sun by day, with the theme. A T20 and an
-    ODI fill the same ground, so bars read at the same scale.
-  - A switch keeps the Manhattan chart, and the choice is remembered in the browser. The chart is
-    what shows first, and all that shows on phones, with reduced motion or without WebGL; the 3D
-    view loads only after the visitor's first move, once on screen.
+  - Over by over: the Manhattan chart has a panel of its own, under the scoreboard.
   - The scoreboard (limited overs and Tests) has a header with the innings and the ball, both
     sides' innings so far with the side batting marked ("MI 149/8 (20)", "ENG 67 & 362/9"), the
     live score, and thicker win-probability and result-chance bars with an even-money mark.
   - The replay timeline marks every wicket and each innings break above the scrubber.
   - Every replay panel shares one raised panel style; links inside panel text are underlined (axe
     flagged them once the panels became opaque).
-  - Lighthouse (fixture data, three runs each): the 2019 IPL final 98 on desktop and 80 to 81 on
-    mobile (V3-3: 99 and 80 to 82); the Headingley 2019 Test 99 and 82, unchanged.
 - **V3-3: the landing page and the competition homes.**
-  - A floodlit stadium leads the home page, made in Blender from a script
-    (`frontend/assets-src/3d/stadium.py`): a generic oval ground (not a real one) with the pitch,
-    creases and stumps to the Laws' sizes, mowing stripes, three tiers of stands, roofs, sight
-    screens and four floodlight towers, 117 KB compressed. It turns slowly; at night (dark theme)
-    the floodlights light the ground, the lamps glare and a ribbon of turf green glows round the
-    rim, and by day (light theme) the sun lights it and casts its shadows. A theme switch fades
-    one into the other. Its poster comes in a night and a day version, and only the theme's own
-    downloads; phones and tablets see the poster.
+  - The home page opens with a short headline, the site in numbers (competitions, formats and
+    the first season) and a button down to the competitions.
   - The competitions are chosen from cards with depth: each leans towards the mouse pointer, its
     top layer rises and a light follows the pointer (flat for touch, the keyboard and reduced
     motion). Each names its format, years, latest champions and lead featured replay.
-  - Every competition's home page opens with the competition's name over the turning ball, then
-    its headline numbers (matches and seasons in the data, the latest season's first-innings
-    average and the latest match), and every section uses the new section headers, stat tiles and
-    cards. Match cards carry both sides' colours along their top edge, and every card that is a
-    link lifts under the pointer.
-  - Every 3D scene now starts after the visitor's first move (pointer, touch, wheel, scroll or
-    key) as well as once the browser is idle, so starting three.js (a task of about 0.8 s in a
-    software-rendered browser) no longer lands while the page loads; the poster, the scene's first
-    frame, shows till then. Lighthouse on the fixture data, three runs each: desktop 100 on the
-    home page and a competition home in both themes (the home page was 76 to 80 with the 3D
-    starting on load), mobile 91 to 92; accessibility, best practices and SEO 100 throughout.
+  - Every competition's home page opens with the competition's name, then its headline numbers
+    (matches and seasons in the data, the latest season's first-innings average and the latest
+    match), and every section uses the new section headers, stat tiles and cards. Match cards
+    carry both sides' colours along their top edge, and every card that is a link lifts under
+    the pointer.
 - **V3-2: the app shell and navigation.**
   - Search everything from anywhere: Ctrl/⌘ K, "/" or the Search button opens a palette over the
     page's pages, competitions, players (searched as you type), teams and featured replays, used
@@ -61,21 +38,6 @@ All notable changes to this project are documented here. The format follows [Kee
     breadcrumbs, starting from the competition.
   - Pages fade between each other (React view transitions), with the shell held still; loading
     screens shimmer instead of pulsing; both stop when motion is reduced.
-- **V3-1: the 3D pipeline and the first models.**
-  - Made in Blender (sources in `frontend/assets-src/3d/`): a cricket ball with a raised seam and
-    four rows of stitching, the stumps and bails to the Laws' sizes as separate nodes, and a
-    "bowled" composition with its camera. `pnpm models` compresses them with meshopt (ball 482 KB
-    to 88 KB, bowled 522 KB to 95 KB, stumps 39 KB to 7 KB) and fails over a 400 KB budget or
-    without a poster.
-  - `Scene3D` (`components/three/`): every scene starts as a poster rendered in Blender with the
-    same camera, and the 3D version (React Three Fiber) takes over only once on screen and the
-    browser is idle; reduced motion, saving data, no WebGL or a narrow screen keep the poster, and
-    a scene that fails leaves it. Scenes draw only while visible, cap the pixel ratio, and light
-    themselves for the theme: floodlights at night, sunlight by day. Nothing loads from another
-    site (no CDN decoders or HDR files).
-  - The home page hero shows the ball turning, from tablet width up; the 404 page shows the stumps
-    broken, the camera drifting slowly. Lighthouse: the home page 94 on mobile (the ball does not
-    load there) and 99 to 100 on desktop with it.
 - **V3-0: light and dark themes, and the design system.**
   - A theme switch in the top bar: System (the default, following the device), Light or Dark,
     remembered in a cookie. An inline script reads it before the first paint, so pages stay
@@ -92,12 +54,9 @@ All notable changes to this project are documented here. The format follows [Kee
     switch, persistence, the system preference and that the theme is set before any script
     bundle runs, and a layout spec checks that no key page scrolls sideways on mobile.
     `pnpm visual` captures the key pages in both themes on desktop and mobile for review.
-- **V3-pre: the 3D toolchain.** three.js 0.186.1, React Three Fiber 9.8.1 and drei 10.7.9 in the
-  web app, and `gltf-transform` 4.5.0 to compress models; `frontend/assets-src/3d/` describes how
-  models go from Blender (5.2.2, with the Blender Lab MCP add-on) to the site. CI runs on the `v3`
-  branch, and Blender, glTF and image files are stored as binary.
 
 ### Changed
+- CI runs on the `v3` branch too.
 - The README is short: what CricIQ is, how to run it in three commands without extra tools, a
   troubleshooting table, headline results and how it is built. The detailed results moved to
   `docs/models.md`.
@@ -105,9 +64,14 @@ All notable changes to this project are documented here. The format follows [Kee
   is missing, and installs the web app's packages itself on the first run, so `uv run python
   scripts/v2_up.py` is all a fresh clone needs.
 
+### Removed
+- The 3D models and scenes tried in v3 (a Blender-made stadium on the home page, a turning ball
+  on the competition homes, the stumps on the 404 page and a 3D over-by-over view in the
+  replay), with three.js, React Three Fiber, drei and the model toolchain. The pages keep their
+  2D content: the home and competition heroes are text, and the replay's over by over is the
+  Manhattan chart.
+
 ### Fixed
-- The 3D capability check opened a WebGL context even on phones, where no 3D can show (slow
-  without a GPU): it now opens one only when the rest of the check allows 3D.
 - On phones, the competition home, match list, teams and team pages scrolled sideways. Responsive
   grids had no column count below their breakpoint, so a long unbroken name (a venue) widened the
   single column; every such grid now starts from one shrinkable column (`grid-cols-1`). A

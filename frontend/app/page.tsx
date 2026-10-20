@@ -2,7 +2,6 @@ import { ArrowDown, BookOpen, Info } from "lucide-react";
 import Link from "next/link";
 
 import { CompetitionPicker, type PickerCard } from "@/components/competition/competition-picker";
-import { Scene3D } from "@/components/three/scene-3d";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
 import { COMPETITIONS, competitionPath, seasonLabel, type Competition } from "@/lib/competitions";
@@ -35,8 +34,8 @@ export default function HomePage() {
   ];
   return (
     <div className="flex flex-col gap-14">
-      <section className="glass relative grid grid-cols-1 items-center gap-6 overflow-hidden rounded-3xl px-6 pt-12 pb-6 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-4 lg:py-10 lg:pr-4">
-        <div className="lg:py-6">
+      <section className="glass relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16">
+        <div>
           <Badge
             variant="outline"
             className="mb-6 font-mono text-[11px] tracking-wide text-primary"
@@ -75,18 +74,6 @@ export default function HomePage() {
             <ArrowDown className="size-4" aria-hidden="true" />
           </a>
         </div>
-        <Scene3D
-          scene="stadium"
-          poster={{
-            dark: "/3d/posters/stadium-night.webp",
-            light: "/3d/posters/stadium-day.webp",
-          }}
-          width={1200}
-          height={900}
-          label="A cricket stadium under floodlights at night, or in sunshine by day, circling slowly"
-          minWidth={1024}
-          className="mx-auto w-full max-w-xl lg:max-w-none"
-        />
       </section>
 
       <section

@@ -27,7 +27,7 @@ const ReplayCharts = dynamic(
   () => import("@/components/replay/replay-charts").then((m) => m.ReplayCharts),
   { ssr: false, loading: () => <Skeleton className="h-80 rounded-2xl" /> },
 );
-// The over-by-over view (its chart, and its 3D once allowed) loads the same way.
+// The over-by-over chart loads the same way.
 const OversPanel = dynamic(
   () => import("@/components/replay/overs-panel").then((m) => m.OversPanel),
   { ssr: false, loading: () => <Skeleton className="h-[23.5rem] rounded-2xl" /> },
@@ -162,7 +162,7 @@ export function MatchCenter({
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="flex flex-col gap-4 lg:col-span-7">
               <Scoreboard timeline={timeline} frame={frame} cards={cards} atEnd={atEnd} wp={wp} />
-              <OversPanel timeline={timeline} cursor={cursor} onSeek={seek} />
+              <OversPanel timeline={timeline} cursor={cursor} />
               <ProjectionPanel timeline={timeline} cursor={cursor} />
               {frame && <CreasePanel timeline={timeline} frame={frame} />}
               <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />

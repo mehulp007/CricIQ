@@ -1,6 +1,5 @@
 "use client";
 
-import { useInView } from "motion/react";
 import { useRef } from "react";
 
 import { SeasonLabel } from "@/components/competition/season-label";
@@ -20,6 +19,7 @@ import { seasonLabel } from "@/lib/competitions";
 import type { SeasonTrend } from "@/lib/api/types";
 import { AXIS } from "@/lib/chart-theme";
 import { usePrefersReducedMotion } from "@/lib/animation";
+import { useInView } from "@/lib/use-in-view";
 
 export const TREND_SERIES = [
   { key: "chasing_win_pct", label: "Chasing side won", color: "var(--chart-1)" },
@@ -67,7 +67,7 @@ export function LeagueTrendsChart({ seasons }: { seasons: SeasonTrend[] }) {
   const reduced = usePrefersReducedMotion();
   // The chart is drawn once it scrolls into view, so its lines draw themselves where they are seen.
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -60px 0px" });
+  const inView = useInView(ref, "0px 0px -60px 0px");
   return (
     <div className="flex flex-col gap-3">
       <ul

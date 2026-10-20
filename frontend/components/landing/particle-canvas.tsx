@@ -117,13 +117,15 @@ export function ParticleCanvas({
       w = canvas.clientWidth;
       h = canvas.clientHeight;
       wide = window.matchMedia("(min-width: 1024px)").matches;
-      const dpr = Math.min(window.devicePixelRatio || 1, wide ? 1.75 : 1.5);
+      // Soft glowing points need little resolution: phones draw at no more than 1.25x.
+      const dpr = Math.min(window.devicePixelRatio || 1, wide ? 1.75 : 1.25);
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       geometry = stageGeometry(w, h, wide);
 
-      const wanted = window.innerWidth < 768 ? 1400 : 3000;
+      // Fewer points on smaller (and usually slower) screens.
+      const wanted = window.innerWidth < 768 ? 900 : window.innerWidth < 1024 ? 1800 : 3000;
       if (wanted !== count) {
         count = wanted;
         seamCount = Math.round(count * 0.18);
@@ -150,6 +152,15 @@ export function ParticleCanvas({
       }
     }
 
+    // Each shape is laid out into arrays kept for the life of the canvas: the moving shapes are
+    // recomputed every frame, and making thousands of new points each time made the garbage
+    // collector stall the page.
+    const seamOut: LayoutPoint[] = [];
+    const bodyOut: LayoutPoint[] = [];
+    const sphereOut: LayoutPoint[] = [];
+    const ribbonOut: LayoutPoint[] = [];
+    const fanOut: LayoutPoint[] = [];
+
     function layout(shape: Shape, s: number, time: number): LayoutPoint[] {
       const { ball, fan } = geometry;
       switch (shape) {
@@ -158,16 +169,20 @@ export function ParticleCanvas({
           const zoom = easeInOut(clamp(s, 0, 1));
           const radius = ball.r * (1 + 0.5 * zoom);
           const rotation = time * 0.22 + s * 0.9;
-          const seam = seamLayout(seamCount, ball.x, ball.y, radius, rotation);
-          const body = sphereLayout(count - seamCount, ball.x, ball.y, radius, rotation);
-          return seam.concat(body);
+          seamLayout(seamCount, ball.x, ball.y, radius, rotation, seamOut);
+          sphereLayout(count - seamCount, ball.x, ball.y, radius, rotation, bodyOut);
+          sphereOut.length = count;
+          for (let i = 0; i < count; i++) {
+            sphereOut[i] = i < seamCount ? seamOut[i] : bodyOut[i - seamCount];
+          }
+          return sphereOut;
         }
         case "cloud":
           return cloud;
         case "ribbon":
-          return ribbonLayout(count, ribbonPx, wide ? 7 : 5, (time * 0.03) % 1);
+          return ribbonLayout(count, ribbonPx, wide ? 7 : 5, (time * 0.03) % 1, ribbonOut);
         case "fan":
-          return fanLayout(count, { x: fan.x, y: fan.y }, fan.w, fan.h, (time * 0.05) % 1);
+          return fanLayout(count, { x: fan.x, y: fan.y }, fan.w, fan.h, (time * 0.05) % 1, fanOut);
       }
     }
 
@@ -285,14 +300,21 @@ export function ParticleCanvas({
       p.x = first[i].x;
       p.y = first[i].y;
     });
-    // Start once the page has settled, so the particles don't compete with its first paint.
-    const cancelStart = whenIdle(() => {
-      running = true;
-      schedule();
-    });
+    // Start once the page has loaded and gone idle, so the particles never compete with it
+    // painting and coming to life.
+    let cancelStart = () => {};
+    const begin = () => {
+      cancelStart = whenIdle(() => {
+        running = true;
+        schedule();
+      }, 2000);
+    };
+    if (document.readyState === "complete") begin();
+    else window.addEventListener("load", begin, { once: true });
 
     return () => {
       running = false;
+      window.removeEventListener("load", begin);
       cancelStart();
       if (frame) cancelAnimationFrame(frame);
       resizeObserver.disconnect();

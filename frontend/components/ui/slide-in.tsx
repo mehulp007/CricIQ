@@ -1,21 +1,15 @@
 "use client";
 
-import { m } from "motion/react";
 import { useState } from "react";
 
 import { useIsHydrating } from "@/lib/animation";
-
-const FROM = {
-  below: { y: 28, opacity: 0 },
-  left: { x: -48, opacity: 0 },
-  right: { x: 48, opacity: 0 },
-} as const;
+import { cn } from "@/lib/utils";
 
 /**
- * Content that springs into place from below, the left or the right as it appears. Give it a
- * `key` that changes with what it shows (a new matchup, a new player), so each new one enters.
- * What the visitor already sees (hydrated from the server's HTML) stays still; reduced motion only
- * fades.
+ * Content that springs into place from below, the left or the right as it appears (a CSS keyframe
+ * on a spring curve, app/globals.css). Give it a `key` that changes with what it shows (a new
+ * matchup, a new player), so each new one enters. What the visitor already sees (hydrated from the
+ * server's HTML) stays still; reduced motion only fades. `delay` is in seconds.
  */
 export function SlideIn({
   from = "below",
@@ -23,21 +17,20 @@ export function SlideIn({
   className,
   children,
 }: {
-  from?: keyof typeof FROM;
+  from?: "below" | "left" | "right";
   delay?: number;
   className?: string;
   children: React.ReactNode;
 }) {
   const hydrating = useIsHydrating();
-  const [initial] = useState(() => (hydrating ? false : FROM[from]));
+  const [enter] = useState(!hydrating);
   return (
-    <m.div
-      initial={initial}
-      animate={{ x: 0, y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 26, delay }}
-      className={className}
+    <div
+      data-from={from}
+      className={cn(enter && "slide-in", className)}
+      style={delay ? ({ "--slide-delay": `${delay}s` } as React.CSSProperties) : undefined}
     >
       {children}
-    </m.div>
+    </div>
   );
 }

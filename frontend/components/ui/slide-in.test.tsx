@@ -22,8 +22,8 @@ describe("SlideIn", () => {
       </SlideIn>,
     );
     const box = screen.getByText("A new player").parentElement!;
-    expect(box.style.opacity).toBe("0");
-    expect(box.style.transform).toContain("-48px");
+    expect(box).toHaveClass("slide-in");
+    expect(box).toHaveAttribute("data-from", "left");
   });
 
   it("leaves what the visitor already sees in place", () => {
@@ -33,8 +33,7 @@ describe("SlideIn", () => {
       </SlideIn>,
     );
     const box = screen.getByText("Already here").parentElement!;
-    expect(box.style.opacity).not.toBe("0");
-    expect(box.style.transform).not.toContain("px");
+    expect(box).not.toHaveClass("slide-in");
   });
 });
 

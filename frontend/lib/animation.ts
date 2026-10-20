@@ -61,8 +61,25 @@ export function whenIdle(callback: () => void, timeout = 1200): () => void {
   return () => clearTimeout(id);
 }
 
-/** For `<LazyMotion features={motionFeatures}>`: Motion's features, loaded on demand. */
-export const motionFeatures = () => import("@/lib/motion-features").then((m) => m.default);
+/**
+ * Resolves once the page has loaded and the browser is idle: a lazy import that waits for it stays
+ * off the path to the page's first paint, however quickly the page hydrates.
+ */
+export function afterLoad(): Promise<void> {
+  return new Promise((resolve) => {
+    const idle = () => whenIdle(resolve, 1500);
+    if (document.readyState === "complete") idle();
+    else window.addEventListener("load", idle, { once: true });
+  });
+}
+
+/**
+ * Resolves in a fresh task, so the browser can paint and handle input in between: long set-up work
+ * awaits it between steps instead of holding the main thread in one block.
+ */
+export function nextTask(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
 
 /** Clamp a value between min and max. */
 export function clamp(value: number, min: number, max: number): number {

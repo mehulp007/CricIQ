@@ -1,4 +1,3 @@
-import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { prefersReducedMotion, useIsHydrating } from "@/lib/animation";
@@ -18,8 +17,6 @@ export function useReveal<T extends HTMLElement>({ stagger = false }: { stagger?
   const [initial] = useState<"hidden" | undefined>(() =>
     !hydrating && !prefersReducedMotion() ? "hidden" : undefined,
   );
-  const inView = useInView(ref, { once: true, margin: "0px 0px -80px 0px" });
-
   useEffect(() => {
     const el = ref.current;
     if (!el || prefersReducedMotion()) return;
@@ -34,10 +31,21 @@ export function useReveal<T extends HTMLElement>({ stagger = false }: { stagger?
     el.dataset.reveal = "hidden";
   }, [stagger]);
 
+  // Once it is 80px into the viewport, it enters (a plain observer: no animation library needed).
   useEffect(() => {
     const el = ref.current;
-    if (inView && el?.dataset.reveal === "hidden") el.dataset.reveal = "in";
-  }, [inView]);
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        if (el.dataset.reveal === "hidden") el.dataset.reveal = "in";
+      },
+      { rootMargin: "0px 0px -80px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return { ref, initial };
 }

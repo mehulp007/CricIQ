@@ -524,6 +524,108 @@
   }
 }
 
+/*
+ * A page arriving from a link (app/template.tsx) rises 8px as it fades in, on a critically damped
+ * spring (the curve below), then leaves no style behind: `backwards` applies the start only
+ * during the run, so nothing transforms the page afterwards (fixed and pinned content inside it,
+ * like the landing's chapters, depend on that). Reduced motion keeps just the fade.
+ */
+.page-enter {
+  animation: page-enter 560ms
+    linear(0, 0.14 5%, 0.42 14%, 0.68 25%, 0.85 37%, 0.94 50%, 0.98 64%, 0.995 80%, 1) backwards;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation-name: page-fade;
+    animation-duration: 220ms;
+  }
+}
+
+/*
+ * A card springing into place (components/ui/slide-in.tsx), from below or either side, settling
+ * with a slight overshoot. The `translate` property leaves any transform on the card alone.
+ */
+.slide-in {
+  --slide-x: 0px;
+  --slide-y: 28px;
+  animation: slide-in 640ms linear(0, 0.24 8%, 0.6 20%, 0.86 33%, 0.98 45%, 1.015 57%, 1.01 72%, 1)
+    backwards;
+  animation-delay: var(--slide-delay, 0s);
+}
+.slide-in[data-from="left"] {
+  --slide-x: -48px;
+  --slide-y: 0px;
+}
+.slide-in[data-from="right"] {
+  --slide-x: 48px;
+  --slide-y: 0px;
+}
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    translate: var(--slide-x) var(--slide-y);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-in {
+    animation-name: page-fade;
+    animation-duration: 220ms;
+  }
+}
+
+/*
+ * The search palette (components/search/command-palette.tsx) springs open from 95%. Only while
+ * open: closing keeps its fade-out utilities.
+ */
+.palette-panel[data-state="open"] {
+  animation: palette-open 380ms
+    linear(0, 0.26 7%, 0.64 18%, 0.9 30%, 1.01 42%, 1.02 53%, 1.005 68%, 1) backwards;
+}
+@keyframes palette-open {
+  from {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .palette-panel[data-state="open"] {
+    animation-name: page-fade;
+    animation-duration: 160ms;
+  }
+}
+
+/*
+ * The sidebar's pill (components/layout/nav-list.tsx) slides between items on a lightly
+ * underdamped spring, settling with a hint of overshoot.
+ */
+.nav-pill {
+  transition:
+    transform 340ms linear(0, 0.2 6%, 0.55 16%, 0.84 28%, 1.01 40%, 1.04 50%, 1.02 62%, 1 76%, 1),
+    height 200ms ease-out,
+    opacity 150ms ease-out,
+    background-color 150ms,
+    box-shadow 150ms;
+}
+.nav-pill[data-hidden] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill {
+    transition: opacity 150ms ease-out;
+  }
+}
+
 /* The competition switcher's cards arrive one after another, 40ms apart (`--i` is the order). */
 .switcher-card {
   animation: switcher-card 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -557,6 +659,25 @@
  * The landing page (components/landing/). It runs edge to edge, under the top bar: the page's
  * main column drops its width cap and padding while it holds the landing.
  */
+/*
+ * Lenis's own rules (lenis/dist/lenis.css), kept here rather than imported from the landing page:
+ * an imported stylesheet split the site's CSS into extra files that every page had to wait for.
+ * They apply only while Lenis runs (it puts `lenis` on <html>).
+ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 main:has(.landing) {
   max-width: none;
   padding: 0;

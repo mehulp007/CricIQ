@@ -5,6 +5,7 @@ import {
   createParticles,
   drawParticles,
   fanLayout,
+  GLOW_MIN_SIZE,
   hash01,
   ribbonLayout,
   seamLayout,
@@ -110,6 +111,40 @@ describe("drawParticles", () => {
     expect(ctx.drawImage).not.toHaveBeenCalled();
     expect(ctx.globalAlpha).toBe(1);
   });
+
+  it("gives big particles a glow and fills the small ones in batches", () => {
+    // A 2D context for the glow sprite, so sprites exist.
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      createRadialGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(),
+    } as unknown as CanvasRenderingContext2D);
+    const ctx = {
+      globalAlpha: 1,
+      fillStyle: "",
+      beginPath: vi.fn(),
+      rect: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      drawImage: vi.fn(),
+    };
+    const particles = createParticles(
+      { count: 6, colors: ["blue"], maxSize: 1, dampening: 0.5 },
+      10,
+      10,
+      seeded(),
+    );
+    particles.forEach((p, i) => {
+      p.alpha = i < 4 ? 0.5 : 0.95;
+      p.size = i === 0 ? GLOW_MIN_SIZE + 1 : 0.8;
+    });
+    drawParticles(ctx as unknown as CanvasRenderingContext2D, particles);
+    expect(ctx.drawImage).toHaveBeenCalledTimes(1);
+    // Five small particles at two alpha levels: two fills.
+    expect(ctx.rect).toHaveBeenCalledTimes(5);
+    expect(ctx.fill).toHaveBeenCalledTimes(2);
+    expect(ctx.arc).not.toHaveBeenCalled();
+    expect(ctx.globalAlpha).toBe(1);
+  });
 });
 
 describe("layouts", () => {
@@ -159,6 +194,22 @@ describe("layouts", () => {
       expect(p.x).toBeLessThanOrEqual(100);
     }
     expect(points[7].x).not.toBeCloseTo(fanLayout(500, { x: 0, y: 50 }, 100, 100)[7].x);
+  });
+
+  it("reuses the points it is given, frame after frame", () => {
+    const out: ReturnType<typeof sphereLayout> = [];
+    const first = sphereLayout(50, 0, 0, 10, 0, out);
+    const kept = first[7];
+    const again = sphereLayout(50, 0, 0, 10, 1, out);
+    expect(again).toBe(out);
+    expect(again[7]).toBe(kept);
+    expect(again).toEqual(sphereLayout(50, 0, 0, 10, 1));
+    const fan = fanLayout(40, { x: 0, y: 0 }, 10, 10, 0.3, []);
+    expect(fanLayout(40, { x: 0, y: 0 }, 10, 10, 0.3, fan)).toEqual(
+      fanLayout(40, { x: 0, y: 0 }, 10, 10, 0.3),
+    );
+    // A shorter layout trims the array.
+    expect(sphereLayout(20, 0, 0, 10, 0, out)).toHaveLength(20);
   });
 
   it("covers the rectangle with the cloud", () => {

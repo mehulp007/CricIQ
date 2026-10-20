@@ -1,7 +1,5 @@
 "use client";
 
-import "lenis/dist/lenis.css";
-
 import { ArrowDown, ArrowRight, BookOpen, Info, Play } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, type CSSProperties } from "react";
@@ -15,7 +13,7 @@ import { HudLabel } from "@/components/landing/hud-label";
 import { ParticleCanvas, STAGES } from "@/components/landing/particle-canvas";
 import { ReducedMotionFallback } from "@/components/landing/reduced-motion-fallback";
 import { SectionHeader } from "@/components/ui/section-header";
-import { usePrefersReducedMotion, whenIdle } from "@/lib/animation";
+import { nextTask, usePrefersReducedMotion, whenIdle } from "@/lib/animation";
 import type { LandingData } from "@/lib/landing";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +33,8 @@ const millions = (n: number) => `${(n / 1_000_000).toFixed(2)}M`;
  *   5. Choose your game: the particles dissolve and the competition picker arrives.
  *
  * Lenis smooths the scrolling here only; GSAP ScrollTrigger pins each chapter and feeds the story's
- * progress to the canvas; both load after the page paints. Visitors who prefer reduced motion get
+ * progress to the canvas; both load after the page paints, and set up a chapter at a time, in short
+ * tasks that leave the page free to respond. Visitors who prefer reduced motion get
  * the same story as a still page (`ReducedMotionFallback`), switched by CSS before the first paint.
  */
 export function LandingPage({ facts, ribbon, groups }: LandingData) {
@@ -74,8 +73,19 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
 
-      const ctx = gsap.context(() => {
-        const chapters = [...story.querySelectorAll<HTMLElement>("[data-chapter]")];
+      const ctx = gsap.context(() => {}, root);
+      // Pins change the page's length: Lenis must measure again after every refresh, or it keeps
+      // clamping scrolling to the old length.
+      const remeasure = () => lenis.resize();
+      teardown = () => {
+        ScrollTrigger.removeEventListener("refresh", remeasure);
+        ctx.revert();
+        gsap.ticker.remove(tick);
+        lenis.destroy();
+      };
+
+      const chapters = [...story.querySelectorAll<HTMLElement>("[data-chapter]")];
+      ctx.add(() => {
         // Pins first, in page order, so every later trigger measures the page with them.
         chapters.forEach((chapter) => setupChapter(ScrollTrigger, chapter));
         const chapterHeight = () => chapters[0]?.offsetHeight ?? window.innerHeight;
@@ -88,8 +98,12 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
             progress.current = self.progress;
           },
         });
+      });
 
-        for (const chapter of chapters) {
+      for (const chapter of chapters) {
+        await nextTask();
+        if (cancelled) return;
+        ctx.add(() => {
           chapter
             .querySelectorAll<HTMLElement>("[data-split]")
             .forEach((el) => setupHeroText(gsap, SplitText, el, chapter));
@@ -127,8 +141,12 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
               },
             });
           }
-        }
+        });
+      }
 
+      await nextTask();
+      if (cancelled) return;
+      ctx.add(() => {
         // Chapter 5: the competition cards arrive one after another.
         const choose = root.querySelector("#choose");
         if (choose) {
@@ -141,11 +159,10 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
             scrollTrigger: { trigger: choose, start: "top 80%" },
           });
         }
-      }, root);
+      });
 
-      // Pins change the page's length: Lenis must measure again after every refresh, or it keeps
-      // clamping scrolling to the old length.
-      const remeasure = () => lenis.resize();
+      await nextTask();
+      if (cancelled) return;
       ScrollTrigger.addEventListener("refresh", remeasure);
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
@@ -156,19 +173,18 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
       void document.fonts?.ready.then(() => {
         if (!cancelled) ScrollTrigger.refresh();
       });
-
-      teardown = () => {
-        ScrollTrigger.removeEventListener("refresh", remeasure);
-        ctx.revert();
-        gsap.ticker.remove(tick);
-        lenis.destroy();
-      };
     };
-    // Load and set up the story once the page has painted and settled.
-    const cancelStart = whenIdle(() => void start(), 1500);
+    // Load and set up the story once the page has loaded and gone idle.
+    let cancelStart = () => {};
+    const begin = () => {
+      cancelStart = whenIdle(() => void start(), 1500);
+    };
+    if (document.readyState === "complete") begin();
+    else window.addEventListener("load", begin, { once: true });
 
     return () => {
       cancelled = true;
+      window.removeEventListener("load", begin);
       cancelStart();
       teardown();
     };

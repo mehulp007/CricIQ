@@ -1,13 +1,11 @@
 "use client";
 
 import { CornerDownLeft, Search } from "lucide-react";
-import { LazyMotion, MotionConfig, m } from "motion/react";
 import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useCompetition } from "@/components/competition/use-competition";
-import { motionFeatures } from "@/lib/animation";
 import { COMPETITIONS, competitionPath, type CompetitionId } from "@/lib/competitions";
 import { PRIMARY_NAV, SECONDARY_NAV, isAvailable, isShown, navHref } from "@/lib/navigation";
 import { filterResults, groupResults, type SearchResult } from "@/lib/search";
@@ -181,122 +179,112 @@ export function CommandPalette({
   const optionId = (r: SearchResult) => `${listId}-${r.id.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
 
   return (
-    <LazyMotion features={motionFeatures} strict>
-      <MotionConfig reducedMotion="user">
-        <DialogPrimitive.Root
-          open={open}
-          onOpenChange={(next) => {
-            if (!next) {
-              setQuery("");
-              setActive(0);
-            }
-            onOpenChange(next);
-          }}
-        >
-          <DialogPrimitive.Portal>
-            <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
-            {/* Springs open from 95% (only fades with reduced motion); fades out on close. */}
-            <DialogPrimitive.Content aria-describedby={undefined} asChild>
-              <m.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className="fixed top-[12vh] left-1/2 z-50 flex max-h-[70vh] w-[min(40rem,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-elev-3 outline-none data-closed:animate-out data-closed:fade-out-0"
-              >
-                <DialogPrimitive.Title className="sr-only">Search</DialogPrimitive.Title>
-                <div className="flex items-center gap-3 border-b border-border px-4">
-                  <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <input
-                    role="combobox"
-                    aria-expanded="true"
-                    aria-controls={listId}
-                    aria-autocomplete="list"
-                    aria-activedescendant={current ? optionId(current) : undefined}
-                    aria-label="Search pages, players, teams and matches"
-                    placeholder="Search pages, players, teams and matches…"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      setActive(0);
-                    }}
-                    onKeyDown={onKeyDown}
-                    className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  />
-                  <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:block">
-                    Esc
-                  </kbd>
-                </div>
-                <div
-                  ref={listRef}
-                  id={listId}
-                  role="listbox"
-                  aria-label="Results"
-                  className="flex-1 overflow-y-auto p-2"
-                >
-                  {groups.map(({ group, items }) => (
-                    <div key={group} role="group" aria-labelledby={`${listId}-${group}`}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) {
+          setQuery("");
+          setActive(0);
+        }
+        onOpenChange(next);
+      }}
+    >
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
+        {/* Springs open from 95% (only fades with reduced motion, app/globals.css); fades out
+                on close. */}
+        <DialogPrimitive.Content aria-describedby={undefined} asChild>
+          <div className="palette-panel fixed top-[12vh] left-1/2 z-50 flex max-h-[70vh] w-[min(40rem,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-elev-3 outline-none data-closed:animate-out data-closed:fade-out-0">
+            <DialogPrimitive.Title className="sr-only">Search</DialogPrimitive.Title>
+            <div className="flex items-center gap-3 border-b border-border px-4">
+              <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <input
+                role="combobox"
+                aria-expanded="true"
+                aria-controls={listId}
+                aria-autocomplete="list"
+                aria-activedescendant={current ? optionId(current) : undefined}
+                aria-label="Search pages, players, teams and matches"
+                placeholder="Search pages, players, teams and matches…"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActive(0);
+                }}
+                onKeyDown={onKeyDown}
+                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:block">
+                Esc
+              </kbd>
+            </div>
+            <div
+              ref={listRef}
+              id={listId}
+              role="listbox"
+              aria-label="Results"
+              className="flex-1 overflow-y-auto p-2"
+            >
+              {groups.map(({ group, items }) => (
+                <div key={group} role="group" aria-labelledby={`${listId}-${group}`}>
+                  <div
+                    id={`${listId}-${group}`}
+                    className="px-2 pt-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase"
+                  >
+                    {group}
+                  </div>
+                  {items.map((r) => {
+                    const selected = r.id === current?.id;
+                    return (
                       <div
-                        id={`${listId}-${group}`}
-                        className="px-2 pt-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase"
+                        key={r.id}
+                        id={optionId(r)}
+                        data-result-id={r.id}
+                        role="option"
+                        aria-selected={selected}
+                        onMouseMove={() => setActive(flat.indexOf(r))}
+                        onClick={() => go(r)}
+                        className={cn(
+                          "flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm",
+                          selected && "bg-accent text-accent-foreground",
+                        )}
                       >
-                        {group}
+                        {r.color && (
+                          <span
+                            aria-hidden="true"
+                            className="size-2.5 shrink-0 rounded-full ring-1 ring-foreground/15"
+                            style={{ backgroundColor: r.color }}
+                          />
+                        )}
+                        <span className="min-w-0 flex-1 truncate">
+                          <span className="font-medium">{r.label}</span>
+                          {r.detail && (
+                            <span className="ml-2 text-xs text-muted-foreground">{r.detail}</span>
+                          )}
+                        </span>
+                        {selected && (
+                          <CornerDownLeft
+                            className="size-3.5 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                        )}
                       </div>
-                      {items.map((r) => {
-                        const selected = r.id === current?.id;
-                        return (
-                          <div
-                            key={r.id}
-                            id={optionId(r)}
-                            data-result-id={r.id}
-                            role="option"
-                            aria-selected={selected}
-                            onMouseMove={() => setActive(flat.indexOf(r))}
-                            onClick={() => go(r)}
-                            className={cn(
-                              "flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm",
-                              selected && "bg-accent text-accent-foreground",
-                            )}
-                          >
-                            {r.color && (
-                              <span
-                                aria-hidden="true"
-                                className="size-2.5 shrink-0 rounded-full ring-1 ring-foreground/15"
-                                style={{ backgroundColor: r.color }}
-                              />
-                            )}
-                            <span className="min-w-0 flex-1 truncate">
-                              <span className="font-medium">{r.label}</span>
-                              {r.detail && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                  {r.detail}
-                                </span>
-                              )}
-                            </span>
-                            {selected && (
-                              <CornerDownLeft
-                                className="size-3.5 shrink-0 text-muted-foreground"
-                                aria-hidden="true"
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                  {groups.length === 0 && (
-                    <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-                      Nothing matches &ldquo;{q}&rdquo;.
-                    </p>
-                  )}
+                    );
+                  })}
                 </div>
-                <p className="sr-only" aria-live="polite">
-                  {flat.length === 1 ? "1 result" : `${flat.length} results`}
+              ))}
+              {groups.length === 0 && (
+                <p className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  Nothing matches &ldquo;{q}&rdquo;.
                 </p>
-              </m.div>
-            </DialogPrimitive.Content>
-          </DialogPrimitive.Portal>
-        </DialogPrimitive.Root>
-      </MotionConfig>
-    </LazyMotion>
+              )}
+            </div>
+            <p className="sr-only" aria-live="polite">
+              {flat.length === 1 ? "1 result" : `${flat.length} results`}
+            </p>
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }

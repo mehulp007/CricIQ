@@ -143,7 +143,11 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   simulations and what-ifs run live.
 - **API and site:** FastAPI reads the serving databases; Next.js renders the pages and replays
   each match in the browser.
-- **Quality:** 480+ Python tests, 180+ frontend tests and 400 end-to-end tests on desktop and
+- **Motion without the weight:** most animation is plain CSS. GSAP and Lenis load only on the home
+  page, after it has painted, and Motion only with the match replay, so other pages start with
+  about as much JavaScript as before any of it. The particles draw in batches and hold their frame
+  rate on a slowed-down CPU, with fewer of them on phones.
+- **Quality:** 480+ Python tests, 210+ frontend tests and 400 end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

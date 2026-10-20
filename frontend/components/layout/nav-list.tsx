@@ -1,14 +1,12 @@
 "use client";
 
-import { LayoutGroup, LazyMotion, MotionConfig, m } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useId, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useCompetition } from "@/components/competition/use-competition";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { motionFeatures } from "@/lib/animation";
 import {
   NAV_SECTIONS,
   PRIMARY_NAV,
@@ -27,37 +25,22 @@ const itemClass =
 const NAV_GROUPS = { primary: PRIMARY_NAV, secondary: SECONDARY_NAV } as const;
 
 /**
- * The pill behind the current page, glowing on its edge. It slides to the item under the pointer
- * (or with keyboard focus) and back again; `layoutId` makes Motion animate it between items.
+ * The pill behind the current page, glowing on its edge. One element per list: it slides (a CSS
+ * transform on a springy curve, app/globals.css) to the item under the pointer or with keyboard
+ * focus, and back again. `NavList` places it.
  */
-function Pill({ active }: { active: boolean }) {
-  return (
-    <m.span
-      layoutId="nav-pill"
-      aria-hidden="true"
-      transition={{ type: "spring", stiffness: 500, damping: 40 }}
-      className={cn(
-        "absolute inset-0 -z-10 rounded-lg",
-        active
-          ? "bg-sidebar-accent shadow-[inset_2px_0_0_var(--sidebar-primary),0_0_18px_-6px_var(--sidebar-primary)]"
-          : "bg-sidebar-accent/60",
-      )}
-    />
-  );
-}
+const PILL =
+  "nav-pill pointer-events-none absolute inset-x-0 top-0 -z-10 rounded-lg bg-sidebar-accent/60 data-[current]:bg-sidebar-accent data-[current]:shadow-[inset_2px_0_0_var(--sidebar-primary),0_0_18px_-6px_var(--sidebar-primary)]";
 
 function Item({
   item,
   active,
-  pill,
   href,
   onNavigate,
   onPoint,
 }: {
   item: NavItem;
   active: boolean;
-  /** Whether the sliding pill sits on this item. */
-  pill: boolean;
   href: string;
   onNavigate?: () => void;
   onPoint: (label: string) => void;
@@ -95,15 +78,14 @@ function Item({
         onPointerEnter={() => onPoint(item.label)}
         onFocus={() => onPoint(item.label)}
         aria-current={active ? "page" : undefined}
+        data-nav-item={item.label}
         className={cn(
           itemClass,
-          "isolate",
           active
             ? "text-sidebar-accent-foreground"
             : "text-sidebar-foreground/75 hover:text-sidebar-accent-foreground",
         )}
       >
-        {pill && <Pill active={active} />}
         <Icon className={cn("size-4 shrink-0", active && "text-sidebar-primary")} />
         {item.label}
       </Link>
@@ -125,12 +107,40 @@ export function NavList({
 }) {
   const pathname = usePathname();
   const competition = useCompetition();
-  // Each list (the sidebar, the phone menu) has its own pill.
-  const layoutGroup = useId();
+  const listRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
   const [pointed, setPointed] = useState<string | null>(null);
   const items = NAV_GROUPS[group].filter((item) => isShown(item, competition));
   const current = items.find((item) => isActive(item, pathname, competition))?.label ?? null;
   const pillAt = pointed ?? current;
+
+  // Move the pill onto its item (measured, so it follows whatever the sidebar's layout is). After
+  // paint: measuring during hydration would hold up the page's first frame for a highlight.
+  useEffect(() => {
+    const list = listRef.current;
+    const pill = pillRef.current;
+    if (!list || !pill) return;
+    const target = pillAt
+      ? list.querySelector<HTMLElement>(`[data-nav-item="${CSS.escape(pillAt)}"]`)
+      : null;
+    if (!target) {
+      pill.dataset.hidden = "";
+      return;
+    }
+    const top = target.getBoundingClientRect().top - list.getBoundingClientRect().top;
+    // The first placement doesn't slide in from the top of the list.
+    if (pill.dataset.placed === undefined) pill.style.transition = "none";
+    pill.style.transform = `translateY(${top}px)`;
+    pill.style.height = `${target.offsetHeight}px`;
+    pill.dataset.placed = "";
+    delete pill.dataset.hidden;
+    if (pillAt === current) pill.dataset.current = "";
+    else delete pill.dataset.current;
+    if (pill.style.transition === "none") {
+      void pill.offsetHeight;
+      pill.style.transition = "";
+    }
+  }, [pillAt, current]);
   const render = (list: readonly NavItem[]) =>
     list.map((item) => (
       <Item
@@ -138,7 +148,6 @@ export function NavList({
         item={item}
         href={navHref(item, competition)}
         active={item.label === current}
-        pill={item.label === pillAt}
         onNavigate={onNavigate}
         onPoint={setPointed}
       />
@@ -153,11 +162,9 @@ export function NavList({
   };
   const list =
     group === "secondary" ? (
-      <ul className="flex flex-col gap-0.5" {...leave}>
-        {render(items)}
-      </ul>
+      <ul className="flex flex-col gap-0.5">{render(items)}</ul>
     ) : (
-      <div className="flex flex-col gap-5" {...leave}>
+      <div className="flex flex-col gap-5">
         {NAV_SECTIONS.map((section) => (
           <div key={section} className="flex flex-col gap-1">
             <p className="px-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
@@ -171,10 +178,10 @@ export function NavList({
       </div>
     );
   return (
-    <LazyMotion features={motionFeatures} strict>
-      <MotionConfig reducedMotion="user">
-        <LayoutGroup id={layoutGroup}>{list}</LayoutGroup>
-      </MotionConfig>
-    </LazyMotion>
+    // Each list (the sidebar, the phone menu) has its own pill.
+    <div ref={listRef} className="relative isolate" {...leave}>
+      <span ref={pillRef} aria-hidden="true" data-hidden="" className={PILL} />
+      {list}
+    </div>
   );
 }

@@ -17,6 +17,7 @@ import type { CompetitionId } from "@/lib/competitions";
 import { buildFrames, replayMarks, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { outcomeAt, testJumps } from "@/lib/replay/test";
+import { MotionProvider } from "@/components/ui/motion-provider";
 
 // The charts load after the replay paints: the charting library stays out of its first JavaScript.
 const OutcomeChart = dynamic(
@@ -118,68 +119,70 @@ export function TestMatchCenter({
   const seek = (index: number) => dispatch({ type: "seek", cursor: index });
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-4">
-      <Tabs defaultValue="live">
-        <div className="flex items-center justify-between gap-3">
-          <TabsList>
-            <TabsTrigger value="live">Live view</TabsTrigger>
-            <TabsTrigger value="scorecard">Scorecard</TabsTrigger>
-          </TabsList>
-          <p className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
-            <Keyboard className="size-3.5" aria-hidden="true" />
-            Space play · ← → step · 1 2 3 4 speed
-          </p>
-        </div>
-
-        <TabsContent value="live" className="mt-4">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div className="flex flex-col gap-4 lg:col-span-7">
-              <TestScoreboard
-                timeline={timeline}
-                frame={frame}
-                cards={cards}
-                cursor={cursor}
-                atEnd={atEnd}
-                outcome={outcome}
-              />
-              <ProjectionPanel timeline={timeline} cursor={cursor} />
-              {frame && <CreasePanel timeline={timeline} frame={frame} />}
-              <section aria-label="Charts" className="panel">
-                <Tabs defaultValue="chances">
-                  <TabsList>
-                    <TabsTrigger value="chances">Result chances</TabsTrigger>
-                    <TabsTrigger value="overs">Runs per over</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="chances" className="mt-4">
-                    <OutcomeChart timeline={timeline} cursor={cursor} onSeek={seek} />
-                  </TabsContent>
-                  <TabsContent value="overs" className="mt-4">
-                    <InningsOvers timeline={timeline} cursor={cursor} />
-                  </TabsContent>
-                </Tabs>
-              </section>
-            </div>
-            <div className="flex flex-col gap-4 lg:col-span-5">
-              <ChasePanel timeline={timeline} cursor={cursor} competition={competition} />
-              <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
-            </div>
+    <MotionProvider>
+      <div ref={rootRef} className="flex flex-col gap-4">
+        <Tabs defaultValue="live">
+          <div className="flex items-center justify-between gap-3">
+            <TabsList>
+              <TabsTrigger value="live">Live view</TabsTrigger>
+              <TabsTrigger value="scorecard">Scorecard</TabsTrigger>
+            </TabsList>
+            <p className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
+              <Keyboard className="size-3.5" aria-hidden="true" />
+              Space play · ← → step · 1 2 3 4 speed
+            </p>
           </div>
-        </TabsContent>
 
-        <TabsContent value="scorecard" className="mt-4">
-          <LiveScorecard timeline={timeline} cards={cards} competition={competition} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="live" className="mt-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+              <div className="flex flex-col gap-4 lg:col-span-7">
+                <TestScoreboard
+                  timeline={timeline}
+                  frame={frame}
+                  cards={cards}
+                  cursor={cursor}
+                  atEnd={atEnd}
+                  outcome={outcome}
+                />
+                <ProjectionPanel timeline={timeline} cursor={cursor} />
+                {frame && <CreasePanel timeline={timeline} frame={frame} />}
+                <section aria-label="Charts" className="panel">
+                  <Tabs defaultValue="chances">
+                    <TabsList>
+                      <TabsTrigger value="chances">Result chances</TabsTrigger>
+                      <TabsTrigger value="overs">Runs per over</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="chances" className="mt-4">
+                      <OutcomeChart timeline={timeline} cursor={cursor} onSeek={seek} />
+                    </TabsContent>
+                    <TabsContent value="overs" className="mt-4">
+                      <InningsOvers timeline={timeline} cursor={cursor} />
+                    </TabsContent>
+                  </Tabs>
+                </section>
+              </div>
+              <div className="flex flex-col gap-4 lg:col-span-5">
+                <ChasePanel timeline={timeline} cursor={cursor} competition={competition} />
+                <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
+              </div>
+            </div>
+          </TabsContent>
 
-      <ReplayControls
-        state={state}
-        dispatch={dispatch}
-        overs={jumps}
-        marks={marks}
-        ballLabel={frame ? `${frame.delivery.innings_no}·${frame.delivery.ball_label}` : "0.0"}
-        speeds={TEST_SPEEDS}
-        jumpLabel="Jump to day or innings"
-      />
-    </div>
+          <TabsContent value="scorecard" className="mt-4">
+            <LiveScorecard timeline={timeline} cards={cards} competition={competition} />
+          </TabsContent>
+        </Tabs>
+
+        <ReplayControls
+          state={state}
+          dispatch={dispatch}
+          overs={jumps}
+          marks={marks}
+          ballLabel={frame ? `${frame.delivery.innings_no}·${frame.delivery.ball_label}` : "0.0"}
+          speeds={TEST_SPEEDS}
+          jumpLabel="Jump to day or innings"
+        />
+      </div>
+    </MotionProvider>
   );
 }

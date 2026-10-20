@@ -21,6 +21,7 @@ import { inningsLabel } from "@/lib/format";
 import { buildFrames, overStarts, replayMarks, scorecardAt } from "@/lib/replay/engine";
 import { initialState, intervalFor, replayReducer, type Speed } from "@/lib/replay/state";
 import { wpAt } from "@/lib/replay/win-probability";
+import { MotionProvider } from "@/components/ui/motion-provider";
 
 // The charts load after the replay paints: the charting library stays out of its first JavaScript.
 const ReplayCharts = dynamic(
@@ -145,51 +146,53 @@ export function MatchCenter({
   const seek = (index: number) => dispatch({ type: "seek", cursor: index });
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-4">
-      <Tabs defaultValue="live">
-        <div className="flex items-center justify-between gap-3">
-          <TabsList>
-            <TabsTrigger value="live">Live view</TabsTrigger>
-            <TabsTrigger value="scorecard">Scorecard</TabsTrigger>
-          </TabsList>
-          <p className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
-            <Keyboard className="size-3.5" aria-hidden="true" />
-            Space play · ← → step · 1 2 4 speed
-          </p>
-        </div>
-
-        <TabsContent value="live" className="mt-4">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div className="flex flex-col gap-4 lg:col-span-7">
-              <Scoreboard timeline={timeline} frame={frame} cards={cards} atEnd={atEnd} wp={wp} />
-              <OversPanel timeline={timeline} cursor={cursor} />
-              <ProjectionPanel timeline={timeline} cursor={cursor} />
-              {frame && <CreasePanel timeline={timeline} frame={frame} />}
-              <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
-            </div>
-            <div className="flex flex-col gap-4 lg:col-span-5">
-              <PressurePanel timeline={timeline} cursor={cursor} competition={competition} />
-              {simulator && (
-                <WhatIfPanel timeline={timeline} cursor={cursor} competition={competition} />
-              )}
-              <ExplainPanel timeline={timeline} cursor={cursor} />
-              <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
-            </div>
+    <MotionProvider>
+      <div ref={rootRef} className="flex flex-col gap-4">
+        <Tabs defaultValue="live">
+          <div className="flex items-center justify-between gap-3">
+            <TabsList>
+              <TabsTrigger value="live">Live view</TabsTrigger>
+              <TabsTrigger value="scorecard">Scorecard</TabsTrigger>
+            </TabsList>
+            <p className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
+              <Keyboard className="size-3.5" aria-hidden="true" />
+              Space play · ← → step · 1 2 4 speed
+            </p>
           </div>
-        </TabsContent>
 
-        <TabsContent value="scorecard" className="mt-4">
-          <LiveScorecard timeline={timeline} cards={cards} competition={competition} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="live" className="mt-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+              <div className="flex flex-col gap-4 lg:col-span-7">
+                <Scoreboard timeline={timeline} frame={frame} cards={cards} atEnd={atEnd} wp={wp} />
+                <OversPanel timeline={timeline} cursor={cursor} />
+                <ProjectionPanel timeline={timeline} cursor={cursor} />
+                {frame && <CreasePanel timeline={timeline} frame={frame} />}
+                <ReplayCharts timeline={timeline} cursor={cursor} onSeek={seek} />
+              </div>
+              <div className="flex flex-col gap-4 lg:col-span-5">
+                <PressurePanel timeline={timeline} cursor={cursor} competition={competition} />
+                {simulator && (
+                  <WhatIfPanel timeline={timeline} cursor={cursor} competition={competition} />
+                )}
+                <ExplainPanel timeline={timeline} cursor={cursor} />
+                <BallFeed timeline={timeline} frames={frames} cursor={cursor} />
+              </div>
+            </div>
+          </TabsContent>
 
-      <ReplayControls
-        state={state}
-        dispatch={dispatch}
-        overs={overs}
-        marks={marks}
-        ballLabel={frame?.delivery.ball_label ?? "0.0"}
-      />
-    </div>
+          <TabsContent value="scorecard" className="mt-4">
+            <LiveScorecard timeline={timeline} cards={cards} competition={competition} />
+          </TabsContent>
+        </Tabs>
+
+        <ReplayControls
+          state={state}
+          dispatch={dispatch}
+          overs={overs}
+          marks={marks}
+          ballLabel={frame?.delivery.ball_label ?? "0.0"}
+        />
+      </div>
+    </MotionProvider>
   );
 }

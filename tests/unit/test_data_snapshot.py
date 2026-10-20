@@ -118,3 +118,11 @@ def test_manifest_lists_sizes_and_checksums(exports: Path, tmp_path: Path) -> No
     entry = manifest["files"]["serving.duckdb"]
     assert entry["bytes"] == (exports / "serving.duckdb").stat().st_size
     assert entry["sha256"] == snapshot.sha256(exports / "serving.duckdb")
+
+
+def test_will_not_pack_while_newer_data_waits_to_be_swapped_in(
+    exports: Path, tmp_path: Path
+) -> None:
+    (exports / "serving.duckdb.next").write_bytes(b"newer")
+    with pytest.raises(snapshot.SnapshotError, match="waiting to be swapped in"):
+        snapshot.pack(exports, tmp_path / "criciq-data.zip")

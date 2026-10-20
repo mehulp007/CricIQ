@@ -106,6 +106,12 @@ def pack(exports: Path, out: Path) -> dict[str, Any]:
             f"no complete export at {exports}: build the data first "
             "(uv run python scripts/v2_up.py --build-data)"
         )
+    pending = sorted(p.name for p in exports.glob("*.duckdb.next"))
+    if pending:
+        raise SnapshotError(
+            f"a sync left newer data waiting to be swapped in ({', '.join(pending)}): start "
+            "the site once (uv run python scripts/v2_up.py --serve-only), stop it, then pack"
+        )
     metas = {f.name: read_meta(f) for f in files}
     versions = {meta.get("data_version") for meta in metas.values()}
     if len(versions) != 1:

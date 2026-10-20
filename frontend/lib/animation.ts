@@ -2,11 +2,41 @@
  * Animation constants and utilities shared across the landing and app pages.
  * All animations respect prefers-reduced-motion.
  */
+import { useSyncExternalStore } from "react";
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
 /** Whether the visitor prefers reduced motion. Checked once on load. */
 export function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return window.matchMedia(REDUCED_MOTION).matches;
+}
+
+function subscribeReducedMotion(onChange: () => void): () => void {
+  const media = window.matchMedia(REDUCED_MOTION);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+/**
+ * The reduced-motion preference in a component, kept up to date. The server (and hydration) render
+ * with motion; CSS `motion-reduce:` variants cover the first paint, so nothing flashes.
+ */
+export function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReducedMotion, prefersReducedMotion, () => false);
+}
+
+/**
+ * Run `callback` once the browser is idle (at the latest after `timeout` ms), so decorative work
+ * doesn't compete with the first paint. Returns a function that cancels it.
+ */
+export function whenIdle(callback: () => void, timeout = 1200): () => void {
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(callback, { timeout });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = setTimeout(callback, 300);
+  return () => clearTimeout(id);
 }
 
 /** Clamp a value between min and max. */

@@ -7,6 +7,7 @@ import {
   fanLayout,
   hash01,
   ribbonLayout,
+  seamLayout,
   sphereLayout,
   updateParticles,
 } from "@/lib/canvas-particles";
@@ -124,6 +125,40 @@ describe("layouts", () => {
 
   it("turns the sphere with its rotation", () => {
     expect(sphereLayout(10, 0, 0, 1, 0)[3]).not.toEqual(sphereLayout(10, 0, 0, 1, 1)[3]);
+  });
+
+  it("lays the seam on the ball's surface, turning with it", () => {
+    const seam = seamLayout(300, 100, 100, 50, 0.4);
+    expect(seam).toHaveLength(300);
+    for (const p of seam) {
+      expect(Math.hypot(p.x - 100, p.y - 100)).toBeLessThanOrEqual(50.0001);
+    }
+    expect(seamLayout(300, 100, 100, 50, 0)[10]).not.toEqual(seam[10]);
+  });
+
+  it("slides the ribbon along its line with a phase, staying on it", () => {
+    const line = [
+      { x: 0, y: 0 },
+      { x: 100, y: 0 },
+    ];
+    const still = ribbonLayout(100, line, 0);
+    const moved = ribbonLayout(100, line, 0, 0.25);
+    expect(moved[0].x).toBeCloseTo(25);
+    expect(moved[80].x).toBeCloseTo(5); // 0.8 + 0.25 wraps to 0.05
+    for (const p of moved) {
+      expect(p.x).toBeGreaterThanOrEqual(0);
+      expect(p.x).toBeLessThanOrEqual(100);
+    }
+    expect(still[99].x).toBeCloseTo(100);
+  });
+
+  it("streams the fan outwards with a phase, staying in bounds", () => {
+    const points = fanLayout(500, { x: 0, y: 50 }, 100, 100, 0.6);
+    for (const p of points) {
+      expect(p.x).toBeGreaterThanOrEqual(0);
+      expect(p.x).toBeLessThanOrEqual(100);
+    }
+    expect(points[7].x).not.toBeCloseTo(fanLayout(500, { x: 0, y: 50 }, 100, 100)[7].x);
   });
 
   it("covers the rectangle with the cloud", () => {

@@ -60,6 +60,13 @@
   --color-six: var(--six);
   --color-wicket: var(--wicket);
 
+  /* the landing page's cinematic palette (the same in both themes) */
+  --color-void: var(--void);
+  --color-titanium: var(--titanium);
+  --color-neon-turf: var(--neon-turf);
+  --color-ice-cyan: var(--ice-cyan);
+  --color-pressure-amber: var(--pressure-amber);
+
   /* elevation and light: `shadow-elev-1` … `shadow-elev-3`, `shadow-glow` */
   --shadow-elev-1: var(--elevation-1);
   --shadow-elev-2: var(--elevation-2);
@@ -199,6 +206,15 @@
   --glass-border: oklch(1 0 0 / 8%);
   --light-a: oklch(0.79 0.145 158 / 9%);
   --light-b: oklch(0.72 0.13 245 / 8%);
+}
+
+/* Landing page tokens (Chapter backgrounds) */
+:root {
+  --void: oklch(0.08 0.015 260);
+  --titanium: oklch(0.16 0.02 258);
+  --neon-turf: oklch(0.85 0.2 158);
+  --ice-cyan: oklch(0.82 0.15 210);
+  --pressure-amber: oklch(0.82 0.16 80);
 }
 
 @layer base {
@@ -350,5 +366,107 @@
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
+  }
+}
+
+/*
+ * The landing page (components/landing/). It runs edge to edge, under the top bar: the page's
+ * main column drops its width cap and padding while it holds the landing.
+ */
+main:has(.landing) {
+  max-width: none;
+  padding: 0;
+}
+
+/*
+ * A landing chapter and the particle canvas share one stage: the full width, the viewport's height
+ * below the top bar. The ball, ribbon and fan sit at the same places in both; the canvas repeats
+ * these numbers in components/landing/particle-canvas.tsx (keep the two in step).
+ */
+.landing {
+  --stage-h: calc(100svh - 3.5rem);
+}
+.landing-stage {
+  container-type: size;
+  --ball-x: 50%;
+  --ball-y: 70%;
+  --ball-r: min(30cqw, 15cqh);
+  --rib-x0: 6%;
+  --rib-w: 88%;
+  --rib-y0: 46%;
+  --rib-h: 38%;
+}
+@media (min-width: 1024px) {
+  .landing-stage {
+    --ball-x: 70%;
+    --ball-y: 52%;
+    --ball-r: min(22cqw, 30cqh);
+    --rib-x0: 6%;
+    --rib-w: 88%;
+    --rib-y0: 40%;
+    --rib-h: 46%;
+  }
+}
+
+@layer components {
+  /* Telemetry labels and moment cards over the void: dark glass, hairline border, mono type. */
+  .landing-glass {
+    border: 1px solid oklch(1 0 0 / 12%);
+    background: color-mix(in oklch, var(--titanium) 72%, transparent);
+    box-shadow:
+      0 12px 32px -12px oklch(0 0 0 / 70%),
+      inset 0 1px 0 oklch(1 0 0 / 8%);
+    backdrop-filter: blur(10px);
+  }
+
+  /* A telemetry label beside the ball (wide screens), `--dx`/`--dy` in ball radii from its centre. */
+  @media (min-width: 1024px) {
+    .landing-hud {
+      position: absolute;
+      left: calc(var(--ball-x) + var(--dx, 0) * var(--ball-r));
+      top: calc(var(--ball-y) + var(--dy, 0) * var(--ball-r));
+      translate: -50% -50%;
+    }
+  }
+
+  /* A moment on the probability ribbon: `--t` along the match, `--wp` team A's chance there. */
+  .landing-moment {
+    position: absolute;
+    left: calc(var(--rib-x0) + var(--t) * var(--rib-w));
+    top: calc(var(--rib-y0) + (1 - var(--wp)) * var(--rib-h));
+  }
+
+  /* The first chapter's headline rises in letter by letter as the page paints (no script needed,
+     so the largest text paints at once). Later headlines are revealed by GSAP as they arrive. */
+  .landing-char {
+    display: inline-block;
+    animation: landing-rise 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 22ms + 120ms);
+  }
+  .landing-fade {
+    animation: landing-fade 900ms ease-out both;
+    animation-delay: var(--delay, 500ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .landing-char,
+    .landing-fade {
+      animation: none;
+    }
+  }
+}
+
+/* The letters start faint rather than invisible: text at opacity 0 doesn't count as painted, so
+   the page's largest paint would wait for the reveal. */
+@keyframes landing-rise {
+  from {
+    opacity: 0.08;
+    transform: translateY(0.45em);
+    filter: blur(8px);
+  }
+}
+@keyframes landing-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }

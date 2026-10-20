@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { clamp, lerp, mapRange, prefersReducedMotion } from "@/lib/animation";
+import { clamp, lerp, mapRange, prefersReducedMotion, whenIdle } from "@/lib/animation";
 
 describe("clamp and lerp", () => {
   it("clamps to the range", () => {
@@ -25,6 +25,22 @@ describe("mapRange", () => {
   it("holds the ends outside the window", () => {
     expect(mapRange(0, 0.25, 0.75, 0, 100)).toBe(0);
     expect(mapRange(1, 0.25, 0.75, 0, 100)).toBe(100);
+  });
+});
+
+describe("whenIdle", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("runs the callback later, unless cancelled", () => {
+    vi.useFakeTimers();
+    const ran = vi.fn();
+    whenIdle(ran);
+    const cancelled = vi.fn();
+    whenIdle(cancelled)();
+    expect(ran).not.toHaveBeenCalled();
+    vi.runAllTimers();
+    expect(ran).toHaveBeenCalledOnce();
+    expect(cancelled).not.toHaveBeenCalled();
   });
 });
 

@@ -77,6 +77,11 @@ It starts in seconds, using the data already built. To add matches played since 
 
 ## What you can do
 
+- **Start with the story**: the home page shows what CricIQ does as you scroll. A cricket ball
+  drawn in particles breaks into every delivery in the data, then becomes the 2019 IPL final's
+  real win-probability curve, then fans out into simulated outcomes, before you choose a
+  competition. Every number in it is the real figure, and visitors who prefer reduced motion get
+  the same story as a still page.
 - **Replay any match** ball by ball, with each side's win chance, a projected total and a
   plain-language explanation after every ball.
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and
@@ -125,7 +130,7 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   simulations and what-ifs run live.
 - **API and site:** FastAPI reads the serving databases; Next.js renders the pages and replays
   each match in the browser.
-- **Quality:** 480+ Python tests, 170+ frontend tests and 390 end-to-end tests on desktop and
+- **Quality:** 480+ Python tests, 180+ frontend tests and 400 end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

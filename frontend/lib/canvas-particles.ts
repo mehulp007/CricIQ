@@ -139,6 +139,28 @@ export function drawParticles(ctx: CanvasRenderingContext2D, particles: Particle
   ctx.globalAlpha = previousAlpha;
 }
 
+const TILT = 0.35;
+
+/**
+ * Project a point on the unit sphere: turn it by `rotation` about the vertical axis, tilt the top
+ * towards the viewer, and drop the depth axis (orthographic).
+ */
+function project(
+  x: number,
+  y: number,
+  z: number,
+  rotation: number,
+  cx: number,
+  cy: number,
+  radius: number,
+): LayoutPoint {
+  const rx = x * Math.cos(rotation) - z * Math.sin(rotation);
+  const rz = x * Math.sin(rotation) + z * Math.cos(rotation);
+  const ty = y * Math.cos(TILT) - rz * Math.sin(TILT);
+  const tz = y * Math.sin(TILT) + rz * Math.cos(TILT);
+  return { x: cx + rx * radius, y: cy + ty * radius, depth: (tz + 1) / 2 };
+}
+
 /**
  * Arrange particles into a sphere-like projection (2D illusion of 3D).
  * Used in Chapter 1 (the cricket ball silhouette).
@@ -153,18 +175,53 @@ export function sphereLayout(
   radius: number,
   rotation = 0,
 ): LayoutPoint[] {
-  const tilt = 0.35;
   const points: LayoutPoint[] = [];
   for (let i = 0; i < count; i++) {
     const y = count === 1 ? 0 : 1 - (i / (count - 1)) * 2;
     const ring = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = GOLDEN_ANGLE * i + rotation;
-    const x = Math.cos(theta) * ring;
-    const z = Math.sin(theta) * ring;
-    // Tilt about the horizontal axis, so the top of the ball leans towards the viewer.
-    const ty = y * Math.cos(tilt) - z * Math.sin(tilt);
-    const tz = y * Math.sin(tilt) + z * Math.cos(tilt);
-    points.push({ x: cx + x * radius, y: cy + ty * radius, depth: (tz + 1) / 2 });
+    const theta = GOLDEN_ANGLE * i;
+    points.push(
+      project(Math.cos(theta) * ring, y, Math.sin(theta) * ring, rotation, cx, cy, radius),
+    );
+  }
+  return points;
+}
+
+/**
+ * The ball's seam on the same sphere (Chapter 1): a great circle, with a row of stitches either
+ * side of it, turning with the ball. Every third point is on the seam itself, the rest alternate
+ * between the two stitch rows.
+ */
+export function seamLayout(
+  count: number,
+  cx: number,
+  cy: number,
+  radius: number,
+  rotation = 0,
+): LayoutPoint[] {
+  // The seam's plane is nearly upright, so the seam sweeps across the ball as it turns.
+  const n = [0.94, 0.34, 0];
+  const e1 = [-0.34, 0.94, 0];
+  const e2 = [0, 0, 1];
+  const points: LayoutPoint[] = [];
+  for (let i = 0; i < count; i++) {
+    const u = (i / Math.max(count, 1)) * Math.PI * 2;
+    const row = i % 3 === 0 ? 0 : i % 3 === 1 ? 1 : -1;
+    const lift = row * 0.045;
+    const scale = Math.sqrt(1 - lift * lift);
+    const c = Math.cos(u) * scale;
+    const s = Math.sin(u) * scale;
+    points.push(
+      project(
+        c * e1[0] + s * e2[0] + lift * n[0],
+        c * e1[1] + s * e2[1] + lift * n[1],
+        c * e1[2] + s * e2[2] + lift * n[2],
+        rotation,
+        cx,
+        cy,
+        radius,
+      ),
+    );
   }
   return points;
 }
@@ -195,11 +252,13 @@ export function cloudLayout(count: number, width: number, height: number): Layou
  *
  * Particles are spaced evenly along the polyline by arc length, each pushed off the line by a
  * stable, normally distributed amount scaled by `spread` (so the ribbon is dense at its centre).
+ * A `phase` (0–1) slides every particle along the line, wrapping at the end, so the ribbon flows.
  */
 export function ribbonLayout(
   count: number,
   points: { x: number; y: number }[],
   spread: number,
+  phase = 0,
 ): LayoutPoint[] {
   if (points.length === 0) return [];
   if (points.length === 1) return Array.from({ length: count }, () => ({ ...points[0] }));
@@ -211,10 +270,22 @@ export function ribbonLayout(
   }
   const total = lengths[lengths.length - 1];
   const out: LayoutPoint[] = [];
-  let segment = 1;
   for (let i = 0; i < count; i++) {
-    const distance = count === 1 ? 0 : (i / (count - 1)) * total;
-    while (segment < points.length - 1 && lengths[segment] < distance) segment++;
+    const fraction = phase
+      ? (((i / count + phase) % 1) + 1) % 1
+      : count === 1
+        ? 0
+        : i / (count - 1);
+    const distance = fraction * total;
+    // The first segment whose end is at or past the distance.
+    let lo = 1;
+    let hi = points.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (lengths[mid] < distance) lo = mid + 1;
+      else hi = mid;
+    }
+    const segment = lo;
     const span = lengths[segment] - lengths[segment - 1] || 1;
     const t = (distance - lengths[segment - 1]) / span;
     const a = points[segment - 1];
@@ -235,18 +306,20 @@ export function ribbonLayout(
  *
  * Each particle sits on a strand leaving `origin` and running `width` to the right; strands end at
  * normally distributed heights within `height`, so the far end is dense in the middle like a
- * bell curve. Points cluster towards the far end, where the outcomes are.
+ * bell curve. Points cluster towards the far end, where the outcomes are. A `phase` (0–1) moves
+ * every particle outwards along its strand, wrapping back to the origin, so the strands stream.
  */
 export function fanLayout(
   count: number,
   origin: { x: number; y: number },
   width: number,
   height: number,
+  phase = 0,
 ): LayoutPoint[] {
   const points: LayoutPoint[] = [];
   for (let i = 0; i < count; i++) {
     const end = Math.max(-2.6, Math.min(2.6, normal(i, 5))) / 2.6; // -1 … 1
-    const t = Math.sqrt(hash01(i, 11)); // more points further along
+    const t = Math.sqrt((((hash01(i, 11) + phase) % 1) + 1) % 1); // more points further along
     // Strands leave the origin flat and open out (an ease-in on the vertical).
     const rise = t * t;
     points.push({

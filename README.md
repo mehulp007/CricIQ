@@ -125,14 +125,14 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   simulations and what-ifs run live.
 - **API and site:** FastAPI reads the serving databases; Next.js renders the pages and replays
   each match in the browser.
-- **Quality:** 480+ Python tests, 120+ frontend tests and 240 end-to-end tests, plus an
-  accessibility scan of every key page, run in CI on every push.
+- **Quality:** 480+ Python tests, 170+ frontend tests and 390 end-to-end tests on desktop and
+  mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |
 |---|---|
 | Data and ML | Python 3.12, DuckDB, LightGBM, scikit-learn, SciPy |
 | Backend | FastAPI, Pydantic, uvicorn |
-| Frontend | Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, Recharts |
+| Frontend | Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, Recharts, GSAP, Lenis, Motion, Canvas 2D |
 | Quality | uv, ruff, mypy, pytest, Vitest, Playwright, axe-core, GitHub Actions |
 
 More: [architecture](docs/architecture.md) · [data pipeline](docs/data-pipeline.md) ·

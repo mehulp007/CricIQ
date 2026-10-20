@@ -19,6 +19,6 @@ test.describe("over by over", () => {
     await page.goto(FINAL);
     await page.locator("[data-replay-ready]").waitFor();
     // 8 MI wickets and 7 CSK ones, plus the innings break.
-    await expect(page.getByTestId("replay-marks").locator("span")).toHaveCount(16);
+    await expect(page.getByTestId("replay-marks").locator(":scope > span")).toHaveCount(16);
   });
 });

@@ -1,5 +1,5 @@
 import { TeamSwatch } from "@/components/match/team-badge";
-import { ScoreboardFrame, Stat } from "@/components/replay/scoreboard-frame";
+import { FlipScore, ScoreboardFrame, Stat } from "@/components/replay/scoreboard-frame";
 import { OutcomeBar } from "@/components/replay/test/outcome-bar";
 import type { Timeline } from "@/lib/api/types";
 import { formatRate } from "@/lib/cricket";
@@ -79,7 +79,7 @@ export function TestScoreboard({
           aria-live="polite"
           aria-atomic="true"
         >
-          {formatScore(state.runs, state.wickets === 10 ? 10 : state.wickets)}
+          <FlipScore text={formatScore(state.runs, state.wickets === 10 ? 10 : state.wickets)} />
           {declared && <span className="text-2xl text-muted-foreground"> declared</span>}
           {state.wickets === 10 && <span className="text-2xl text-muted-foreground"> all out</span>}
         </span>

@@ -1,4 +1,7 @@
+"use client";
+
 import { ArrowLeftRight } from "lucide-react";
+import { m } from "motion/react";
 
 import { BallChip } from "@/components/replay/ball-chip";
 import { SIDE_COLORS } from "@/components/replay/win-probability-bar";
@@ -82,17 +85,27 @@ export function BallFeed({
                 {item.text}
               </li>
             ) : (
-              <li
+              // The newest ball slides in from the right as it arrives, and a wicket, six or four
+              // flashes. Only a row that mounts at the top does either: stepping back brings up
+              // rows that were already there, which stay still.
+              <m.li
                 key={item.key}
-                className={cn(
-                  "flex items-start gap-3 py-2.5 text-sm transition-opacity",
-                  position > 0 && "opacity-80",
-                )}
+                initial={position === 0 ? { x: 28, opacity: 0 } : false}
+                animate={{ x: 0, opacity: position === 0 ? 1 : 0.8 }}
+                transition={{
+                  x: { type: "spring", stiffness: 420, damping: 30 },
+                  opacity: { duration: 0.25 },
+                }}
+                className="flex items-start gap-3 py-2.5 text-sm"
               >
                 <span className="w-9 shrink-0 pt-1 font-mono text-xs text-muted-foreground tabular-nums">
                   {item.frame.delivery.ball_label}
                 </span>
-                <BallChip delivery={item.frame.delivery} className="shrink-0" />
+                <BallChip
+                  delivery={item.frame.delivery}
+                  flash={position === 0}
+                  className="shrink-0"
+                />
                 <span
                   className={cn(
                     "pt-0.5 leading-snug",
@@ -102,7 +115,7 @@ export function BallFeed({
                   {item.frame.commentary}
                 </span>
                 <Swing timeline={timeline} index={item.frame.index} />
-              </li>
+              </m.li>
             ),
           )}
         </ol>

@@ -1,10 +1,11 @@
 import { TeamSwatch } from "@/components/match/team-badge";
-import { ScoreboardFrame, Stat } from "@/components/replay/scoreboard-frame";
+import { FlipScore, ScoreboardFrame, Stat } from "@/components/replay/scoreboard-frame";
 import { WinProbabilityBar } from "@/components/replay/win-probability-bar";
 import type { Timeline } from "@/lib/api/types";
 import { formatRate } from "@/lib/cricket";
 import { formatScore, inningsLabel } from "@/lib/format";
 import { type Frame, type LiveInningsCard, scoreState } from "@/lib/replay/engine";
+import { pressureAt } from "@/lib/replay/pressure";
 
 export function Scoreboard({
   timeline,
@@ -20,6 +21,8 @@ export function Scoreboard({
   wp: number | null;
 }) {
   const { summary, teams } = timeline;
+  // The pressure on the next ball, for the glow around the win-probability bar.
+  const pressure = pressureAt(timeline, frame ? frame.index : -1)?.pressure ?? null;
 
   if (!frame) {
     const toss = summary.toss;
@@ -44,7 +47,7 @@ export function Scoreboard({
           Press <kbd className="rounded border border-border px-1.5 font-mono text-xs">Space</kbd>{" "}
           or the play button to start the replay.
         </p>
-        <WinProbabilityBar timeline={timeline} wp={wp} />
+        <WinProbabilityBar timeline={timeline} wp={wp} pressure={pressure} />
       </ScoreboardFrame>
     );
   }
@@ -72,7 +75,7 @@ export function Scoreboard({
           aria-live="polite"
           aria-atomic="true"
         >
-          {formatScore(state.runs, state.wickets === 10 ? 10 : state.wickets)}
+          <FlipScore text={formatScore(state.runs, state.wickets === 10 ? 10 : state.wickets)} />
           {state.wickets === 10 && <span className="text-2xl text-muted-foreground"> all out</span>}
         </span>
         <span className="font-mono text-lg text-muted-foreground tabular-nums">
@@ -110,7 +113,7 @@ export function Scoreboard({
         </p>
       )}
 
-      <WinProbabilityBar timeline={timeline} wp={wp} />
+      <WinProbabilityBar timeline={timeline} wp={wp} pressure={pressure} />
     </ScoreboardFrame>
   );
 }

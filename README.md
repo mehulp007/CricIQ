@@ -89,7 +89,10 @@ It starts in seconds, using the data already built. To add matches played since 
   matches and series, featured replays, the latest season at a glance and the biggest swings in
   its history, each card arriving in turn.
 - **Replay any match** ball by ball, with each side's win chance, a projected total and a
-  plain-language explanation after every ball.
+  plain-language explanation after every ball. The scoreboard reads like a broadcast: the score's
+  digits flip, the win-probability bar glides and glows faster as the pressure on the next ball
+  rises, each new ball slides into the feed (wickets, sixes and fours flash), and wickets ring on
+  the timeline as the replay reaches them.
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and
   champions.
 - **Player Lab**: every player's career in every format, measured against par for their era, with

@@ -1,6 +1,11 @@
-import { Info } from "lucide-react";
+"use client";
 
+import { Info } from "lucide-react";
+import { m } from "motion/react";
+
+import { PressurePulse } from "@/components/replay/pressure-pulse";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { usePrefersReducedMotion } from "@/lib/animation";
 import type { Timeline } from "@/lib/api/types";
 import { formatPercent } from "@/lib/replay/win-probability";
 import { cn } from "@/lib/utils";
@@ -26,7 +31,23 @@ export function ModelEstimateNote() {
   );
 }
 
-export function WinProbabilityBar({ timeline, wp }: { timeline: Timeline; wp: number | null }) {
+/**
+ * Each side's chance of winning as a two-colour bar. The split moves on a spring as the replay
+ * steps (it picks up its speed rather than restarting when balls come quickly), the leading edge
+ * of team A's share is lit, a dashed line marks even money, and a glow around the bar breathes
+ * with the pressure on the next ball.
+ */
+export function WinProbabilityBar({
+  timeline,
+  wp,
+  pressure = null,
+}: {
+  timeline: Timeline;
+  wp: number | null;
+  /** The pressure on the next ball (0–100), for the glow; none once the match is over. */
+  pressure?: number | null;
+}) {
+  const reduced = usePrefersReducedMotion();
   if (wp === null) return null;
   const { team_a, team_b } = timeline.summary;
   const a = Math.round(wp * 1000) / 10;
@@ -65,27 +86,30 @@ export function WinProbabilityBar({ timeline, wp }: { timeline: Timeline; wp: nu
         </span>
       </div>
       <div className="relative">
+        <PressurePulse pressure={pressure} />
         <div
           role="img"
           aria-label={label}
           className={cn(
-            "flex h-3 overflow-hidden rounded-full shadow-inner",
+            "relative flex h-3 overflow-hidden rounded-full shadow-inner",
             a > 0 && a < 100 && "gap-0.5",
           )}
         >
-          <span
-            className="h-full shrink-0 transition-[width] duration-500 ease-out"
-            style={{ width: `${a}%`, background: SIDE_COLORS.a }}
+          <m.span
+            initial={false}
+            animate={{ width: `${a}%` }}
+            transition={
+              reduced ? { duration: 0 } : { type: "spring", stiffness: 160, damping: 24, mass: 0.8 }
+            }
+            className="relative h-full shrink-0 after:absolute after:inset-y-0 after:right-0 after:w-6 after:max-w-full after:bg-linear-to-l after:from-white/50 after:to-transparent"
+            style={{ background: SIDE_COLORS.a }}
           />
-          <span
-            className="h-full min-w-0 flex-1 transition-[width] duration-500 ease-out"
-            style={{ background: SIDE_COLORS.b }}
-          />
+          <span className="h-full min-w-0 flex-1" style={{ background: SIDE_COLORS.b }} />
         </div>
         {/* Even money. */}
         <span
           aria-hidden="true"
-          className="absolute -inset-y-1 left-1/2 w-px -translate-x-1/2 bg-foreground/50"
+          className="absolute -inset-y-1 left-1/2 w-0 -translate-x-1/2 border-l border-dashed border-foreground/60"
         />
       </div>
     </div>

@@ -102,25 +102,34 @@ export function ReplayControls({
             aria-valuetext={cursor < 0 ? "Before the first ball" : `Ball ${ballLabel}`}
             className="h-1.5 w-full min-w-0 cursor-pointer accent-primary"
           />
-          {/* Wickets (dots) and innings breaks (ticks) above the track, inset by half a thumb. */}
+          {/* Wickets (dots) above the track and innings breaks (a line across it), inset by half
+              a thumb. A wicket pulses once as the replay reaches it. */}
           <div
             aria-hidden="true"
             data-testid="replay-marks"
             className="pointer-events-none absolute inset-x-2 -top-2 h-2"
           >
-            {marks.map((mark) => (
-              <span
-                key={`${mark.kind}-${mark.index}`}
-                className={cn(
-                  "absolute -translate-x-1/2",
-                  mark.kind === "wicket"
-                    ? "top-0.5 size-1.5 rounded-full bg-wicket"
-                    : "-top-0.5 h-3 w-0.5 rounded-full bg-muted-foreground/70",
-                  mark.index > cursor && "opacity-40",
-                )}
-                style={{ left: `${((mark.index + 1) / total) * 100}%` }}
-              />
-            ))}
+            {marks.map((mark) => {
+              const reached = mark.index <= cursor;
+              return (
+                <span
+                  key={`${mark.kind}-${mark.index}`}
+                  className={cn(
+                    "absolute -translate-x-1/2",
+                    mark.kind === "wicket"
+                      ? "top-0.5 size-1.5 rounded-full bg-wicket"
+                      : "-top-1 h-6 w-px bg-muted-foreground/60",
+                    !reached && "opacity-40",
+                  )}
+                  style={{ left: `${((mark.index + 1) / total) * 100}%` }}
+                >
+                  {/* Mounted when reached, so it rings once (and again if the replay comes back). */}
+                  {mark.kind === "wicket" && reached && mark.index > cursor - 3 && (
+                    <span className="mark-ping absolute inset-0 rounded-full bg-wicket" />
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
         <span className="w-12 shrink-0 text-right font-mono text-xs text-muted-foreground tabular-nums">

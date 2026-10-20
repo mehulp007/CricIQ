@@ -1,10 +1,55 @@
+"use client";
+
+import { AnimatePresence, m } from "motion/react";
 import type { ReactNode } from "react";
 
 import { TeamSwatch } from "@/components/match/team-badge";
+import { usePrefersReducedMotion } from "@/lib/animation";
 import type { Timeline } from "@/lib/api/types";
 import { formatScore } from "@/lib/format";
 import type { LiveInningsCard } from "@/lib/replay/engine";
 import { cn } from "@/lib/utils";
+
+/**
+ * A score whose changing characters flip: the old one slides up and fades as the new one rises
+ * from below, like a stadium scoreboard. Characters are matched from the right, so the wickets
+ * stay put when the runs gain a digit ("99/3" to "100/3"). Screen readers (and anything reading
+ * the page) get the score as plain text; reduced motion just shows it.
+ */
+export function FlipScore({ text, className }: { text: string; className?: string }) {
+  const reduced = usePrefersReducedMotion();
+  const chars = [...text];
+  return (
+    <span className={cn("inline-flex", className)}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true" className="inline-flex">
+        {chars.map((char, i) => (
+          <span
+            key={chars.length - i}
+            className="relative inline-block overflow-hidden whitespace-pre"
+          >
+            {reduced ? (
+              char
+            ) : (
+              <AnimatePresence mode="popLayout" initial={false}>
+                <m.span
+                  key={char}
+                  className="inline-block"
+                  initial={{ y: "70%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "-70%", opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 520, damping: 34 }}
+                >
+                  {char}
+                </m.span>
+              </AnimatePresence>
+            )}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
 
 /** A stat under the live score: a small label over its value. */
 export function Stat({ label, value }: { label: string; value: string }) {
@@ -71,7 +116,7 @@ function SidesStrip({
             >
               {innings.length > 0 ? (
                 <>
-                  {innings.map(inningsScore).join(" & ")}
+                  <FlipScore text={innings.map(inningsScore).join(" & ")} />
                   {withOvers && (
                     <span className="hidden sm:inline"> ({innings.at(-1)!.overs})</span>
                   )}

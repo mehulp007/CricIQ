@@ -32,16 +32,31 @@ cricket has models trained on its own matches only.
 
 ## Run it on your machine
 
+CricIQ runs on Windows 10/11, macOS and Linux. You need an internet connection for the first
+run and about **2 GB of free disk space**. You do not need to know Python or JavaScript: you
+install four free tools once, then one command does the rest.
+
 ### 1. Install these once
 
 | Tool | Windows | macOS / Linux |
 |---|---|---|
-| [Git](https://git-scm.com/downloads) | Installer from git-scm.com | Usually installed already |
-| [uv](https://docs.astral.sh/uv/) (it also installs Python for you) | `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 \| iex"` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| [Node.js 24 LTS](https://nodejs.org) | Installer from nodejs.org | Installer from nodejs.org |
-| [pnpm](https://pnpm.io) | `npm install -g pnpm` | `npm install -g pnpm` |
+| [Git](https://git-scm.com/downloads) | Installer from git-scm.com (keep the default options) | Usually installed already |
+| [uv](https://docs.astral.sh/uv/) (it also installs Python for you) | In PowerShell: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 \| iex"` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| [Node.js 24 LTS](https://nodejs.org) | Installer from nodejs.org (keep the default options) | Installer from nodejs.org |
+| [pnpm](https://pnpm.io) | `npm install -g pnpm` | `npm install -g pnpm` (if it says permission denied: `sudo npm install -g pnpm`) |
 
-**Then close the terminal and open a new one**, so it finds the new programs.
+**Then close the terminal and open a new one**, so it finds the new programs. To check, run
+these four commands; each should print a version number:
+
+```bash
+git --version
+uv --version
+node --version
+pnpm --version
+```
+
+*Which terminal?* On Windows, open **PowerShell** (Start menu, type "PowerShell"). On macOS,
+open **Terminal**. The commands below are the same on every system.
 
 ### 2. Download CricIQ and start it
 
@@ -51,41 +66,55 @@ cd CricIQ
 uv run python scripts/v2_up.py
 ```
 
-The first run takes about 5 minutes. It downloads the ready-built data (one file of about
-150 MB, checked after download, about 400 MB on disk), installs the website's packages and
-builds the website. When it prints **`CricIQ is up`**, open **http://localhost:3000**. Press
-**Ctrl+C** in the terminal to stop it.
+The first run takes **about 5 to 10 minutes**, depending on your internet speed. You will see it
+work through these steps, one after another:
 
-The data is every competition already built, validated and scored with the trained models,
-the same data the screenshots show. It is refreshed weekly.
+1. Python 3.12, if you do not have it, and CricIQ's Python packages (kept inside the `CricIQ`
+   folder).
+2. The website's packages (`web app: install packages`).
+3. **The data** (`data: download the ready-built databases`): one file of about 150 MB with
+   every competition already built, validated and scored with the trained models, the same
+   data the screenshots show. It is checked after download and refreshed weekly.
+4. The website itself (`web app: production build`, about a minute).
+
+When it prints **`CricIQ is up`**, open **http://localhost:3000** in your browser. Keep the
+terminal open while you use CricIQ; press **Ctrl+C** in it to stop.
+
+On Windows, a firewall window may ask whether Python or Node.js can use the network the first
+time: choose **Allow** (CricIQ only talks to your own computer).
+
+No Git? On GitHub, switch the branch to `v3`, choose **Code**, then **Download ZIP**, unzip it
+and open a terminal in the unzipped `CricIQ-v3` folder (instead of `cd CricIQ`). Then run the
+last command above.
 
 ### 3. Next time
 
 ```bash
 cd CricIQ
-uv run python scripts/v2_up.py --serve-only
+uv run python scripts/v2_up.py
 ```
 
-It starts in seconds, using the data you already have. To get the latest week's data:
+It starts in under a minute, using what the first run downloaded. To get the latest week's
+data, run it with `--update-data` once:
 
 ```bash
 uv run python scripts/v2_up.py --update-data
 ```
 
 To build the data on your own computer instead, from Cricsheet's files, run it with
-`--build-data`. That takes about 25 minutes, keeps every CPU core busy and uses about 1.6 GB
-of disk; after it, `uv run criciq-data sync` adds new matches as they are played.
+`--build-data`. That takes about 25 minutes, keeps every CPU core busy and uses about 1.6 GB of
+disk; after it, `uv run criciq-data sync` adds new matches as they are played.
 
 ### If something goes wrong
 
 | You see | Do this |
 |---|---|
-| `'git'`, `'uv'` or `'npm'` is not recognized | Install it (step 1), then open a **new** terminal |
+| `'git'`, `'uv'`, `'node'` or `'pnpm'` is not recognized / command not found | Install it (step 1), then open a **new** terminal |
 | `npm.ps1 cannot be loaded because running scripts is disabled` | Run `npm.cmd install -g pnpm` instead |
 | `pnpm is not installed` or `Node.js is not installed` | Install it (step 1), then open a new terminal |
-| `could not download the data` | Check the internet connection and run the same command again |
-| `port 3000` or `port 8000 is already in use` | CricIQ is already running in another window: use that one, or close it first |
-| `scripts/v2_up.py` does not exist | You have the IPL edition (`main`): run `git checkout v3` inside the folder |
+| `could not download the data` | Check the internet connection and run the same command again: it starts over cleanly |
+| `port 3000` or `port 8000 is already in use` | CricIQ is already running in another window: use that one, or press Ctrl+C there first |
+| `can't open file ... scripts/v2_up.py` | Run the command inside the `CricIQ` folder (`cd CricIQ` first). If you are, you have the IPL edition (`main`): run `git checkout v3` |
 | The page does not open | Wait for `CricIQ is up`, then use http://localhost:3000 |
 
 ## What you can do

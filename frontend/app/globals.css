@@ -113,7 +113,7 @@
   --accent: oklch(0.94 0.025 158);
   --accent-foreground: oklch(0.27 0.05 158);
   --destructive: oklch(0.55 0.2 27);
-  --border: oklch(0.9 0.009 250);
+  --border: oklch(0.875 0.01 250);
   --input: oklch(0.88 0.01 250);
   --ring: oklch(0.5 0.12 158 / 55%);
 
@@ -141,10 +141,11 @@
   --sidebar-border: oklch(0.9 0.009 250);
   --sidebar-ring: oklch(0.5 0.12 158 / 55%);
 
-  --elevation-1: 0 1px 2px oklch(0.25 0.03 258 / 6%), 0 1px 1px oklch(0.25 0.03 258 / 4%);
-  --elevation-2: 0 4px 12px -2px oklch(0.25 0.03 258 / 8%), 0 2px 4px oklch(0.25 0.03 258 / 5%);
+  /* Warm shadows, like a sunlit afternoon at the ground. */
+  --elevation-1: 0 1px 2px oklch(0.5 0.03 60 / 12%), 0 1px 1px oklch(0.5 0.03 60 / 8%);
+  --elevation-2: 0 4px 12px -2px oklch(0.5 0.03 60 / 16%), 0 2px 4px oklch(0.5 0.03 60 / 9%);
   --elevation-3:
-    0 18px 40px -12px oklch(0.25 0.03 258 / 16%), 0 6px 12px -4px oklch(0.25 0.03 258 / 7%);
+    0 18px 40px -12px oklch(0.5 0.03 60 / 28%), 0 6px 12px -4px oklch(0.5 0.03 60 / 12%);
   --glow: 0 0 0 1px oklch(0.5 0.12 158 / 18%), 0 8px 28px -8px oklch(0.5 0.12 158 / 35%);
 
   --glass-border: oklch(0.2 0.022 258 / 8%);
@@ -154,9 +155,9 @@
 
 /* Floodlit night (dark) */
 .dark {
-  --background: oklch(0.15 0.019 258);
+  --background: oklch(0.13 0.018 259);
   --foreground: oklch(0.955 0.005 250);
-  --surface: oklch(0.17 0.02 258);
+  --surface: oklch(0.155 0.019 258);
   --card: oklch(0.192 0.021 258);
   --card-foreground: oklch(0.955 0.005 250);
   --popover: oklch(0.205 0.022 258);
@@ -189,7 +190,7 @@
   --chart-4: oklch(0.72 0.15 300);
   --chart-5: oklch(0.6 0.02 255);
 
-  --sidebar: oklch(0.13 0.019 258);
+  --sidebar: oklch(0.115 0.018 259);
   --sidebar-foreground: oklch(0.88 0.008 250);
   --sidebar-primary: oklch(0.79 0.145 158);
   --sidebar-primary-foreground: oklch(0.18 0.035 160);
@@ -201,7 +202,7 @@
   --elevation-1: 0 1px 2px oklch(0 0 0 / 30%), inset 0 1px 0 oklch(1 0 0 / 4%);
   --elevation-2: 0 6px 16px -4px oklch(0 0 0 / 45%), inset 0 1px 0 oklch(1 0 0 / 5%);
   --elevation-3: 0 24px 48px -16px oklch(0 0 0 / 60%), inset 0 1px 0 oklch(1 0 0 / 6%);
-  --glow: 0 0 0 1px oklch(0.79 0.145 158 / 25%), 0 10px 36px -10px oklch(0.79 0.145 158 / 45%);
+  --glow: 0 0 0 1px oklch(0.79 0.145 158 / 35%), 0 12px 40px -10px oklch(0.79 0.145 158 / 60%);
 
   --glass-border: oklch(1 0 0 / 8%);
   --light-a: oklch(0.79 0.145 158 / 9%);
@@ -256,15 +257,18 @@
   /* Loading placeholders (components/ui/skeleton.tsx): a light sweeping across a muted block. */
   .skeleton {
     background-color: var(--muted);
+    /* A soft wave of light: a wide, gently graded crest rather than a hard stripe. */
     background-image: linear-gradient(
       100deg,
-      transparent 20%,
-      color-mix(in oklch, var(--foreground) 7%, transparent) 50%,
-      transparent 80%
+      transparent 15%,
+      color-mix(in oklch, var(--foreground) 4%, transparent) 35%,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 50%,
+      color-mix(in oklch, var(--foreground) 4%, transparent) 65%,
+      transparent 85%
     );
-    background-size: 200% 100%;
+    background-size: 250% 100%;
     background-repeat: no-repeat;
-    animation: skeleton-sweep 1.6s ease-in-out infinite;
+    animation: skeleton-sweep 2.4s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   }
   @media (prefers-reduced-motion: reduce) {
     .skeleton {
@@ -324,13 +328,30 @@
   }
 }
 
+/* The wave crosses in the first two thirds, then rests a moment before the next one. */
 @keyframes skeleton-sweep {
-  from {
+  0% {
     background-position: 150% 0;
   }
-  to {
+  65%,
+  100% {
     background-position: -50% 0;
   }
+}
+
+/*
+ * Film grain on the dark theme's page background: a tiny noise tile behind everything, so the
+ * night sky reads as a surface rather than flat black. Cards and panels sit on top of it.
+ */
+.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.045;
 }
 
 /*

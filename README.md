@@ -83,8 +83,10 @@ It starts in seconds, using the data already built. To add matches played since 
   competition. Every number in it is the real figure, and visitors who prefer reduced motion get
   the same story as a still page.
 - **Find anything fast**: search pages, players, teams and replays with Ctrl/⌘ K, switch
-  competitions from the top bar, and choose a light or dark theme. Pages glide in as you move
-  between them, and every animation calms down when your device asks for reduced motion.
+  competitions from the top bar, and choose a light or dark theme: a deep "floodlit night" with a
+  fine film grain, or a bright "day match" with warm shadows. Pages glide in as you move between
+  them, their headings arriving word by word, and every animation calms down when your device asks
+  for reduced motion. Even the 404 page has a ball knock the bails off.
 - **A home for every competition**: its numbers count up as they come into view, then the latest
   matches and series, featured replays, the latest season at a glance and the biggest swings in
   its history, each card arriving in turn.

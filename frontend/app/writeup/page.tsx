@@ -23,6 +23,7 @@ import {
   testModels,
   type ModelSet,
 } from "@/lib/models";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export const metadata: Metadata = {
   title: "Building CricIQ",
@@ -186,7 +187,9 @@ export default function WriteupPage() {
         <p className="text-xs tracking-wide text-muted-foreground uppercase">
           The write-up · October 2026 · about 20 minutes
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Building CricIQ</h1>
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          <RevealText>Building CricIQ</RevealText>
+        </h1>
         <p className="text-lg leading-8 text-muted-foreground">
           What 4.6 million balls of men&apos;s cricket can and can&apos;t tell you, and how to build
           a cricket analytics product that says which is which: from one T20 league to Tests, each

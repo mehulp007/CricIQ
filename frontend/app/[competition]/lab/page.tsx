@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { labNotes } from "@/lib/lab";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { getCompetition, isCompetitionId } from "@/lib/competitions";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export const metadata: Metadata = {
   title: "Analytics Lab",
@@ -20,7 +21,9 @@ export default async function LabPage({ params }: PageProps<"/[competition]/lab"
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Analytics Lab</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Analytics Lab</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Questions about cricket that people argue about,{" "}
           {ipl

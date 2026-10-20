@@ -14,6 +14,7 @@ import {
   seasonSpan,
   testModels,
 } from "@/lib/models";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export const metadata: Metadata = {
   title: "About & Methodology",
@@ -139,7 +140,9 @@ export default function AboutPage() {
   return (
     <div className="flex max-w-3xl flex-col gap-12">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight">About &amp; Methodology</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>About &amp; Methodology</RevealText>
+        </h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">
           CricIQ is a full-stack cricket analytics platform. It takes every ball of the IPL since
           2008, men&apos;s T20 internationals since 2005, men&apos;s ODIs since 2002, men&apos;s

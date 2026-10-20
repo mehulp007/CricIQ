@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { RevealText } from "@/components/ui/reveal-text";
 import { cn } from "@/lib/utils";
 
 /** A section's heading row: title (h2 by default), an optional description and an action. */
@@ -22,7 +23,7 @@ export function SectionHeader({
     <div className={cn("flex flex-wrap items-end justify-between gap-x-4 gap-y-2", className)}>
       <div className="flex min-w-0 flex-col gap-1">
         <Heading id={id} className="text-title font-semibold">
-          {title}
+          <RevealText>{title}</RevealText>
         </Heading>
         {description && (
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{description}</p>

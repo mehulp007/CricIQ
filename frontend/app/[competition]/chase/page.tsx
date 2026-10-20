@@ -7,6 +7,7 @@ import { getChaseSides } from "@/lib/api/client";
 import { isCompetitionId, isTest, type CompetitionId } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
 import { testModels } from "@/lib/models";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -43,7 +44,9 @@ export default async function ChasePage({
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Chase Calculator</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Chase Calculator</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           A fourth-innings chase between any two Test sides. Set the target, the wickets in hand and
           the time left, and the{" "}

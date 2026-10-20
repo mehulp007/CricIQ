@@ -14,6 +14,7 @@ import {
   type CompetitionId,
 } from "@/lib/competitions";
 import { groupTournaments } from "@/lib/series";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -64,7 +65,9 @@ export default async function SeriesListPage({
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Series and tournaments</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Series and tournaments</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Every {c.noun} series and tournament since {c.firstSeason}, from Cricsheet&apos;s record
           of each match&apos;s event. A series is between two sides; a tournament between more, with

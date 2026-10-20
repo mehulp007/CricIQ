@@ -19,6 +19,7 @@ import { expectationVerdict, h2hHref, parseTeamId, seasonSpan } from "@/lib/team
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -345,7 +346,9 @@ export default async function HeadToHeadPage({
     <div className="flex flex-col gap-6">
       <Breadcrumbs items={[{ label: "Teams", href: "/teams" }, { label: "Head to head" }]} />
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Head to head</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Head to head</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Any two franchises&rsquo; record against each other, and whether it says more than each
           side&rsquo;s form at the time.

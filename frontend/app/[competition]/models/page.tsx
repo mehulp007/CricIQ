@@ -23,6 +23,7 @@ import {
   type CompetitionId,
 } from "@/lib/competitions";
 import { modelsFor, testModels } from "@/lib/models";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -56,7 +57,9 @@ function TestModelInsights({ tab }: { tab: string }) {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Test Model Insights</h1>
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          <RevealText>Test Model Insights</RevealText>
+        </h1>
         <p className="max-w-3xl leading-relaxed text-muted-foreground">
           Tests have models of their own, trained on Tests alone: the chances of a win, a draw and a
           defeat after every ball, the projected total of every innings, the next ball&apos;s odds

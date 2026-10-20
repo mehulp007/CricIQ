@@ -12,6 +12,7 @@ import {
   type CompetitionId,
 } from "@/lib/competitions";
 import { PLAYER_SORTS, ROLE_FILTERS, parseSeason } from "@/lib/players";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -65,7 +66,9 @@ export default async function PlayersPage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Player Lab</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Player Lab</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Every {c.label} player since {c.firstSeason}. Profiles measure batting and bowling against
           par ({possessive(competition)} own): what an average player would have done in the same

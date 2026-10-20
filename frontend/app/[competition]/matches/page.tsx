@@ -10,6 +10,7 @@ import {
   isCompetitionId,
   type CompetitionId,
 } from "@/lib/competitions";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -54,7 +55,9 @@ export default async function MatchesPage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Match Explorer</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Match Explorer</RevealText>
+        </h1>
         <p className="text-muted-foreground">
           Every {c.noun} since {c.firstSeason}. Open any match to replay it ball by ball.
         </p>

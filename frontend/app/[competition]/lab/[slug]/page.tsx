@@ -12,6 +12,7 @@ import {
 import { getCompetition, isCompetitionId } from "@/lib/competitions";
 import { LAB, type LabSlug, labEntry, labNotes } from "@/lib/lab";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { RevealText } from "@/components/ui/reveal-text";
 
 const VIEWS: Record<LabSlug, () => React.ReactNode> = {
   momentum: MomentumNoteView,
@@ -54,7 +55,9 @@ export default async function LabNotePage({ params }: PageProps<"/[competition]/
     <article className="flex flex-col gap-8">
       <Breadcrumbs items={[{ label: "Analytics Lab", href: "/lab" }, { label: note.title }]} />
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">{note.title}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>{note.title}</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">{note.question}</p>
         <p className="max-w-3xl rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 leading-relaxed">
           <span className="font-medium">Short answer: </span>

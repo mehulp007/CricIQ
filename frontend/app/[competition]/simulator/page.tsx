@@ -17,6 +17,7 @@ import {
 } from "@/lib/competitions";
 import { modelsFor, seasonSpan } from "@/lib/models";
 import { defaultTeams, pickSeason } from "@/lib/simulator";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -102,7 +103,9 @@ export default async function SimulatorPage({
     return (
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight">{c.label} Match Simulator</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            <RevealText>{c.label} Match Simulator</RevealText>
+          </h1>
         </header>
         <NotServed competition={competition} />
       </div>
@@ -123,7 +126,9 @@ export default async function SimulatorPage({
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight">Match Simulator</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            <RevealText>Match Simulator</RevealText>
+          </h1>
           <SimulationChip />
         </div>
         <p className="max-w-3xl text-muted-foreground">

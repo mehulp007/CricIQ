@@ -19,6 +19,7 @@ import {
 } from "@/lib/competitions";
 import { parseSeason } from "@/lib/players";
 import { h2hHref, pct } from "@/lib/teams";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -203,7 +204,9 @@ function NationalTeams({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Teams</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Teams</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Every side in {getCompetition(competition).collective} since{" "}
           {getCompetition(competition).firstSeason}, {sides.length} in all, from the full members to
@@ -279,7 +282,9 @@ export default async function TeamsPage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Teams</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Teams</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           {validated
             ? `Every IPL franchise since 2008, under every name it has played as. League tables are rebuilt from the scorecards and match the official tables for all ${overview.seasons.length} seasons, net run rate included.`

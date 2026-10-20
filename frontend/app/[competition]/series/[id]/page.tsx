@@ -15,6 +15,7 @@ import { getCompetition, isCompetitionId, isTest, type CompetitionId } from "@/l
 import { rate } from "@/lib/players";
 import { dateRange, kindLabel, seriesNotes, seriesTitle } from "@/lib/series";
 import { cn } from "@/lib/utils";
+import { RevealText } from "@/components/ui/reveal-text";
 
 async function load(competition: CompetitionId, id: string): Promise<SeriesDetail> {
   if (!/^[a-z0-9-]{1,120}$/.test(id)) notFound();
@@ -294,7 +295,9 @@ export default async function SeriesPage({ params }: PageProps<"/[competition]/s
           {kindLabel(summary, getCompetition(competition).format)} ·{" "}
           {dateRange(summary.start_date, summary.end_date)}
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight">{seriesTitle(summary)}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>{seriesTitle(summary)}</RevealText>
+        </h1>
         <p className="text-lg text-muted-foreground">{summary.result_text}</p>
       </header>
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { RevealText } from "@/components/ui/reveal-text";
 import { cn } from "@/lib/utils";
 
 /** The top of a page: an optional eyebrow, the page's one h1, a short description and actions. */
@@ -24,7 +25,9 @@ export function PageHeader({
         {eyebrow && (
           <div className="font-mono text-xs tracking-wide text-primary uppercase">{eyebrow}</div>
         )}
-        <h1 className="text-headline font-semibold text-balance">{title}</h1>
+        <h1 className="text-headline font-semibold text-balance">
+          <RevealText>{title}</RevealText>
+        </h1>
         {description && (
           <p className="max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground sm:text-base">
             {description}

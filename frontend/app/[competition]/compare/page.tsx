@@ -32,6 +32,7 @@ import { rate, roleLabel, signed } from "@/lib/players";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { SlideIn } from "@/components/ui/slide-in";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -601,7 +602,9 @@ export default async function ComparePage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Compare players</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Compare players</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Any two players over the same seasons, measured against par so different eras and roles
           compare fairly: their numbers, CricIQ Ratings with honest intervals, how their seasons

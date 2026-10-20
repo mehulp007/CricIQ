@@ -24,6 +24,7 @@ import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/compe
 import { parseSeason } from "@/lib/players";
 import { parseTeamId, pct, recordText, seasonSpan } from "@/lib/teams";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { RevealText } from "@/components/ui/reveal-text";
 
 function windowFrom(raw: Record<string, string | string[] | undefined>): Window {
   const from = parseSeason(raw.from);
@@ -102,7 +103,9 @@ export default async function TeamPage({
           <span className="h-1.5 w-12 rounded-full" style={{ background: team.color }} />
           <span className="h-1.5 w-6 rounded-full" style={{ background: team.secondary_color }} />
         </span>
-        <h1 className="text-3xl font-semibold tracking-tight">{team.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>{team.name}</RevealText>
+        </h1>
         <p className="text-sm text-muted-foreground">
           <span className="font-mono">{team.franchise_id}</span> ·{" "}
           {seasonSpan(team.first_season, team.last_season, competition)} · {team.seasons}{" "}

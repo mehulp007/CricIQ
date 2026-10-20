@@ -18,6 +18,7 @@ import { parsePhase, parsePlayerId } from "@/lib/matchups";
 import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { SlideIn } from "@/components/ui/slide-in";
+import { RevealText } from "@/components/ui/reveal-text";
 
 export async function generateMetadata({
   params,
@@ -249,7 +250,9 @@ export default async function MatchupsPage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Matchup Lab</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <RevealText>Matchup Lab</RevealText>
+        </h1>
         <p className="max-w-3xl text-muted-foreground">
           Batter against bowler, without over-reading a few dozen balls. Each record is read three
           ways: what happened, what the two players&apos; overall records predict, and a

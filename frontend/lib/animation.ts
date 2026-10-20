@@ -6,6 +6,28 @@ import { useSyncExternalStore } from "react";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
+/**
+ * Whether the visitor has moved between pages yet (set by app/template.tsx once the first page has
+ * mounted). The first page of a visit is hydrated from the server's HTML, so anything on screen
+ * stays as rendered; on later pages, rendered in the browser, things may start hidden and enter.
+ */
+export const visit = { navigated: false };
+
+const noSubscription = () => () => {};
+
+/**
+ * Whether this component is being hydrated from the server's HTML (what the visitor already sees)
+ * rather than rendered in the browser. React reads the server snapshot while hydrating and the
+ * client one otherwise, so this holds for each component, even ones streamed in late.
+ */
+export function useIsHydrating(): boolean {
+  return useSyncExternalStore(
+    noSubscription,
+    () => false,
+    () => true,
+  );
+}
+
 /** Whether the visitor prefers reduced motion. Checked once on load. */
 export function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;

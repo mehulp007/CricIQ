@@ -32,6 +32,9 @@ function TeamRow({ team, won }: { team: TeamScore; won: boolean }) {
   );
 }
 
+const stripe = (match: MatchSummary) =>
+  `linear-gradient(90deg, ${match.team_a.color} 0 50%, ${match.team_b.color} 50% 100%)`;
+
 export function MatchCard({
   competition,
   match,
@@ -44,15 +47,21 @@ export function MatchCard({
   return (
     <Link
       href={competitionPath(competition, `/matches/${match.match_id}`)}
-      className={cn(CARD_LINK, "relative gap-4 overflow-hidden p-4 pt-5")}
+      className={cn(
+        CARD_LINK,
+        "relative gap-4 overflow-hidden p-4 pt-5 hover:shadow-elev-3 motion-safe:hover:-translate-y-1",
+      )}
     >
-      {/* The two sides' colours along the top edge. */}
+      {/* The two sides' colours along the top edge; under the pointer they glow. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-4 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70"
+        style={{ background: stripe(match) }}
+      />
       <span
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-1"
-        style={{
-          background: `linear-gradient(90deg, ${match.team_a.color} 0 50%, ${match.team_b.color} 50% 100%)`,
-        }}
+        style={{ background: stripe(match) }}
       />
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">

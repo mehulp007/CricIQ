@@ -33,8 +33,24 @@ describe("design-system primitives", () => {
   it("StatTile shows its label, value and hint", () => {
     render(<StatTile label="Matches" value="1,243" hint="2008 to 2026" tone="primary" />);
     expect(screen.getByText("Matches")).toBeInTheDocument();
-    expect(screen.getByText("1,243")).toHaveClass("text-primary");
+    expect(screen.getByText("1,243").closest("p")).toHaveClass("text-primary");
     expect(screen.getByText("2008 to 2026")).toBeInTheDocument();
+  });
+
+  it("StatTile counts figures and fades in anything else", () => {
+    const { container } = render(
+      <>
+        <StatTile label="Matches" value="1,243" />
+        <StatTile label="Seasons" value={19} />
+        <StatTile label="Most runs" value="776" unit="runs" />
+        <StatTile label="Latest match" value={<span>31 May 2026</span>} />
+      </>,
+    );
+    // Figures render their exact final text, which the count settles on.
+    for (const text of ["1,243", "19", "776"]) expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByText("runs")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fade]")).toHaveLength(1);
+    expect(screen.getByText("31 May 2026").closest("[data-fade]")).not.toBeNull();
   });
 
   it("Skeleton is hidden from assistive technology", () => {

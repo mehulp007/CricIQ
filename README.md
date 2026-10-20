@@ -85,6 +85,9 @@ It starts in seconds, using the data already built. To add matches played since 
 - **Find anything fast**: search pages, players, teams and replays with Ctrl/⌘ K, switch
   competitions from the top bar, and choose a light or dark theme. Pages glide in as you move
   between them, and every animation calms down when your device asks for reduced motion.
+- **A home for every competition**: its numbers count up as they come into view, then the latest
+  matches and series, featured replays, the latest season at a glance and the biggest swings in
+  its history, each card arriving in turn.
 - **Replay any match** ball by ball, with each side's win chance, a projected total and a
   plain-language explanation after every ball.
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and

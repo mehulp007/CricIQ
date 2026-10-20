@@ -21,6 +21,7 @@ import { LatestMatches } from "@/components/matches/latest-matches";
 import { LatestSeries } from "@/components/series/latest-series";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
+import { StaggerGrid } from "@/components/ui/stagger-grid";
 import { StatTile } from "@/components/ui/stat-tile";
 import { CARD_LINK } from "@/lib/card";
 import {
@@ -177,14 +178,8 @@ function SeasonSnapshotSection({ competition }: { competition: CompetitionId }) 
             <StatTile
               key={key}
               label={label}
-              value={
-                <>
-                  {leader.value.toFixed(0)}
-                  <span className="ml-1.5 font-sans text-sm font-normal text-muted-foreground">
-                    {unit}
-                  </span>
-                </>
-              }
+              value={leader.value.toFixed(0)}
+              unit={unit}
               hint={
                 <>
                   <Link
@@ -246,7 +241,7 @@ function BiggestSwings({ competition }: { competition: CompetitionId }) {
           </Link>
         }
       />
-      <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <StaggerGrid as="ul" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {swings.map((s) => (
           <li key={`${s.match_id}-${s.seq_no}`} className="flex">
             <Link
@@ -273,7 +268,7 @@ function BiggestSwings({ competition }: { competition: CompetitionId }) {
             </Link>
           </li>
         ))}
-      </ul>
+      </StaggerGrid>
     </section>
   );
 }
@@ -296,7 +291,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
   return (
     <div className="flex flex-col gap-14">
       <div className="flex flex-col gap-4">
-        <section className="glass relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-14">
+        <section className="glass breathe relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-14">
           <div>
             <Badge
               variant="outline"
@@ -365,13 +360,13 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
             </Link>
           }
         />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StaggerGrid as="ul" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {featured.slice(0, 6).map((m) => (
             <li key={m.match_id} className="flex">
               <MatchCard competition={competition} match={m.summary} headline={m.headline} />
             </li>
           ))}
-        </ul>
+        </StaggerGrid>
       </section>
 
       <SeasonSnapshotSection competition={competition} />
@@ -384,7 +379,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
           title="What you can do"
           description="Each capability shipped as a complete, tested slice, from data to model to interface."
         />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StaggerGrid as="ul" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {capabilities(c).map(({ icon: Icon, title, body, path }) => (
             <li key={title} className="flex">
               <Link
@@ -405,7 +400,7 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
               </Link>
             </li>
           ))}
-        </ul>
+        </StaggerGrid>
       </section>
     </div>
   );

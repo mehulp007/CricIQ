@@ -73,6 +73,21 @@ for (const colorScheme of ["dark", "light"] as const) {
         await expect(page.locator("html")).toHaveClass(
           colorScheme === "dark" ? /\bdark\b/ : /^(?!.*\bdark\b)/,
         );
+        // Scan the page as it settles: let entrance animations (fades that start transparent)
+        // finish first. Only those that run for a set time: endless ones (a breathing glow, a
+        // loading shimmer) keep going, and ones tied to scrolling (the top bar's) have no end in
+        // time (awaiting those crashes headless Chromium).
+        await page.evaluate(() =>
+          Promise.all(
+            document
+              .getAnimations()
+              .filter((a) => {
+                const end = a.effect?.getComputedTiming().endTime;
+                return typeof end === "number" && Number.isFinite(end);
+              })
+              .map((a) => a.finished.catch(() => undefined)),
+          ),
+        );
         const results = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
           .analyze();

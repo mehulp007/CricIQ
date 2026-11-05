@@ -24,6 +24,7 @@ import duckdb
 
 from criciq_core import paths
 from criciq_core.publish import current, publish
+from criciq_pipelines.phase_tables import PHASE_TABLES, build_phase_tables
 
 Log = Callable[[str], None]
 
@@ -40,7 +41,7 @@ class Extra:
 
 
 # Every extra, in build order (a later one may read an earlier one's tables).
-EXTRAS: tuple[Extra, ...] = ()
+EXTRAS: tuple[Extra, ...] = (Extra("phases", PHASE_TABLES, build_phase_tables),)
 
 
 def has_scores(con: duckdb.DuckDBPyConnection) -> bool:

@@ -12,6 +12,7 @@ import type {
   MatchupList,
   MatchupPhase,
   Meta,
+  PhaseAnalysis,
   CareerRatings,
   PlayerCareers,
   PlayerPage,
@@ -322,6 +323,15 @@ export function getSeriesRecord(
   b: string,
 ): Promise<SeriesRecord> {
   return apiGet<SeriesRecord>(competition, `/series/h2h?${new URLSearchParams({ a, b })}`);
+}
+
+/** Phase Analysis for the filters in ``query`` (see lib/phases ``phaseQuery``). */
+export function getPhases(
+  competition: CompetitionId,
+  query: URLSearchParams = new URLSearchParams(),
+): Promise<PhaseAnalysis> {
+  const search = query.toString();
+  return apiGet<PhaseAnalysis>(competition, `/phases${search ? `?${search}` : ""}`);
 }
 
 /** POST without caching: simulations depend on the request body. */

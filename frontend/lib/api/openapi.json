@@ -167,6 +167,113 @@
         "title": "BattingInnings",
         "type": "object"
       },
+      "BattingLeader": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outs": {
+            "title": "Outs",
+            "type": "integer"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike Rate"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tied": {
+            "title": "Tied",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "rank",
+          "tied",
+          "player_id",
+          "name",
+          "team",
+          "innings",
+          "balls",
+          "runs",
+          "outs",
+          "strike_rate",
+          "average",
+          "boundary_pct",
+          "dot_pct"
+        ],
+        "title": "BattingLeader",
+        "type": "object"
+      },
       "BattingSplitGroup": {
         "properties": {
           "key": {
@@ -708,6 +815,127 @@
           "wpa"
         ],
         "title": "BowlingInnings",
+        "type": "object"
+      },
+      "BowlingLeader": {
+        "properties": {
+          "average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average"
+          },
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fours and sixes conceded per 100 balls.",
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "economy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economy"
+          },
+          "innings": {
+            "title": "Innings",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "strike_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Balls per wicket.",
+            "title": "Strike Rate"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tied": {
+            "title": "Tied",
+            "type": "boolean"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rank",
+          "tied",
+          "player_id",
+          "name",
+          "team",
+          "innings",
+          "balls",
+          "runs",
+          "wickets",
+          "economy",
+          "strike_rate",
+          "average",
+          "dot_pct",
+          "boundary_pct"
+        ],
+        "title": "BowlingLeader",
         "type": "object"
       },
       "BowlingSplitGroup": {
@@ -1657,6 +1885,95 @@
         "title": "CompetitionScope",
         "type": "object"
       },
+      "Coverage": {
+        "description": "What the competition's data covers: every figure on a page comes from these matches.",
+        "properties": {
+          "first_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Date"
+          },
+          "first_season": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Season"
+          },
+          "first_season_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "e.g. \"2011/12\" where seasons span the new year.",
+            "title": "First Season Label"
+          },
+          "last_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Date"
+          },
+          "last_season": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Season"
+          },
+          "last_season_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Season Label"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "first_season",
+          "last_season",
+          "first_season_label",
+          "last_season_label",
+          "matches",
+          "first_date",
+          "last_date"
+        ],
+        "title": "Coverage",
+        "type": "object"
+      },
       "DataUpdate": {
         "description": "The latest data sync that changed this competition's matches.",
         "properties": {
@@ -2126,6 +2443,79 @@
           "playoffs"
         ],
         "title": "FranchiseSummary",
+        "type": "object"
+      },
+      "GroundPhase": {
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "run_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Rate"
+          }
+        },
+        "required": [
+          "phase",
+          "balls",
+          "run_rate"
+        ],
+        "title": "GroundPhase",
+        "type": "object"
+      },
+      "GroundPhases": {
+        "properties": {
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/GroundPhase"
+            },
+            "title": "Phases",
+            "type": "array"
+          },
+          "venue_id": {
+            "title": "Venue Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "venue_id",
+          "name",
+          "city",
+          "matches",
+          "phases"
+        ],
+        "title": "GroundPhases",
         "type": "object"
       },
       "H2HExpectation": {
@@ -3695,6 +4085,157 @@
         "title": "OutcomeProbability",
         "type": "object"
       },
+      "OverPoint": {
+        "description": "One over (or, in Tests, a block of ten overs).",
+        "properties": {
+          "balls": {
+            "title": "Balls",
+            "type": "integer"
+          },
+          "first_over": {
+            "title": "First Over",
+            "type": "integer"
+          },
+          "innings": {
+            "description": "Innings that reached it.",
+            "title": "Innings",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_over": {
+            "title": "Last Over",
+            "type": "integer"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "run_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          },
+          "wickets_per_over": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wickets Per Over"
+          }
+        },
+        "required": [
+          "first_over",
+          "last_over",
+          "label",
+          "phase",
+          "innings",
+          "runs",
+          "balls",
+          "wickets",
+          "run_rate",
+          "wickets_per_over"
+        ],
+        "title": "OverPoint",
+        "type": "object"
+      },
+      "PhaseAnalysis": {
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/PhaseFilters"
+          },
+          "format": {
+            "enum": [
+              "T20",
+              "ODI",
+              "Test"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "grounds": {
+            "description": "Run rate by phase at the busiest grounds: from the balls bowled there, not from pitch or weather data.",
+            "items": {
+              "$ref": "#/components/schemas/GroundPhases"
+            },
+            "title": "Grounds",
+            "type": "array"
+          },
+          "leaders": {
+            "items": {
+              "$ref": "#/components/schemas/PhaseLeaders"
+            },
+            "title": "Leaders",
+            "type": "array"
+          },
+          "over_block": {
+            "description": "Overs per point in `overs`: 1, or 10 in Tests.",
+            "title": "Over Block",
+            "type": "integer"
+          },
+          "overs": {
+            "items": {
+              "$ref": "#/components/schemas/OverPoint"
+            },
+            "title": "Overs",
+            "type": "array"
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/PhaseSummary"
+            },
+            "title": "Phases",
+            "type": "array"
+          },
+          "results": {
+            "$ref": "#/components/schemas/ResultSplit"
+          },
+          "toss": {
+            "items": {
+              "$ref": "#/components/schemas/TossDecision"
+            },
+            "title": "Toss",
+            "type": "array"
+          }
+        },
+        "required": [
+          "coverage",
+          "format",
+          "filters",
+          "phases",
+          "over_block",
+          "overs",
+          "results",
+          "toss",
+          "leaders",
+          "grounds"
+        ],
+        "title": "PhaseAnalysis",
+        "type": "object"
+      },
       "PhaseBatting": {
         "properties": {
           "average": {
@@ -3928,6 +4469,110 @@
         "title": "PhaseBowling",
         "type": "object"
       },
+      "PhaseFilters": {
+        "description": "The filters applied (all optional), echoed back.",
+        "properties": {
+          "innings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "1 batting first, 2 chasing (Tests: the innings, 1 to 4).",
+            "title": "Innings"
+          },
+          "min_balls": {
+            "description": "Balls a player needs in a phase to be a leader.",
+            "title": "Min Balls",
+            "type": "integer"
+          },
+          "season_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season From"
+          },
+          "season_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season To"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A franchise id: its batting in the phase cards and overs, its own players in the leaders, its matches in the results and toss.",
+            "title": "Team"
+          },
+          "venue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A venue id.",
+            "title": "Venue"
+          }
+        },
+        "required": [
+          "min_balls"
+        ],
+        "title": "PhaseFilters",
+        "type": "object"
+      },
+      "PhaseLeaders": {
+        "properties": {
+          "batters": {
+            "description": "Most runs, then fewest balls.",
+            "items": {
+              "$ref": "#/components/schemas/BattingLeader"
+            },
+            "title": "Batters",
+            "type": "array"
+          },
+          "bowlers": {
+            "description": "Most wickets, then lowest economy.",
+            "items": {
+              "$ref": "#/components/schemas/BowlingLeader"
+            },
+            "title": "Bowlers",
+            "type": "array"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phase",
+          "batters",
+          "bowlers"
+        ],
+        "title": "PhaseLeaders",
+        "type": "object"
+      },
       "PhaseLine": {
         "properties": {
           "balls": {
@@ -4070,6 +4715,152 @@
           "bowling"
         ],
         "title": "PhaseSplits",
+        "type": "object"
+      },
+      "PhaseSummary": {
+        "properties": {
+          "balls": {
+            "description": "Legal balls.",
+            "title": "Balls",
+            "type": "integer"
+          },
+          "balls_per_wicket": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balls Per Wicket"
+          },
+          "boundary_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fours and sixes per 100 legal balls.",
+            "title": "Boundary Pct"
+          },
+          "dot_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dot Pct"
+          },
+          "dots": {
+            "title": "Dots",
+            "type": "integer"
+          },
+          "first_over": {
+            "title": "First Over",
+            "type": "integer"
+          },
+          "fours": {
+            "title": "Fours",
+            "type": "integer"
+          },
+          "innings": {
+            "description": "Innings that reached the phase.",
+            "title": "Innings",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_over": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None: open-ended (a Test's last phase).",
+            "title": "Last Over"
+          },
+          "run_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Rate"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "runs_per_innings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runs Per Innings"
+          },
+          "sixes": {
+            "title": "Sixes",
+            "type": "integer"
+          },
+          "wickets": {
+            "title": "Wickets",
+            "type": "integer"
+          },
+          "wickets_per_innings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wickets Per Innings"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "first_over",
+          "last_over",
+          "innings",
+          "runs",
+          "balls",
+          "wickets",
+          "fours",
+          "sixes",
+          "dots",
+          "run_rate",
+          "runs_per_innings",
+          "wickets_per_innings",
+          "boundary_pct",
+          "dot_pct",
+          "balls_per_wicket"
+        ],
+        "title": "PhaseSummary",
         "type": "object"
       },
       "PlayerBio": {
@@ -4948,6 +5739,54 @@
           "record"
         ],
         "title": "RecordSplit",
+        "type": "object"
+      },
+      "ResultSplit": {
+        "description": "Results by who batted first. A tie settled by a super over counts for its winner;\nno results are left out.",
+        "properties": {
+          "average_total_defended": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "First-innings total in matches the side batting first won (limited overs).",
+            "title": "Average Total Defended"
+          },
+          "batting_first": {
+            "$ref": "#/components/schemas/SideRecord"
+          },
+          "chasing": {
+            "$ref": "#/components/schemas/SideRecord",
+            "description": "Batting second (in Tests, the side that did)."
+          },
+          "first_innings_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Innings Average"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matches",
+          "batting_first",
+          "chasing",
+          "first_innings_average",
+          "average_total_defended"
+        ],
+        "title": "ResultSplit",
         "type": "object"
       },
       "SampleSize": {
@@ -6012,6 +6851,42 @@
           "wins"
         ],
         "title": "SeriesTeam",
+        "type": "object"
+      },
+      "SideRecord": {
+        "properties": {
+          "drawn": {
+            "description": "Tests only.",
+            "title": "Drawn",
+            "type": "integer"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Win Pct"
+          },
+          "won": {
+            "title": "Won",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matches",
+          "won",
+          "drawn",
+          "win_pct"
+        ],
+        "title": "SideRecord",
         "type": "object"
       },
       "SideRequest": {
@@ -8731,6 +9606,45 @@
         "title": "Toss",
         "type": "object"
       },
+      "TossDecision": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "bat",
+              "field"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "matches": {
+            "title": "Matches",
+            "type": "integer"
+          },
+          "toss_winner_won": {
+            "title": "Toss Winner Won",
+            "type": "integer"
+          },
+          "win_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Win Pct"
+          }
+        },
+        "required": [
+          "decision",
+          "matches",
+          "toss_winner_won",
+          "win_pct"
+        ],
+        "title": "TossDecision",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -9975,6 +10889,172 @@
         "summary": "Read Meta",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/v2/{competition}/phases": {
+      "get": {
+        "description": "How innings are built, phase by phase: rates, the over-by-over shape, results by\nwho batted first, toss decisions, phase leaders and run rates by ground.",
+        "operationId": "read_phases_api_v2__competition__phases_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "description": "First season (inclusive).",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "First season (inclusive).",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Last season (inclusive).",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last season (inclusive).",
+              "title": "To"
+            }
+          },
+          {
+            "description": "Franchise id, e.g. MI.",
+            "in": "query",
+            "name": "team",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "minLength": 2,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Franchise id, e.g. MI.",
+              "title": "Team"
+            }
+          },
+          {
+            "description": "Venue id.",
+            "in": "query",
+            "name": "venue",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Venue id.",
+              "title": "Venue"
+            }
+          },
+          {
+            "description": "1 batting first, 2 chasing (Tests: the innings, 1 to 4).",
+            "in": "query",
+            "name": "innings",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 4,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "1 batting first, 2 chasing (Tests: the innings, 1 to 4).",
+              "title": "Innings"
+            }
+          },
+          {
+            "description": "Balls a phase leader needs.",
+            "in": "query",
+            "name": "min_balls",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Balls a phase leader needs.",
+              "title": "Min Balls"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhaseAnalysis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Phases",
+        "tags": [
+          "phases"
         ]
       }
     },

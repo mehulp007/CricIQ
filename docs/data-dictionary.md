@@ -245,6 +245,20 @@ where that is several). Definitions are in [metrics.md](metrics.md).
 | `team_innings_phases` | innings × phase | Runs (including extras), legal balls, dismissals, fours, sixes and dots, with batting and bowling franchise |
 | `team_season_records` | franchise × season | League table: played, won, lost, no result, `abandoned`, points, net run rate (and its four sums), `position`, number of teams, `finish` (`champion`, `runner_up`, `playoffs`, `league`) and `exit_stage` |
 
+## Phase Analysis (every serving database)
+
+Built by `criciq_pipelines.phase_tables`, an extra (`criciq_pipelines.extras`): the export
+builds them, and `just extras` adds them to a database already built and scored. Phases
+follow each match's format (`config/phases.yaml`); super overs are left out. A batter faces
+every ball but a wide; a bowler concedes the batter's runs, wides and no-balls; a batter's
+dismissals include run outs, a bowler's wickets only those credited to the bowler.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `team_innings_overs` | innings × over | `over` (1-indexed), `phase`, `season`, `batting_id`, `bowling_id`, `venue_id`; runs (including extras), legal balls and dismissals |
+| `phase_batting` | player × innings × phase | `team_id`, `opposition_id`, `season`, `venue_id`; balls faced, runs, fours, sixes, dots and dismissals |
+| `phase_bowling` | player × innings × phase | `team_id`, `opposition_id`, `season`, `venue_id`; legal balls, runs conceded, wickets, dots, fours and sixes |
+
 ## Series and tournaments (international serving databases only)
 
 Built by `criciq_pipelines.events` during the export of the T20I, ODI and Test serving

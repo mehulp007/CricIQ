@@ -5,6 +5,25 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Phases**, for every competition (`/[competition]/phases`): how innings are built.
+  - A card per phase (powerplay, middle and death overs; in Tests the new ball, the middle overs
+    and the second new ball) with run rate, runs and wickets per innings, balls per wicket,
+    boundary and dot percentages, from `config/phases.yaml`.
+  - An over-by-over chart (ten-over blocks in Tests, to the 150th over): run rate in each over,
+    coloured by phase, with wickets per over as a line, and the same figures as a table.
+  - Results by who batted first, with the first-innings average and average total defended,
+    and what toss winners chose and how often they won.
+  - The 15 leading batters and bowlers in each phase, with a minimum of balls (60 in T20, 120
+    in ODIs, 300 in Tests by default), equal figures sharing a rank, and run rates by phase at
+    the 15 busiest grounds.
+  - Filters for seasons, team, ground and innings (a Test's four, or batting first and
+    chasing), kept in the URL. With a team, the cards and chart show its batting and the
+    leaders its own players.
+  - Linked from the sidebar, the search palette, the sitemap and each competition's home. On
+    the IPL data its rates and leaders match an independent count of the same Cricsheet balls.
+  - Data: `team_innings_overs`, `phase_batting` and `phase_bowling` in each serving database
+    (`criciq_pipelines.phase_tables`, added by `just extras`); API `GET
+    /api/v2/{competition}/phases`.
 - **The home page's scroll story, and motion across the site.**
   - The home page tells what CricIQ does as you scroll, in five chapters over a canvas of about
     3,000 particles (900 on phones): a cricket ball with its seam, which breaks into a cloud as

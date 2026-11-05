@@ -251,6 +251,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/{competition}/phases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Phases
+         * @description How innings are built, phase by phase: rates, the over-by-over shape, results by
+         *     who batted first, toss decisions, phase leaders and run rates by ground.
+         */
+        get: operations["read_phases_api_v2__competition__phases_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/players": {
         parameters: {
             query?: never;
@@ -693,6 +714,34 @@ export interface components {
             /** Wpa */
             wpa: number | null;
         };
+        /** BattingLeader */
+        BattingLeader: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /** Boundary Pct */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Outs */
+            outs: number;
+            /** Player Id */
+            player_id: string;
+            /** Rank */
+            rank: number;
+            /** Runs */
+            runs: number;
+            /** Strike Rate */
+            strike_rate: number | null;
+            team: components["schemas"]["TeamTag"] | null;
+            /** Tied */
+            tied: boolean;
+        };
         /** BattingSplitGroup */
         BattingSplitGroup: {
             /** Key */
@@ -858,6 +907,42 @@ export interface components {
             wickets: number;
             /** Wpa */
             wpa: number | null;
+        };
+        /** BowlingLeader */
+        BowlingLeader: {
+            /** Average */
+            average: number | null;
+            /** Balls */
+            balls: number;
+            /**
+             * Boundary Pct
+             * @description Fours and sixes conceded per 100 balls.
+             */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Economy */
+            economy: number | null;
+            /** Innings */
+            innings: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Rank */
+            rank: number;
+            /** Runs */
+            runs: number;
+            /**
+             * Strike Rate
+             * @description Balls per wicket.
+             */
+            strike_rate: number | null;
+            team: components["schemas"]["TeamTag"] | null;
+            /** Tied */
+            tied: boolean;
+            /** Wickets */
+            wickets: number;
         };
         /** BowlingSplitGroup */
         BowlingSplitGroup: {
@@ -1203,6 +1288,29 @@ export interface components {
             short_name: string;
         };
         /**
+         * Coverage
+         * @description What the competition's data covers: every figure on a page comes from these matches.
+         */
+        Coverage: {
+            /** First Date */
+            first_date: string | null;
+            /** First Season */
+            first_season: number | null;
+            /**
+             * First Season Label
+             * @description e.g. "2011/12" where seasons span the new year.
+             */
+            first_season_label: string | null;
+            /** Last Date */
+            last_date: string | null;
+            /** Last Season */
+            last_season: number | null;
+            /** Last Season Label */
+            last_season_label: string | null;
+            /** Matches */
+            matches: number;
+        };
+        /**
          * DataUpdate
          * @description The latest data sync that changed this competition's matches.
          */
@@ -1400,6 +1508,28 @@ export interface components {
             secondary_color: string;
             /** Titles */
             titles: number[];
+        };
+        /** GroundPhase */
+        GroundPhase: {
+            /** Balls */
+            balls: number;
+            /** Phase */
+            phase: string;
+            /** Run Rate */
+            run_rate: number | null;
+        };
+        /** GroundPhases */
+        GroundPhases: {
+            /** City */
+            city: string | null;
+            /** Matches */
+            matches: number;
+            /** Name */
+            name: string;
+            /** Phases */
+            phases: components["schemas"]["GroundPhase"][];
+            /** Venue Id */
+            venue_id: string;
         };
         /**
          * H2HExpectation
@@ -1922,6 +2052,64 @@ export interface components {
             /** Probability */
             probability: number;
         };
+        /**
+         * OverPoint
+         * @description One over (or, in Tests, a block of ten overs).
+         */
+        OverPoint: {
+            /** Balls */
+            balls: number;
+            /** First Over */
+            first_over: number;
+            /**
+             * Innings
+             * @description Innings that reached it.
+             */
+            innings: number;
+            /** Label */
+            label: string;
+            /** Last Over */
+            last_over: number;
+            /** Phase */
+            phase: string;
+            /** Run Rate */
+            run_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
+            /** Wickets Per Over */
+            wickets_per_over: number | null;
+        };
+        /** PhaseAnalysis */
+        PhaseAnalysis: {
+            coverage: components["schemas"]["Coverage"];
+            filters: components["schemas"]["PhaseFilters"];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /**
+             * Grounds
+             * @description Run rate by phase at the busiest grounds: from the balls bowled there, not from pitch or weather data.
+             */
+            grounds: components["schemas"]["GroundPhases"][];
+            /** Leaders */
+            leaders: components["schemas"]["PhaseLeaders"][];
+            /**
+             * Over Block
+             * @description Overs per point in `overs`: 1, or 10 in Tests.
+             */
+            over_block: number;
+            /** Overs */
+            overs: components["schemas"]["OverPoint"][];
+            /** Phases */
+            phases: components["schemas"]["PhaseSummary"][];
+            results: components["schemas"]["ResultSplit"];
+            /** Toss */
+            toss: components["schemas"]["TossDecision"][];
+        };
         /** PhaseBatting */
         PhaseBatting: {
             /** Average */
@@ -1981,6 +2169,51 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /**
+         * PhaseFilters
+         * @description The filters applied (all optional), echoed back.
+         */
+        PhaseFilters: {
+            /**
+             * Innings
+             * @description 1 batting first, 2 chasing (Tests: the innings, 1 to 4).
+             */
+            innings?: number | null;
+            /**
+             * Min Balls
+             * @description Balls a player needs in a phase to be a leader.
+             */
+            min_balls: number;
+            /** Season From */
+            season_from?: number | null;
+            /** Season To */
+            season_to?: number | null;
+            /**
+             * Team
+             * @description A franchise id: its batting in the phase cards and overs, its own players in the leaders, its matches in the results and toss.
+             */
+            team?: string | null;
+            /**
+             * Venue
+             * @description A venue id.
+             */
+            venue?: string | null;
+        };
+        /** PhaseLeaders */
+        PhaseLeaders: {
+            /**
+             * Batters
+             * @description Most runs, then fewest balls.
+             */
+            batters: components["schemas"]["BattingLeader"][];
+            /**
+             * Bowlers
+             * @description Most wickets, then lowest economy.
+             */
+            bowlers: components["schemas"]["BowlingLeader"][];
+            /** Phase */
+            phase: string;
+        };
         /** PhaseLine */
         PhaseLine: {
             /** Balls */
@@ -2015,6 +2248,55 @@ export interface components {
             batting: components["schemas"]["PhaseBatting"][];
             /** Bowling */
             bowling: components["schemas"]["PhaseBowling"][];
+        };
+        /** PhaseSummary */
+        PhaseSummary: {
+            /**
+             * Balls
+             * @description Legal balls.
+             */
+            balls: number;
+            /** Balls Per Wicket */
+            balls_per_wicket: number | null;
+            /**
+             * Boundary Pct
+             * @description Fours and sixes per 100 legal balls.
+             */
+            boundary_pct: number | null;
+            /** Dot Pct */
+            dot_pct: number | null;
+            /** Dots */
+            dots: number;
+            /** First Over */
+            first_over: number;
+            /** Fours */
+            fours: number;
+            /**
+             * Innings
+             * @description Innings that reached the phase.
+             */
+            innings: number;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Last Over
+             * @description None: open-ended (a Test's last phase).
+             */
+            last_over: number | null;
+            /** Run Rate */
+            run_rate: number | null;
+            /** Runs */
+            runs: number;
+            /** Runs Per Innings */
+            runs_per_innings: number | null;
+            /** Sixes */
+            sixes: number;
+            /** Wickets */
+            wickets: number;
+            /** Wickets Per Innings */
+            wickets_per_innings: number | null;
         };
         /** PlayerBio */
         PlayerBio: {
@@ -2317,6 +2599,25 @@ export interface components {
             /** Label */
             label: string;
             record: components["schemas"]["Record"];
+        };
+        /**
+         * ResultSplit
+         * @description Results by who batted first. A tie settled by a super over counts for its winner;
+         *     no results are left out.
+         */
+        ResultSplit: {
+            /**
+             * Average Total Defended
+             * @description First-innings total in matches the side batting first won (limited overs).
+             */
+            average_total_defended: number | null;
+            batting_first: components["schemas"]["SideRecord"];
+            /** @description Batting second (in Tests, the side that did). */
+            chasing: components["schemas"]["SideRecord"];
+            /** First Innings Average */
+            first_innings_average: number | null;
+            /** Matches */
+            matches: number;
         };
         /** SampleSize */
         SampleSize: {
@@ -2735,6 +3036,20 @@ export interface components {
             name: string;
             /** Wins */
             wins: number;
+        };
+        /** SideRecord */
+        SideRecord: {
+            /**
+             * Drawn
+             * @description Tests only.
+             */
+            drawn: number;
+            /** Matches */
+            matches: number;
+            /** Win Pct */
+            win_pct: number | null;
+            /** Won */
+            won: number;
         };
         /** SideRequest */
         SideRequest: {
@@ -3718,6 +4033,20 @@ export interface components {
             /** Winner Name */
             winner_name: string | null;
         };
+        /** TossDecision */
+        TossDecision: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "bat" | "field";
+            /** Matches */
+            matches: number;
+            /** Toss Winner Won */
+            toss_winner_won: number;
+            /** Win Pct */
+            win_pct: number | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -4227,6 +4556,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Meta"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_phases_api_v2__competition__phases_get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                /** @description Franchise id, e.g. MI. */
+                team?: string | null;
+                /** @description Venue id. */
+                venue?: string | null;
+                /** @description 1 batting first, 2 chasing (Tests: the innings, 1 to 4). */
+                innings?: number | null;
+                /** @description Balls a phase leader needs. */
+                min_balls?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhaseAnalysis"];
                 };
             };
             /** @description Validation Error */

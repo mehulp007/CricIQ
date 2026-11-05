@@ -10,10 +10,12 @@ const PAGES = [
   "/ipl/players",
   "/ipl/players/ba607b88",
   "/ipl/teams",
+  "/ipl/phases",
   "/ipl/teams/MI",
   "/ipl/models",
   "/ipl/simulator",
   "/test/series",
+  "/test/phases",
   "/test/matches/1152848",
   "/writeup",
 ];

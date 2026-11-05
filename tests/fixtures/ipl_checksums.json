@@ -207,6 +207,46 @@
       "md5": "2eff397f45114035885f8cf271d48590",
       "rows": 14
     },
+    "phase_batting": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "phase",
+        "player_id",
+        "season",
+        "venue_id",
+        "team_id",
+        "opposition_id",
+        "balls",
+        "runs",
+        "fours",
+        "sixes",
+        "dots",
+        "outs"
+      ],
+      "md5": "f41190e7e7e988b268ac4a5a3cdbaa48",
+      "rows": 316
+    },
+    "phase_bowling": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "phase",
+        "player_id",
+        "season",
+        "venue_id",
+        "team_id",
+        "opposition_id",
+        "balls",
+        "runs",
+        "dots",
+        "fours",
+        "sixes",
+        "wickets"
+      ],
+      "md5": "e5691d23353d63a1132224362500ee38",
+      "rows": 287
+    },
     "player_batting_cells": {
       "columns": [
         "player_id",
@@ -443,6 +483,23 @@
       ],
       "md5": "6f8d36e066d0e2cddb633c103e0550a0",
       "rows": 10
+    },
+    "team_innings_overs": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "season",
+        "over",
+        "phase",
+        "batting_id",
+        "bowling_id",
+        "venue_id",
+        "runs",
+        "balls",
+        "wickets"
+      ],
+      "md5": "e8dea0722f620e65a27e3e19abc6e25c",
+      "rows": 513
     },
     "team_innings_phases": {
       "columns": [

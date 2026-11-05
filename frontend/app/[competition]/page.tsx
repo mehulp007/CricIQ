@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BrainCircuit,
   Calculator,
+  Gauge,
   GitCompareArrows,
   Play,
   Shield,
@@ -86,6 +87,14 @@ function capabilities(c: Competition): {
       title: "Compare players",
       body: "Any two players over the same seasons: numbers against par, ratings with intervals, and their seasons lined up by year or by age.",
       path: "/compare",
+    },
+    {
+      icon: Gauge,
+      title: "Phases",
+      body: test
+        ? "How Test innings are built, ten overs at a time: run rate and wickets with the new ball, through the middle and after the second new ball, and the leaders in each."
+        : "How innings are built over by over: run rate, wickets, boundaries and dots in the powerplay, middle and death, who wins batting first and the leaders in each phase.",
+      path: "/phases",
     },
     {
       icon: Swords,

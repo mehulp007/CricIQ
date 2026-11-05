@@ -141,6 +141,14 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
   champions.
 - **Player Lab**: every player's career in every format, measured against par for their era, with
   ratings, splits and similar players. Each rating grows out along its 0–100 track as you reach it.
+- **Records**: about 35 record lists for every competition, counted from the ball-by-ball data
+  (so a record set before the data begins isn't there, and each page says which seasons it
+  covers). Career, innings, partnership, team and season records, with the ones only
+  ball-by-ball data can give: the fastest fifties and hundreds, the most runs off one over, and
+  the biggest swing in a side's chance of winning from a single ball. Each list can be filtered
+  by seasons, side, opponent and ground (partnerships by wicket too), equal figures share a rank,
+  and every entry links to its players and to the match, opened at the ball. The headline records
+  also lead each competition's home page.
 - **Phases**: how innings are built in every competition. Run rate, wickets, boundaries and dots
   in the powerplay, middle and death overs (in Tests: the new ball, the middle overs and the
   second new ball, ten overs at a time), an over-by-over chart, who wins batting first or
@@ -205,7 +213,7 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   page, after it has painted, and Motion only with the match replay, so other pages start with
   about as much JavaScript as before any of it. The particles draw in batches and hold their frame
   rate on a slowed-down CPU, with fewer of them on phones.
-- **Quality:** 540+ Python tests, 240+ frontend tests and 420+ end-to-end tests on desktop and
+- **Quality:** 600+ Python tests, 240+ frontend tests and 460+ end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

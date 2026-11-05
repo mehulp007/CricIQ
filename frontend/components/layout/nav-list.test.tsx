@@ -47,7 +47,7 @@ describe("NavList", () => {
     expect(screen.getByText("Analyse")).toBeInTheDocument();
     const names = (list: HTMLElement) =>
       Array.from(list.querySelectorAll("a")).map((a) => a.textContent);
-    expect(names(lists[0])).toEqual(["Overview", "Matches", "Players", "Teams"]);
+    expect(names(lists[0])).toEqual(["Overview", "Matches", "Players", "Teams", "Records"]);
     expect(names(lists[1])).toEqual([
       "Phases",
       "Matchups",

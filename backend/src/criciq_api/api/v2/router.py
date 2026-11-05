@@ -18,6 +18,7 @@ from criciq_api.api.v2.routers import (
     meta,
     phases,
     players,
+    records,
     series,
     simulation,
     teams,
@@ -33,6 +34,6 @@ api_router = APIRouter(prefix="/api/v2")
 api_router.include_router(players.router)
 
 competition_router = APIRouter(prefix="/{competition}", dependencies=[Depends(_competition)])
-for module in (meta, matches, matchups, teams, series, simulation, chase, phases):
+for module in (meta, matches, matchups, teams, series, simulation, chase, phases, records):
     competition_router.include_router(module.router)
 api_router.include_router(competition_router)

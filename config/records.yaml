@@ -1,0 +1,31 @@
+# What a player needs to appear in the Records hub's average and rate lists, by format.
+#
+# Totals (most runs, most wickets, highest scores) need nothing. Averages and rates need
+# enough innings or balls that one good day can't top the list. The API states each list's
+# qualification beside it. A competition with fewer than `small_data_matches` matches
+# (the test fixtures) takes everyone, so its lists are never empty.
+
+small_data_matches: 50
+
+formats:
+  T20:
+    batting_innings: 20      # batting average
+    career_balls_faced: 500  # career strike rate
+    innings_balls_faced: 20  # strike rate in an innings
+    bowling_wickets: 20      # bowling average and strike rate
+    career_balls_bowled: 300 # career economy
+    innings_balls_bowled: 24 # economy in an innings (four overs)
+  ODI:
+    batting_innings: 20
+    career_balls_faced: 1000
+    innings_balls_faced: 30
+    bowling_wickets: 20
+    career_balls_bowled: 1000
+    innings_balls_bowled: 48 # eight overs
+  Test:
+    batting_innings: 20
+    career_balls_faced: 2000
+    innings_balls_faced: 50
+    bowling_wickets: 20
+    career_balls_bowled: 2000
+    innings_balls_bowled: null # no economy-in-an-innings list in Tests

@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { COMPETITIONS, competitionPath } from "@/lib/competitions";
 import { featuredMatches } from "@/lib/featured";
 import { labNotes } from "@/lib/lab";
+import { recordKeys } from "@/lib/records";
 import { SITE_URL } from "@/lib/site";
 
 const SECTIONS = [
@@ -10,6 +11,7 @@ const SECTIONS = [
   "/matches",
   "/players",
   "/phases",
+  "/records",
   "/matchups",
   "/compare",
   "/teams",
@@ -27,6 +29,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...SECTIONS.map((path) => ({
       url: `${SITE_URL}${competitionPath(c.id, path)}`,
       priority: path ? 0.7 : 0.9,
+    })),
+    ...recordKeys(c.format).map((key) => ({
+      url: `${SITE_URL}${competitionPath(c.id, `/records/${key}`)}`,
+      priority: 0.6,
     })),
     ...(c.teamType === "national"
       ? [{ url: `${SITE_URL}${competitionPath(c.id, "/series")}`, priority: 0.7 }]

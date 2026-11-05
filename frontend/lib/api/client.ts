@@ -13,6 +13,8 @@ import type {
   MatchupPhase,
   Meta,
   PhaseAnalysis,
+  RecordList,
+  RecordsHub,
   CareerRatings,
   PlayerCareers,
   PlayerPage,
@@ -332,6 +334,24 @@ export function getPhases(
 ): Promise<PhaseAnalysis> {
   const search = query.toString();
   return apiGet<PhaseAnalysis>(competition, `/phases${search ? `?${search}` : ""}`);
+}
+
+/** Every record in the competition's data, with its holder. */
+export function getRecords(competition: CompetitionId): Promise<RecordsHub> {
+  return apiGet<RecordsHub>(competition, "/records");
+}
+
+/** One record's ranked list for the filters and page in ``query`` (lib/records ``recordQuery``). */
+export function getRecord(
+  competition: CompetitionId,
+  key: string,
+  query: URLSearchParams = new URLSearchParams(),
+): Promise<RecordList> {
+  const search = query.toString();
+  return apiGet<RecordList>(
+    competition,
+    `/records/${encodeURIComponent(key)}${search ? `?${search}` : ""}`,
+  );
 }
 
 /** POST without caching: simulations depend on the request body. */

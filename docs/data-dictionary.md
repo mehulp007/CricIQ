@@ -259,6 +259,19 @@ dismissals include run outs, a bowler's wickets only those credited to the bowle
 | `phase_batting` | player × innings × phase | `team_id`, `opposition_id`, `season`, `venue_id`; balls faced, runs, fours, sixes, dots and dismissals |
 | `phase_bowling` | player × innings × phase | `team_id`, `opposition_id`, `season`, `venue_id`; legal balls, runs conceded, wickets, dots, fours and sixes |
 
+## Records (every serving database)
+
+Built by `criciq_pipelines.records`, extras like the Phase Analysis tables. `match_swings`
+reads the model scores, so it is added after scoring (and skipped in an unscored database).
+Super overs are left out. Qualifications for the average and rate lists are in
+`config/records.yaml`.
+
+| Table | Grain | Notes |
+|---|---|---|
+| `partnerships` | stand | `wicket` (1 to 10; a retired-hurt batter starts a new stand for the same wicket), the two batters `first_id`/`second_id` (ordered by id) and each one's runs off the bat, runs (extras included), legal balls, `unbroken`, `first_seq`/`last_seq`, `team_id`, `opposition_id`, `season`, `venue_id`, `match_date` |
+| `batting_milestones` | batter × innings (50 or more) | `balls_to_50`, `balls_to_100`: balls faced (all but wides) when the score reached 50 and 100 |
+| `match_swings` | match | The ball with the biggest change in win probability from the previous ball of the same innings (as Model Insights finds it; results decided by a revised target left out): `swing`, the side that gained (`team_season_id`) with its chance before and after, batter, bowler, `season`, `venue_id`, `match_date` |
+
 ## Series and tournaments (international serving databases only)
 
 Built by `criciq_pipelines.events` during the export of the T20I, ODI and Test serving

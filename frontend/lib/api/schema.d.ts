@@ -372,6 +372,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/{competition}/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Records
+         * @description Every record in the competition's ball-by-ball data, with its holder.
+         */
+        get: operations["read_records_api_v2__competition__records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/records/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Record
+         * @description One record's ranked list (equal values share a rank), with filters.
+         */
+        get: operations["read_record_api_v2__competition__records__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/series": {
         parameters: {
             query?: never;
@@ -2583,6 +2623,73 @@ export interface components {
             /** Won */
             won: number;
         };
+        /** RecordEntry */
+        RecordEntry: {
+            /**
+             * Ball
+             * @description The replay ball to open, "innings.seq".
+             */
+            ball: string | null;
+            /** Date */
+            date: string | null;
+            /**
+             * Display
+             * @description The figure as written, e.g. "175", "75*", "6/12", "9,336".
+             */
+            display: string;
+            /** Figures */
+            figures: components["schemas"]["RecordFigure"][];
+            /** Match Id */
+            match_id: number | null;
+            opponent: components["schemas"]["TeamTag"] | null;
+            /**
+             * Players
+             * @description The player, or a stand's two batters.
+             */
+            players: components["schemas"]["RecordPlayer"][];
+            /** Rank */
+            rank: number;
+            /** Season */
+            season: number | null;
+            team: components["schemas"]["TeamTag"] | null;
+            /**
+             * Tied
+             * @description Shares its rank with another entry.
+             */
+            tied: boolean;
+            /** Value */
+            value: number;
+            /** Venue */
+            venue: string | null;
+        };
+        /**
+         * RecordFigure
+         * @description One figure beside the value (innings, average, balls...).
+         */
+        RecordFigure: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** RecordFilters */
+        RecordFilters: {
+            /** Opponent */
+            opponent?: string | null;
+            /** Season From */
+            season_from?: number | null;
+            /** Season To */
+            season_to?: number | null;
+            /** Team */
+            team?: string | null;
+            /** Venue */
+            venue?: string | null;
+            /**
+             * Wicket
+             * @description Partnerships only.
+             */
+            wicket?: number | null;
+        };
         /** RecordGroup */
         RecordGroup: {
             /** Key */
@@ -2592,6 +2699,93 @@ export interface components {
             /** Splits */
             splits: components["schemas"]["RecordSplit"][];
         };
+        /** RecordInfo */
+        RecordInfo: {
+            /**
+             * Ascending
+             * @description Lower is better (averages, economy, fastest).
+             */
+            ascending: boolean;
+            /**
+             * Columns
+             * @description The headers of each entry's `figures`.
+             */
+            columns: string[];
+            /** Description */
+            description: string;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "batting" | "bowling" | "fielding" | "seasons" | "partnerships" | "teams" | "ball_by_ball";
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "career" | "innings" | "match" | "season" | "stand" | "over";
+            /**
+             * Model
+             * @description Built from a model's estimates.
+             */
+            model: boolean;
+            /**
+             * Qualification
+             * @description e.g. "At least 20 innings".
+             */
+            qualification: string | null;
+            /** Unit */
+            unit: string;
+        };
+        /** RecordLeader */
+        RecordLeader: {
+            /**
+             * Leaders
+             * @description The top entry, and any it ties with (up to 3).
+             */
+            leaders: components["schemas"]["RecordEntry"][];
+            record: components["schemas"]["RecordInfo"];
+            /**
+             * Tied Count
+             * @description Entries sharing first place.
+             */
+            tied_count: number;
+        };
+        /** RecordList */
+        RecordList: {
+            coverage: components["schemas"]["Coverage"];
+            /** Entries */
+            entries: components["schemas"]["RecordEntry"][];
+            filters: components["schemas"]["RecordFilters"];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /** Offset */
+            offset: number;
+            record: components["schemas"]["RecordInfo"];
+            /**
+             * Total
+             * @description Entries in the whole list.
+             */
+            total: number;
+        };
+        /** RecordPlayer */
+        RecordPlayer: {
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Role
+             * @description What they were doing (a swing's batter and bowler).
+             */
+            role?: ("batter" | "bowler") | null;
+        };
         /** RecordSplit */
         RecordSplit: {
             /** Key */
@@ -2599,6 +2793,19 @@ export interface components {
             /** Label */
             label: string;
             record: components["schemas"]["Record"];
+        };
+        /** RecordsHub */
+        RecordsHub: {
+            coverage: components["schemas"]["Coverage"];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /** Groups */
+            groups: ("batting" | "bowling" | "fielding" | "seasons" | "partnerships" | "teams" | "ball_by_ball")[];
+            /** Records */
+            records: components["schemas"]["RecordLeader"][];
         };
         /**
          * ResultSplit
@@ -4793,6 +5000,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NextBallResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_records_api_v2__competition__records_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordsHub"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_record_api_v2__competition__records__key__get: {
+        parameters: {
+            query?: {
+                /** @description First season (inclusive). */
+                from?: number | null;
+                /** @description Last season (inclusive). */
+                to?: number | null;
+                /** @description Franchise id, e.g. MI. */
+                team?: string | null;
+                /** @description Opponent franchise id. */
+                opponent?: string | null;
+                /** @description Venue id. */
+                venue?: string | null;
+                /** @description Partnerships for one wicket. */
+                wicket?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                key: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordList"];
                 };
             };
             /** @description Validation Error */

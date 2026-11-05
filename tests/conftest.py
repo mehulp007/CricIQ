@@ -20,6 +20,7 @@ from criciq_ml.features import build_states
 from criciq_pipelines import pipeline
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import extract_archive
+from criciq_pipelines.extras import extend_database
 from criciq_pipelines.pipeline import run_export_competition
 from criciq_pipelines.player_db import export_players
 from criciq_pipelines.raw import RawSnapshot, store_snapshot
@@ -179,6 +180,9 @@ def fixture_scored_serving_db(
     run_export_competition("TEST", tests, warehouse=fixture_full_warehouse)
     with ml_cli._serving_models("TEST"):
         ml_cli._score_test_serving(tests, sources, "TEST")
+    # As `criciq-data extras` does after scoring: the tables built from the scores.
+    for scored in (target, *(folder / f"serving-{c}.duckdb" for c in ("t20i", "odi", "test"))):
+        extend_database(scored, only_scored=True)
     return target
 
 

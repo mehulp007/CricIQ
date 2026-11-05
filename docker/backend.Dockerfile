@@ -45,7 +45,8 @@ ADD https://cricsheet.org/downloads/ipl_json.zip /tmp/cricsheet/ipl_json.zip
 ADD https://cricsheet.org/register/people.csv /tmp/cricsheet/people.csv
 RUN uv run --frozen --no-sync criciq-data snapshot /tmp/cricsheet/ipl_json.zip /tmp/cricsheet/people.csv \
     && uv run --frozen --no-sync criciq-data run --no-download --report /tmp/data-quality-report.md \
-    && uv run --frozen --no-sync criciq-ml score
+    && uv run --frozen --no-sync criciq-ml score \
+    && uv run --frozen --no-sync criciq-data extras
 
 # ---------------------------------------------------------------- runtime
 FROM python:${PYTHON_VERSION}-slim AS runtime

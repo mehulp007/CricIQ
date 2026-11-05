@@ -1,5 +1,16 @@
 {
   "serving": {
+    "batting_milestones": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "player_id",
+        "balls_to_50",
+        "balls_to_100"
+      ],
+      "md5": "73ea80968fee09581b625a332289f390",
+      "rows": 19
+    },
     "bowling_usage": {
       "columns": [
         "player_id",
@@ -177,6 +188,24 @@
       "md5": "99355e296f4ac95866b4d6a4733ad0ba",
       "rows": 14
     },
+    "match_swings": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "seq_no",
+        "swing",
+        "team_season_id",
+        "wp_before",
+        "wp_after",
+        "batter_id",
+        "bowler_id",
+        "season",
+        "match_date",
+        "venue_id"
+      ],
+      "md5": "ff653520b59515298f33ebfc8a9f58b7",
+      "rows": 12
+    },
     "matches": {
       "columns": [
         "match_id",
@@ -206,6 +235,29 @@
       ],
       "md5": "2eff397f45114035885f8cf271d48590",
       "rows": 14
+    },
+    "partnerships": {
+      "columns": [
+        "match_id",
+        "innings_no",
+        "wicket",
+        "first_id",
+        "second_id",
+        "first_seq",
+        "last_seq",
+        "runs",
+        "balls",
+        "first_runs",
+        "second_runs",
+        "unbroken",
+        "season",
+        "match_date",
+        "venue_id",
+        "team_id",
+        "opposition_id"
+      ],
+      "md5": "1042b4865a39849a738d5087a585466e",
+      "rows": 193
     },
     "phase_batting": {
       "columns": [

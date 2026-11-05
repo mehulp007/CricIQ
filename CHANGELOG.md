@@ -5,6 +5,33 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Records**, for every competition (`/[competition]/records` and a page per record).
+  - About 35 lists, counted from the ball-by-ball data and labelled with the seasons it covers:
+    - batting: most runs, hundreds, fifties, appearances, fours, sixes and ducks; the highest
+      average and career strike rate; the highest scores, the highest strike rate and most sixes
+      in an innings; the fastest fifties and hundreds, found ball by ball;
+    - bowling: most wickets and five-wicket innings (four-wicket in T20); the lowest average,
+      strike rate and career economy; the best figures, the lowest economy in an innings
+      (limited overs) and the most dots in one;
+    - fielding (catches, stumpings), the most runs and wickets in a season (a calendar year for
+      international cricket), and partnerships for any wicket;
+    - teams: the highest and lowest all-out totals, the highest successful chases (with Test
+      targets worked out from the scores), and the biggest wins by runs, by wickets and (Tests)
+      by an innings;
+    - ball by ball: the most runs off an over, and (as model estimates) the biggest swing in
+      win probability from one ball and the most win probability added in a match.
+  - Averages and rates need enough innings or balls (`config/records.yaml`, stated on each
+    list); equal figures share a rank ("=3"). Filters for seasons, side, opponent and ground,
+    plus wicket for partnerships, kept in the URL, with pages of 50.
+  - Each entry links to its players and to its match, opened at the ball where there is one (a
+    stand's first ball, the swing). The highest score, best bowling, highest total and biggest
+    stand lead each competition's home page as headline records.
+  - Data: `partnerships`, `batting_milestones` and (after scoring) `match_swings` in each
+    serving database (`criciq_pipelines.records`, added by `just extras`); API
+    `GET /api/v2/{competition}/records` and `/records/{key}`. A burst of hub requests builds each
+    hub once, and at most two record queries run at a time, so a build rendering every page at
+    once stays inside the database's memory limit.
+  - CI's end-to-end data and the API image now run `criciq-data extras` after scoring.
 - **Phases**, for every competition (`/[competition]/phases`): how innings are built.
   - A card per phase (powerplay, middle and death overs; in Tests the new ball, the middle overs
     and the second new ball) with run rate, runs and wickets per innings, balls per wicket,

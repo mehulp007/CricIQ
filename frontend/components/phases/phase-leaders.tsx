@@ -13,6 +13,7 @@ function Name({ player }: { player: BattingLeader | BowlingLeader }) {
     <CompetitionLink
       href={`/players/${player.player_id}`}
       className="inline-flex max-w-[12rem] items-center gap-2 truncate underline-offset-4 hover:underline sm:max-w-none"
+      prefetch={false}
     >
       {player.team && <TeamSwatch color={player.team.color} />}
       <span className="truncate">{player.name}</span>

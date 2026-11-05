@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { CoverageNote, coverageText } from "@/components/ui/coverage-note";
-import { withParam } from "@/components/ui/filter-bar";
+import { withParam } from "@/lib/url";
 import { RankedTable, rankLabel } from "@/components/ui/ranked-table";
 
 describe("analysis page pieces", () => {

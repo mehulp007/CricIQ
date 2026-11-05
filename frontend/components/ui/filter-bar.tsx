@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { withParam } from "@/lib/url";
 import { cn } from "@/lib/utils";
 
 const ALL = "all";
@@ -30,19 +31,6 @@ export interface FilterField {
   choices: FilterChoice[];
   /** Tailwind width of the trigger. */
   width?: string;
-}
-
-/** Search params with ``key`` set to ``value`` (removed for "all" or null), back on page 1. */
-export function withParam(
-  params: URLSearchParams | { toString(): string },
-  key: string,
-  value: string | null,
-): URLSearchParams {
-  const next = new URLSearchParams(params.toString());
-  if (value === null || value === ALL || value === "") next.delete(key);
-  else next.set(key, value);
-  next.delete("page");
-  return next;
 }
 
 /**

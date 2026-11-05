@@ -186,7 +186,15 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   and committed with a model card. Every real ball's predictions are computed ahead of time;
   simulations and what-ifs run live.
 - **API and site:** FastAPI reads the serving databases; Next.js renders the pages and replays
-  each match in the browser.
+  each match in the browser. Every statistic (average, strike rate, economy and the rest) is
+  defined once and shared by the API and the data build, so a figure reads the same on every
+  page.
+- **Tables added without a rebuild:** tables worked out from what a serving database already
+  holds are added to it in place (`just extras`), keeping its model scores, so new analysis
+  doesn't need the data rebuilt or every ball scored again. Syncs and full builds add them too.
+- **Charts that leave the site intact:** charts meant to be saved are drawn as plain SVG. The
+  same drawing becomes a PNG or SVG file, with its colours and fonts built in, or a CSV of its
+  figures, without any extra library.
 - **Motion without the weight:** most animation is plain CSS. GSAP and Lenis load only on the home
   page, after it has painted, and Motion only with the match replay, so other pages start with
   about as much JavaScript as before any of it. The particles draw in batches and hold their frame
@@ -215,6 +223,7 @@ just setup      # install dependencies and git hooks
 just check      # everything CI runs: lint, types, tests, build
 just v2-up      # same as scripts/v2_up.py (--update-data, --build-data, --serve-only, --dev)
 just sync       # take in new and corrected matches
+just extras     # rebuild the added tables in every serving database, keeping the scores
 just train-group leagues   # retrain one model group: ipl, leagues, t20i, odi or test
 just pack-data  # zip the built data for publishing
 ```

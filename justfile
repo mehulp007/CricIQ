@@ -57,6 +57,11 @@ data *args:
 sync *args:
     uv run criciq-data sync {{args}}
 
+# (Re)build the extra tables in every serving database (phases, records, ...) without
+# re-exporting or re-scoring, e.g. `just extras` or `just extras --competition ODI`
+extras *args:
+    uv run criciq-data extras {{args}}
+
 # The data version, recent syncs and quarantined matches
 sync-status:
     uv run criciq-data sync-status

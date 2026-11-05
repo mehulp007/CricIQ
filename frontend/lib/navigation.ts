@@ -18,7 +18,7 @@ import {
 import { competitionPath, getCompetition, isTest, type CompetitionId } from "@/lib/competitions";
 
 export type MilestoneId =
-  "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0" | "V2-7";
+  "M0" | "M2" | "M3" | "M5" | "M6" | "V1-a" | "V1-b" | "V1-c" | "V1-d" | "v1.0" | "V2-7" | "V5";
 
 export type NavSection = "Explore" | "Analyse";
 export const NAV_SECTIONS: readonly NavSection[] = ["Explore", "Analyse"];
@@ -56,6 +56,7 @@ export const SHIPPED_MILESTONES: ReadonlySet<MilestoneId> = new Set([
   "V1-d",
   "v1.0",
   "V2-7",
+  "V5",
 ]);
 
 const page = (

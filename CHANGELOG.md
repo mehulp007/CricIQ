@@ -85,6 +85,24 @@ All notable changes to this project are documented here. The format follows [Kee
     `pnpm visual` captures the key pages in both themes on desktop and mobile for review.
 
 ### Changed
+- Tables worked out from a serving database's own contents can be added to it in place, keeping
+  its model scores: `criciq-data extras` (`just extras`) rebuilds them in every competition's
+  published database (or one, with `--competition`), on a copy that the running API swaps in.
+  Exports build the ones that need no scores, syncs add the ones that need scores after scoring,
+  and `scripts/v2_up.py --build-data` runs it after scoring. `criciq_pipelines.extras`.
+- Batting and bowling averages, strike rates, economy, percentages and ranks with ties are
+  defined once (`criciq_core.stats`), as Python functions and the matching DuckDB expressions;
+  the Player Lab's API uses them, unchanged in its figures.
+- Shared pieces for pages of rankings and filters: filters kept in the URL (`FilterBar`),
+  ranked tables that print shared ranks as "=3" and keep the name in view on phones
+  (`RankedTable`), a note of the seasons and matches a page covers (`CoverageNote`), and the API
+  side's filter clauses (always parameters) and coverage query.
+- Charts that can be saved: a set of plain-SVG charts (bars, columns with a line, grouped bars,
+  lines, small multiples, headline figures and table cards) in a frame with a title and data
+  line, in the site's theme or fixed dark, light, navy and paper looks at 1200 × 675,
+  1080 × 1080 or 1080 × 1920. `lib/export-image.ts` saves one as SVG or PNG with its colours and
+  fonts embedded, or its figures as CSV (cells that could run as spreadsheet formulas are
+  escaped), with no added library.
 - Running CricIQ on your own computer no longer builds the data first. `scripts/v2_up.py` now
   downloads the ready-built databases the site serves (every competition, validated and scored;
   one zip of about 150 MB from the repository's `data` release, refreshed weekly), checks every

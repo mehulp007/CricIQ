@@ -40,6 +40,7 @@ from criciq_api.schemas.players import (
     TeamTag,
 )
 from criciq_api.services import ratings as rating_service
+from criciq_core import stats
 from criciq_core.cricket import overs_notation
 from criciq_core.phases import default_phase_config
 
@@ -57,24 +58,11 @@ class InvalidWindowError(ValueError):
 # --------------------------------------------------------------------------- rates
 
 
-def _ratio(
-    num: float | None, den: float | None, scale: float = 1.0, digits: int = 2
-) -> float | None:
-    if num is None or not den:
-        return None
-    return round(scale * num / den, digits)
-
-
-def _strike_rate(runs: float | None, balls: float | None) -> float | None:
-    return _ratio(runs, balls, 100)
-
-
-def _economy(runs: float | None, balls: float | None) -> float | None:
-    return _ratio(runs, balls, 6)
-
-
-def _pct(count: float | None, balls: float | None) -> float | None:
-    return _ratio(count, balls, 100, 1)
+# The shared definitions (criciq_core.stats), under the names this module uses.
+_ratio = stats.ratio
+_strike_rate = stats.strike_rate
+_economy = stats.economy
+_pct = stats.percent
 
 
 def search_tokens(q: str | None) -> tuple[str, ...]:

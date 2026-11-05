@@ -13,6 +13,7 @@ from pathlib import Path
 import duckdb
 
 from criciq_pipelines.events import EVENT_TABLES, build_event_tables, check_events
+from criciq_pipelines.extras import build_extras
 from criciq_pipelines.players import PLAYER_TABLES, build_player_tables
 from criciq_pipelines.reference import (
     LeagueTablesConfig,
@@ -321,6 +322,8 @@ def export_serving(
             raise LeagueTableMismatchError(
                 f"league tables differ from the official ones: {details}"
             )
+        # The extras that need model scores come later, once the database is scored.
+        extra_counts = build_extras(con)
         counts = {
             table: int(con.execute(f"SELECT count(*) FROM {table}").fetchone()[0])  # type: ignore[index]
             for table in (
@@ -334,6 +337,7 @@ def export_serving(
                 *event_tables,
             )
         }
+        counts.update(extra_counts)
         con.execute("CHECKPOINT")
     except BaseException:
         con.close()

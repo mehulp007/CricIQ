@@ -296,6 +296,7 @@ def main() -> int:
             run.append("--no-download")
         step("data: every competition", run, env)
         step("models: score every ball", [tool("criciq-ml"), "score"], env)
+        step("data: tables built from the scores", [tool("criciq-data"), "extras"], env)
         # Built here, so no longer the published snapshot.
         (EXPORTS / data_snapshot.INSTALLED).unlink(missing_ok=True)
         report_disk()

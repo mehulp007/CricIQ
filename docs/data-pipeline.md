@@ -197,6 +197,22 @@ phases of the models' current format: T20 unless an entry point sets another wit
 `use_format("ODI")` (ADR-0012). The ML loaders refuse a database holding another format rather
 than score it with the wrong phases.
 
+### 5b. Tables added in place (`criciq-data extras`)
+
+Some serving tables are worked out from what a serving database already holds. They are
+registered in `criciq_pipelines.extras` and can be added to a database without exporting it
+again, which would drop its model tables and need every ball scored again:
+
+- `export_serving` builds the ones that need no model scores as its last step;
+- a sync builds the ones that read `wp_predictions` or `player_wpa` after it scores its staging
+  databases;
+- `criciq-data extras` (`just extras`, or `--competition ODI` for one) rebuilds them all in the
+  published databases. It works on a copy and publishes it like any other database, so a
+  running API swaps it in between requests. `scripts/v2_up.py --build-data` runs it after
+  scoring.
+
+An extra that needs scores is skipped, with a note, in a database that has none.
+
 ### 6. Player enrichment (`criciq-data enrich-players`, occasional)
 
 Cricsheet has no biographical attributes. This step links players through their ESPNcricinfo id to

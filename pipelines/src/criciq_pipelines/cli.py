@@ -16,6 +16,7 @@ from typing import Annotated
 import typer
 
 from criciq_core import paths
+from criciq_pipelines import extras as extras_engine
 from criciq_pipelines import pipeline, raw
 from criciq_pipelines import sync as sync_engine
 from criciq_pipelines.validation import ValidationReport
@@ -32,6 +33,9 @@ def _timed[T](label: str, step: Callable[[], T]) -> T:
 
 
 def _print_counts(counts: dict[str, int]) -> None:
+    if not counts:
+        typer.echo("  (no tables)")
+        return
     width = max(len(name) for name in counts)
     for name, count in counts.items():
         typer.echo(f"  {name:<{width}}  {count:>9,}")
@@ -149,6 +153,25 @@ def export_competition(
         )
     )
     typer.echo(f"  wrote {out}")
+
+
+@app.command()
+def extras(
+    competition: Annotated[
+        str | None, typer.Option(help="One competition id (e.g. ODI); default every one.")
+    ] = None,
+) -> None:
+    """(Re)build the tables added to each serving database, keeping its model scores."""
+    competitions = [competition.upper()] if competition else pipeline.served_competitions()
+    found = _timed(
+        "adding the extra tables",
+        lambda: extras_engine.add_extras_everywhere(
+            competitions, extras=extras_engine.EXTRAS, log=typer.echo
+        ),
+    )
+    for name, counts in found.items():
+        typer.echo(f"  {name}: {paths.serving_path(name)}")
+        _print_counts(counts)
 
 
 @app.command("export-players")

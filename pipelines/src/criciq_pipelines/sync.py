@@ -52,6 +52,7 @@ from criciq_core.publish import publish
 from criciq_pipelines import pipeline, raw
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import SCHEMAS, ExtractError, parse_match
+from criciq_pipelines.extras import extend_database
 from criciq_pipelines.player_db import export_players
 from criciq_pipelines.reference import CompetitionsConfig, load_competitions
 from criciq_pipelines.scope import build_scope
@@ -615,6 +616,10 @@ def _apply(
     if scoped and score:
         log("> scoring every ball with the committed models ...")
         _score(workspace, scoped[0])
+        log("> adding the tables built from the scores ...")
+        for path in (workspace.serving, *workspace.servings.values()):
+            if path.exists():
+                extend_database(path, only_scored=True, log=log)
 
 
 def _files_in_use(

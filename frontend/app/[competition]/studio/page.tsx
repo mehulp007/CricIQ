@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { StudioBuilder } from "@/components/studio/studio-builder";
 import { CoverageNote } from "@/components/ui/coverage-note";
@@ -32,6 +33,8 @@ export default async function StudioPage({
   params,
   searchParams,
 }: PageProps<"/[competition]/studio">) {
+  // Built for each request from its link (and never at build time, which has no API).
+  await connection();
   const competition = (await params).competition as CompetitionId;
   const c = getCompetition(competition);
   const [options, recent] = await Promise.all([

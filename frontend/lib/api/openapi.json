@@ -2004,6 +2004,135 @@
         "title": "DataUpdate",
         "type": "object"
       },
+      "DayEntry": {
+        "properties": {
+          "batting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DayPerformance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bowling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DayPerformance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "headline": {
+            "description": "e.g. \"Virat Kohli: 101* against South Africa\".",
+            "title": "Headline",
+            "type": "string"
+          },
+          "highlight": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DayPerformance"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The performance the headline names."
+          },
+          "is_playoff": {
+            "title": "Is Playoff",
+            "type": "boolean"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "notability": {
+            "description": "How much the entry stands out: finals and playoffs, hundreds, five-fors and big swings.",
+            "title": "Notability",
+            "type": "integer"
+          },
+          "player_of_match": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Player Of Match",
+            "type": "array"
+          },
+          "result": {
+            "title": "Result",
+            "type": "string"
+          },
+          "season": {
+            "title": "Season",
+            "type": "integer"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "swing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DaySwing"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/TeamTag"
+            },
+            "title": "Teams",
+            "type": "array"
+          },
+          "venue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "match_id",
+          "date",
+          "year",
+          "season",
+          "stage",
+          "is_playoff",
+          "teams",
+          "venue",
+          "result",
+          "headline",
+          "highlight",
+          "batting",
+          "bowling",
+          "player_of_match",
+          "swing",
+          "notability"
+        ],
+        "title": "DayEntry",
+        "type": "object"
+      },
       "DayMarker": {
         "description": "Where a day of a Test (estimated) begins: before this delivery.",
         "properties": {
@@ -2026,6 +2155,113 @@
           "seq_no"
         ],
         "title": "DayMarker",
+        "type": "object"
+      },
+      "DayPerformance": {
+        "description": "A match's best innings or best bowling.",
+        "properties": {
+          "against": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Against"
+          },
+          "detail": {
+            "description": "\"off 121 balls\" or \"in 10 overs\".",
+            "title": "Detail",
+            "type": "string"
+          },
+          "figure": {
+            "description": "\"101*\" or \"5/33\".",
+            "title": "Figure",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "batting",
+              "bowling"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "player_id",
+          "name",
+          "team",
+          "figure",
+          "detail",
+          "against"
+        ],
+        "title": "DayPerformance",
+        "type": "object"
+      },
+      "DaySwing": {
+        "description": "The match's biggest change in win probability from one ball (a model estimate).",
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "number"
+          },
+          "ball": {
+            "description": "The replay ball, \"innings.seq\".",
+            "title": "Ball",
+            "type": "string"
+          },
+          "before": {
+            "description": "Its chance before the ball, in percent.",
+            "title": "Before",
+            "type": "number"
+          },
+          "swing": {
+            "description": "Percentage points.",
+            "title": "Swing",
+            "type": "number"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamTag"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The side whose chance rose."
+          }
+        },
+        "required": [
+          "ball",
+          "team",
+          "before",
+          "after",
+          "swing"
+        ],
+        "title": "DaySwing",
         "type": "object"
       },
       "DecisivePlayer": {
@@ -4035,6 +4271,33 @@
           "model_version"
         ],
         "title": "NextBallResponse",
+        "type": "object"
+      },
+      "OnThisDay": {
+        "properties": {
+          "day": {
+            "title": "Day",
+            "type": "integer"
+          },
+          "entries": {
+            "description": "Most notable first, then the most recent.",
+            "items": {
+              "$ref": "#/components/schemas/DayEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "month",
+          "day",
+          "entries"
+        ],
+        "title": "OnThisDay",
         "type": "object"
       },
       "OpponentRecord": {
@@ -11358,6 +11621,74 @@
         "summary": "Read Meta",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/v2/{competition}/on-this-day": {
+      "get": {
+        "description": "Every match that started on this calendar date in any year, most notable first, with\nits best innings, best bowling and biggest win-probability swing.",
+        "operationId": "read_on_this_day_api_v2__competition__on_this_day_get",
+        "parameters": [
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "maximum": 31,
+              "minimum": 1,
+              "title": "Day",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnThisDay"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read On This Day",
+        "tags": [
+          "on this day"
         ]
       }
     },

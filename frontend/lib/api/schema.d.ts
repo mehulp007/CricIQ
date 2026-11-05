@@ -251,6 +251,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/{competition}/on-this-day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read On This Day
+         * @description Every match that started on this calendar date in any year, most notable first, with
+         *     its best innings, best bowling and biggest win-probability swing.
+         */
+        get: operations["read_on_this_day_api_v2__competition__on_this_day_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/phases": {
         parameters: {
             query?: never;
@@ -1367,6 +1388,47 @@ export interface components {
             /** Withdrawn Matches */
             withdrawn_matches: number;
         };
+        /** DayEntry */
+        DayEntry: {
+            batting: components["schemas"]["DayPerformance"] | null;
+            bowling: components["schemas"]["DayPerformance"] | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Headline
+             * @description e.g. "Virat Kohli: 101* against South Africa".
+             */
+            headline: string;
+            /** @description The performance the headline names. */
+            highlight: components["schemas"]["DayPerformance"] | null;
+            /** Is Playoff */
+            is_playoff: boolean;
+            /** Match Id */
+            match_id: number;
+            /**
+             * Notability
+             * @description How much the entry stands out: finals and playoffs, hundreds, five-fors and big swings.
+             */
+            notability: number;
+            /** Player Of Match */
+            player_of_match: string[];
+            /** Result */
+            result: string;
+            /** Season */
+            season: number;
+            /** Stage */
+            stage: string;
+            swing: components["schemas"]["DaySwing"] | null;
+            /** Teams */
+            teams: components["schemas"]["TeamTag"][];
+            /** Venue */
+            venue: string | null;
+            /** Year */
+            year: number;
+        };
         /**
          * DayMarker
          * @description Where a day of a Test (estimated) begins: before this delivery.
@@ -1378,6 +1440,59 @@ export interface components {
             innings_no: number;
             /** Seq No */
             seq_no: number;
+        };
+        /**
+         * DayPerformance
+         * @description A match's best innings or best bowling.
+         */
+        DayPerformance: {
+            /** Against */
+            against: string | null;
+            /**
+             * Detail
+             * @description "off 121 balls" or "in 10 overs".
+             */
+            detail: string;
+            /**
+             * Figure
+             * @description "101*" or "5/33".
+             */
+            figure: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "batting" | "bowling";
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            team: components["schemas"]["TeamTag"] | null;
+        };
+        /**
+         * DaySwing
+         * @description The match's biggest change in win probability from one ball (a model estimate).
+         */
+        DaySwing: {
+            /** After */
+            after: number;
+            /**
+             * Ball
+             * @description The replay ball, "innings.seq".
+             */
+            ball: string;
+            /**
+             * Before
+             * @description Its chance before the ball, in percent.
+             */
+            before: number;
+            /**
+             * Swing
+             * @description Percentage points.
+             */
+            swing: number;
+            /** @description The side whose chance rose. */
+            team: components["schemas"]["TeamTag"] | null;
         };
         /** DecisivePlayer */
         DecisivePlayer: {
@@ -2074,6 +2189,18 @@ export interface components {
             request: components["schemas"]["NextBallRequest"];
             /** With History */
             with_history: components["schemas"]["OutcomeProbability"][];
+        };
+        /** OnThisDay */
+        OnThisDay: {
+            /** Day */
+            day: number;
+            /**
+             * Entries
+             * @description Most notable first, then the most recent.
+             */
+            entries: components["schemas"]["DayEntry"][];
+            /** Month */
+            month: number;
         };
         /** OpponentRecord */
         OpponentRecord: {
@@ -4763,6 +4890,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Meta"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_on_this_day_api_v2__competition__on_this_day_get: {
+        parameters: {
+            query: {
+                month: number;
+                day: number;
+            };
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnThisDay"];
                 };
             };
             /** @description Validation Error */

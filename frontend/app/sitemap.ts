@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { COMPETITIONS, competitionPath } from "@/lib/competitions";
 import { featuredMatches } from "@/lib/featured";
 import { labNotes } from "@/lib/lab";
+import { allDays, dateSlug } from "@/lib/on-this-day";
 import { recordKeys } from "@/lib/records";
 import { SITE_URL } from "@/lib/site";
 
@@ -21,9 +22,13 @@ const SECTIONS = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const global = ["", "/writeup", "/about"].map((path) => ({
+  const global = ["", "/writeup", "/about", "/on-this-day"].map((path) => ({
     url: `${SITE_URL}${path}`,
     priority: path ? 0.8 : 1,
+  }));
+  const days = allDays().map((date) => ({
+    url: `${SITE_URL}/on-this-day/${dateSlug(date)}`,
+    priority: 0.5,
   }));
   const pages = COMPETITIONS.flatMap((c) => [
     ...SECTIONS.map((path) => ({
@@ -48,5 +53,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     })),
   ]);
-  return [...global, ...pages];
+  return [...global, ...days, ...pages];
 }

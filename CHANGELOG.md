@@ -5,6 +5,25 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **On this day** (`/on-this-day` and `/on-this-day/november-5`, a page for every date,
+  29 February included).
+  - Every match that started on the date in any year, across all eight competitions (each
+    competition read on its own, so one being unavailable never blanks the page), most notable
+    first: a final, another playoff, a hundred or fifty, a five- or four-wicket haul and a ball
+    that moved a side's chance of winning by 50 points or more each add to its standing.
+  - Each match shows its standout performance ("Virat Kohli: 101* against South Africa"), the
+    result, its biggest single-ball swing (a model estimate) and links to the scorecard, that
+    ball in the replay and the player.
+  - Today's page uses India's date on the server and moves to the visitor's own date if it
+    differs; previous and next days, a month and day picker, and filters for competition,
+    format and side.
+  - A 1200 × 630 card of the day's standout match for sharing (`/on-this-day/<date>/card`, also
+    the page's preview image), drawn with `next/og`.
+  - The home page (after the competitions) and each competition's home show the day's
+    standout match, fetched in the browser for the visitor's date
+    (`/api/on-this-day?date=...`).
+  - API `GET /api/v2/{competition}/on-this-day?month=&day=`. In the sidebar, search and the
+    sitemap (with every date).
 - **Records**, for every competition (`/[competition]/records` and a page per record).
   - About 35 lists, counted from the ball-by-ball data and labelled with the seasons it covers:
     - batting: most runs, hundreds, fifties, appearances, fours, sixes and ducks; the highest

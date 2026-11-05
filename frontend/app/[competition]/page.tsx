@@ -19,6 +19,7 @@ import { Suspense } from "react";
 import { HeadlineNumbers } from "@/components/competition/headline-numbers";
 import { MatchCard } from "@/components/match/match-card";
 import { LatestMatches } from "@/components/matches/latest-matches";
+import { OnThisDayWidget } from "@/components/on-this-day/on-this-day-widget";
 import { HeadlineRecords } from "@/components/records/headline-records";
 import { LatestSeries } from "@/components/series/latest-series";
 import { Badge } from "@/components/ui/badge";
@@ -359,6 +360,8 @@ export default async function CompetitionOverviewPage({ params }: PageProps<"/[c
       <Suspense fallback={null}>
         <HeadlineRecords competition={competition} />
       </Suspense>
+
+      <OnThisDayWidget competition={competition} />
 
       <section aria-labelledby="featured-heading" className="flex flex-col gap-6">
         <SectionHeader

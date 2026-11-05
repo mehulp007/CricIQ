@@ -12,6 +12,7 @@ import type {
   MatchupList,
   MatchupPhase,
   Meta,
+  OnThisDay,
   PhaseAnalysis,
   RecordList,
   RecordsHub,
@@ -352,6 +353,15 @@ export function getRecord(
     competition,
     `/records/${encodeURIComponent(key)}${search ? `?${search}` : ""}`,
   );
+}
+
+/** A competition's matches on a calendar date, in any year (lib/api/on-this-day merges them). */
+export function getOnThisDay(
+  competition: CompetitionId,
+  month: number,
+  day: number,
+): Promise<OnThisDay> {
+  return apiGet<OnThisDay>(competition, `/on-this-day?month=${month}&day=${day}`);
 }
 
 /** POST without caching: simulations depend on the request body. */

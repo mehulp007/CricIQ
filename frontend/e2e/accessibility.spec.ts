@@ -65,6 +65,8 @@ const PAGES = [
   "/bbl/teams",
   "/bbl/simulator",
   "/bbl/models?tab=simulator",
+  "/on-this-day/may-12",
+  "/on-this-day/december-25",
   "/writeup",
   "/about",
 ];

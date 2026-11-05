@@ -2,6 +2,7 @@ import {
   BookOpen,
   BrainCircuit,
   Calculator,
+  CalendarDays,
   CalendarRange,
   Dices,
   FlaskConical,
@@ -89,6 +90,13 @@ export const PRIMARY_NAV: readonly NavItem[] = [
 export const BOTTOM_NAV_PATHS: readonly string[] = ["", "/matches", "/players", "/teams"];
 
 export const SECONDARY_NAV: readonly NavItem[] = [
+  {
+    path: "/on-this-day",
+    scope: "global",
+    label: "On this day",
+    icon: CalendarDays,
+    milestone: "V5",
+  },
   { path: "/writeup", scope: "global", label: "The write-up", icon: BookOpen, milestone: "v1.0" },
   { path: "/about", scope: "global", label: "About & Methodology", icon: Info, milestone: "M0" },
 ];

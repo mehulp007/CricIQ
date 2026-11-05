@@ -140,3 +140,7 @@ export type RecordEntry = Schemas["RecordEntry"];
 export type RecordInfo = Schemas["RecordInfo"];
 export type RecordLeader = Schemas["RecordLeader"];
 export type RecordCategory = RecordInfo["group"];
+export type OnThisDay = Schemas["OnThisDay"];
+export type DayEntry = Schemas["DayEntry"];
+export type DayPerformance = Schemas["DayPerformance"];
+export type DaySwing = Schemas["DaySwing"];

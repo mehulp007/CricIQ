@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, type CSSProperties } from "react";
 
 import { CompetitionPicker } from "@/components/competition/competition-picker";
+import { OnThisDayWidget } from "@/components/on-this-day/on-this-day-widget";
 import { Chapter, ChapterEyebrow, setupChapter, topBarHeight } from "@/components/landing/chapter";
 import { STORY } from "@/components/landing/copy";
 import { Counter, setupCounter } from "@/components/landing/counter";
@@ -475,6 +476,8 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
           />
           <CompetitionPicker groups={groups} />
         </section>
+
+        <OnThisDayWidget />
 
         <section aria-labelledby="more-heading" className="flex flex-col gap-4">
           <SectionHeader id="more-heading" title="How it works" />

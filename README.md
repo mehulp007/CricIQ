@@ -141,6 +141,12 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
   champions.
 - **Player Lab**: every player's career in every format, measured against par for their era, with
   ratings, splits and similar players. Each rating grows out along its 0–100 track as you reach it.
+- **On this day**: the matches played on today's date (or any date) in past years across every
+  competition, most notable first: finals and playoffs, hundreds and five-fors, and the ball
+  that moved a side's chance of winning the most. Each comes with its scorecard, a link to
+  replay that ball and the player's profile. Step through the year a day at a time, filter by
+  competition, format or side, and download a card of the day to share. The home page and each
+  competition's home show the day's standout match, on your own date.
 - **Records**: about 35 record lists for every competition, counted from the ball-by-ball data
   (so a record set before the data begins isn't there, and each page says which seasons it
   covers). Career, innings, partnership, team and season records, with the ones only
@@ -213,7 +219,7 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   page, after it has painted, and Motion only with the match replay, so other pages start with
   about as much JavaScript as before any of it. The particles draw in batches and hold their frame
   rate on a slowed-down CPU, with fewer of them on phones.
-- **Quality:** 600+ Python tests, 240+ frontend tests and 460+ end-to-end tests on desktop and
+- **Quality:** 610+ Python tests, 250+ frontend tests and 490+ end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

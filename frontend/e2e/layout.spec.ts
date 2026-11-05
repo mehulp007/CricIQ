@@ -20,6 +20,7 @@ const PAGES = [
   "/test/phases",
   "/test/records/highest-chases",
   "/test/matches/1152848",
+  "/on-this-day/may-12",
   "/writeup",
 ];
 

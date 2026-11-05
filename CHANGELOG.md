@@ -156,6 +156,10 @@ All notable changes to this project are documented here. The format follows [Kee
   Manhattan chart.
 
 ### Fixed
+- Building the IPL from Cricsheet's full archive stopped at 23 grounds Cricsheet now names with
+  their city ("Barabati Stadium, Cuttack", "Feroz Shah Kotla, Delhi", "Mangaung Oval,
+  Bloemfontein" and others from the 2008-2014 seasons). Each is added to `config/venues.yaml` as
+  another name for the ground it already maps to; no match moves ground.
 - On phones, the competition home, match list, teams and team pages scrolled sideways. Responsive
   grids had no column count below their breakpoint, so a long unbroken name (a venue) widened the
   single column; every such grid now starts from one shrinkable column (`grid-cols-1`). A

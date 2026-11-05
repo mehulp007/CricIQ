@@ -19,12 +19,13 @@ venues:
       - Feroz Shah Kotla
       - Arun Jaitley Stadium
       - Arun Jaitley Stadium, Delhi
+      - "Feroz Shah Kotla, Delhi"
 
   - id: barabati
     name: Barabati Stadium
     city: Cuttack
     country: India
-    aliases: [Barabati Stadium]
+    aliases: [Barabati Stadium, "Barabati Stadium, Cuttack"]
 
   - id: barsapara
     name: Barsapara Cricket Stadium
@@ -48,7 +49,7 @@ venues:
     name: Dr DY Patil Sports Academy
     city: Navi Mumbai
     country: India
-    aliases: [Dr DY Patil Sports Academy, "Dr DY Patil Sports Academy, Mumbai"]
+    aliases: [Dr DY Patil Sports Academy, "Dr DY Patil Sports Academy, Mumbai", "Dr DY Patil Sports Academy, Navi Mumbai"]
 
   - id: aca-vdca
     name: Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium
@@ -57,6 +58,7 @@ venues:
     aliases:
       - Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium
       - Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium, Visakhapatnam
+      - "Andhra Cricket Association-Visakhapatnam District Cricket Association Stadium, Visakhapatnam"
 
   - id: eden-gardens
     name: Eden Gardens
@@ -68,7 +70,7 @@ venues:
     name: Green Park
     city: Kanpur
     country: India
-    aliases: [Green Park]
+    aliases: [Green Park, "Green Park, Kanpur"]
 
   - id: hpca-dharamsala
     name: HPCA Stadium
@@ -82,13 +84,13 @@ venues:
     name: Holkar Cricket Stadium
     city: Indore
     country: India
-    aliases: [Holkar Cricket Stadium]
+    aliases: [Holkar Cricket Stadium, "Holkar Cricket Stadium, Indore"]
 
   - id: jsca-ranchi
     name: JSCA International Stadium Complex
     city: Ranchi
     country: India
-    aliases: [JSCA International Stadium Complex]
+    aliases: [JSCA International Stadium Complex, "JSCA International Stadium Complex, Ranchi"]
 
   - id: chinnaswamy
     name: M Chinnaswamy Stadium
@@ -98,6 +100,7 @@ venues:
       - M Chinnaswamy Stadium
       - M.Chinnaswamy Stadium
       - M Chinnaswamy Stadium, Bengaluru
+      - "M Chinnaswamy Stadium, Bangalore"
 
   - id: chepauk
     name: MA Chidambaram Stadium
@@ -126,6 +129,7 @@ venues:
       - Subrata Roy Sahara Stadium
       - Maharashtra Cricket Association Stadium
       - Maharashtra Cricket Association Stadium, Pune
+      - "Subrata Roy Sahara Stadium, Pune"
 
   - id: narendra-modi
     name: Narendra Modi Stadium
@@ -139,13 +143,13 @@ venues:
     city: Ahmedabad
     country: India
     notes: Original Motera ground, demolished 2015 and replaced by Narendra Modi Stadium.
-    aliases: ["Sardar Patel Stadium, Motera"]
+    aliases: ["Sardar Patel Stadium, Motera", "Sardar Patel Stadium, Motera, Ahmedabad"]
 
   - id: nehru-kochi
     name: Nehru Stadium
     city: Kochi
     country: India
-    aliases: [Nehru Stadium]
+    aliases: [Nehru Stadium, "Nehru Stadium, Kochi"]
 
   - id: pca-mohali
     name: PCA IS Bindra Stadium
@@ -156,6 +160,7 @@ venues:
       - Punjab Cricket Association IS Bindra Stadium
       - Punjab Cricket Association IS Bindra Stadium, Mohali
       - Punjab Cricket Association IS Bindra Stadium, Mohali, Chandigarh
+      - "Punjab Cricket Association Stadium, Mohali, Chandigarh"
 
   - id: rajiv-gandhi
     name: Rajiv Gandhi International Stadium
@@ -170,7 +175,7 @@ venues:
     name: Saurashtra Cricket Association Stadium
     city: Rajkot
     country: India
-    aliases: [Saurashtra Cricket Association Stadium]
+    aliases: [Saurashtra Cricket Association Stadium, "Saurashtra Cricket Association Stadium, Rajkot"]
 
   - id: sawai-mansingh
     name: Sawai Mansingh Stadium
@@ -190,7 +195,7 @@ venues:
     name: Vidarbha Cricket Association Stadium
     city: Nagpur
     country: India
-    aliases: ["Vidarbha Cricket Association Stadium, Jamtha"]
+    aliases: ["Vidarbha Cricket Association Stadium, Jamtha", "Vidarbha Cricket Association Stadium, Jamtha, Nagpur"]
 
   - id: wankhede
     name: Wankhede Stadium
@@ -203,49 +208,49 @@ venues:
     name: Buffalo Park
     city: East London
     country: South Africa
-    aliases: [Buffalo Park]
+    aliases: [Buffalo Park, "Buffalo Park, East London"]
 
   - id: kimberley
     name: De Beers Diamond Oval
     city: Kimberley
     country: South Africa
-    aliases: [De Beers Diamond Oval]
+    aliases: [De Beers Diamond Oval, "Diamond Oval, Kimberley"]
 
   - id: kingsmead
     name: Kingsmead
     city: Durban
     country: South Africa
-    aliases: [Kingsmead]
+    aliases: [Kingsmead, "Kingsmead, Durban"]
 
   - id: wanderers
     name: New Wanderers Stadium
     city: Johannesburg
     country: South Africa
-    aliases: [New Wanderers Stadium]
+    aliases: [New Wanderers Stadium, "Wanderers Stadium, Johannesburg"]
 
   - id: newlands
     name: Newlands
     city: Cape Town
     country: South Africa
-    aliases: [Newlands]
+    aliases: [Newlands, "Newlands, Cape Town"]
 
   - id: bloemfontein
     name: OUTsurance Oval
     city: Bloemfontein
     country: South Africa
-    aliases: [OUTsurance Oval]
+    aliases: [OUTsurance Oval, "Mangaung Oval, Bloemfontein"]
 
   - id: st-georges
     name: St George's Park
     city: Gqeberha
     country: South Africa
-    aliases: [St George's Park]
+    aliases: [St George's Park, "St George's Park, Port Elizabeth"]
 
   - id: centurion
     name: SuperSport Park
     city: Centurion
     country: South Africa
-    aliases: [SuperSport Park]
+    aliases: [SuperSport Park, "SuperSport Park, Centurion"]
 
   # ---------------- United Arab Emirates (2014, 2020, 2021) ----------------
   - id: dubai
@@ -265,4 +270,4 @@ venues:
     city: Abu Dhabi
     country: United Arab Emirates
     notes: Known as Sheikh Zayed Stadium until 2021.
-    aliases: [Sheikh Zayed Stadium, "Zayed Cricket Stadium, Abu Dhabi"]
+    aliases: [Sheikh Zayed Stadium, "Zayed Cricket Stadium, Abu Dhabi", "Sheikh Zayed Stadium, Abu Dhabi"]

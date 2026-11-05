@@ -161,6 +161,16 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
   chasing, what the toss winners chose, the leading batters and bowlers in each phase and run
   rates by phase at the busiest grounds. Filter by seasons, team, ground and innings, and share
   the link.
+- **Chart Studio**: make a chart from any competition's data without writing code. Start from a
+  template (a player's profile, players compared, a leaderboard, a season-by-season timeline,
+  batting and bowling explorers, team form, grounds, a season recap or a match's scorecard) or
+  build one: pick a dataset, up to six players, filters and up to six measures (CricIQ's own too:
+  runs above par and win probability added, labelled as a model estimate), group and split the
+  rows, then choose the chart, its size (landscape, square or story), theme, colour and titles,
+  and add a picture of your own that never leaves your browser. Download it as PNG or SVG, or
+  its figures as CSV, see the exact query behind every figure, and share the whole design as a
+  link or keep it in your browser. Player pages, Compare and the record lists open it ready
+  filled.
 - **Matchups and Compare**: any batter against any bowler without over-reading small samples, and
   any two players side by side. A new matchup springs into place with its next-ball odds counting
   up, and two players to compare come in from either side.
@@ -219,7 +229,7 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   page, after it has painted, and Motion only with the match replay, so other pages start with
   about as much JavaScript as before any of it. The particles draw in batches and hold their frame
   rate on a slowed-down CPU, with fewer of them on phones.
-- **Quality:** 610+ Python tests, 250+ frontend tests and 490+ end-to-end tests on desktop and
+- **Quality:** 650+ Python tests, 280+ frontend tests and 530+ end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

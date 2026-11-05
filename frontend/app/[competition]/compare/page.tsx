@@ -1,3 +1,4 @@
+import { ChartColumn } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -33,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { CompetitionLink } from "@/components/competition/competition-link";
 import { SlideIn } from "@/components/ui/slide-in";
 import { RevealText } from "@/components/ui/reveal-text";
+import { studioPath } from "@/lib/studio";
 
 export async function generateMetadata({
   params,
@@ -611,6 +613,16 @@ export default async function ComparePage({
           went by year or by age, and how they fared against each other. Each player can be in a
           competition of their own, to set a Test career beside an ODI one.
         </p>
+        {a && b && formats[0] === formats[1] && a.player.player_id !== b.player.player_id && (
+          <CompetitionLink
+            href={studioPath({ t: "compare", p: `${a.player.player_id},${b.player.player_id}` })}
+            prefetch={false}
+            className="inline-flex w-fit items-center gap-1.5 text-sm underline-offset-4 hover:text-primary hover:underline"
+          >
+            <ChartColumn className="size-4" aria-hidden="true" />
+            Make a chart of these two
+          </CompetitionLink>
+        )}
       </header>
       <Panel id="pick" title="Pick two players">
         <CompareSelector a={picked(a)} b={picked(b)} af={state.af} bf={state.bf} />

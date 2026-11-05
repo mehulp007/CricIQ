@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { csvCell, fileName, fontFamilies, resolveVariables, toCsv } from "@/lib/export-image";
+import {
+  csvCell,
+  escapeXml,
+  fileName,
+  fontFamilies,
+  resolveVariables,
+  toCsv,
+} from "@/lib/export-image";
 
 describe("exporting charts", () => {
   it("names files from the chart title", () => {
@@ -50,6 +57,22 @@ describe("exporting charts", () => {
     );
   });
 
+  it("escapes resolved values so the SVG stays well formed", () => {
+    const markup = resolveVariables('<text font-family="var(--font)">A</text>', () =>
+      escapeXml('"Geist", "Geist Fallback" & <x>'),
+    );
+    expect(markup).toBe(
+      '<text font-family="&quot;Geist&quot;, &quot;Geist Fallback&quot; &amp; &lt;x&gt;">A</text>',
+    );
+    const doc = new DOMParser().parseFromString(
+      `<svg xmlns="http://www.w3.org/2000/svg">${markup}</svg>`,
+      "image/svg+xml",
+    );
+    expect(doc.querySelector("parsererror")).toBeNull();
+    expect(doc.querySelector("text")?.getAttribute("font-family")).toBe(
+      '"Geist", "Geist Fallback" & <x>',
+    );
+  });
   it("reads the families in a font-family value", () => {
     expect(fontFamilies("'__Sora_abc', '__Sora_Fallback_abc', ui-sans-serif")).toEqual([
       "__Sora_abc",

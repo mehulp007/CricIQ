@@ -22,6 +22,7 @@ from criciq_api.api.v2.routers import (
     records,
     series,
     simulation,
+    studio,
     teams,
 )
 
@@ -46,6 +47,7 @@ for module in (
     phases,
     records,
     on_this_day,
+    studio,
 ):
     competition_router.include_router(module.router)
 api_router.include_router(competition_router)

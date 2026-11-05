@@ -50,6 +50,7 @@ describe("NavList", () => {
     expect(names(lists[0])).toEqual(["Overview", "Matches", "Players", "Teams", "Records"]);
     expect(names(lists[1])).toEqual([
       "Phases",
+      "Chart Studio",
       "Matchups",
       "Compare",
       "Simulator",

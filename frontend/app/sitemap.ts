@@ -12,6 +12,7 @@ const SECTIONS = [
   "/matches",
   "/players",
   "/phases",
+  "/studio",
   "/records",
   "/matchups",
   "/compare",

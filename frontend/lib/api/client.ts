@@ -7,6 +7,7 @@ import type {
   ChaseSides,
   ChaseWhatIf,
   CompetitionList,
+  MatchDetail,
   MatchPage,
   MatchupDetail,
   MatchupList,
@@ -32,6 +33,9 @@ import type {
   Standings,
   StateRequest,
   StateResult,
+  StudioOptions,
+  StudioResult,
+  StudioSpec,
   HeadToHead,
   TeamProfile,
   TeamsOverview,
@@ -120,6 +124,11 @@ export function getMeta(competition: CompetitionId): Promise<Meta> {
 /** Every competition of the players database, with its seasons. */
 export function getCompetitions(): Promise<CompetitionList> {
   return fetchJson<CompetitionList>("/api/v2/competitions", META_REVALIDATE_SECONDS);
+}
+
+/** A match's summary and scorecard. */
+export function getMatch(competition: CompetitionId, matchId: number): Promise<MatchDetail> {
+  return apiGet<MatchDetail>(competition, `/matches/${matchId}`);
 }
 
 export function getTimeline(competition: CompetitionId, matchId: number): Promise<Timeline> {
@@ -419,6 +428,16 @@ export async function wakeApi(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/** What Chart Studio's pickers offer for a competition. */
+export function getStudioOptions(competition: CompetitionId): Promise<StudioOptions> {
+  return apiGet<StudioOptions>(competition, "/studio/options");
+}
+
+/** A chart's figures (the API checks the spec against its catalog). */
+export function runStudio(competition: CompetitionId, spec: StudioSpec): Promise<StudioResult> {
+  return apiPost<StudioResult>(`/api/v2/${competition}/studio/query`, spec);
 }
 
 export function simulateMatch(

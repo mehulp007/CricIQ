@@ -614,6 +614,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/{competition}/studio/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Options
+         * @description What Chart Studio's pickers offer: datasets with their measures, groupings and
+         *     filters, and the competition's teams, grounds, seasons and phases.
+         */
+        get: operations["read_options_api_v2__competition__studio_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/studio/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Query
+         * @description Run a chart's spec: its figures per group (and per series, with a split), ranked,
+         *     with the query that computed them.
+         */
+        post: operations["run_query_api_v2__competition__studio_query_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/{competition}/teams": {
         parameters: {
             query?: never;
@@ -3843,6 +3885,317 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /**
+         * StudioCell
+         * @description A group's figures within one series (Kohli in 2016).
+         */
+        StudioCell: {
+            /** Display */
+            display: {
+                [key: string]: string;
+            };
+            /** Group */
+            group: string;
+            /** Sample */
+            sample: number;
+            /** Split */
+            split: string;
+            /** Values */
+            values: {
+                [key: string]: number | null;
+            };
+        };
+        /** StudioChoice */
+        StudioChoice: {
+            /** Color */
+            color?: string | null;
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** StudioColumn */
+        StudioColumn: {
+            /**
+             * Descending
+             * @description Ranked highest first by default.
+             */
+            descending: boolean;
+            /** Description */
+            description: string;
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "count" | "rate" | "pct" | "score" | "figures" | "overs" | "signed" | "wpa";
+            /** Label */
+            label: string;
+            /**
+             * Model
+             * @description A model estimate (labelled "Model estimate").
+             */
+            model: boolean;
+        };
+        /** StudioDataset */
+        StudioDataset: {
+            /** Default Measures */
+            default_measures: string[];
+            /** Description */
+            description: string;
+            /** Dimensions */
+            dimensions: components["schemas"]["StudioDimension"][];
+            /** Filters */
+            filters: string[];
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "batting" | "bowling" | "phase_batting" | "phase_bowling" | "careers" | "teams";
+            /** Label */
+            label: string;
+            /** Measures */
+            measures: components["schemas"]["StudioColumn"][];
+            /**
+             * Needs Player
+             * @description A player must be the grouping or the split.
+             */
+            needs_player: boolean;
+            /** Sample Label */
+            sample_label: string;
+        };
+        /** StudioDimension */
+        StudioDimension: {
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "player" | "team" | "season" | "opponent" | "ground" | "position" | "phase" | "innings";
+            /** Label */
+            label: string;
+            /**
+             * Natural
+             * @description Has an order of its own (seasons, positions, phases).
+             */
+            natural: boolean;
+        };
+        /**
+         * StudioFilters
+         * @description What to count: every filter is optional, and each dataset takes some of them.
+         */
+        StudioFilters: {
+            /**
+             * Innings
+             * @description The innings of the match (teams: 1 batting first, 2 batting second).
+             */
+            innings?: number | null;
+            /** Opponent */
+            opponent?: string | null;
+            /**
+             * Phase
+             * @description A phase key (phase datasets).
+             */
+            phase?: string | null;
+            /**
+             * Players
+             * @description Up to six player ids (players' datasets only).
+             */
+            players?: string[];
+            /**
+             * Position
+             * @description Batting position (batting only).
+             */
+            position?: number | null;
+            /** Season From */
+            season_from?: number | null;
+            /** Season To */
+            season_to?: number | null;
+            /**
+             * Team
+             * @description A franchise id.
+             */
+            team?: string | null;
+            /**
+             * Venue
+             * @description A venue id.
+             */
+            venue?: string | null;
+        };
+        /**
+         * StudioGroup
+         * @description One value of a grouping: a player, a season, a ground...
+         */
+        StudioGroup: {
+            /**
+             * Color
+             * @description A team's colour.
+             */
+            color?: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Player Id */
+            player_id?: string | null;
+        };
+        /** StudioOptions */
+        StudioOptions: {
+            coverage: components["schemas"]["Coverage"];
+            /** Data Version */
+            data_version: string;
+            /** Datasets */
+            datasets: components["schemas"]["StudioDataset"][];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /** Grounds */
+            grounds: components["schemas"]["StudioChoice"][];
+            /** Max Series */
+            max_series: number;
+            /** Phases */
+            phases: components["schemas"]["StudioChoice"][];
+            /** Seasons */
+            seasons: components["schemas"]["StudioChoice"][];
+            /** Teams */
+            teams: components["schemas"]["StudioChoice"][];
+        };
+        /** StudioResult */
+        StudioResult: {
+            /**
+             * Cells
+             * @description With a split: each group within each series.
+             */
+            cells: components["schemas"]["StudioCell"][];
+            /** Columns */
+            columns: components["schemas"]["StudioColumn"][];
+            coverage: components["schemas"]["Coverage"];
+            /** Data Version */
+            data_version: string;
+            /** Dataset Label */
+            dataset_label: string;
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "T20" | "ODI" | "Test";
+            /** Group Label */
+            group_label: string | null;
+            /**
+             * Params
+             * @description The query's values, in order.
+             */
+            params: (string | number)[];
+            /**
+             * Rows
+             * @description One per group, ranked; the series' totals.
+             */
+            rows: components["schemas"]["StudioRow"][];
+            /**
+             * Sample Label
+             * @description What the sample counts ("balls faced").
+             */
+            sample_label: string;
+            /**
+             * Series
+             * @description With a split: each series' totals.
+             */
+            series: components["schemas"]["StudioRow"][];
+            /** @description The spec as run, with its sort and order filled in. */
+            spec: components["schemas"]["StudioSpec"];
+            /** Split Label */
+            split_label: string | null;
+            /**
+             * Sql
+             * @description The query that computed the figures, with ? for each value.
+             */
+            sql: string;
+            /**
+             * Truncated
+             * @description More groups qualified than the limit returned.
+             */
+            truncated: boolean;
+        };
+        /** StudioRow */
+        StudioRow: {
+            /**
+             * Display
+             * @description Each figure as written ("75*", "5/27", "42.1%").
+             */
+            display: {
+                [key: string]: string;
+            };
+            /** @description None for the overall row. */
+            group: components["schemas"]["StudioGroup"] | null;
+            /**
+             * Rank
+             * @description Its place by the sort measure (equal figures share).
+             */
+            rank: number | null;
+            /** Sample */
+            sample: number;
+            /**
+             * Tied
+             * @default false
+             */
+            tied: boolean;
+            /** Values */
+            values: {
+                [key: string]: number | null;
+            };
+        };
+        /**
+         * StudioSpec
+         * @description A chart's data: a dataset, up to six measures, a grouping and an optional split.
+         */
+        StudioSpec: {
+            /**
+             * Dataset
+             * @enum {string}
+             */
+            dataset: "batting" | "bowling" | "phase_batting" | "phase_bowling" | "careers" | "teams";
+            filters?: components["schemas"]["StudioFilters"];
+            /**
+             * Group By
+             * @description One row per value (none: a single overall row).
+             * @default player
+             */
+            group_by: ("player" | "team" | "season" | "opponent" | "ground" | "position" | "phase" | "innings") | null;
+            /**
+             * Limit
+             * @description Rows (groups) to return.
+             * @default 15
+             */
+            limit: number;
+            /** Measures */
+            measures: string[];
+            /**
+             * Min Sample
+             * @description The dataset's sample (balls or matches).
+             * @default 0
+             */
+            min_sample: number;
+            /** Order */
+            order?: ("asc" | "desc") | null;
+            /**
+             * Series
+             * @description With a split: the series to return (at most 8).
+             * @default 8
+             */
+            series: number;
+            /**
+             * Sort
+             * @description A measure key, or "group" for the grouping's own order (seasons in turn).
+             */
+            sort?: string | null;
+            /**
+             * Split By
+             * @description A second grouping: one series per value (players by season).
+             */
+            split_by?: ("player" | "team" | "season" | "opponent" | "ground" | "position" | "phase" | "innings") | null;
+        };
         /** StyleGroup */
         StyleGroup: {
             /** Items */
@@ -5560,6 +5913,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimXI"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_options_api_v2__competition__studio_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioOptions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_query_api_v2__competition__studio_query_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudioSpec"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioResult"];
                 };
             };
             /** @description Validation Error */

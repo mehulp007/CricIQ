@@ -75,6 +75,10 @@ class BoundedCache(OrderedDict[str, Any]):
         return default
 
 
+class QueryTimeoutError(RuntimeError):
+    """A query ran past the time it was given and was interrupted."""
+
+
 class ServingDataMissingError(RuntimeError):
     pass
 
@@ -164,17 +168,35 @@ class Database:
                 self._readers -= 1
                 self._lock.notify_all()
 
-    def rows(self, sql: str, params: Sequence[Any] = (), *, schema: str | None = None) -> list[Row]:
-        """Rows of ``sql``; unqualified names resolve in ``schema`` first when given."""
+    def rows(
+        self,
+        sql: str,
+        params: Sequence[Any] = (),
+        *,
+        schema: str | None = None,
+        timeout: float | None = None,
+    ) -> list[Row]:
+        """Rows of ``sql``; unqualified names resolve in ``schema`` first when given.
+
+        With ``timeout`` (seconds) a query still running then is interrupted and raises
+        ``QueryTimeoutError``.
+        """
         with self._reading() as con:
             cursor = con.cursor()
+            timer = threading.Timer(timeout, cursor.interrupt) if timeout else None
             try:
                 if schema is not None:
                     cursor.execute(f"SET search_path = '{schema},main'")
+                if timer is not None:
+                    timer.start()
                 cursor.execute(sql, list(params))
                 columns = [d[0] for d in cursor.description or []]
                 return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
+            except duckdb.InterruptException as error:
+                raise QueryTimeoutError(f"the query took longer than {timeout}s") from error
             finally:
+                if timer is not None:
+                    timer.cancel()
                 cursor.close()
 
     def row(self, sql: str, params: Sequence[Any] = ()) -> Row | None:
@@ -240,8 +262,15 @@ class ScopedDatabase(Database):
         found: BoundedCache = self.base.cache[key]
         return found
 
-    def rows(self, sql: str, params: Sequence[Any] = (), *, schema: str | None = None) -> list[Row]:
-        return self.base.rows(sql, params, schema=schema or self.schema)
+    def rows(
+        self,
+        sql: str,
+        params: Sequence[Any] = (),
+        *,
+        schema: str | None = None,
+        timeout: float | None = None,
+    ) -> list[Row]:
+        return self.base.rows(sql, params, schema=schema or self.schema, timeout=timeout)
 
     def refresh(self, *, force: bool = False) -> bool:
         return self.base.refresh(force=force)

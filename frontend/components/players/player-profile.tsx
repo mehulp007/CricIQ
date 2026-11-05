@@ -1,4 +1,4 @@
-import { CalendarDays, Flag, GitCompareArrows, Hand } from "lucide-react";
+import { CalendarDays, ChartColumn, Flag, GitCompareArrows, Hand } from "lucide-react";
 import Link from "next/link";
 
 import { TeamBadge } from "@/components/match/team-badge";
@@ -26,6 +26,7 @@ import type {
   SimilarPlayers as Similar,
 } from "@/lib/api/types";
 import { compareHref } from "@/lib/compare";
+import { studioPath } from "@/lib/studio";
 import { getCompetition, type CompetitionId } from "@/lib/competitions";
 import { formatDate } from "@/lib/format";
 import {
@@ -71,6 +72,14 @@ export function PlayerHeader({
         >
           <GitCompareArrows className="size-4" aria-hidden="true" />
           Compare
+        </CompetitionLink>
+        <CompetitionLink
+          href={studioPath({ t: "profile", p: p.player_id })}
+          prefetch={false}
+          className="inline-flex items-center gap-1.5 text-foreground underline-offset-4 hover:text-primary hover:underline"
+        >
+          <ChartColumn className="size-4" aria-hidden="true" />
+          Make a chart
         </CompetitionLink>
         {p.country && (
           <span className="flex items-center gap-1.5">

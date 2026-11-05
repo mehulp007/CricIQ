@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BrainCircuit,
   Calculator,
+  ChartColumn,
   Gauge,
   GitCompareArrows,
   Play,
@@ -97,6 +98,12 @@ function capabilities(c: Competition): {
         ? "How Test innings are built, ten overs at a time: run rate and wickets with the new ball, through the middle and after the second new ball, and the leaders in each."
         : "How innings are built over by over: run rate, wickets, boundaries and dots in the powerplay, middle and death, who wins batting first and the leaders in each phase.",
       path: "/phases",
+    },
+    {
+      icon: ChartColumn,
+      title: "Chart Studio",
+      body: "Make a chart without code: pick players, measures and a template, see the query behind it, and download it as PNG, SVG or CSV.",
+      path: "/studio",
     },
     {
       icon: Swords,

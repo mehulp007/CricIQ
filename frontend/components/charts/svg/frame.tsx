@@ -39,6 +39,7 @@ export function ChartFrame({
   description,
   svgRef,
   className,
+  image,
   children,
 }: {
   width: number;
@@ -52,11 +53,17 @@ export function ChartFrame({
   description: string;
   svgRef?: Ref<SVGSVGElement>;
   className?: string;
+  /** A picture of the maker's own (a data URL), shown in the top corner. */
+  image?: string | null;
   children: (plot: PlotArea) => ReactNode;
 }) {
   const id = useId();
   const m = frameMetrics(width, height);
+  const imageSize = image ? Math.round(m.title * 2.6) : 0;
+  // A plain id: url(#...) references in an exported file don't take React's punctuation.
+  const clipId = `chart-image-${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const inner = width - m.pad * 2;
+  const text = inner - (image ? imageSize + m.pad * 0.5 : 0);
   const titleY = m.pad + m.title;
   const subtitleY = titleY + (subtitle ? m.subtitle * 1.7 : 0);
   const top = subtitleY + m.pad * 0.8;
@@ -92,7 +99,7 @@ export function ChartFrame({
         fontSize={m.title}
         fontWeight={700}
       >
-        {fitText(title, inner, m.title)}
+        {fitText(title, text, m.title)}
       </text>
       {subtitle && (
         <text
@@ -102,8 +109,30 @@ export function ChartFrame({
           fontFamily={FONTS.body}
           fontSize={m.subtitle}
         >
-          {fitText(subtitle, inner, m.subtitle)}
+          {fitText(subtitle, text, m.subtitle)}
         </text>
+      )}
+      {image && (
+        <>
+          <clipPath id={clipId}>
+            <rect
+              x={width - m.pad - imageSize}
+              y={m.pad * 0.6}
+              width={imageSize}
+              height={imageSize}
+              rx={imageSize * 0.18}
+            />
+          </clipPath>
+          <image
+            href={image}
+            x={width - m.pad - imageSize}
+            y={m.pad * 0.6}
+            width={imageSize}
+            height={imageSize}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${clipId})`}
+          />
+        </>
       )}
       {children(plot)}
       <line

@@ -5,6 +5,28 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Chart Studio**, for every competition (`/[competition]/studio`).
+  - Six datasets: batting innings, bowling innings, batting and bowling by phase, careers
+    (batting, bowling, fielding and win probability added per player) and team results.
+  - Measures from the shared definitions (runs, averages, strike rates, economy, 100s and 50s,
+    best figures, dot and boundary percentages, catches, stumpings, wins and win %), plus runs
+    above par, runs saved against par and win probability added (a model estimate). Team
+    totals and run rates are left out for Tests, whose team table holds first innings only.
+  - Rows grouped by player, team, season, opponent, ground, batting position, phase or innings,
+    and optionally split into up to eight series (players season by season); filters for up
+    to six players, team, opponent, ground, seasons, position, innings and phase; a minimum
+    sample, a sort and up to 50 rows. Equal figures share a rank.
+  - Eleven templates, eight chart types (from the shared SVG charts, now with value labels on
+    or off and a picture of the maker's own, read in the browser and never uploaded), three
+    sizes and four themes with an accent colour and titles.
+  - PNG, SVG and CSV downloads and a full-size view; the design lives in the link (anything a
+    link gets wrong falls back to the template), and designs can be saved in the browser.
+  - The query behind the figures is shown, with its values listed apart: specs are checked
+    against a fixed catalog and the client never sends SQL. Queries run with a 10-second limit,
+    two at a time, and are cached per data version.
+  - "Make a chart" links from player pages, Compare and the record lists Chart Studio can draw.
+  - API `POST /api/v2/{competition}/studio/query` and `GET /api/v2/{competition}/studio/options`.
+    In the sidebar, search and the sitemap.
 - **On this day** (`/on-this-day` and `/on-this-day/november-5`, a page for every date,
   29 February included).
   - Every match that started on the date in any year, across all eight competitions (each
@@ -202,6 +224,10 @@ All notable changes to this project are documented here. The format follows [Kee
   Manhattan chart.
 
 ### Fixed
+- Charts saved as SVG or PNG: the fonts' quoted names were written into the SVG unescaped,
+  which made the file invalid (a PNG couldn't be drawn from it), and the fonts' files were looked
+  up beside the page rather than their stylesheet, so none were embedded. Both are fixed, and the
+  end-to-end tests now check the saved SVG parses and carries its fonts.
 - Building the IPL from Cricsheet's full archive stopped at 23 grounds Cricsheet now names with
   their city ("Barabati Stadium, Cuttack", "Feroz Shah Kotla, Delhi", "Mangaung Oval,
   Bloemfontein" and others from the 2008-2014 seasons). Each is added to `config/venues.yaml` as

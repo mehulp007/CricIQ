@@ -44,6 +44,15 @@ export function resolveVariables(
   return text.replace(/var\((--[\w-]+)\)/g, (_, name: string) => lookup(name).trim() || fallback);
 }
 
+/** ``text`` made safe inside an XML attribute value or text node. */
+export function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 /** Every family a CSS ``font-family`` value names, unquoted ("'Geist', sans-serif" -> Geist, sans-serif). */
 export function fontFamilies(value: string): string[] {
   return value
@@ -70,7 +79,8 @@ async function dataUrl(url: string): Promise<string | null> {
 
 /** ``@font-face`` rules for the given families, with their files inlined. */
 async function embeddedFonts(families: Set<string>): Promise<string> {
-  const rules: CSSFontFaceRule[] = [];
+  // Each rule with the stylesheet its relative url() resolves against.
+  const rules: { rule: CSSFontFaceRule; base: string }[] = [];
   for (const sheet of Array.from(document.styleSheets)) {
     let list: CSSRuleList;
     try {
@@ -81,18 +91,30 @@ async function embeddedFonts(families: Set<string>): Promise<string> {
     for (const rule of Array.from(list)) {
       if (rule instanceof CSSFontFaceRule) {
         const family = fontFamilies(rule.style.getPropertyValue("font-family"))[0];
-        if (family && families.has(family)) rules.push(rule);
+        if (family && families.has(family)) {
+          rules.push({ rule, base: sheet.href ?? document.baseURI });
+        }
       }
     }
   }
   const css = await Promise.all(
-    rules.map(async (rule) => {
+    rules.map(async ({ rule, base }) => {
       const src = rule.style.getPropertyValue("src");
       const match = /url\(["']?([^"')]+)["']?\)/.exec(src);
       if (!match) return "";
-      const inlined = await dataUrl(new URL(match[1], document.baseURI).href);
+      const inlined = await dataUrl(new URL(match[1], base).href);
       if (!inlined) return "";
-      return rule.cssText.replace(src, `url(${inlined})`);
+      const style = rule.style;
+      const range = style.getPropertyValue("unicode-range");
+      return [
+        "@font-face{",
+        `font-family:${style.getPropertyValue("font-family")};`,
+        `src:url(${inlined});`,
+        `font-weight:${style.getPropertyValue("font-weight") || "normal"};`,
+        `font-style:${style.getPropertyValue("font-style") || "normal"};`,
+        range ? `unicode-range:${range};` : "",
+        "}",
+      ].join("");
     }),
   );
   return css.filter(Boolean).join("\n");
@@ -110,8 +132,9 @@ export async function svgDocument(svg: SVGSVGElement): Promise<string> {
   clone.removeAttribute("class");
 
   const root = getComputedStyle(document.documentElement);
+  // Values go into attributes, so their quotes ('"Geist", "Geist Fallback"') are escaped.
   const markup = resolveVariables(new XMLSerializer().serializeToString(clone), (name) =>
-    root.getPropertyValue(name),
+    escapeXml(root.getPropertyValue(name)),
   );
 
   const families = new Set<string>();

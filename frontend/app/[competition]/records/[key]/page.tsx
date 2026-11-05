@@ -1,3 +1,4 @@
+import { ChartColumn } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,6 +17,7 @@ import {
   type CompetitionId,
 } from "@/lib/competitions";
 import { GROUP_LABELS, PAGE_SIZE, pageOf, recordQuery } from "@/lib/records";
+import { recordChartPath } from "@/lib/studio";
 import { toSearchParams, withParam } from "@/lib/url";
 
 export async function generateMetadata({
@@ -44,15 +46,23 @@ export default async function RecordPage({
   const competition = id as CompetitionId;
   const c = getCompetition(competition);
   const raw = await searchParams;
+  const query = recordQuery(raw, { wicket: true });
   let data;
   try {
-    data = await getRecord(competition, key, recordQuery(raw, { wicket: true }));
+    data = await getRecord(competition, key, query);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 422)) notFound();
     throw error;
   }
   const meta = await getMeta(competition);
   const { record } = data;
+  const chart = recordChartPath(record.key, {
+    team: query.get("team") ?? undefined,
+    opponent: query.get("opponent") ?? undefined,
+    venue: query.get("venue") ?? undefined,
+    from: query.get("from") ?? undefined,
+    to: query.get("to") ?? undefined,
+  });
   const page = pageOf(raw);
   const pages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
 
@@ -107,6 +117,18 @@ export default async function RecordPage({
       <PageHeader
         eyebrow={`${c.label} · ${GROUP_LABELS[record.group]}`}
         title={record.label}
+        actions={
+          chart && (
+            <Link
+              href={competitionPath(competition, chart)}
+              prefetch={false}
+              className="inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:text-primary hover:underline"
+            >
+              <ChartColumn className="size-4" aria-hidden="true" />
+              Make a chart
+            </Link>
+          )
+        }
         description={
           <>
             {record.description}

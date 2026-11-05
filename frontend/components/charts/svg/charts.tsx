@@ -27,7 +27,13 @@ interface Base {
 const shown = (row: BarRow, digits = 2) => row.display ?? formatFigure(row.value, digits);
 
 /** Horizontal bars with their figures beside them: a leaderboard, a career by format. */
-export function BarChart({ plot, theme, frame, rows }: Base & { rows: BarRow[] }) {
+export function BarChart({
+  plot,
+  theme,
+  frame,
+  rows,
+  labels = true,
+}: Base & { rows: BarRow[]; labels?: boolean }) {
   const m = frameMetrics(frame.width, frame.height);
   const values = rows.map((r) => r.value ?? 0);
   const lo = Math.min(0, ...values);
@@ -65,17 +71,21 @@ export function BarChart({ plot, theme, frame, rows }: Base & { rows: BarRow[] }
               height={bar}
               rx={Math.min(6, bar / 4)}
               fill={row.color ?? theme.series[0]}
-            />
-            <text
-              x={x1 + font * 0.6}
-              y={cy + font * 0.35}
-              fill={theme.foreground}
-              fontFamily={FONTS.mono}
-              fontSize={font}
-              fontWeight={600}
             >
-              {shown(row)}
-            </text>
+              <title>{`${row.label}: ${shown(row)}`}</title>
+            </rect>
+            {labels && (
+              <text
+                x={x1 + font * 0.6}
+                y={cy + font * 0.35}
+                fill={theme.foreground}
+                fontFamily={FONTS.mono}
+                fontSize={font}
+                fontWeight={600}
+              >
+                {shown(row)}
+              </text>
+            )}
           </g>
         );
       })}
@@ -91,11 +101,14 @@ export function ColumnChart({
   rows,
   line,
   labelEvery = 1,
+  values = false,
 }: Base & {
   rows: BarRow[];
   line?: { label: string; values: (number | null)[]; color?: string };
   /** Label every n-th column (overs 1, 5, 10, ...). */
   labelEvery?: number;
+  /** Write each column's figure above it. */
+  values?: boolean;
 }) {
   const m = frameMetrics(frame.width, frame.height);
   const font = m.label;
@@ -157,6 +170,19 @@ export function ColumnChart({
             >
               <title>{`${row.label}: ${shown(row)}`}</title>
             </rect>
+            {values && row.value !== null && (
+              <text
+                x={left + slot * i + slot / 2}
+                y={bottom - h - font * 0.5}
+                textAnchor="middle"
+                fill={theme.foreground}
+                fontFamily={FONTS.mono}
+                fontSize={Math.min(font, slot * 0.4)}
+                fontWeight={600}
+              >
+                {shown(row)}
+              </text>
+            )}
             {(i % labelEvery === 0 || i === rows.length - 1) && (
               <text
                 x={left + slot * i + slot / 2}
@@ -206,13 +232,22 @@ export function GroupedBars({
   frame,
   rows,
   series,
-}: Base & { rows: SeriesRow[]; series: string[] }) {
+  labels = true,
+  sharedScale = false,
+}: Base & {
+  rows: SeriesRow[];
+  series: string[];
+  labels?: boolean;
+  /** One scale for every bar (the same measure split by player), not one per series. */
+  sharedScale?: boolean;
+}) {
   const m = frameMetrics(frame.width, frame.height);
   const font = m.label;
   const legendHeight = font * 2;
   const labelWidth = plot.width * 0.22;
   const figureWidth = plot.width * 0.12;
-  const maxes = series.map((_, s) => Math.max(...rows.map((r) => r.values[s] ?? 0), 1e-9));
+  const own = series.map((_, s) => Math.max(...rows.map((r) => r.values[s] ?? 0), 1e-9));
+  const maxes = sharedScale ? own.map(() => Math.max(...own)) : own;
   const area = plot.height - legendHeight;
   const group = area / Math.max(1, rows.length);
   const bar = Math.min((group * 0.78) / Math.max(1, series.length), font * 1.8);
@@ -257,15 +292,17 @@ export function GroupedBars({
                     rx={Math.min(4, bar / 4)}
                     fill={color(s)}
                   />
-                  <text
-                    x={plot.x + labelWidth + Math.max(0, w) + font * 0.5}
-                    y={by + bar * 0.5 + barFont * 0.35}
-                    fill={theme.foreground}
-                    fontFamily={FONTS.mono}
-                    fontSize={barFont}
-                  >
-                    {row.displays?.[s] ?? formatFigure(v)}
-                  </text>
+                  {labels && (
+                    <text
+                      x={plot.x + labelWidth + Math.max(0, w) + font * 0.5}
+                      y={by + bar * 0.5 + barFont * 0.35}
+                      fill={theme.foreground}
+                      fontFamily={FONTS.mono}
+                      fontSize={barFont}
+                    >
+                      {row.displays?.[s] ?? formatFigure(v)}
+                    </text>
+                  )}
                 </g>
               );
             })}
@@ -283,7 +320,13 @@ export function LineChart({
   frame,
   labels,
   series,
-}: Base & { labels: string[]; series: { name: string; values: (number | null)[] }[] }) {
+  values = true,
+}: Base & {
+  labels: string[];
+  series: { name: string; values: (number | null)[] }[];
+  /** Write each line's last figure beside it. */
+  values?: boolean;
+}) {
   const m = frameMetrics(frame.width, frame.height);
   const font = m.label;
   const axisWidth = font * 3.4;
@@ -358,7 +401,7 @@ export function LineChart({
                 <title>{`${s.name}: ${formatFigure(v)}`}</title>
               </circle>
             ))}
-            {pts.length > 0 && (
+            {values && pts.length > 0 && (
               <text
                 x={pts[pts.length - 1][0]}
                 y={pts[pts.length - 1][1] - font * 0.8}
@@ -384,7 +427,8 @@ export function SmallMultiples({
   theme,
   frame,
   panels,
-}: Base & { panels: { title: string; rows: BarRow[] }[] }) {
+  labels = true,
+}: Base & { panels: { title: string; rows: BarRow[] }[]; labels?: boolean }) {
   const m = frameMetrics(frame.width, frame.height);
   const columns =
     frame.width >= frame.height * 1.3 ? Math.min(3, panels.length) : Math.min(2, panels.length);
@@ -415,6 +459,7 @@ export function SmallMultiples({
               theme={theme}
               frame={{ width: frame.width / columns, height: frame.height / rowsOfPanels }}
               rows={panel.rows}
+              labels={labels}
             />
           </g>
         );
@@ -528,7 +573,13 @@ export function TableCard({
               return (
                 <text
                   key={c}
-                  x={c === 0 ? plot.x + font * 0.4 : colX(c)}
+                  x={
+                    c === 0
+                      ? plot.x + font * 0.4
+                      : numeric
+                        ? colX(c)
+                        : plot.x + first + rest * (c - 1) + font * 0.4
+                  }
                   y={ry + rowHeight / 2 + font * 0.35}
                   textAnchor={numeric && c > 0 ? "end" : "start"}
                   fill={r === 0 ? theme.muted : theme.foreground}

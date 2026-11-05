@@ -74,6 +74,26 @@ def test_packs_and_installs_every_database(exports: Path, tmp_path: Path) -> Non
     assert not list(target.glob(".incoming-*"))
 
 
+def test_packs_the_daily_notes_and_installs_a_zip_without_them(
+    exports: Path, tmp_path: Path
+) -> None:
+    database(exports / "notes.duckdb")
+    with_notes = tmp_path / "with-notes.zip"
+    assert "notes.duckdb" in snapshot.pack(exports, with_notes)["files"]
+    target = tmp_path / "fresh" / "exports"
+    snapshot.install(with_notes, target, "2.0.0")
+    assert (target / "notes.duckdb").exists()
+
+    # An older zip, made before the notes, still installs, and drops the notes it lacks
+    # (they would come from another build).
+    (exports / "notes.duckdb").unlink()
+    older = tmp_path / "older.zip"
+    snapshot.pack(exports, older)
+    snapshot.install(older, target, "2.0.0")
+    assert not (target / "notes.duckdb").exists()
+    assert (target / "serving.duckdb").exists()
+
+
 def test_refuses_a_file_that_does_not_match_its_checksum(exports: Path, tmp_path: Path) -> None:
     archive = tmp_path / "criciq-data.zip"
     snapshot.pack(exports, archive)

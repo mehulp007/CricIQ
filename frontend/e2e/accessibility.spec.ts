@@ -18,6 +18,8 @@ const PAGES = [
   "/ipl/studio",
   "/ipl/studio?t=timeline&theme=paper",
   "/ipl/studio?t=match",
+  "/notes",
+  "/notes/2025-06-03",
   "/ipl/matchups",
   "/ipl/matchups?batter=ba607b88&bowler=462411b3",
   "/ipl/compare",

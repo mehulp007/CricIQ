@@ -62,6 +62,10 @@ sync *args:
 extras *args:
     uv run criciq-data extras {{args}}
 
+# (Re)build the daily notes from every competition's serving database
+notes:
+    uv run criciq-data notes
+
 # The data version, recent syncs and quarantined matches
 sync-status:
     uv run criciq-data sync-status

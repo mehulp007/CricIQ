@@ -5,6 +5,26 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Daily notes** (`/notes` and a page per day, `/notes/2026-05-31`), for every competition.
+  - One note for every day a match ended, for the whole archive, written by fixed rules from the
+    serving databases alone (`criciq_pipelines.notes`), so the same data always gives the same
+    text. For each match: the result (margin, method, where it sat in the season or series,
+    the innings totals, the best batting and bowling and the player of the match); the ball
+    with the biggest win-probability swing and the highest win probability added (both labelled
+    model estimates); milestones within the competition's data (runs at every 1,000, or 500 in
+    the leagues; wickets and matches at every 50); entries into the top 10 of the highest
+    totals, scores, partnerships and best figures so far; and a league side's table position or
+    a series score. Each item says why it matters when there is something to say.
+  - A note page has the day's figures as an image (with the players' totals in the competition's
+    data before and after, as a PNG to download), links to the replay at the ball, players,
+    record lists and series, the notes before and after, and Article structured data.
+  - `notes.duckdb`, built by `criciq-data notes` (`just notes`), by every sync after scoring
+    (a failure only logs a warning) and by full builds, CI and the API image; it is in the data
+    zip, and an older zip without it still installs.
+  - API `GET /api/v2/notes` (newest first, with `before` and `competition`), `/notes/dates` and
+    `/notes/{date}`; without a notes database they return no notes. An RSS feed of the latest
+    30 (`/notes/feed.xml`); the home page and each competition's home show the latest notes.
+    In the sidebar and the sitemap (with every note's date).
 - **Chart Studio**, for every competition (`/[competition]/studio`).
   - Six datasets: batting innings, bowling innings, batting and bowling by phase, careers
     (batting, bowling, fielding and win probability added per player) and team results.
@@ -224,6 +244,8 @@ All notable changes to this project are documented here. The format follows [Kee
   Manhattan chart.
 
 ### Fixed
+- Chart Studio was prerendered at build time, which has no API, and the build failed; it now
+  renders for each request.
 - Charts saved as SVG or PNG: the fonts' quoted names were written into the SVG unescaped,
   which made the file invalid (a PNG couldn't be drawn from it), and the fonts' files were looked
   up beside the page rather than their stylesheet, so none were embedded. Both are fixed, and the

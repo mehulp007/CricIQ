@@ -16,6 +16,7 @@ from criciq_api.api.v2.routers import (
     matches,
     matchups,
     meta,
+    notes,
     on_this_day,
     phases,
     players,
@@ -34,6 +35,7 @@ def _competition(competition: players.Competition) -> str:
 
 api_router = APIRouter(prefix="/api/v2")
 api_router.include_router(players.router)
+api_router.include_router(notes.router)
 
 competition_router = APIRouter(prefix="/{competition}", dependencies=[Depends(_competition)])
 for module in (

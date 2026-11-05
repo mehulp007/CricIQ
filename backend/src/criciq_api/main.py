@@ -16,7 +16,7 @@ from starlette.concurrency import run_in_threadpool
 from criciq_api import __version__
 from criciq_api.api.v2.router import api_router
 from criciq_api.core.config import Settings, get_settings
-from criciq_api.db import Database, serving_paths
+from criciq_api.db import Database, OptionalDatabase, serving_paths
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
 from criciq_api.services import players as players_service
@@ -66,6 +66,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if players.exists() or pending(players).exists()
             else None
         )
+        app.state.notes = OptionalDatabase(settings.notes_db, settings.duckdb_memory_limit)
         for db in app.state.serving.values():
             _warm_up(db)
         try:
@@ -75,6 +76,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 db.close()
             if app.state.players_db is not None:
                 app.state.players_db.close()
+            app.state.notes.close()
 
     app = FastAPI(
         title="CricIQ API",
@@ -102,6 +104,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         players: Database | None = request.app.state.players_db
         if players is not None:
             await run_in_threadpool(players.refresh)
+        await run_in_threadpool(request.app.state.notes.refresh)
         response = await call_next(request)
         if request.url.path.startswith("/api/") and request.method == "GET":
             response.headers["X-Data-Version"] = _data_version(request, players)

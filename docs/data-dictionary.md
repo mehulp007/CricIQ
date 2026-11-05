@@ -307,6 +307,18 @@ Written by `criciq-ml score` with the committed models; the API never runs a mod
 | `score_projections` | first-innings state | Quantiles of the final total |
 | `models` | model name | Version, training seasons and served settings as JSON `info`; the win probability row also stores the pressure scale (mean swing and percentiles) |
 
+## Daily notes (`notes.duckdb`)
+
+Written by `criciq_pipelines.notes` (`criciq-data notes`, and every sync) from the serving
+databases: one note per day a match ended. Competition ids are the site's (`ipl`, `t20i`).
+
+| Table | Grain | Notes |
+|---|---|---|
+| `notes` | day | `date` (the day the matches ended), `slug` ("2026-05-31"), `headline` (the first item's title, or a new record's), `summary` (the top items' titles), `competitions`, `match_count`, `data_version`, `added_on` (when the day's newest match came into the data, from the ingest log; else the build time) |
+| `note_items` | day × position | `kind` (`result`, `turning_point`, `match_winner`, `milestone`, `record`, `standings`), `competition_id`, `match_id`, `title`, `body`, `why_it_matters` (empty when nothing more needs saying), `links` (JSON list of `label` and site `href`); matches beyond a day's six most notable carry only their result and any new record |
+| `note_figures` | day × position | The day's standout batting and bowling: `player_id`, `name`, `team`, `kind`, `figure` ("75* (42)", "3/27"), `career_before` and `career_after` (the player's runs or wickets in the competition's data), `unit` |
+| `meta` | key | `data_version`, `pipeline_version`, `built_at`, `method` (the line every note ends with) |
+
 ## Data updates
 
 The ingest database `data/sync/ingest.duckdb` (written by `criciq-data sync` and `run`, ADR-0008):

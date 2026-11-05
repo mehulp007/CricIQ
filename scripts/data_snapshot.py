@@ -73,9 +73,9 @@ def pipeline_version() -> str:
 def database_files(exports: Path) -> list[Path]:
     """The databases the API serves: one per competition, and the players database."""
     files = sorted(exports.glob("serving*.duckdb"))
-    players = exports / "players.duckdb"
-    if players.exists():
-        files.append(players)
+    for name in ("players.duckdb", "notes.duckdb"):
+        if (exports / name).exists():
+            files.append(exports / name)
     return files
 
 
@@ -224,7 +224,7 @@ def install(archive: Path, exports: Path, expected_pipeline: str | None = None) 
             for name in files:
                 os.replace(staging / name, exports / name)
     # A database left over from an older snapshot (or a pending swap) would be served too.
-    for stale in exports.glob("serving*.duckdb*"):
+    for stale in [*exports.glob("serving*.duckdb*"), *exports.glob("notes.duckdb*")]:
         if stale.name not in files:
             stale.unlink(missing_ok=True)
     (exports / INSTALLED).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

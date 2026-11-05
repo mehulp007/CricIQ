@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, type CSSProperties } from "react";
 
 import { CompetitionPicker } from "@/components/competition/competition-picker";
+import { NotesWidget } from "@/components/notes/notes-widget";
 import { OnThisDayWidget } from "@/components/on-this-day/on-this-day-widget";
 import { Chapter, ChapterEyebrow, setupChapter, topBarHeight } from "@/components/landing/chapter";
 import { STORY } from "@/components/landing/copy";
@@ -478,6 +479,8 @@ export function LandingPage({ facts, ribbon, groups }: LandingData) {
         </section>
 
         <OnThisDayWidget />
+
+        <NotesWidget />
 
         <section aria-labelledby="more-heading" className="flex flex-col gap-4">
           <SectionHeader id="more-heading" title="How it works" />

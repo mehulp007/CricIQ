@@ -171,6 +171,13 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
   its figures as CSV, see the exact query behind every figure, and share the whole design as a
   link or keep it in your browser. Player pages, Compare and the record lists open it ready
   filled.
+- **Daily notes**: a short note for every day of cricket in the data, written automatically
+  from the data after every update: each result with its best figures, the ball that swung the
+  match and the player who added most to their side's chance of winning (both labelled as model
+  estimates), milestones, records and the league table or series score. Every sentence follows a
+  fixed rule and every figure comes from the ball-by-ball data. Each note links to the replay at
+  the ball, the players, the record lists and the series, and comes with an image of the day's
+  figures to download; there is an RSS feed, and the home pages show the latest notes.
 - **Matchups and Compare**: any batter against any bowler without over-reading small samples, and
   any two players side by side. A new matchup springs into place with its next-ball odds counting
   up, and two players to compare come in from either side.
@@ -229,7 +236,7 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   page, after it has painted, and Motion only with the match replay, so other pages start with
   about as much JavaScript as before any of it. The particles draw in batches and hold their frame
   rate on a slowed-down CPU, with fewer of them on phones.
-- **Quality:** 650+ Python tests, 280+ frontend tests and 530+ end-to-end tests on desktop and
+- **Quality:** 670+ Python tests, 280+ frontend tests and 560+ end-to-end tests on desktop and
   mobile, plus an accessibility scan of every key page in both themes, run in CI on every push.
 
 | Layer | Tools |

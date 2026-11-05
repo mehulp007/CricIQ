@@ -213,6 +213,24 @@ again, which would drop its model tables and need every ball scored again:
 
 An extra that needs scores is skipped, with a note, in a database that has none.
 
+### 5c. Daily notes (`criciq-data notes`)
+
+`criciq_pipelines.notes` writes `data/exports/notes.duckdb`: one note for every day a match
+ended in any served competition, for the whole archive, read from the serving databases
+alone. Every sentence comes from a fixed rule and every figure in it from the tables (a
+result, the ball with the biggest win-probability swing, the highest win probability added,
+milestones within the competition's data, entries into a record list's top 10, a league
+position or series score), so the same data always gives the same notes. It takes about a
+minute and a quarter for all eight competitions.
+
+- `criciq-data notes` (`just notes`) rebuilds them from the published databases, with each
+  note's `added_on` from the ingest log; `scripts/v2_up.py --build-data` runs it after
+  `extras`, and so do CI and the API image.
+- A sync rebuilds them from its staging databases after scoring and publishes them with the
+  serving databases. If the notes fail, the sync logs a warning and goes on without them.
+- `just pack-data` puts `notes.duckdb` in the data zip; an older zip without it still
+  installs, and the site then shows no notes.
+
 ### 6. Player enrichment (`criciq-data enrich-players`, occasional)
 
 Cricsheet has no biographical attributes. This step links players through their ESPNcricinfo id to
@@ -285,8 +303,8 @@ just sync-status                 # data version, recent runs, quarantined matche
 2. **Diff.** Each match of a selected competition is compared with the **ingest log**
    (`data/sync/ingest.duckdb`) by the SHA-256 of its file: new, corrected, unchanged or withdrawn.
 3. **Apply.** Only those matches' rows change in the interim tables; the warehouse, validation, the
-   IPL copy, the serving database (every ball scored) and the players database are rebuilt, all into
-   staging files.
+   IPL copy, the serving database (every ball scored), the players database and the daily notes are
+   rebuilt, all into staging files.
 4. **Quarantine.** A new match that cannot be built (an unknown ground or team in the strict IPL)
    or fails validation is set aside with its reason and the rest go in; a bad correction keeps the
    previous version. Fix the config (e.g. add the ground to `config/venues.yaml`), then

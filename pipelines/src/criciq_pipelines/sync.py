@@ -53,6 +53,7 @@ from criciq_pipelines import pipeline, raw
 from criciq_pipelines.export import export_serving
 from criciq_pipelines.extract import SCHEMAS, ExtractError, parse_match
 from criciq_pipelines.extras import extend_database
+from criciq_pipelines.notes import build_notes
 from criciq_pipelines.player_db import export_players
 from criciq_pipelines.reference import CompetitionsConfig, load_competitions
 from criciq_pipelines.scope import build_scope
@@ -392,6 +393,7 @@ class _Workspace:
     players: Path
     # Serving databases of the other served competitions (pipeline.exported_competitions).
     servings: dict[str, Path]
+    notes: Path
     report: ValidationReport | None = None
 
     @classmethod
@@ -411,6 +413,7 @@ class _Workspace:
             servings={
                 c: _beside(paths.serving_path(c), ".sync") for c in pipeline.exported_competitions()
             },
+            notes=_beside(paths.notes_path(), ".sync"),
         )
 
     def clean(self) -> None:
@@ -421,6 +424,7 @@ class _Workspace:
             self.serving,
             self.players,
             *self.servings.values(),
+            self.notes,
         ):
             path.unlink(missing_ok=True)
 
@@ -620,6 +624,32 @@ def _apply(
         for path in (workspace.serving, *workspace.servings.values()):
             if path.exists():
                 extend_database(path, only_scored=True, log=log)
+    if scoped:
+        _write_notes(con, plan, workspace, started, log)
+
+
+def _write_notes(
+    con: duckdb.DuckDBPyConnection,
+    plan: Plan,
+    workspace: _Workspace,
+    started: dt.datetime,
+    log: Log,
+) -> None:
+    """Rebuild the daily notes from the staging databases; a failure never fails the sync."""
+    servings = {c: paths.serving_path(c) for c in pipeline.served_competitions()}
+    for competition, path in {pipeline.SCOPED[0]: workspace.serving, **workspace.servings}.items():
+        if path.exists():
+            servings[competition] = path
+    rows = con.execute("SELECT match_id, first_seen FROM ingest_log").fetchall()
+    added = {int(m): seen for m, seen in rows}
+    for item in plan.new:
+        added.setdefault(item.match_id, started.replace(tzinfo=None))
+    log("> writing the daily notes ...")
+    try:
+        build_notes(servings, workspace.notes, added=added, log=log)
+    except Exception as exc:  # notes are extra: the data still goes out
+        workspace.notes.unlink(missing_ok=True)
+        log(f"  warning: the daily notes were not rebuilt ({exc})")
 
 
 def _files_in_use(
@@ -808,6 +838,8 @@ def _commit(
     for competition, path in workspace.servings.items():
         if path.exists():
             publish(path, paths.serving_path(competition))
+    if workspace.notes.exists():
+        publish(workspace.notes, paths.notes_path())
 
     source = (store / "matches.zip").relative_to(paths.raw_dir()).as_posix()
     quarantined = {q.match_id: q for q in result.quarantined}

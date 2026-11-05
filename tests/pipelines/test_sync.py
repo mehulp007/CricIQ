@@ -213,6 +213,39 @@ def test_a_full_check_finds_withdrawn_matches(built: Path) -> None:
     ]
 
 
+def test_a_sync_writes_the_day_s_note(built: Path) -> None:
+    assert not paths.notes_path().exists()
+    feed = _zip(built / "feed.zip", {m: _file(m) for m in HELD})
+    result = _sync(feed, feed=sync.WEEK_FEED)
+    assert result.status == "updated"
+    rows = _query(
+        paths.notes_path(),
+        "SELECT n.headline, i.match_id FROM notes n JOIN note_items i USING (date) "
+        "WHERE n.date = '2025-06-03' AND i.kind = 'result'",
+    )
+    assert rows == [
+        ("Royal Challengers Bengaluru beat Punjab Kings by 6 runs in the IPL 2025 final", HELD[0])
+    ]
+    # The note was added with the match, by this sync.
+    (added,) = _query(paths.notes_path(), "SELECT added_on FROM notes WHERE date = '2025-06-03'")
+    (seen,) = _ingest("SELECT first_seen FROM ingest_log WHERE match_id = ?", [HELD[0]])
+    assert added == seen
+    assert not sync._beside(paths.notes_path(), ".sync").exists()
+
+
+def test_a_failed_note_never_fails_the_sync(built: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken(*_: Any, **__: Any) -> dict[str, int]:
+        raise RuntimeError("no notes today")
+
+    monkeypatch.setattr(sync, "build_notes", broken)
+    lines: list[str] = []
+    feed = _zip(built / "feed.zip", {m: _file(m) for m in HELD})
+    result = _sync(feed, feed=sync.WEEK_FEED, log=lines.append)
+    assert result.status == "updated"
+    assert any("daily notes were not rebuilt (no notes today)" in line for line in lines)
+    assert not paths.notes_path().exists()
+
+
 def test_a_failed_sync_changes_nothing(built: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     version = pipeline.current_state().version
 

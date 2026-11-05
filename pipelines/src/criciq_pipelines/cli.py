@@ -17,6 +17,7 @@ import typer
 
 from criciq_core import paths
 from criciq_pipelines import extras as extras_engine
+from criciq_pipelines import notes as notes_engine
 from criciq_pipelines import pipeline, raw
 from criciq_pipelines import sync as sync_engine
 from criciq_pipelines.validation import ValidationReport
@@ -172,6 +173,23 @@ def extras(
     for name, counts in found.items():
         typer.echo(f"  {name}: {paths.serving_path(name)}")
         _print_counts(counts)
+
+
+@app.command()
+def notes() -> None:
+    """(Re)build the daily notes (notes.duckdb) from every served competition's database."""
+    servings = {c: paths.serving_path(c) for c in pipeline.served_competitions()}
+    counts = _timed(
+        "writing the daily notes",
+        lambda: notes_engine.build_notes(
+            servings,
+            paths.notes_path(),
+            added=notes_engine.ingest_added(sync_engine.ingest_path()),
+            log=typer.echo,
+        ),
+    )
+    typer.echo(f"  {paths.notes_path()}")
+    _print_counts(counts)
 
 
 @app.command("export-players")

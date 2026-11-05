@@ -13,6 +13,9 @@ import type {
   MatchupList,
   MatchupPhase,
   Meta,
+  Note,
+  NoteDates,
+  NoteList,
   OnThisDay,
   PhaseAnalysis,
   RecordList,
@@ -129,6 +132,32 @@ export function getCompetitions(): Promise<CompetitionList> {
 /** A match's summary and scorecard. */
 export function getMatch(competition: CompetitionId, matchId: number): Promise<MatchDetail> {
   return apiGet<MatchDetail>(competition, `/matches/${matchId}`);
+}
+
+export interface NotesQuery {
+  limit?: number;
+  /** Only notes before this date ("2026-05-31"): the next, older page. */
+  before?: string;
+  competition?: CompetitionId;
+}
+
+/** The latest daily notes (refreshed like the metadata, so a sync's note shows quickly). */
+export function getNotes(query: NotesQuery = {}): Promise<NoteList> {
+  const params = new URLSearchParams();
+  params.set("limit", String(query.limit ?? 20));
+  if (query.before) params.set("before", query.before);
+  if (query.competition) params.set("competition", query.competition);
+  return fetchJson<NoteList>(`/api/v2/notes?${params}`, META_REVALIDATE_SECONDS);
+}
+
+/** One day's note in full ("2026-05-31"). */
+export function getNote(date: string): Promise<Note> {
+  return fetchJson<Note>(`/api/v2/notes/${date}`, META_REVALIDATE_SECONDS);
+}
+
+/** Every day with a note, newest first. */
+export function getNoteDates(): Promise<NoteDates> {
+  return fetchJson<NoteDates>("/api/v2/notes/dates", META_REVALIDATE_SECONDS);
 }
 
 export function getTimeline(competition: CompetitionId, matchId: number): Promise<Timeline> {

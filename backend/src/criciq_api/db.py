@@ -279,6 +279,31 @@ class ScopedDatabase(Database):
         pass
 
 
+class OptionalDatabase:
+    """A database that may not exist yet (the daily notes): opened once it appears."""
+
+    def __init__(self, path: Path, memory_limit: str | None = None) -> None:
+        self.path = path
+        self.memory_limit = memory_limit
+        self._db: Database | None = None
+        self._lock = threading.Lock()
+
+    def get(self) -> Database | None:
+        if self._db is None and (self.path.exists() or pending(self.path).exists()):
+            with self._lock:
+                if self._db is None:
+                    self._db = Database(self.path, self.memory_limit)
+        return self._db
+
+    def refresh(self) -> None:
+        if self._db is not None:
+            self._db.refresh()
+
+    def close(self) -> None:
+        if self._db is not None:
+            self._db.close()
+
+
 def serving_paths(ipl: Path) -> list[Path]:
     """The IPL's serving database and every other competition's beside it."""
     others = {p.name.split(".duckdb")[0] for p in ipl.parent.glob("serving-*.duckdb*")}

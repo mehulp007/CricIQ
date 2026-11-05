@@ -46,7 +46,8 @@ ADD https://cricsheet.org/register/people.csv /tmp/cricsheet/people.csv
 RUN uv run --frozen --no-sync criciq-data snapshot /tmp/cricsheet/ipl_json.zip /tmp/cricsheet/people.csv \
     && uv run --frozen --no-sync criciq-data run --no-download --report /tmp/data-quality-report.md \
     && uv run --frozen --no-sync criciq-ml score \
-    && uv run --frozen --no-sync criciq-data extras
+    && uv run --frozen --no-sync criciq-data extras \
+    && uv run --frozen --no-sync criciq-data notes
 
 # ---------------------------------------------------------------- runtime
 FROM python:${PYTHON_VERSION}-slim AS runtime
@@ -66,6 +67,8 @@ RUN uv sync --frozen --no-dev --package criciq-api \
 COPY --from=data /app/data/exports/serving.duckdb /app/data/exports/serving.duckdb
 # The Player Lab (/api/v2/{competition}/players) reads the players database.
 COPY --from=data /app/data/exports/players.duckdb /app/data/exports/players.duckdb
+# Daily notes (/api/v2/notes), written from the data.
+COPY --from=data /app/data/exports/notes.duckdb /app/data/exports/notes.duckdb
 # Phase labels and boundaries for player splits.
 COPY config/phases.yaml config/phases.yaml
 USER criciq

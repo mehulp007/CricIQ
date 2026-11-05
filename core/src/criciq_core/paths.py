@@ -66,6 +66,11 @@ def players_path() -> Path:
     return exports_dir() / "players.duckdb"
 
 
+def notes_path() -> Path:
+    """Daily notes for every competition, written from the data (criciq_pipelines.notes)."""
+    return exports_dir() / "notes.duckdb"
+
+
 def sync_dir() -> Path:
     """The ingest log and the record of every data update (criciq_pipelines.sync)."""
     return data_dir() / "sync"

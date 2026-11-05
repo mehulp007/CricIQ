@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { COMPETITIONS, competitionPath } from "@/lib/competitions";
+import { getNoteDates } from "@/lib/api/client";
 import { featuredMatches } from "@/lib/featured";
 import { labNotes } from "@/lib/lab";
 import { allDays, dateSlug } from "@/lib/on-this-day";
@@ -22,8 +23,19 @@ const SECTIONS = [
   "/models",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const global = ["", "/writeup", "/about", "/on-this-day"].map((path) => ({
+// Rebuilt daily, so each sync's new notes are listed (a build without the API lists none).
+export const revalidate = 86400;
+
+async function noteDates(): Promise<string[]> {
+  try {
+    return (await getNoteDates()).dates;
+  } catch {
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const global = ["", "/writeup", "/about", "/on-this-day", "/notes"].map((path) => ({
     url: `${SITE_URL}${path}`,
     priority: path ? 0.8 : 1,
   }));
@@ -54,5 +66,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     })),
   ]);
-  return [...global, ...days, ...pages];
+  const notes = (await noteDates()).map((date) => ({
+    url: `${SITE_URL}/notes/${date}`,
+    priority: 0.5,
+  }));
+  return [...global, ...days, ...notes, ...pages];
 }

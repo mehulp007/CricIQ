@@ -24,6 +24,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Notes
+         * @description The latest daily notes, newest first: one for every day matches ended, written
+         *     automatically from the data.
+         */
+        get: operations["read_notes_api_v2_notes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/notes/dates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Note Dates
+         * @description Every day with a note, newest first.
+         */
+        get: operations["read_note_dates_api_v2_notes_dates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/notes/{date}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Note
+         * @description One day's note in full: its items, the day's standout figures and the notes around it.
+         */
+        get: operations["read_note_api_v2_notes__date__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/players/{player_id}": {
         parameters: {
             query?: never;
@@ -2231,6 +2292,194 @@ export interface components {
             request: components["schemas"]["NextBallRequest"];
             /** With History */
             with_history: components["schemas"]["OutcomeProbability"][];
+        };
+        /** Note */
+        Note: {
+            /**
+             * Added On
+             * Format: date-time
+             * @description When the day's newest match came into the data.
+             */
+            added_on: string;
+            /**
+             * Competitions
+             * @description Site competition ids, "ipl", "t20i".
+             */
+            competitions: string[];
+            /** Data Version */
+            data_version: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Figures */
+            figures: components["schemas"]["NoteFigure"][];
+            /** Headline */
+            headline: string;
+            /** Items */
+            items: components["schemas"]["NoteItem"][];
+            /** Match Count */
+            match_count: number;
+            /** Method */
+            method: string;
+            /**
+             * Next
+             * @description The note after this one.
+             */
+            next: string | null;
+            /**
+             * Previous
+             * @description The note before this one.
+             */
+            previous: string | null;
+            /**
+             * Slug
+             * @description The note's path segment, "2026-05-31".
+             */
+            slug: string;
+            /**
+             * Summary
+             * @description The day's two or three main items.
+             */
+            summary: string;
+        };
+        /**
+         * NoteDates
+         * @description Every day with a note, newest first (for the sitemap).
+         */
+        NoteDates: {
+            /** Dates */
+            dates: string[];
+        };
+        /**
+         * NoteFigure
+         * @description One of the day's standout performances, with the player's totals before and after.
+         */
+        NoteFigure: {
+            /** Career After */
+            career_after: number;
+            /** Career Before */
+            career_before: number;
+            /** Competition */
+            competition: string;
+            /**
+             * Figure
+             * @description "75* (42)", "3/27".
+             */
+            figure: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "batting" | "bowling";
+            /** Match Id */
+            match_id: number;
+            /** Name */
+            name: string;
+            /** Player Id */
+            player_id: string;
+            /** Position */
+            position: number;
+            /** Team */
+            team: string | null;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "runs" | "wickets";
+        };
+        /** NoteItem */
+        NoteItem: {
+            /** Body */
+            body: string;
+            /** Competition */
+            competition: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "result" | "turning_point" | "match_winner" | "milestone" | "record" | "standings";
+            /** Links */
+            links: components["schemas"]["NoteLink"][];
+            /** Match Id */
+            match_id: number;
+            /**
+             * Model
+             * @description Its figures are model estimates (win probability).
+             */
+            model: boolean;
+            /** Position */
+            position: number;
+            /** Title */
+            title: string;
+            /**
+             * Why It Matters
+             * @description Empty when nothing more needs saying.
+             */
+            why_it_matters: string;
+        };
+        /** NoteLink */
+        NoteLink: {
+            /**
+             * Href
+             * @description A path on the site, "/ipl/matches/1473511?ball=2.95".
+             */
+            href: string;
+            /** Label */
+            label: string;
+        };
+        /** NoteList */
+        NoteList: {
+            /** Competition */
+            competition: string | null;
+            /**
+             * Data Version
+             * @description None when no notes have been written yet.
+             */
+            data_version: string | null;
+            /** Method */
+            method: string;
+            /**
+             * Next Before
+             * @description Pass as `before` for the next (older) page; none at the end.
+             */
+            next_before: string | null;
+            /** Notes */
+            notes: components["schemas"]["NoteSummary"][];
+        };
+        /** NoteSummary */
+        NoteSummary: {
+            /**
+             * Added On
+             * Format: date-time
+             * @description When the day's newest match came into the data.
+             */
+            added_on: string;
+            /**
+             * Competitions
+             * @description Site competition ids, "ipl", "t20i".
+             */
+            competitions: string[];
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Headline */
+            headline: string;
+            /** Match Count */
+            match_count: number;
+            /**
+             * Slug
+             * @description The note's path segment, "2026-05-31".
+             */
+            slug: string;
+            /**
+             * Summary
+             * @description The day's two or three main items.
+             */
+            summary: string;
         };
         /** OnThisDay */
         OnThisDay: {
@@ -4848,6 +5097,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompetitionList"];
+                };
+            };
+        };
+    };
+    read_notes_api_v2_notes_get: {
+        parameters: {
+            query?: {
+                /** @description Notes to return. */
+                limit?: number;
+                /** @description Only notes before this date (the next page). */
+                before?: string | null;
+                /** @description Only days with this competition's matches. */
+                competition?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_note_dates_api_v2_notes_dates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteDates"];
+                };
+            };
+        };
+    };
+    read_note_api_v2_notes__date__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Note"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

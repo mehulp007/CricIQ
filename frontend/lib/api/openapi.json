@@ -4273,6 +4273,407 @@
         "title": "NextBallResponse",
         "type": "object"
       },
+      "Note": {
+        "properties": {
+          "added_on": {
+            "description": "When the day's newest match came into the data.",
+            "format": "date-time",
+            "title": "Added On",
+            "type": "string"
+          },
+          "competitions": {
+            "description": "Site competition ids, \"ipl\", \"t20i\".",
+            "items": {
+              "type": "string"
+            },
+            "title": "Competitions",
+            "type": "array"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/NoteFigure"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NoteItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "match_count": {
+            "title": "Match Count",
+            "type": "integer"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The note after this one.",
+            "title": "Next"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The note before this one.",
+            "title": "Previous"
+          },
+          "slug": {
+            "description": "The note's path segment, \"2026-05-31\".",
+            "title": "Slug",
+            "type": "string"
+          },
+          "summary": {
+            "description": "The day's two or three main items.",
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "slug",
+          "headline",
+          "summary",
+          "competitions",
+          "match_count",
+          "added_on",
+          "items",
+          "figures",
+          "previous",
+          "next",
+          "data_version",
+          "method"
+        ],
+        "title": "Note",
+        "type": "object"
+      },
+      "NoteDates": {
+        "description": "Every day with a note, newest first (for the sitemap).",
+        "properties": {
+          "dates": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Dates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "dates"
+        ],
+        "title": "NoteDates",
+        "type": "object"
+      },
+      "NoteFigure": {
+        "description": "One of the day's standout performances, with the player's totals before and after.",
+        "properties": {
+          "career_after": {
+            "title": "Career After",
+            "type": "integer"
+          },
+          "career_before": {
+            "title": "Career Before",
+            "type": "integer"
+          },
+          "competition": {
+            "title": "Competition",
+            "type": "string"
+          },
+          "figure": {
+            "description": "\"75* (42)\", \"3/27\".",
+            "title": "Figure",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "batting",
+              "bowling"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team"
+          },
+          "unit": {
+            "enum": [
+              "runs",
+              "wickets"
+            ],
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "competition",
+          "match_id",
+          "player_id",
+          "name",
+          "team",
+          "kind",
+          "figure",
+          "career_before",
+          "career_after",
+          "unit"
+        ],
+        "title": "NoteFigure",
+        "type": "object"
+      },
+      "NoteItem": {
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "competition": {
+            "title": "Competition",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "result",
+              "turning_point",
+              "match_winner",
+              "milestone",
+              "record",
+              "standings"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/NoteLink"
+            },
+            "title": "Links",
+            "type": "array"
+          },
+          "match_id": {
+            "title": "Match Id",
+            "type": "integer"
+          },
+          "model": {
+            "description": "Its figures are model estimates (win probability).",
+            "title": "Model",
+            "type": "boolean"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "why_it_matters": {
+            "description": "Empty when nothing more needs saying.",
+            "title": "Why It Matters",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "kind",
+          "competition",
+          "match_id",
+          "title",
+          "body",
+          "why_it_matters",
+          "links",
+          "model"
+        ],
+        "title": "NoteItem",
+        "type": "object"
+      },
+      "NoteLink": {
+        "properties": {
+          "href": {
+            "description": "A path on the site, \"/ipl/matches/1473511?ball=2.95\".",
+            "title": "Href",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "NoteLink",
+        "type": "object"
+      },
+      "NoteList": {
+        "properties": {
+          "competition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competition"
+          },
+          "data_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None when no notes have been written yet.",
+            "title": "Data Version"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "next_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pass as `before` for the next (older) page; none at the end.",
+            "title": "Next Before"
+          },
+          "notes": {
+            "items": {
+              "$ref": "#/components/schemas/NoteSummary"
+            },
+            "title": "Notes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "notes",
+          "next_before",
+          "competition",
+          "data_version",
+          "method"
+        ],
+        "title": "NoteList",
+        "type": "object"
+      },
+      "NoteSummary": {
+        "properties": {
+          "added_on": {
+            "description": "When the day's newest match came into the data.",
+            "format": "date-time",
+            "title": "Added On",
+            "type": "string"
+          },
+          "competitions": {
+            "description": "Site competition ids, \"ipl\", \"t20i\".",
+            "items": {
+              "type": "string"
+            },
+            "title": "Competitions",
+            "type": "array"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "match_count": {
+            "title": "Match Count",
+            "type": "integer"
+          },
+          "slug": {
+            "description": "The note's path segment, \"2026-05-31\".",
+            "title": "Slug",
+            "type": "string"
+          },
+          "summary": {
+            "description": "The day's two or three main items.",
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "slug",
+          "headline",
+          "summary",
+          "competitions",
+          "match_count",
+          "added_on"
+        ],
+        "title": "NoteSummary",
+        "type": "object"
+      },
       "OnThisDay": {
         "properties": {
           "day": {
@@ -11432,6 +11833,158 @@
         "summary": "List Competitions",
         "tags": [
           "competitions"
+        ]
+      }
+    },
+    "/api/v2/notes": {
+      "get": {
+        "description": "The latest daily notes, newest first: one for every day matches ended, written\nautomatically from the data.",
+        "operationId": "read_notes_api_v2_notes_get",
+        "parameters": [
+          {
+            "description": "Notes to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Notes to return.",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Only notes before this date (the next page).",
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only notes before this date (the next page).",
+              "title": "Before"
+            }
+          },
+          {
+            "description": "Only days with this competition's matches.",
+            "in": "query",
+            "name": "competition",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^[a-z0-9]{2,8}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only days with this competition's matches.",
+              "title": "Competition"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Notes",
+        "tags": [
+          "notes"
+        ]
+      }
+    },
+    "/api/v2/notes/dates": {
+      "get": {
+        "description": "Every day with a note, newest first.",
+        "operationId": "read_note_dates_api_v2_notes_dates_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDates"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Note Dates",
+        "tags": [
+          "notes"
+        ]
+      }
+    },
+    "/api/v2/notes/{date}": {
+      "get": {
+        "description": "One day's note in full: its items, the day's standout figures and the notes around it.",
+        "operationId": "read_note_api_v2_notes__date__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "Date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Note"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Note",
+        "tags": [
+          "notes"
         ]
       }
     },

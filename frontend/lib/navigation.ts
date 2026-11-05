@@ -12,6 +12,7 @@ import {
   Info,
   LayoutDashboard,
   Medal,
+  Newspaper,
   Shield,
   Swords,
   Trophy,
@@ -99,6 +100,7 @@ export const SECONDARY_NAV: readonly NavItem[] = [
     icon: CalendarDays,
     milestone: "V5",
   },
+  { path: "/notes", scope: "global", label: "Daily notes", icon: Newspaper, milestone: "V5" },
   { path: "/writeup", scope: "global", label: "The write-up", icon: BookOpen, milestone: "v1.0" },
   { path: "/about", scope: "global", label: "About & Methodology", icon: Info, milestone: "M0" },
 ];

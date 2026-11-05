@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { RecordCard } from "@/components/records/record-card";
 import { CoverageNote } from "@/components/ui/coverage-note";
@@ -22,6 +23,9 @@ export async function generateMetadata({
 }
 
 export default async function RecordsPage({ params }: PageProps<"/[competition]/records">) {
+  // Rendered per request, like the other API pages (a build needs no API); the API's
+  // answer is still cached for a day.
+  await connection();
   const competition = (await params).competition as CompetitionId;
   const c = getCompetition(competition);
   const hub = await getRecords(competition);

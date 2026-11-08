@@ -53,6 +53,14 @@ class NoteItem(BaseModel):
     model: bool = Field(description="Its figures are model estimates (win probability).")
 
 
+class MatchNote(BaseModel):
+    """A match's place in the daily notes: the day's note and the match's own items."""
+
+    date: dt.date
+    headline: str
+    items: list[NoteItem]
+
+
 class NoteFigure(BaseModel):
     """One of the day's standout performances, with the player's totals before and after."""
 

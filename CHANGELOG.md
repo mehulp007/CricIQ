@@ -5,6 +5,20 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **The new tools, tied together.**
+  - Player pages list the records a player holds (each place in the top 10 of a record list,
+    with a chart of the list); API `GET /api/v2/{competition}/records/players/{player_id}`.
+  - Match replays show the match as the daily notes told it (its turning point, match-winner,
+    milestones and records); API `GET /api/v2/notes/matches/{competition}/{match_id}`.
+  - A team page's phase tables link to Phases filtered to that side and its seasons.
+  - Search finds every record list, and a date ("15 April 2024", "april 15") leads to that
+    day's note and to On This Day.
+  - About & Methodology explains the phases per format, the records' coverage and
+    qualifications, Chart Studio's measures and limits, how On This Day ranks matches and how
+    the daily notes are written.
+  - ADR-0017 (why the notes are rule-based and use only CricIQ's data); the architecture notes
+    the notes step; `scripts/perf.py` times the phases, records, On This Day, Chart Studio and
+    notes endpoints too.
 - **Daily notes** (`/notes` and a page per day, `/notes/2026-05-31`), for every competition.
   - One note for every day a match ended, for the whole archive, written by fixed rules from the
     serving databases alone (`criciq_pipelines.notes`), so the same data always gives the same
@@ -244,6 +258,8 @@ All notable changes to this project are documented here. The format follows [Kee
   Manhattan chart.
 
 ### Fixed
+- A Chart Studio chart split by season kept the earliest eight seasons; it now keeps the latest,
+  listed in order.
 - Chart Studio was prerendered at build time, which has no API, and the build failed; it now
   renders for each request.
 - Charts saved as SVG or PNG: the fonts' quoted names were written into the SVG unescaped,

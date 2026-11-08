@@ -8,6 +8,7 @@ import json
 
 from criciq_api.db import Database, Row
 from criciq_api.schemas.notes import (
+    MatchNote,
     Note,
     NoteDates,
     NoteFigure,
@@ -105,6 +106,40 @@ def list_notes(
     return found
 
 
+def _item(i: Row) -> NoteItem:
+    return NoteItem(
+        position=i["position"],
+        kind=i["kind"],
+        competition=i["competition_id"],
+        match_id=i["match_id"],
+        title=i["title"],
+        body=i["body"],
+        why_it_matters=i["why_it_matters"],
+        links=[NoteLink(**link) for link in json.loads(i["links"])],
+        model=i["kind"] in MODEL_KINDS,
+    )
+
+
+def match_note(db: Database | None, competition: str, match_id: int) -> MatchNote | None:
+    """The note that tells of a match, with the match's own items."""
+    if db is None:
+        return None
+    items = db.rows(
+        """
+        SELECT i.*, n.headline FROM note_items i JOIN notes n USING (date)
+        WHERE i.competition_id = ? AND i.match_id = ? ORDER BY i.position
+        """,
+        [competition, match_id],
+    )
+    if not items:
+        return None
+    return MatchNote(
+        date=items[0]["date"],
+        headline=items[0]["headline"],
+        items=[_item(i) for i in items],
+    )
+
+
 def note_dates(db: Database | None) -> NoteDates:
     if db is None:
         return NoteDates(dates=[])
@@ -134,20 +169,7 @@ def get_note(db: Database | None, date: dt.date) -> Note | None:
     assert around is not None
     note = Note(
         **_summary(found).model_dump(),
-        items=[
-            NoteItem(
-                position=i["position"],
-                kind=i["kind"],
-                competition=i["competition_id"],
-                match_id=i["match_id"],
-                title=i["title"],
-                body=i["body"],
-                why_it_matters=i["why_it_matters"],
-                links=[NoteLink(**link) for link in json.loads(i["links"])],
-                model=i["kind"] in MODEL_KINDS,
-            )
-            for i in items
-        ],
+        items=[_item(i) for i in items],
         figures=[
             NoteFigure(
                 position=f["position"],

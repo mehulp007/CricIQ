@@ -10,6 +10,7 @@ const link =
 
 /** One match on the day: when, the standout figure, the result and where to go next. */
 export function EntryCard({ entry, hero = false }: { entry: DatedEntry; hero?: boolean }) {
+  const Heading = hero ? "h2" : "h3";
   const match = competitionPath(entry.competition, `/matches/${entry.match_id}`);
   const stage = entry.stage && entry.stage !== "League" ? entry.stage : null;
   const { highlight, swing } = entry;
@@ -26,7 +27,8 @@ export function EntryCard({ entry, hero = false }: { entry: DatedEntry; hero?: b
         {stage && ` · ${stage}`}
       </p>
       <div className="flex items-start justify-between gap-4">
-        <h3
+        {/* The day's lead match comes before the page's other sections, so it is one of them. */}
+        <Heading
           id={`entry-${entry.competition}-${entry.match_id}`}
           className={cn(
             "min-w-0 font-semibold tracking-tight",
@@ -34,7 +36,7 @@ export function EntryCard({ entry, hero = false }: { entry: DatedEntry; hero?: b
           )}
         >
           {entry.headline}
-        </h3>
+        </Heading>
         {highlight && (
           <p className="shrink-0 text-right">
             <span

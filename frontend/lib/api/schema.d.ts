@@ -65,6 +65,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/notes/matches/{competition}/{match_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Match Note
+         * @description The daily note that tells of a match, with the match's own items.
+         */
+        get: operations["read_match_note_api_v2_notes_matches__competition___match_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/notes/{date}": {
         parameters: {
             query?: never;
@@ -466,6 +486,26 @@ export interface paths {
          * @description Every record in the competition's ball-by-ball data, with its holder.
          */
         get: operations["read_records_api_v2__competition__records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/{competition}/records/players/{player_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Records Held
+         * @description A player's places in the top 10 of every record list in the competition's data.
+         */
+        get: operations["read_records_held_api_v2__competition__records_players__player_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1907,6 +1947,15 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** HeldRecord */
+        HeldRecord: {
+            /**
+             * Entries
+             * @description The player's entries in the list's top 10.
+             */
+            entries: components["schemas"]["RecordEntry"][];
+            record: components["schemas"]["RecordInfo"];
+        };
         /** HighScore */
         HighScore: {
             /** Match Id */
@@ -2013,6 +2062,21 @@ export interface components {
             /** @description The series or tournament it was part of (internationals). */
             series?: components["schemas"]["SeriesRef"] | null;
             summary: components["schemas"]["MatchSummary"];
+        };
+        /**
+         * MatchNote
+         * @description A match's place in the daily notes: the day's note and the match's own items.
+         */
+        MatchNote: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Headline */
+            headline: string;
+            /** Items */
+            items: components["schemas"]["NoteItem"][];
         };
         /** MatchPage */
         MatchPage: {
@@ -3211,6 +3275,20 @@ export interface components {
             /** Label */
             label: string;
             record: components["schemas"]["Record"];
+        };
+        /**
+         * RecordsHeld
+         * @description A player's places in the top 10 of every record list (whole data, no filters).
+         */
+        RecordsHeld: {
+            coverage: components["schemas"]["Coverage"];
+            /** Player Id */
+            player_id: string;
+            /**
+             * Records
+             * @description Best rank first, then the hub's order.
+             */
+            records: components["schemas"]["HeldRecord"][];
         };
         /** RecordsHub */
         RecordsHub: {
@@ -5157,6 +5235,38 @@ export interface operations {
             };
         };
     };
+    read_match_note_api_v2_notes_matches__competition___match_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                competition: string;
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchNote"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_note_api_v2_notes__date__get: {
         parameters: {
             query?: never;
@@ -5883,6 +5993,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RecordsHub"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_records_held_api_v2__competition__records_players__player_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                player_id: string;
+                /** @description ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket. */
+                competition: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordsHeld"];
                 };
             };
             /** @description Validation Error */

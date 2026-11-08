@@ -5,6 +5,8 @@ Run locally with ``just dev-api`` (uvicorn with reload).
 
 from __future__ import annotations
 
+import logging
+import threading
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
@@ -20,6 +22,7 @@ from criciq_api.db import Database, OptionalDatabase, serving_paths
 from criciq_api.schemas.meta import Health
 from criciq_api.services import matches as matches_service
 from criciq_api.services import players as players_service
+from criciq_api.services import records as records_service
 from criciq_api.services import simulation as simulation_service
 from criciq_core.publish import pending
 
@@ -48,6 +51,15 @@ def _data_version(request: Request, players: Database | None) -> str:
     return source.data_version
 
 
+def _warm_records(databases: list[Database]) -> None:
+    """Build every competition's record lists in the background after startup."""
+    for db in databases:
+        try:
+            records_service.warm_up(db)
+        except Exception:  # a cold first request still works; nothing to stop for
+            logging.getLogger(__name__).warning("could not warm the records of %s", db.path)
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
 
@@ -69,6 +81,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.notes = OptionalDatabase(settings.notes_db, settings.duckdb_memory_limit)
         for db in app.state.serving.values():
             _warm_up(db)
+        if settings.environment != "test":
+            threading.Thread(
+                target=_warm_records, args=(list(app.state.serving.values()),), daemon=True
+            ).start()
         try:
             yield
         finally:

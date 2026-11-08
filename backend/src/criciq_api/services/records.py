@@ -12,6 +12,7 @@ from criciq_api.repositories import records as repo
 from criciq_api.schemas.common import Coverage, Filters
 from criciq_api.schemas.players import TeamTag
 from criciq_api.schemas.records import (
+    HeldRecord,
     RecordEntry,
     RecordFigure,
     RecordFilters,
@@ -20,6 +21,7 @@ from criciq_api.schemas.records import (
     RecordLeader,
     RecordList,
     RecordPlayer,
+    RecordsHeld,
     RecordsHub,
 )
 from criciq_core.records import Qualification, default_records_config
@@ -236,6 +238,60 @@ def _build_hub(db: Database) -> RecordsHub:
         groups=[g for g in GROUPS if any(lead.record.group == g for lead in leaders)],
         records=leaders,
     )
+
+
+HELD_TOP = 10
+
+
+def _top_lists(db: Database) -> list[tuple[repo.RecordDef, list[Row]]]:
+    """The top 10 of every player record list, built once per database."""
+    key = "records:top"
+    if key in db.cache:
+        cached: list[tuple[repo.RecordDef, list[Row]]] = db.cache[key]
+        return cached
+    with _HUB_BUILD:
+        if key in db.cache:
+            built: list[tuple[repo.RecordDef, list[Row]]] = db.cache[key]
+            return built
+        _, q, _ = _check(db)
+        lists = [
+            (record, _ranked(db, record, Filters(), q, limit=HELD_TOP))
+            for record in repo.RECORDS
+            if repo.available(db, record) and record.group != "teams"
+        ]
+        db.cache[key] = lists
+        return lists
+
+
+def warm_up(db: Database) -> None:
+    """Build the hub and every list's top 10 ahead of the first request (seconds per
+    database), so the first records page or player page doesn't wait for them."""
+    if not repo.has_record_tables(db):
+        return
+    get_hub(db)
+    _top_lists(db)
+
+
+def get_held(db: Database, player_id: str) -> RecordsHeld:
+    """Where a player stands in the top 10 of each record list."""
+    coverage, q, national = _check(db)
+    held: list[tuple[int, int, HeldRecord]] = []
+    for order, (record, rows) in enumerate(_top_lists(db)):
+        mine = [r for r in rows if player_id in (r["player_id"], r["partner_id"])]
+        if not mine:
+            continue
+        held.append(
+            (
+                min(r["rank"] for r in mine),
+                order,
+                HeldRecord(
+                    record=_info(record, q, national, db.match_format),
+                    entries=[_entry(record, r, db.match_format) for r in mine],
+                ),
+            )
+        )
+    held.sort(key=lambda h: (h[0], h[1]))
+    return RecordsHeld(coverage=coverage, player_id=player_id, records=[h[2] for h in held])
 
 
 def get_record(

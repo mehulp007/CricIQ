@@ -35,10 +35,17 @@ Cricsheet JSON zips ────┐   config/*.yaml + reference/player_attribute
         rating constants, simulator settings where a simulator passed there) and
         players.duckdb (player_wpa, each scope's rating constants)
                         ▼
+  [pipelines] extras: tables worked out from a serving database in place (phases, records,
+              each match's biggest swing; `criciq-data extras`)
+              notes: one daily note for every day a match ended, written by fixed rules from
+              the serving databases → notes.duckdb (`criciq-data notes`, every sync after
+              scoring, every full build; ADR-0017)
+                        ▼
   [backend] FastAPI /api/v2/{competition}/...: each request reads its competition's
             serving database (get_db); next-ball odds are computed from the stored
             ball-model terms with plain arithmetic (ADR-0005); the Player Lab reads one
-            scope of players.duckdb (search_path), also for all T20 (ADR-0009)
+            scope of players.duckdb (search_path), also for all T20 (ADR-0009);
+            /api/v2/notes reads notes.duckdb, opened once a build or sync writes it
                         ▼
   [frontend] Next.js, a production build served locally (v1 on Vercel): every data
              page under /[competition]/, a switcher in
@@ -115,6 +122,7 @@ See [data-pipeline.md](data-pipeline.md) for the ingestion, normalization and va
 - [ADR-0014](adr/0014-test-cricket-models.md): Test cricket has models of its own design: three outcomes, every innings projected, no simulator
 - [ADR-0015](adr/0015-series-and-tournaments.md): series and tournaments from Cricsheet's event names, with known results the build must reproduce
 - [ADR-0016](adr/0016-v2-runs-locally.md): v2 runs on your machine; the hosted demo stays the IPL edition
+- [ADR-0017](adr/0017-data-notes.md): daily notes are written by rules, from CricIQ's own data only
 
 ## Precompute vs live
 

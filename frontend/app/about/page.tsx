@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ToolSections } from "@/components/about/tool-sections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { COMPETITIONS, type LimitedOversId } from "@/lib/competitions";
 import { dataVersion } from "@/lib/featured";
@@ -19,7 +20,7 @@ import { RevealText } from "@/components/ui/reveal-text";
 export const metadata: Metadata = {
   title: "About & Methodology",
   description:
-    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, CricIQ Ratings, similar players, pressure, momentum, matchup shrinkage and limitations.",
+    "How CricIQ is built: data sources and validation, the win probability, score projection and ball-outcome models, par, win probability added, CricIQ Ratings, similar players, pressure, momentum, matchup shrinkage, phases, records, Chart Studio, On This Day, the daily notes and limitations.",
 };
 
 const PRINCIPLES: { title: string; body: string }[] = [
@@ -404,6 +405,8 @@ export default function AboutPage() {
           the model; the shrunk records matched it. Intervals are 90%.
         </p>
       </Section>
+
+      <ToolSections />
 
       <Section id="engineering" title="How it is built">
         <p>

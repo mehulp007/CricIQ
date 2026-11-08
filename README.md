@@ -124,7 +124,8 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
   real win-probability curve, then fans out into simulated outcomes, before you choose a
   competition. Every number in it is the real figure, and visitors who prefer reduced motion get
   the same story as a still page.
-- **Find anything fast**: search pages, players, teams and replays with Ctrl/⌘ K, switch
+- **Find anything fast**: search pages, players, teams, record lists and replays with Ctrl/⌘ K
+  (type a date, such as "15 April 2024", for that day's note and its matches in past years), switch
   competitions from the top bar, and choose a light or dark theme: a deep "floodlit night" with a
   fine film grain, or a bright "day match" with warm shadows. Pages glide in as you move between
   them, their headings arriving word by word, and every animation calms down when your device asks
@@ -140,7 +141,7 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
 - **Series and tournaments**: every international series and World Cup, with tables, knockouts and
   champions.
 - **Player Lab**: every player's career in every format, measured against par for their era, with
-  ratings, splits and similar players. Each rating grows out along its 0–100 track as you reach it.
+  ratings, splits, similar players and the records they hold. Each rating grows out along its 0–100 track as you reach it.
 - **On this day**: the matches played on today's date (or any date) in past years across every
   competition, most notable first: finals and playoffs, hundreds and five-fors, and the ball
   that moved a side's chance of winning the most. Each comes with its scorecard, a link to
@@ -181,9 +182,9 @@ disk; after it, `uv run criciq-data sync` adds new matches as they are played.
 - **Matchups and Compare**: any batter against any bowler without over-reading small samples, and
   any two players side by side. A new matchup springs into place with its next-ball odds counting
   up, and two players to compare come in from either side.
-- **Teams**: seasons, league tables rebuilt from the balls (identical to the official ones) and head
-  to heads. Table rows arrive in turn, and the league's trends draw themselves as they come into
-  view.
+- **Teams**: seasons, league tables rebuilt from the balls (identical to the official ones), head
+  to heads, with how each side bats and bowls in each phase. Table rows arrive in turn, and the
+  league's trends draw themselves as they come into view.
 - **Match Simulator and what-if**: play two limited-overs sides 10,000 times in about half a second,
   or change the score in any replay and see what follows. Tests get a chase calculator.
 - **Analytics Lab**: research notes that test ideas like momentum, clutch, the toss and home
@@ -213,6 +214,10 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
 | ![The 2019 final with Chennai Super Kings needing 9 from 6 balls: the scoreboard, a 78% win chance and very high pressure on the next ball](docs/images/replay.png) | ![Virat Kohli's IPL career against par](docs/images/player.png) |
 | **Match Simulator** | **Model Insights** |
 | ![Mumbai Indians against Chennai Super Kings simulated 10,000 times](docs/images/simulator.png) | ![Model Insights overview: every model against its baseline on the 2025–2026 seasons](docs/images/models.png) |
+| **Phases** | **Chart Studio** |
+| ![The IPL's innings phase by phase: run rate, wickets, boundaries and dots in the powerplay, middle and death overs](docs/images/phases.png) | ![Chart Studio drawing Virat Kohli's and Rohit Sharma's IPL runs season by season](docs/images/studio.png) |
+| **Records** | **Daily notes** |
+| ![The IPL records hub: batting, bowling, partnership and team records in the ball-by-ball data](docs/images/records.png) | ![The daily note for 15 April 2024, led by Sunrisers Hyderabad's record 287/3](docs/images/notes.png) |
 
 ## How it's built
 
@@ -226,6 +231,9 @@ Full results, what failed and why: [docs/models.md](docs/models.md).
   each match in the browser. Every statistic (average, strike rate, economy and the rest) is
   defined once and shared by the API and the data build, so a figure reads the same on every
   page.
+- **Notes written from the data:** the daily notes come from fixed rules over the serving
+  databases, with no outside source and no model writing text, so every figure can be checked
+  against its table ([ADR-0017](docs/adr/0017-data-notes.md)).
 - **Tables added without a rebuild:** tables worked out from what a serving database already
   holds are added to it in place (`just extras`), keeping its model scores, so new analysis
   doesn't need the data rebuilt or every ball scored again. Syncs and full builds add them too.

@@ -72,6 +72,19 @@ class RecordsHub(BaseModel):
     records: list[RecordLeader]
 
 
+class HeldRecord(BaseModel):
+    record: RecordInfo
+    entries: list[RecordEntry] = Field(description="The player's entries in the list's top 10.")
+
+
+class RecordsHeld(BaseModel):
+    """A player's places in the top 10 of every record list (whole data, no filters)."""
+
+    coverage: Coverage
+    player_id: str
+    records: list[HeldRecord] = Field(description="Best rank first, then the hub's order.")
+
+
 class RecordFilters(BaseModel):
     season_from: int | None = None
     season_to: int | None = None

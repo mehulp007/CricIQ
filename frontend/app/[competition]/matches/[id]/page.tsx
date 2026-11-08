@@ -6,7 +6,8 @@ import { TeamBadge } from "@/components/match/team-badge";
 import { MatchCenter } from "@/components/replay/match-center";
 import { TestMatchCenter } from "@/components/replay/test/test-match-center";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { ApiError, getTimeline } from "@/lib/api/client";
+import { MatchNotePanel } from "@/components/notes/match-note";
+import { ApiError, getMatchNote, getTimeline } from "@/lib/api/client";
 import type { Timeline } from "@/lib/api/types";
 import { isCompetitionId, isTest, seasonLabel, type CompetitionId } from "@/lib/competitions";
 import { isFeatured, loadFeaturedTimeline } from "@/lib/featured";
@@ -51,7 +52,10 @@ export async function generateMetadata({
 export default async function MatchPage({ params }: PageProps<"/[competition]/matches/[id]">) {
   const { id } = await params;
   const competition = (await params).competition as CompetitionId;
-  const timeline = await loadTimeline(competition, id);
+  const [timeline, note] = await Promise.all([
+    loadTimeline(competition, id),
+    getMatchNote(competition, Number(id)).catch(() => null),
+  ]);
   const { summary } = timeline;
 
   return (
@@ -110,6 +114,8 @@ export default async function MatchPage({ params }: PageProps<"/[competition]/ma
           simulator={modelsFor(competition).simulator !== null}
         />
       )}
+
+      {note && <MatchNotePanel note={note} />}
     </div>
   );
 }

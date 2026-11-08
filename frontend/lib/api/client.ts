@@ -8,6 +8,7 @@ import type {
   ChaseWhatIf,
   CompetitionList,
   MatchDetail,
+  MatchNote,
   MatchPage,
   MatchupDetail,
   MatchupList,
@@ -19,6 +20,7 @@ import type {
   OnThisDay,
   PhaseAnalysis,
   RecordList,
+  RecordsHeld,
   RecordsHub,
   CareerRatings,
   PlayerCareers,
@@ -153,6 +155,14 @@ export function getNotes(query: NotesQuery = {}): Promise<NoteList> {
 /** One day's note in full ("2026-05-31"). */
 export function getNote(date: string): Promise<Note> {
   return fetchJson<Note>(`/api/v2/notes/${date}`, META_REVALIDATE_SECONDS);
+}
+
+/** The daily note that tells of a match (404 when there is none). */
+export function getMatchNote(competition: CompetitionId, matchId: number): Promise<MatchNote> {
+  return fetchJson<MatchNote>(
+    `/api/v2/notes/matches/${competition}/${matchId}`,
+    META_REVALIDATE_SECONDS,
+  );
 }
 
 /** Every day with a note, newest first. */
@@ -373,6 +383,11 @@ export function getPhases(
 ): Promise<PhaseAnalysis> {
   const search = query.toString();
   return apiGet<PhaseAnalysis>(competition, `/phases${search ? `?${search}` : ""}`);
+}
+
+/** A player's places in the top 10 of every record list. */
+export function getRecordsHeld(competition: CompetitionId, playerId: string): Promise<RecordsHeld> {
+  return apiGet<RecordsHeld>(competition, `/records/players/${encodeURIComponent(playerId)}`);
 }
 
 /** Every record in the competition's data, with its holder. */

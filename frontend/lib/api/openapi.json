@@ -3091,6 +3091,27 @@
         "title": "Health",
         "type": "object"
       },
+      "HeldRecord": {
+        "properties": {
+          "entries": {
+            "description": "The player's entries in the list's top 10.",
+            "items": {
+              "$ref": "#/components/schemas/RecordEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "record": {
+            "$ref": "#/components/schemas/RecordInfo"
+          }
+        },
+        "required": [
+          "record",
+          "entries"
+        ],
+        "title": "HeldRecord",
+        "type": "object"
+      },
       "HighScore": {
         "properties": {
           "match_id": {
@@ -3390,6 +3411,34 @@
           "innings"
         ],
         "title": "MatchDetail",
+        "type": "object"
+      },
+      "MatchNote": {
+        "description": "A match's place in the daily notes: the day's note and the match's own items.",
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NoteItem"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "headline",
+          "items"
+        ],
+        "title": "MatchNote",
         "type": "object"
       },
       "MatchPage": {
@@ -6825,6 +6874,33 @@
           "record"
         ],
         "title": "RecordSplit",
+        "type": "object"
+      },
+      "RecordsHeld": {
+        "description": "A player's places in the top 10 of every record list (whole data, no filters).",
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "records": {
+            "description": "Best rank first, then the hub's order.",
+            "items": {
+              "$ref": "#/components/schemas/HeldRecord"
+            },
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": [
+          "coverage",
+          "player_id",
+          "records"
+        ],
+        "title": "RecordsHeld",
         "type": "object"
       },
       "RecordsHub": {
@@ -11944,6 +12020,60 @@
         ]
       }
     },
+    "/api/v2/notes/matches/{competition}/{match_id}": {
+      "get": {
+        "description": "The daily note that tells of a match, with the match's own items.",
+        "operationId": "read_match_note_api_v2_notes_matches__competition___match_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "match_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Match Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchNote"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Match Note",
+        "tags": [
+          "notes"
+        ]
+      }
+    },
     "/api/v2/notes/{date}": {
       "get": {
         "description": "One day's note in full: its items, the day's standout figures and the notes around it.",
@@ -13759,6 +13889,64 @@
           }
         },
         "summary": "Read Records",
+        "tags": [
+          "records"
+        ]
+      }
+    },
+    "/api/v2/{competition}/records/players/{player_id}": {
+      "get": {
+        "description": "A player's places in the top 10 of every record list in the competition's data.",
+        "operationId": "read_records_held_api_v2__competition__records_players__player_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "maxLength": 40,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.-]+$",
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+            "in": "path",
+            "name": "competition",
+            "required": true,
+            "schema": {
+              "description": "ipl, bbl, psl, cpl, sa20, t20i, odi, test, or t20 for all T20 cricket.",
+              "pattern": "^[a-z0-9]{2,8}$",
+              "title": "Competition",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordsHeld"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Records Held",
         "tags": [
           "records"
         ]

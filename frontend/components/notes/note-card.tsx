@@ -6,7 +6,17 @@ import { competitionsLabel, noteDateLabel, notePath } from "@/lib/notes";
 import { cn } from "@/lib/utils";
 
 /** A note in a list: its date, competitions, headline and the day's main items. */
-export function NoteCard({ note, className }: { note: NoteSummary; className?: string }) {
+export function NoteCard({
+  note,
+  className,
+  level = "h3",
+}: {
+  note: NoteSummary;
+  className?: string;
+  /** h2 where the cards are the page's sections (the notes list), h3 under a heading. */
+  level?: "h2" | "h3";
+}) {
+  const Heading = level;
   return (
     <Link
       href={notePath(note.date)}
@@ -25,9 +35,9 @@ export function NoteCard({ note, className }: { note: NoteSummary; className?: s
           {note.match_count} {note.match_count === 1 ? "match" : "matches"}
         </span>
       </p>
-      <h3 className="text-base leading-snug font-semibold tracking-tight text-pretty group-hover:text-primary">
+      <Heading className="text-base leading-snug font-semibold tracking-tight text-pretty group-hover:text-primary">
         {note.headline}
-      </h3>
+      </Heading>
       <p className="line-clamp-3 text-sm text-muted-foreground">{note.summary}</p>
       <span className="mt-auto inline-flex items-center gap-1 text-sm text-primary">
         Read the note

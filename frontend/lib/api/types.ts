@@ -160,3 +160,5 @@ export type Note = Schemas["Note"];
 export type NoteItem = Schemas["NoteItem"];
 export type NoteFigure = Schemas["NoteFigure"];
 export type NoteDates = Schemas["NoteDates"];
+export type MatchNote = Schemas["MatchNote"];
+export type RecordsHeld = Schemas["RecordsHeld"];

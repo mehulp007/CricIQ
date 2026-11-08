@@ -54,11 +54,33 @@ def endpoints(base: str, competition: str) -> list[str]:
         f"{c}/matchups?page_size=25",
         f"{c}/teams",
         f"{c}/teams/{team}",
+        f"{c}/phases",
+        f"{c}/phases?team={team}",
+        f"{c}/records",
+        f"{c}/records/most-runs",
+        f"{c}/records/players/{player}",
+        f"{c}/on-this-day?month=11&day=5",
+        f"{c}/studio/options",
     ]
     if competition in NATIONAL:
         _, series = call(base, f"{c}/series?page_size=1")
         paths += [f"{c}/series", f"{c}/series/{series['items'][0]['event_id']}"]
     return paths
+
+
+# Chart Studio: two charts per competition, a leaderboard and a season-by-season split.
+STUDIO = (
+    {"dataset": "batting", "measures": ["runs", "average", "strike_rate"], "limit": 15},
+    {
+        "dataset": "careers",
+        "measures": ["matches", "runs", "wickets"],
+        "group_by": "season",
+        "split_by": "player",
+        "limit": 50,
+    },
+)
+# The daily notes (every competition together).
+NOTES = ("/api/v2/notes?limit=24", "/api/v2/notes/dates")
 
 
 def simulate(base: str, competition: str) -> float | None:
@@ -96,6 +118,24 @@ def main() -> None:
             worst.append(p95)
             short = path.replace(f"/api/v2/{competition}", "").replace("/api/v2", "") or "/"
             print(f"| {competition} | `{short}` | {1000 * cold:.0f} | {1000 * p95:.0f} |")
+        for spec in STUDIO:
+            path = f"/api/v2/{competition}/studio/query"
+            cold, _ = call(args.base, path, spec)
+            warm = sorted(call(args.base, path, spec)[0] for _ in range(args.repeat))
+            p95 = warm[max(0, round(0.95 * len(warm)) - 1)]
+            worst.append(p95)
+            label = f"POST /studio/query ({spec['dataset']})"
+            print(f"| {competition} | `{label}` | {1000 * cold:.0f} | {1000 * p95:.0f} |")
+    _, latest = call(args.base, NOTES[0])
+    notes = [*NOTES]
+    if latest["notes"]:
+        notes.append(f"/api/v2/notes/{latest['notes'][0]['date']}")
+    for path in notes:
+        cold, _ = call(args.base, path)
+        warm = sorted(call(args.base, path)[0] for _ in range(args.repeat))
+        p95 = warm[max(0, round(0.95 * len(warm)) - 1)]
+        worst.append(p95)
+        print(f"| all | `{path.replace('/api/v2', '')}` | {1000 * cold:.0f} | {1000 * p95:.0f} |")
     print()
     median, top = 1000 * statistics.median(worst), 1000 * max(worst)
     print(f"Warm p95: median {median:.0f} ms, worst {top:.0f} ms")

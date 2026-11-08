@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Chart Studio is served from the API. Virat Kohli (ba607b88) and Rohit Sharma (b8a55852)
+// Chart Studio is served from the API. Virat Kohli (ba607b88) and Brendon McCullum (b8a55852)
 // played the IPL matches in every build of the data, including the test fixtures.
 const KOHLI = "ba607b88";
-const ROHIT = "b8a55852";
+const MCCULLUM = "b8a55852";
 
 const TEMPLATES = [
   "Player profile",
@@ -109,7 +109,7 @@ test.describe("chart studio", () => {
   test("a link rebuilds the same chart", async ({ page, context, browserName }) => {
     test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    await page.goto(`/ipl/studio?t=compare&p=${KOHLI},${ROHIT}`);
+    await page.goto(`/ipl/studio?t=compare&p=${KOHLI},${MCCULLUM}`);
     await settled(page);
     await page.getByRole("button", { name: "Paper", exact: true }).click();
     await page.getByLabel("Title", { exact: true }).fill("Kohli and Rohit");
@@ -194,18 +194,18 @@ test.describe("chart studio", () => {
 
   test("player pages, Compare and record lists open the studio prefilled", async ({ page }) => {
     await page.goto(`/ipl/players/${KOHLI}`);
-    await page.getByRole("link", { name: "Make a chart" }).click();
+    await page.getByRole("link", { name: "Make a chart", exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/ipl/studio\\?t=profile&p=${KOHLI}`));
     await settled(page);
     await expect(chart(page).locator("title").first()).toHaveText(/Virat Kohli in the IPL/);
 
-    await page.goto(`/ipl/compare?a=${KOHLI}&b=${ROHIT}`);
+    await page.goto(`/ipl/compare?a=${KOHLI}&b=${MCCULLUM}`);
     await page.getByRole("link", { name: "Make a chart of these two" }).click();
     await expect(page).toHaveURL(/t=compare/);
     await settled(page);
 
     await page.goto("/ipl/records/most-wickets");
-    await page.getByRole("link", { name: "Make a chart" }).click();
+    await page.getByRole("link", { name: "Make a chart", exact: true }).click();
     await expect(page).toHaveURL(/t=leaderboard&d=bowling&m=wickets/);
     await settled(page);
     await expect(chart(page).locator("title").first()).toHaveText("IPL: wickets by player");

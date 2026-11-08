@@ -108,3 +108,13 @@ def test_notes_written_while_the_api_runs_are_picked_up(
         assert _get(client, "/api/v2/notes")["notes"] == []
         shutil.copyfile(fixture_notes_db, target)
         assert _get(client, "/api/v2/notes")["notes"]
+
+
+def test_a_match_s_note(client: TestClient) -> None:
+    found = _get(client, "/api/v2/notes/matches/ipl/1473511")
+    assert found["date"] == FINAL
+    assert found["headline"].startswith("Royal Challengers Bengaluru beat Punjab Kings")
+    assert {i["match_id"] for i in found["items"]} == {1473511}
+    assert found["items"][0]["kind"] == "result"
+    assert client.get("/api/v2/notes/matches/ipl/1").status_code == 404
+    assert client.get("/api/v2/notes/matches/IPL!/1").status_code == 422

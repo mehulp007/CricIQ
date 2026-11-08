@@ -20,11 +20,24 @@ import {
 } from "@/components/teams/team-sections";
 import { ApiError, getTeam, type SeasonWindow as Window } from "@/lib/api/client";
 import type { TeamProfile } from "@/lib/api/types";
-import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/competitions";
+import {
+  competitionPath,
+  getCompetition,
+  isCompetitionId,
+  type CompetitionId,
+} from "@/lib/competitions";
 import { parseSeason } from "@/lib/players";
 import { parseTeamId, pct, recordText, seasonSpan } from "@/lib/teams";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { RevealText } from "@/components/ui/reveal-text";
+
+/** Phases filtered to a side and its season window. */
+function phaseQuery(team: string, window: { from?: number; to?: number }): URLSearchParams {
+  const query = new URLSearchParams({ team });
+  if (window.from) query.set("from", String(window.from));
+  if (window.to) query.set("to", String(window.to));
+  return query;
+}
 
 function windowFrom(raw: Record<string, string | string[] | undefined>): Window {
   const from = parseSeason(raw.from);
@@ -230,7 +243,22 @@ export default async function TeamPage({
       <Panel
         id="phases"
         title="How they bat and bowl"
-        lede={`Run rate and balls per wicket in each phase against par: what the average ${c.label} side managed in the same seasons and phases, weighted to this side's overs. Positive is better for the side in both tables.`}
+        lede={
+          <>
+            Run rate and balls per wicket in each phase against par: what the average {c.label} side
+            managed in the same seasons and phases, weighted to this side&apos;s overs. Positive is
+            better for the side in both tables.{" "}
+            <Link
+              href={competitionPath(
+                competition,
+                `/phases?${phaseQuery(team.franchise_id, linkWindow)}`,
+              )}
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Phases for {team.name}
+            </Link>
+          </>
+        }
       >
         {profile.phases.length ? (
           <PhaseTables phases={profile.phases} />

@@ -84,7 +84,7 @@ export default async function NotesPage({ searchParams }: PageProps<"/notes">) {
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label="Notes">
             {list.notes.map((note) => (
               <li key={note.date} className="flex">
-                <NoteCard note={note} className="w-full" />
+                <NoteCard note={note} className="w-full" level="h2" />
               </li>
             ))}
           </ul>

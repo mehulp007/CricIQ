@@ -8,12 +8,29 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useCompetition } from "@/components/competition/use-competition";
 import { COMPETITIONS, competitionPath, type CompetitionId } from "@/lib/competitions";
 import { PRIMARY_NAV, SECONDARY_NAV, isAvailable, isShown, navHref } from "@/lib/navigation";
-import { filterResults, groupResults, type SearchResult } from "@/lib/search";
+import {
+  dateResults,
+  filterResults,
+  groupResults,
+  parseDateQuery,
+  type SearchResult,
+} from "@/lib/search";
 import { cn } from "@/lib/utils";
 
 interface Extras {
   teams: { id: string; name: string; color: string; active: boolean }[];
+  records?: { key: string; label: string; group: string }[];
   matches: { match_id: number; headline: string; detail: string }[];
+}
+
+/** Every day with a daily note, fetched once (only when a query looks like a date). */
+let noteDatesCache: Promise<Set<string>> | null = null;
+function loadNoteDates(): Promise<Set<string>> {
+  noteDatesCache ??= fetch("/api/notes/dates")
+    .then((r) => (r.ok ? (r.json() as Promise<{ dates: string[] }>) : { dates: [] }))
+    .then((body) => new Set(body.dates))
+    .catch(() => new Set<string>());
+  return noteDatesCache;
 }
 
 interface PlayerHit {
@@ -77,6 +94,7 @@ export function CommandPalette({
   const [active, setActive] = useState(0);
   const [extras, setExtras] = useState<Extras | null>(null);
   const [players, setPlayers] = useState<{ q: string; items: PlayerHit[] } | null>(null);
+  const [noteDates, setNoteDates] = useState<Set<string> | null>(null);
   const listId = useId();
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -91,6 +109,15 @@ export function CommandPalette({
 
   // Players are searched by the API as you type (from two letters, after a short pause).
   const q = query.trim();
+  const looksLikeDate = parseDateQuery(q)?.year != null;
+  useEffect(() => {
+    if (!looksLikeDate || noteDates) return;
+    let live = true;
+    loadNoteDates().then((dates) => live && setNoteDates(dates));
+    return () => {
+      live = false;
+    };
+  }, [looksLikeDate, noteDates]);
   useEffect(() => {
     if (q.length < 2) return;
     const controller = new AbortController();
@@ -127,6 +154,13 @@ export function CommandPalette({
       href: competitionPath(competition, `/teams/${t.id}`),
       color: t.color,
     }));
+    const records: SearchResult[] = (extras?.records ?? []).map((r) => ({
+      id: `record:${r.key}`,
+      group: "Records",
+      label: r.label,
+      detail: `${r.group} record`,
+      href: competitionPath(competition, `/records/${r.key}`),
+    }));
     const matches: SearchResult[] = (extras?.matches ?? []).map((m) => ({
       id: `match:${m.match_id}`,
       group: "Featured replays",
@@ -137,12 +171,14 @@ export function CommandPalette({
     return groupResults([
       ...filterResults(q, pages(competition)),
       ...filterResults(q, competitions),
+      ...dateResults(q, noteDates),
       ...playerResults,
       // Teams only once something is typed: there are too many to list.
       ...(q ? filterResults(q, teams) : []),
+      ...(q ? filterResults(q, records) : []),
       ...filterResults(q, matches),
     ]);
-  }, [q, players, extras, competition]);
+  }, [q, players, extras, competition, noteDates]);
 
   const flat = groups.flatMap((g) => g.items);
   const current = flat[Math.min(active, flat.length - 1)];

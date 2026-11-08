@@ -3,10 +3,10 @@ from __future__ import annotations
 import datetime as dt
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 
 from criciq_api.db import Database
-from criciq_api.schemas.notes import Note, NoteDates, NoteList
+from criciq_api.schemas.notes import MatchNote, Note, NoteDates, NoteList
 from criciq_api.services import notes as service
 
 router = APIRouter(prefix="/notes", tags=["notes"])
@@ -42,6 +42,19 @@ def read_notes(
 def read_note_dates(db: NotesDB) -> NoteDates:
     """Every day with a note, newest first."""
     return service.note_dates(db)
+
+
+@router.get("/matches/{competition}/{match_id}")
+def read_match_note(
+    db: NotesDB,
+    competition: Annotated[str, Path(pattern=r"^[a-z0-9]{2,8}$")],
+    match_id: Annotated[int, Path(ge=1)],
+) -> MatchNote:
+    """The daily note that tells of a match, with the match's own items."""
+    found = service.match_note(db, competition, match_id)
+    if found is None:
+        raise HTTPException(status_code=404, detail="no note for this match")
+    return found
 
 
 @router.get("/{date}")

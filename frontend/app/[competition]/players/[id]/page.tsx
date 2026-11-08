@@ -14,10 +14,12 @@ import {
   getPlayerSplits,
   getSimilarPlayers,
   type SeasonWindow as Window,
+  getRecordsHeld,
 } from "@/lib/api/client";
 import type { PlayerProfile } from "@/lib/api/types";
 import { getCompetition, isCompetitionId, type CompetitionId } from "@/lib/competitions";
 import { parseSeason, rate, roleLabel } from "@/lib/players";
+import { RecordsHeldPanel } from "@/components/records/records-held";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 function windowFrom(raw: Record<string, string | string[] | undefined>): Window {
@@ -85,7 +87,7 @@ export default async function PlayerPage({
     getMatchups(competition, { [side]: id, ...window, minBalls: 12, pageSize: 6 }).catch(
       () => null,
     );
-  const [profile, splits, bowlersFaced, battersFaced, similar, careers, ratings] =
+  const [profile, splits, bowlersFaced, battersFaced, similar, careers, ratings, held] =
     await Promise.all([
       loadProfile(competition, id, window),
       getPlayerSplits(competition, id, window).catch((error: unknown) => {
@@ -97,6 +99,7 @@ export default async function PlayerPage({
       getSimilarPlayers(competition, id, window).catch(() => null),
       getCareers(id).catch(() => null),
       getCareerRatings(id).catch(() => null),
+      getRecordsHeld(competition, id).catch(() => null),
     ]);
   const { player } = profile;
   const first = Math.max(profile.window.first, player.first_season);
@@ -150,6 +153,10 @@ export default async function PlayerPage({
         <p className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
           {player.full_name ?? player.name} played in these seasons without batting or bowling.
         </p>
+      )}
+
+      {held && held.records.length > 0 && (
+        <RecordsHeldPanel held={held} competition={competition} />
       )}
 
       {careers && <CareerTable careers={careers} />}

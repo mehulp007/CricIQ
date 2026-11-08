@@ -212,3 +212,20 @@ def test_concurrent_requests_build_a_hub_once(
         hubs = list(pool.map(lambda _: records_service.get_hub(db), range(8)))
     assert len(built) == 1
     assert all(h is hubs[0] for h in hubs)
+
+
+def test_a_player_s_records_held(client: TestClient) -> None:
+    top = client.get("/api/v2/ipl/records/most-runs").json()["entries"][0]
+    player = top["players"][0]["player_id"]
+    held = client.get(f"/api/v2/ipl/records/players/{player}")
+    assert held.status_code == 200
+    body = held.json()
+    assert body["player_id"] == player
+    most = next(h for h in body["records"] if h["record"]["key"] == "most-runs")
+    assert most["entries"][0]["rank"] == 1
+    ranks = [min(e["rank"] for e in h["entries"]) for h in body["records"]]
+    assert ranks == sorted(ranks)
+    assert all(e["rank"] <= 10 for h in body["records"] for e in h["entries"])
+    assert all(h["record"]["group"] != "teams" for h in body["records"])
+    assert client.get("/api/v2/ipl/records/players/nobody").json()["records"] == []
+    assert client.get("/api/v2/ipl/records/players/bad%20id").status_code == 422

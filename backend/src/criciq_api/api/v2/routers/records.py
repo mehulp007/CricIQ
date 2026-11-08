@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from criciq_api.db import Database, get_db
-from criciq_api.schemas.records import RecordList, RecordsHub
+from criciq_api.schemas.records import RecordList, RecordsHeld, RecordsHub
 from criciq_api.services import records as service
 
 router = APIRouter(prefix="/records", tags=["records"])
@@ -22,6 +22,18 @@ def read_records(db: DB) -> RecordsHub:
     """Every record in the competition's ball-by-ball data, with its holder."""
     try:
         return service.get_hub(db)
+    except service.RecordDataMissingError:
+        raise _unavailable() from None
+
+
+@router.get("/players/{player_id}")
+def read_records_held(
+    db: DB,
+    player_id: Annotated[str, Path(min_length=1, max_length=40, pattern=r"^[A-Za-z0-9_.-]+$")],
+) -> RecordsHeld:
+    """A player's places in the top 10 of every record list in the competition's data."""
+    try:
+        return service.get_held(db, player_id)
     except service.RecordDataMissingError:
         raise _unavailable() from None
 

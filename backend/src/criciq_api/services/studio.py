@@ -299,11 +299,13 @@ def run_spec(db: Database, spec: StudioSpec) -> StudioResult:
         series_rows = [r for r in found if r["any_group"] == 1]
         cell_rows = [r for r in found if r["any_group"] == 0 and r["any_split"] == 0]
         groups = _sorted(groups, "group_key", sort, descending, group, phase_keys)
+        natural = repo.DIMENSIONS[split].natural
         series_rows = _sorted(
             series_rows,
             "split_key",
-            None if repo.DIMENSIONS[split].natural else (sort or measures[0]),
-            descending if sort is not None else measures[0].descending,
+            None if natural else (sort or measures[0]),
+            # Seasons, positions and phases are listed in their own order.
+            False if natural else descending if sort is not None else measures[0].descending,
             split,
             phase_keys,
         )

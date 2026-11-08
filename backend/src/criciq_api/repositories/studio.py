@@ -701,11 +701,13 @@ def compile_query(
     split = DIMENSIONS[spec.split_by]
     g, sp = group.column, split.column
     group_order, group_params = _order(group, "group_key", sort, descending, phase_keys)
-    # Series are ranked by the figure unless they have an order of their own.
+    # Series are ranked by the figure unless they have an order of their own; of the seasons,
+    # the latest are kept.
     split_sort = None if split.natural else (sort or measures[0])
-    split_descending = (
-        False if split.natural else descending if sort is not None else measures[0].descending
-    )
+    if split.natural:
+        split_descending = split.key == "season"
+    else:
+        split_descending = descending if sort is not None else measures[0].descending
     split_order, split_params = _order(split, "split_key", split_sort, split_descending, phase_keys)
     return Query(
         f"""WITH agg AS (

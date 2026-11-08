@@ -389,6 +389,28 @@ def test_bad_specs_are_422(client: TestClient, spec: dict[str, Any]) -> None:
     assert response.status_code == 422, response.text
 
 
+def test_a_season_split_keeps_the_latest_seasons_in_order(
+    client: TestClient, serving: duckdb.DuckDBPyConnection
+) -> None:
+    seasons = [
+        int(y)
+        for (y,) in serving.execute(
+            "SELECT DISTINCT season FROM player_batting_innings ORDER BY season"
+        ).fetchall()
+    ]
+    assert len(seasons) > 3
+    body = _run(
+        client,
+        dataset="batting",
+        measures=["runs"],
+        group_by="player",
+        split_by="season",
+        series=3,
+        order="desc",
+    )
+    assert [int(s["group"]["key"]) for s in body["series"]] == seasons[-3:]
+
+
 def test_the_row_cap_holds(client: TestClient) -> None:
     body = _run(client, dataset="batting", measures=["runs"], limit=3)
     assert len(body["rows"]) == 3
